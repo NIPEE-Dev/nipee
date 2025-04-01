@@ -1,0 +1,119 @@
+import React, { useState } from 'react';
+import { MdArrowDropDown } from 'react-icons/md';
+import moment from 'moment';
+import {
+  Button,
+  Center,
+  Divider,
+  FormControl,
+  FormHelperText,
+  FormLabel,
+  Heading,
+  HStack,
+  Input,
+  PinInput,
+  PinInputField,
+  Select,
+  Spinner,
+  Text,
+  VStack
+} from '@chakra-ui/react';
+import Resource from '../../components/Resource/Resource';
+
+export const TerminateContractModal = ({ onConfirm }) => {
+  const [motive, setMotive] = useState('');
+  const [payCurrentMonth, setPaycurrentMonth] = useState(1);
+  const [terminatedAt, setTerminatedAt] = useState(
+    moment().format('YYYY-MM-DD')
+  );
+
+  return (
+    <Center>
+      <VStack dir='column' mb={2} spacing={15}>
+        <Heading>Tem certeza?</Heading>
+        <Text align='center'>
+          <div>
+            Essa ação irá rescindir o protocolo atual.
+            <br /> Não pode ser desfeito.
+          </div>
+        </Text>
+        <Divider />
+        <FormControl>
+          <FormLabel>Motivo da rescisão</FormLabel>
+          <Resource
+            resource='BaseRecords'
+            autoFetch
+            resourceParams={{ type: 3, perPage: 9999, page: 1 }}
+            preventParamsFromSearch
+          >
+            {({ records, isLoading }) => (
+              <Select
+                id='motive_id'
+                value={motive}
+                onChange={(e) => setMotive(e.target.value)}
+                isDisabled={isLoading}
+                placeholder='Selecione...'
+                icon={
+                  isLoading ? (
+                    <Spinner
+                      thickness='4px'
+                      speed='0.65s'
+                      emptyColor='gray.200'
+                      color='blue.500'
+                    />
+                  ) : (
+                    <MdArrowDropDown />
+                  )
+                }
+              >
+                {records.map((record) => (
+                  <option key={record.id} value={record.id}>
+                    {record.title}
+                  </option>
+                ))}
+              </Select>
+            )}
+          </Resource>
+        </FormControl>
+        <FormControl>
+          <FormLabel>Data da rescisão</FormLabel>
+          <Input
+            type='date'
+            value={terminatedAt}
+            onChange={(e) => setTerminatedAt(e.target.value)}
+          />
+        </FormControl>
+        <FormControl>
+          <FormLabel>Pagar mês atual?</FormLabel>
+          <Select
+            id='pay_current_month'
+            value={payCurrentMonth}
+            onChange={(e) => setPaycurrentMonth(e.target.value)}
+            icon={<MdArrowDropDown />}
+          >
+            <option value={1}>Sim</option>
+            <option value={0}>Não</option>
+          </Select>
+          <FormHelperText>
+            Esse pagamento será efetuado no fechamento
+          </FormHelperText>
+        </FormControl>
+
+        <Divider my={5} />
+
+        <Button
+          mt={3}
+          disabled={
+            motive.length === 0 ||
+            (+payCurrentMonth !== 0 && +payCurrentMonth !== 1)
+          }
+          onClick={() => {
+            onConfirm(motive, payCurrentMonth, terminatedAt);
+          }}
+        >
+          Confirmar
+        </Button>
+      </VStack>
+    </Center>
+  );
+};

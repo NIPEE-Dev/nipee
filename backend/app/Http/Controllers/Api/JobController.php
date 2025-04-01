@@ -1,0 +1,99 @@
+<?php
+
+namespace App\Http\Controllers\Api;
+
+use App\Http\Controllers\Controller;
+use App\Http\Requests\FilterRequest;
+use App\Http\Requests\Jobs\StoreJobsRequest;
+use App\Http\Requests\Jobs\UpdateJobsRequest;
+use App\Http\Resources\Jobs\JobResource;
+use App\Models\Candidate;
+use App\Models\Jobs\Job;
+use App\Services\Jobs\JobService;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+
+class JobController extends Controller
+{
+    public function __construct(public JobService $jobService)
+    {
+    }
+
+    /**
+     * Display a listing of the resource.
+     *
+     * @return AnonymousResourceCollection
+     */
+    public function index(FilterRequest $request)
+    {
+        return JobResource::collection($this->jobService->index($request->all()));
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     *
+     * @param StoreJobsRequest $request
+     * @return \App\Http\Resources\Jobs\JobResource
+     */
+    public function store(StoreJobsRequest $request)
+    {
+        return new JobResource($this->jobService->store($request->all()));
+    }
+
+    /**
+     * Display the specified resource.
+     *
+     * @param \App\Models\Jobs\Job $job
+     * @return \App\Http\Resources\Jobs\JobResource
+     */
+    public function show(Job $job)
+    {
+        return new JobResource($job->load(['workingDay', 'documents']));
+    }
+
+    /**
+     * Update the specified resource in storage.
+     *
+     * @param \App\Http\Requests\Jobs\UpdateJobsRequest $request
+     * @param \App\Models\Jobs\Job $job
+     * @return \App\Http\Resources\Jobs\JobResource
+     */
+    public function update(UpdateJobsRequest $request, Job $job)
+    {
+        $updated = $this->jobService->update($job, $request->all());
+        return new JobResource($updated);
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     *
+     * @param \App\Models\Jobs\Job $job
+     * @return JobResource
+     */
+    public function destroy(Job $job)
+    {
+        $job->trashed() ? $job->restore() : $job->delete();
+        return new JobResource($job);
+    }
+
+    public function callCandidates(Request $request)
+    {
+        $jobs = $request->post('jobs');
+        $candidates = $request->post('candidates');
+
+        $this->jobService->callCandidates($jobs, $candidates);
+    }
+
+    public function updateStatus(Request $request)
+    {
+        $job = Job::find($request->get('job'));
+        $candidate = Candidate::find($request->get('candidate'));
+        $status = $request->get('status');
+
+        $interviewDate = $request->get('date');
+        $interviewHour = $request->get('hour');
+
+        return response()->json(['updated' => $this->jobService->updateStatus($job, $candidate, $status, $interviewDate, $interviewHour)]);
+    }
+}
