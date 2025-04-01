@@ -105,7 +105,7 @@ class AuthController extends Controller
         $user->password = Hash::make($validated['password']);
         $user->save();
 
-        Mail::to($user->email)->send(new PasswordChangeSuccess($user->name));
+        //Mail::to($user->email)->send(new PasswordChangeSuccess($user->name));
 
         return response()->json(['message' => 'Senha alterada com sucesso.'], 200);
     }

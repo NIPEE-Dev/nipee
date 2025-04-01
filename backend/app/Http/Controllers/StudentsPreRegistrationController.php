@@ -136,12 +136,12 @@ class StudentsPreRegistrationController extends Controller
             $candidate->documents()->create($fileData);
 
             $passwordResetLink = 'https://nipee.org/redefinir-senha?email=' . urlencode($user->email);
-            Mail::to($preRegistration->email)->send(
+            /* Mail::to($preRegistration->email)->send(
                 new PreRegistrationStudentsApproveSuccess(
                     $preRegistration->full_name,
                     $passwordResetLink
                 )
-            );
+            ); */
 
             DB::commit();
 

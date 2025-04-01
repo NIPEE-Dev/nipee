@@ -17,7 +17,7 @@ class ContatoController extends Controller
             'mensagem' => 'required|string',
         ]);
 
-        Mail::to(env('MAIL_TO_ADDRESS', 'contato@luizagarcia.com'))->send(new ContatoMail($dados));
+        //Mail::to(env('MAIL_TO_ADDRESS', 'contato@luizagarcia.com'))->send(new ContatoMail($dados));
 
         return response()->json([
             'message' => 'Mensagem enviada com sucesso!',
