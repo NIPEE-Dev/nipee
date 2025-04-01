@@ -135,7 +135,7 @@ export const CompaniesForm = ({
             <FastField
               id='observations'
               name='observations'
-              placeholder='Observações'
+              placeholder='Ramo de atividade da empresa'
               component={FormField.Textarea}
               readOnly={readOnly}
             />

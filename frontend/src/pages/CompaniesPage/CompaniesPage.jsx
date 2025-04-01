@@ -169,7 +169,7 @@ const CompaniesPage = () => {
         },
         {
           field: 'observations',
-          header: 'Observações'
+          header: 'Ramo de atividade da empresa'
         },
         ...citiesFilters,
         ...responsiblesFilters,

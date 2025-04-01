@@ -348,21 +348,9 @@ const FormularioRegistro = () => {
                   </Select>
                 </FormControl>
               </Stack>
-              <Stack spacing={4} direction={{ base: "column", md: "row" }}>
-                <FormControl>
-                  <FormLabel>Vagas para candidatos</FormLabel>
-                  <Input
-                    name="student_vacancies"
-                    type="number"
-                    value={currentFormData.student_vacancies}
-                    onChange={(e) => handleInputChange(e, "empresa")}
-                    placeholder="Digite a quantidade"
-                    bg="gray.50"
-                  />
-                </FormControl>
-              </Stack>
+              
               <FormControl>
-                <FormLabel>Mensagem ou comentário adicional</FormLabel>
+                <FormLabel>Descreva em poucas palavras o ramo de atividade de sua empresa</FormLabel>
                 <Textarea
                   name="message"
                   value={currentFormData.message}

@@ -114,7 +114,7 @@ export const WorkflowCompaniesForm = ({
             <FastField
               id='message'
               name='message'
-              placeholder='Mensagem ou comentário adicional'
+              placeholder='Ramo de atividade da empresa'
               component={FormField.Textarea}
               readOnly={readOnly}
             />
