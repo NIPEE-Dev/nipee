@@ -24,8 +24,8 @@ const CandidatesPage = () => {
       routeBase={routes.config.candidates}
       Form={Form}
       canAdd={!(isEmpresa || isCandidato)}
-      canRemove={!(isEmpresa || isCandidato)}
-      canEdit={!isEmpresa}
+      canRemove={!(isEmpresa || isCandidato || isEscola)}
+      canEdit={!(isEmpresa || isEscola)}
       resourceListProps={{
         downloadButtonEnabled: false,
       }}
