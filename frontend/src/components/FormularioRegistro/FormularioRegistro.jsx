@@ -515,7 +515,7 @@ const FormularioRegistro = () => {
             </>
           )}
           <ReCAPTCHA
-            sitekey="6LffdOUqAAAAADdrMBTv5B0567ulX0YrtMiES6Ws"
+            sitekey="6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI"
             onChange={handleRecaptchaChange}
           />
           <Flex justify="space-between" mt={6} wrap="wrap">
