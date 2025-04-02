@@ -62,11 +62,11 @@ const Login = ({ isLoading, handleLogin, authError }) => {
   };  
 
   const handleKeyDown = (event) => {
-    if (event.key === 'Enter') {
+    if (event.key === 'Enter' && recaptchaToken) {
       handleLogin(username, password);
     }
   };
-
+  
   return (
     <Box position="relative">
       <Container
