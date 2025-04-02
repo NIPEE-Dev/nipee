@@ -326,7 +326,7 @@ class ContractService
         $company = $contract->company;
         $school = $contract->school;
         $candidate = $contract->candidate;
-        $generatedDocument = $this->wordProcessor->make(DocumentTypeTemplateEnum::ADDENDUM, [
+       /*  $generatedDocument = $this->wordProcessor->make(DocumentTypeTemplateEnum::ADDENDUM, [
             'razaoSocialEscola' => $school->corporate_name,
             'razaoSocialEmpresa' => $company->corporate_name,
             'razaoSocialEmpresa2' => $company->corporate_name,
@@ -347,7 +347,7 @@ class ContractService
             'file_extension' => 'docx',
             'filesize' => $generatedDocument['filesize'],
             'type' => 'Contrato',
-        ]);
+        ]); */
 
         return $contract->load(['originalJob', 'job', 'workingDay', 'company.address', 'candidate.contact', 'documents', 'userAddress', 'jobOtherAddress']);
     }
