@@ -819,7 +819,7 @@ export const ContractsForm = ({
             </GroupContainer>
           )}
 
-          {typeForm === 'edit' && (
+          {/* {typeForm === 'edit' && (
             <GroupContainer
               title='Adendo'
               subtitle='Coloque as informações para criar um adendo'
@@ -844,7 +844,7 @@ export const ContractsForm = ({
                 />
               </Stack>
             </GroupContainer>
-          )}
+          )} */}
 
           {typeForm === 'add' && (
             <Box py={3} textAlign='right'>
@@ -886,8 +886,8 @@ export const ContractsForm = ({
                       isLoading={isLoading || formProps.isSubmitting}
                       onClick={() => toggleModal()}
                       disabled={
-                        !formProps.values.adendo_number ||
-                        !formProps.values.adendo_description ||
+                       // !formProps.values.adendo_number ||
+                        //!formProps.values.adendo_description ||
                         (formProps.initialValues &&
                           formProps.initialValues.status === 0)
                       }
