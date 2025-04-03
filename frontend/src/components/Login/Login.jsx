@@ -226,7 +226,7 @@ const Login = ({ isLoading, handleLogin, authError }) => {
               </InputGroup>;
               
               <ReCAPTCHA
-                sitekey="6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI"
+                sitekey={import.meta.env.VITE_RECAPTCHA_SITE_KEY}
                 onChange={handleRecaptchaChange}
               />
             </Stack>
