@@ -41,6 +41,7 @@ const FormularioRegistro = () => {
   const [formType, setFormType] = useState("empresa");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [schools, setSchools] = useState([]);
+  const [records, setRecords] = useState([]);
   const [errors, setErrors] = useState({ empresa: {}, aluno: {} });
   const [recaptchaToken, setRecaptchaToken] = useState(null);
 
@@ -152,6 +153,13 @@ const FormularioRegistro = () => {
       setSchools(res.data.data);
     });
   }, []);
+
+  useEffect(() => {
+    api.get('/base-records').then((res) => {
+      const filtered = res.data.data.filter((item) => item.type === 6);
+      setRecords(filtered);
+    });
+  }, []);  
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -463,6 +471,20 @@ const FormularioRegistro = () => {
                   >
                     {schools.map((element) => (<option value={element.id}>
                         {element.fantasy_name}
+                      </option>))}
+                  </Select>
+                </FormControl>
+                <FormControl>
+                  <FormLabel>Curso</FormLabel>
+                  <Select
+                    name="course"
+                    value={currentFormData.course}
+                    onChange={(e) => handleInputChange(e, "aluno")}
+                    placeholder="Selecione uma opção"
+                    bg="gray.50"
+                  >
+                    {records.map((element) => (<option value={element.id}>
+                        {element.title}
                       </option>))}
                   </Select>
                 </FormControl>

@@ -27,7 +27,7 @@ class StudentsPreRegistrationController extends Controller
         try {
             $user = Auth::user();
             $roleId = $user->roles[0]->id;
-            $registrations = StudentsPreRegistration::with(['school'])->orderBy('created_at', 'desc');
+            $registrations = StudentsPreRegistration::with(['school', 'course'])->orderBy('created_at', 'desc');
             if ($roleId === 10) {
                 $registrations->where('school_id', $user->school[0]->id ?? 0);
             }
@@ -52,7 +52,7 @@ class StudentsPreRegistrationController extends Controller
     public function show($id)
     {
         try {
-            $preRegistration = StudentsPreRegistration::with(['school'])->findOrFail($id);
+            $preRegistration = StudentsPreRegistration::with(['school', 'course'])->findOrFail($id);
 
             $educationLevel = StudyingLevelEnum::tryFrom($preRegistration->education_level);
             $preRegistration->education_level = $educationLevel ? StudyingLevelEnum::getLabel($educationLevel) : 'Nível de educação desconhecido';
@@ -107,6 +107,7 @@ class StudentsPreRegistrationController extends Controller
                 'rg' => '',
                 'gender' => 'F',
                 'studying_level' => $preRegistration->education_level,
+                'course' => $preRegistration->course,
                 'semester' => 0,
                 'period' => 'M',
                 'interest' => 'ES',
