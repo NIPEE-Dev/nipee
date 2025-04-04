@@ -30,9 +30,7 @@ class ContractService
     use Filterable;
     use IsAdmin;
 
-    public function __construct(public WordProcessor $wordProcessor)
-    {
-    }
+    public function __construct(public WordProcessor $wordProcessor) {}
 
     public function index($criteria)
     {
@@ -95,7 +93,7 @@ class ContractService
             'candidate_id' => $candidateID,
         ]);
 
-        return DB::transaction(fn () => tap(Contract::create($contractData), function (Contract $contract) use ($data) {
+        return DB::transaction(fn() => tap(Contract::create($contractData), function (Contract $contract) use ($data) {
             $job = Arr::get($data, 'job');
             $userAddress = Arr::get($data, 'userAddress');
             $jobAddress = $contract->company->address;
@@ -154,6 +152,7 @@ class ContractService
                 'cepEscola' => $contract->school->address->cep,
                 'responsavelEscola' => $contract->school->responsible?->name,
                 'responsavelFuncaoEscola' => $contract->school->responsible?->role,
+                'telefoneEscola' => $contract->school->responsible?->phone,
 
                 'razaoSocialEmpresa' => $contract->company->corporate_name,
                 'cnpjEmpresa' => $contract->company->cnpj,
@@ -170,7 +169,7 @@ class ContractService
                 'estadoEmpresa' => strtoupper($jobAddress->uf),
                 'cepEmpresa' => $jobAddress->cep,
 
-                 'anos' => "${anoLetivo}",
+                'anos' => "${anoLetivo}",
 
                 'period' => PeriodEnum::getLabel(PeriodEnum::from($job['period'])),
 
@@ -208,7 +207,6 @@ class ContractService
                 $data['valorNominal'] = (int)$contract->job->transport_voucher_value === 0
                     ? $contract->job->scholarship_nominal_value . ' + VT'
                     : $contract->job->scholarship_nominal_value . " + VALE TRANSPORTE: R$ " . number_format($contract->job->transport_voucher_value, 2, ",", ".") . " (" . $contract->job->transport_voucher_nominal_value . ")";
-
             } else {
                 $data['valorNominal'] = $contract->job->scholarship_nominal_value;
             }
@@ -326,7 +324,7 @@ class ContractService
         $company = $contract->company;
         $school = $contract->school;
         $candidate = $contract->candidate;
-        $generatedDocument = $this->wordProcessor->make(DocumentTypeTemplateEnum::ADDENDUM, [
+        /*  $generatedDocument = $this->wordProcessor->make(DocumentTypeTemplateEnum::ADDENDUM, [
             'razaoSocialEscola' => $school->corporate_name,
             'razaoSocialEmpresa' => $company->corporate_name,
             'razaoSocialEmpresa2' => $company->corporate_name,
@@ -347,7 +345,7 @@ class ContractService
             'file_extension' => 'docx',
             'filesize' => $generatedDocument['filesize'],
             'type' => 'Contrato',
-        ]);
+        ]); */
 
         return $contract->load(['originalJob', 'job', 'workingDay', 'company.address', 'candidate.contact', 'documents', 'userAddress', 'jobOtherAddress']);
     }
