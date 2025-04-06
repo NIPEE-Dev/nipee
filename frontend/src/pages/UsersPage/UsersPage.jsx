@@ -25,7 +25,7 @@ const UsersPage = () => (
     columns={[
       {
         Header: 'ID',
-        accessor: 'id',
+        accessor: 'id', 
       },
       {
         Header: 'Nome de usuário',
