@@ -75,9 +75,9 @@ const FormularioRegistro = () => {
   minus_100_years.setFullYear(today.getFullYear() - 100);
   const minus_100_years_from_today = minus_100_years.toISOString().split('T')[0];
 
-  const minus_13_years = new Date();
-  minus_13_years.setFullYear(today.getFullYear() - 13);
-  const minus_13_years_from_today = minus_13_years.toISOString().split('T')[0];
+  const minus_12_years = new Date();
+  minus_12_years.setFullYear(today.getFullYear() - 12);
+  const minus_12_years_from_today = minus_12_years.toISOString().split('T')[0];
 
   const handleRecaptchaChange = (token) => {
     setRecaptchaToken(token);
@@ -392,7 +392,7 @@ const FormularioRegistro = () => {
                     onChange={(e) => handleInputChange(e, "aluno")}
                     bg="gray.50"
                     min={minus_100_years_from_today}
-                    max={minus_13_years_from_today}
+                    max={minus_12_years_from_today}
                   />
                 </FormControl>
               </Stack>
@@ -503,8 +503,8 @@ const FormularioRegistro = () => {
                   bg="gray.50"
                 />
               </FormControl>
-              <FormControl isRequired>
-                <FormLabel>Anexar Curriculum Vitae (CV)</FormLabel>
+              <FormControl>
+                <FormLabel>Anexar Currículo (CV)</FormLabel>
                 <Input
                   name="resume"
                   type="file"

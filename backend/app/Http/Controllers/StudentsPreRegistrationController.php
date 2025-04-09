@@ -118,22 +118,25 @@ class StudentsPreRegistrationController extends Controller
             $candidate->contact()->save(new Contact([ 'name' => $preRegistration->full_name, 'phone' => $preRegistration->phone, 'email' => $preRegistration->email ]));
             $user->roles()->attach(13);
 
-            $file = explode('/', $preRegistration->resume)[1];
-            $splitFile = explode('.', $file);
-            $name = $splitFile[0];
-            $extension = $splitFile[1];
-            $from = 'public/' . $preRegistration->resume;
-            $to = 'generated_documents/guarulhos/' . $file;
-            $copy = Storage::copy($from, $to);
-            $size = Storage::disk('public')->size($preRegistration->resume);
-            $fileData = [
-                'filename' => $name,
-                'original_filename' => 'Curriculum Vitae',
-                'file_extension' => $extension,
-                'filesize' => $size,
-                'type' => 'Curriculum Vitae',
-            ];
-            $candidate->documents()->create($fileData);
+            if (!empty($preRegistration->resume))
+            {
+                $file = explode('/', $preRegistration->resume)[1];
+                $splitFile = explode('.', $file);
+                $name = $splitFile[0];
+                $extension = $splitFile[1];
+                $from = 'public/' . $preRegistration->resume;
+                $to = 'generated_documents/guarulhos/' . $file;
+                $copy = Storage::copy($from, $to);
+                $size = Storage::disk('public')->size($preRegistration->resume);
+                $fileData = [
+                    'filename' => $name,
+                    'original_filename' => 'Curriculum Vitae',
+                    'file_extension' => $extension,
+                    'filesize' => $size,
+                    'type' => 'Curriculum Vitae',
+                ];
+                $candidate->documents()->create($fileData);
+            }
 
             $passwordResetLink = 'https://nipee.org/redefinir-senha?email=' . urlencode($user->email);
             /* Mail::to($preRegistration->email)->send(
@@ -234,7 +237,7 @@ class StudentsPreRegistrationController extends Controller
                 'education_level' => 'required|string|max:100',
                 'interest_area' => 'required|string|max:100',
                 'volunteer_experience' => 'nullable|string|max:500',
-                'resume' => 'required|string',
+                'resume' => 'nullable|string',
                 'school_id' => 'required|exists:schools,id'
             ]);
 
@@ -310,7 +313,7 @@ class StudentsPreRegistrationController extends Controller
                 'education_level' => 'required|string|max:100',
                 'interest_area' => 'required|string|max:100',
                 'volunteer_experience' => 'nullable|string|max:500',
-                'resume' => 'required|string',
+                'resume' => 'nullable|string',
             ]);
 
             if ($validatedData->fails()) {
