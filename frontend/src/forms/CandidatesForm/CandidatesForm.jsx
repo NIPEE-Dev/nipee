@@ -88,7 +88,7 @@ export const CandidatesForm = ({ readOnly, isLoading, typeForm, ...props }) => {
               <FastField
                 id='name'
                 name='name'
-                placeholder='Nome do canditado'
+                placeholder='Nome do candidato'
                 component={FormField}
                 readOnly={readOnly}
                 required
@@ -624,7 +624,7 @@ export const CandidatesForm = ({ readOnly, isLoading, typeForm, ...props }) => {
                 isLoading={isLoading || isSubmitting}
                 type='submit'
               >
-                Enviar
+                Salvar
               </Button>
             </Box>
           )}

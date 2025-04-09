@@ -20,7 +20,7 @@ const CompaniesPage = () => {
   const isEmpresa = userRole === "Empresa";
   const isAdm = userRole === "Administrador Geral";
 
-  const title = isAdm ? 'Listagem de Empresas' : 'Meu Cadastro';
+  const title = isAdm ? 'Listagem de Empresas' : 'Meu Registo';
 
   return (
     <ResourceScreen
@@ -90,16 +90,16 @@ const CompaniesPage = () => {
             return types[originalRow.deleted_at === null ? 1 : 0];
           }
         },
-        {
+       /*  {
           Header: 'ID',
           accessor: 'id'
-        },
+        }, */
         {
           Header: 'Nome da Entidade',
           accessor: 'fantasy_name'
         },
         {
-          Header: 'Registro Comercial',
+          Header: 'Registo Comercial',
           accessor: 'corporate_name'
         },
         {
@@ -120,17 +120,17 @@ const CompaniesPage = () => {
         } */
       ]}
       filters={[
-        {
+        /* {
           field: 'id',
           header: 'ID'
-        },
+        }, */
         {
           field: 'fantasy_name',
           header: 'Nome da Entidade'
         },
         {
           field: 'corporate_name',
-          header: 'Registro Comercial'
+          header: 'Registo Comercial'
         },
         {
           field: 'cnpj',

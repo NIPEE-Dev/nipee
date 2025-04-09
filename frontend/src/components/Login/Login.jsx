@@ -257,7 +257,7 @@ const Login = ({ isLoading, handleLogin, authError }) => {
             <Button
               variant="link"
               color="blue.500"
-              onClick={() => navigate('/')}
+              onClick={() => navigate('/#registrar')}
             >
               Registar
             </Button>

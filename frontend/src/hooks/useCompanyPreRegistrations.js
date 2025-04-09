@@ -15,7 +15,7 @@ const useCompanyPreRegistrations = () => {
 
       return {
         status: response.status,
-        message: response.data.message || 'Registro realizado com sucesso.',
+        message: response.data.message || 'Registo realizado com sucesso.',
         data: response.data,
       };
     } catch (err) {

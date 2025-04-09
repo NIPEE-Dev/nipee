@@ -131,7 +131,7 @@ export const WorkflowCompaniesForm = ({
               type='submit'
               isLoading={isLoading || isSubmitting}
             >
-              Enviar
+              Salvar
             </Button>
           </Box>
         )}

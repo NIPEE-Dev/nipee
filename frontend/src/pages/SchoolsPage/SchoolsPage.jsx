@@ -19,7 +19,7 @@ const SchoolsPage = () => {
   const isEscola = userRole === "Escola";
   const isAdm = userRole === "Administrador Geral";
 
-  const title = isAdm ? 'Listagem de Escolas' : 'Meu Cadastro';
+  const title = isAdm ? 'Listagem de Escolas' : 'Meu Registo';
 
  return (
   <ResourceScreen
@@ -71,10 +71,10 @@ const SchoolsPage = () => {
     </WithModal>
   )}
   filters={[
-    {
+    /* {
       field: 'id',
       header: 'ID'
-    },
+    }, */
     {
       field: 'fantasy_name',
       header: 'Nome da Instituição'
@@ -102,10 +102,10 @@ const SchoolsPage = () => {
     ...contactFilters
   ]}
   columns={[
-    {
+    /* {
       Header: 'ID',
       accessor: 'id'
-    },
+    }, */
     {
       id: 'deleted_at',
       Header: 'Status',

@@ -179,10 +179,10 @@ const ContractsPage = () => {
             return types[originalRow.status];
           }
         },
-        {
+        /* {
           Header: 'ID',
           accessor: 'id'
-        },
+        }, */
         {
           Header: 'Nome fantasia Empresa',
           accessor: 'company.fantasy_name'
@@ -211,10 +211,10 @@ const ContractsPage = () => {
         }
       ]}
       filters={[
-        {
+       /*  {
           field: 'id',
           header: 'ID'
-        },
+        }, */
         {
           field: 'fantasy_name',
           relation: 'company',

@@ -88,10 +88,10 @@ const DocumentsPage = () => {
               },
             ]
           : []),      
-        {
+        /* {
           Header: 'ID',
           accessor: 'id'
-        },
+        }, */
         {
           Header: 'Tipo',
           accessor: (originalData) => {
@@ -156,7 +156,7 @@ const DocumentsPage = () => {
           }
         },
         {
-          Header: 'Nome',
+          Header: 'Ficheiro',
           accessor: (originalRow) => (
             <Link
               target='_blank'

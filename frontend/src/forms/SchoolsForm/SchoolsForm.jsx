@@ -122,7 +122,7 @@ export const SchoolsForm = ({ readOnly, isLoading, typeForm, ...props }) => (
               type='submit'
               isLoading={isLoading || isSubmitting}
             >
-              Enviar
+              Salvar
             </Button>
           </Box>
         )}

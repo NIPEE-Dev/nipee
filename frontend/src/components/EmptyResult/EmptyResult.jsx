@@ -16,7 +16,7 @@ const EmptyResult = () => (
       Não encontrado
     </Text>
     <Text color='gray.500' mb={6}>
-      O registro que você esta procurando parece não existir ou foi desativado.
+      O registo que você esta procurando parece não existir ou foi desativado.
     </Text>
   </Box>
 );

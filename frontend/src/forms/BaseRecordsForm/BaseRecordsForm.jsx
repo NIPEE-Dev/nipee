@@ -18,14 +18,14 @@ export const BaseRecordsForm = ({ readOnly, isLoading, ...props }) => {
     >
       <Form>
         <GroupContainer
-          title='Dados do registro base'
+          title='Dados do registo base'
           subtitle='Informações pertinentes a escola de emprego ou estágio'
         >
           <Stack direction={['column', 'row']} spacing='24px'>
             <Field
               id='type'
               name='type'
-              placeholder='Tipo de registro'
+              placeholder='Tipo de registo'
               component={FormField.Select}
               readOnly={readOnly}
               required
@@ -58,7 +58,7 @@ export const BaseRecordsForm = ({ readOnly, isLoading, ...props }) => {
         {readOnly !== true && (
           <Box py={3} textAlign='right'>
             <Button mt='3' colorScheme='blue' type='submit' isLoading={isLoading}>
-              Enviar
+            Salvar
             </Button>
           </Box>
         )}

@@ -175,7 +175,7 @@ const ChooseCandidates = ({ handleCallCandidates }) => {
                     accessor: 'id'
                   },
                   {
-                    Header: 'Data de Cadastro',
+                    Header: 'Data de Registo',
                     accessor: (originalData) =>
                       dateFormatter(originalData.created_at)
                   },

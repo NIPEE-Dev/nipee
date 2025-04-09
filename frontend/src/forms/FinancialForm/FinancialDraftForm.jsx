@@ -40,7 +40,7 @@ export const FinancialDraftForm = ({ readOnly, isLoading, ...props }) => {
             shouldWrapChildren
             mt='3'
           >
-            <Button isDisabled>Enviar</Button>
+            <Button isDisabled>Salvar</Button>
           </Tooltip>
         </Box>
       );

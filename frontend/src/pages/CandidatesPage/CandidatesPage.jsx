@@ -14,7 +14,7 @@ const CandidatesPage = () => {
   const isEscola = userRole === "Escola";
   const isAdm = userRole === "Administrador Geral";
 
-  const title = isAdm || isEscola || isEmpresa ? 'Lista de Candidatos' : 'Meu Cadastro';
+  const title = isAdm || isEscola || isEmpresa ? 'Lista de Candidatos' : 'Meu Registo';
 
   return (
     <ResourceScreen
@@ -103,11 +103,11 @@ const CandidatesPage = () => {
         ...citiesFilters
       ]}
       columns={[
-        {
+        /* {
           Header: 'ID',
           accessor: 'id',
           sortable: false
-        },
+        }, */
         {
           Header: 'Nome',
           accessor: 'name'

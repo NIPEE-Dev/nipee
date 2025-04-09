@@ -420,7 +420,7 @@ export const JobsForm = ({ readOnly, typeForm, isLoading, ...props }) => {
                 type='submit'
                 isLoading={isLoading || isSubmitting}
               >
-                Enviar
+                Salvar
               </Button>
             </Box>
           )}
