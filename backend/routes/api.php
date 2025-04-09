@@ -62,7 +62,7 @@ Route::controller(SchoolController::class)->prefix('schools')->group(function ()
 
 // Route::apiResource('schools', SchoolController::class)->withTrashed(['destroy']);
 Route::apiResource('candidates', CandidateController::class);
-Route::apiResource('base-records', BaseRecordsController::class);
+Route::apiResource('base-records', BaseRecordsController::class)->withoutMiddleware('auth:api');
 
 Route::post('jobs/candidates/call', [JobController::class, 'callCandidates']);
 Route::put('jobs/candidates/update-status', [JobController::class, 'updateStatus']);

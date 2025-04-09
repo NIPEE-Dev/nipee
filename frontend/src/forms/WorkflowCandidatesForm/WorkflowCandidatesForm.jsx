@@ -126,6 +126,14 @@ export const WorkflowCandidatesForm = ({
                 readOnly={readOnly}
                 required
               />
+              <FastField
+                id="course.title"
+                name="course.title"
+                placeholder="Curso"
+                component={FormField}
+                readOnly={readOnly}
+                required
+              />
             </Stack>
 
             <Stack direction={["column", "row"]} spacing="24px">

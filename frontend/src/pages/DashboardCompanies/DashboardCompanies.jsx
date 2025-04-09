@@ -16,7 +16,7 @@ import routes from "../../routes";
 const DashboardCompanies = () => {
   return (
     <ResourceScreen
-      title="Listagem de Candidatos"
+      title="Lista de Candidatos"
       permissions={[""]}
       resource="ReportsCandidates"
       routeBase={routes.reports.candidates}
