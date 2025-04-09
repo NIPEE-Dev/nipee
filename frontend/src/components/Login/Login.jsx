@@ -223,7 +223,7 @@ const Login = ({ isLoading, handleLogin, authError }) => {
                     onClick={togglePasswordVisibility}
                   />
                 </InputRightElement>
-              </InputGroup>;
+              </InputGroup>
               
               <ReCAPTCHA
                 sitekey={import.meta.env.VITE_RECAPTCHA_SITE_KEY}
