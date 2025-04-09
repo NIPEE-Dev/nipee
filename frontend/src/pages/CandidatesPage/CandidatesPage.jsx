@@ -146,16 +146,33 @@ const CandidatesPage = () => {
         },
         {
           Header: 'Escola',
-          accessor: 'school.corporate_name'
+          accessor: (originalRow) => {
+            return originalRow?.user?.school?.[0]?.fantasy_name || '';
+          }
         },
         {
           Header: 'Período',
-          accessor: 'period'
+          accessor: 'period',
+          Cell: ({ value }) => {
+            switch (value) {
+              case 'M':
+                return 'Manhã';
+              case 'T':
+                return 'Tarde';
+              case 'N':
+                return 'Noite';
+              case 'MN':
+              case 'I':
+                return 'Integral';
+              default:
+                return 'Período desconhecido';
+            }
+          }
         },
-        {
+        /* {
           Header: 'Semestre',
           accessor: 'semester'
-        }
+        } */
       ]}
     />
   );
