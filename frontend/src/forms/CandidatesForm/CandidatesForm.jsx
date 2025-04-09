@@ -389,7 +389,7 @@ export const CandidatesForm = ({ readOnly, isLoading, typeForm, ...props }) => {
           <Divider my={25} />
 
           <GroupContainer
-            title='Dados do endereço'
+            title='Dados da morada'
             subtitle='Lugar em que o candidato mora.'
           >
             <AddressFields readOnly={readOnly} setFieldValue={setFieldValue} />

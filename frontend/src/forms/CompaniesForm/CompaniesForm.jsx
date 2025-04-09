@@ -145,7 +145,7 @@ export const CompaniesForm = ({
         <Divider my={25} />
 
         <GroupContainer
-          title='Dados do endereço'
+          title='Dados da morada'
           subtitle='Localidade em que a empresa fica sediada.'
         >
           <AddressFields readOnly={readOnly} setFieldValue={setFieldValue} />
