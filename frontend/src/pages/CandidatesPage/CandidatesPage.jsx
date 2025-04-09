@@ -14,11 +14,7 @@ const CandidatesPage = () => {
   const isEscola = userRole === "Escola";
   const isAdm = userRole === "Administrador Geral";
 
-<<<<<<< HEAD
   const title = isAdm || isEscola || isEmpresa ? 'Lista de Candidatos' : 'Meu Registo';
-=======
-  const title = isAdm || isEscola || isEmpresa ? 'Lista de Candidatos' : 'Meu Cadastro';
->>>>>>> 14fb4540a338564e3a240340fce16d83aa9e7e4b
 
   return (
     <ResourceScreen

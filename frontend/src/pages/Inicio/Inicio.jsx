@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useEffect} from "react";
 import {
   Box,
   Flex,
@@ -21,6 +21,13 @@ import FormularioContato from "../../components/FormularioContato/FormularioCont
 import BannerConsentimento from "../../components/BannerConsentimento/BannerConsentimento";
 
 const Inicio = () => {
+  useEffect(() => {
+    const hash = window.location.hash;
+    if (hash === '#registar') {
+      const el = document.getElementById('registrar');
+      el?.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, []);
   return (
     <Box bg="white" px={{ base: 4, md: 8 }}>
       <Navbar />
