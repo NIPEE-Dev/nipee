@@ -248,8 +248,7 @@ export const CandidatesForm = ({ readOnly, isLoading, typeForm, ...props }) => {
                 readOnly={readOnly}
                 required
               >
-                <option value='M'>Manhã</option>
-                <option value='T'>Tarde</option>
+             
                 <option value='N'>Noite</option>
                 <option value='I'>Integral</option>
               </FastField>
@@ -389,7 +388,7 @@ export const CandidatesForm = ({ readOnly, isLoading, typeForm, ...props }) => {
           <Divider my={25} />
 
           <GroupContainer
-            title='Dados do endereço'
+            title='Morada'
             subtitle='Lugar em que o candidato mora.'
           >
             <AddressFields readOnly={readOnly} setFieldValue={setFieldValue} />
@@ -624,7 +623,7 @@ export const CandidatesForm = ({ readOnly, isLoading, typeForm, ...props }) => {
                 isLoading={isLoading || isSubmitting}
                 type='submit'
               >
-                Enviar
+                Gravar
               </Button>
             </Box>
           )}

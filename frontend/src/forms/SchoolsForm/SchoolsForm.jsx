@@ -69,7 +69,7 @@ export const SchoolsForm = ({ readOnly, isLoading, typeForm, ...props }) => (
         <Divider my={25} />
 
         <GroupContainer
-          title='Dados do endereço'
+          title='Morada'
           subtitle='Localidade em que a escola fica sediada.'
         >
           <AddressFields readOnly={readOnly} setFieldValue={setFieldValue} />
