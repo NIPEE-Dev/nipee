@@ -34,7 +34,7 @@ export const TerminateContractModal = ({ onConfirm }) => {
         <Text align='center'>
           <div>
             Essa ação irá rescindir o protocolo atual.
-            <br /> Não pode ser desfeito.
+            <br /> O protocolo não poderá ser alterado.
           </div>
         </Text>
         <Divider />
@@ -82,21 +82,6 @@ export const TerminateContractModal = ({ onConfirm }) => {
             value={terminatedAt}
             onChange={(e) => setTerminatedAt(e.target.value)}
           />
-        </FormControl>
-        <FormControl>
-          <FormLabel>Pagar mês atual?</FormLabel>
-          <Select
-            id='pay_current_month'
-            value={payCurrentMonth}
-            onChange={(e) => setPaycurrentMonth(e.target.value)}
-            icon={<MdArrowDropDown />}
-          >
-            <option value={1}>Sim</option>
-            <option value={0}>Não</option>
-          </Select>
-          <FormHelperText>
-            Esse pagamento será efetuado no fechamento
-          </FormHelperText>
         </FormControl>
 
         <Divider my={5} />
