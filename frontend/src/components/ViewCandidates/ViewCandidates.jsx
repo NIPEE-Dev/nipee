@@ -25,7 +25,7 @@ const ViewCandidates = ({ job, status, actionColumns = [] }) => (
               accessor: 'id'
             },
             {
-              Header: 'Data cadastro',
+              Header: 'Data Registo',
               accessor: (originalData) =>
                 dateFormatter(
                   originalData.created_at,

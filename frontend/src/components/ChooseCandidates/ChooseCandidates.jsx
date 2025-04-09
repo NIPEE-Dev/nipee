@@ -175,7 +175,7 @@ const ChooseCandidates = ({ handleCallCandidates }) => {
                     accessor: 'id'
                   },
                   {
-                    Header: 'Data de Cadastro',
+                    Header: 'Data de Registo',
                     accessor: (originalData) =>
                       dateFormatter(originalData.created_at)
                   },
@@ -241,7 +241,7 @@ const ChooseCandidates = ({ handleCallCandidates }) => {
               <WithModal
                 modal={({ closeModal }) => (
                   <ModalConfirm
-                    text='Essa ação irá enviar um email para os usuários selecionados'
+                    text='Essa ação irá enviar um email para os candidatos selecionados'
                     onConfirm={() => {
                       callCandidates();
 

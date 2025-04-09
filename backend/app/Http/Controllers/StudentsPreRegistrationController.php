@@ -128,10 +128,10 @@ class StudentsPreRegistrationController extends Controller
             $size = Storage::disk('public')->size($preRegistration->resume);
             $fileData = [
                 'filename' => $name,
-                'original_filename' => 'Curriculum Vitae',
+                'original_filename' => 'Currículo',
                 'file_extension' => $extension,
                 'filesize' => $size,
-                'type' => 'Curriculum Vitae',
+                'type' => 'Currículo',
             ];
             $candidate->documents()->create($fileData);
 

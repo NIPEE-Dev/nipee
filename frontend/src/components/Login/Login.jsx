@@ -165,7 +165,7 @@ const Login = ({ isLoading, handleLogin, authError }) => {
               lineHeight={1.1}
               fontSize={{ base: '2xl', sm: '3xl', md: '4xl' }}
             >
-              Junte-te a nós
+              Junte-se a nós
               <Text
                 as="span"
                 bgGradient="linear(to-r, #5931E9, #7289FF)"
@@ -205,7 +205,7 @@ const Login = ({ isLoading, handleLogin, authError }) => {
                 <Input
                   id="password"
                   autoComplete="password"
-                  placeholder="Senha"
+                  placeholder="Palavra-passe"
                   bg="gray.100"
                   border={0}
                   type={showPassword ? "text" : "password"}
@@ -252,7 +252,7 @@ const Login = ({ isLoading, handleLogin, authError }) => {
               color="blue.500"
               onClick={() => navigate('/recupera-senha')}
             >
-              Esqueceu-se da palavra-passe? Recupera senha
+              Esqueceu-se da palavra-passe?
             </Button>
             <Button
               variant="link"

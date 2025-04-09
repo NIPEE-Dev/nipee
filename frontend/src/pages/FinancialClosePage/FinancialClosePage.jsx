@@ -10,7 +10,7 @@ import { dateFormatter, moneyFormatter } from '../../utils/visualization';
 
 const FinancialClosePage = () => (
   <ResourceScreen
-    title='Listagem de Fechamentos'
+    title='Lista de Fechamentos'
     permissions={['']}
     resource='FinancialClose'
     routeBase={routes.financial.close}

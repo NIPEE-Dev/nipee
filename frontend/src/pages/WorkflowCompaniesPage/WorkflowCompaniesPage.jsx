@@ -71,7 +71,7 @@ const WorkflowCompaniesPage = () => {
 
   return (
     <ResourceScreen
-      title="Listagem de Pré-Registos Empresas"
+      title="Lista de Pré-Registos Empresas"
       permissions={['']}
       resource="WorkflowCompanies"
       Form={Form}

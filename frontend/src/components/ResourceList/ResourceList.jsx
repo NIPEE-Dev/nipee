@@ -96,7 +96,7 @@ const ResourceList = ({
                               resourceProps.remove(id).then(() => {
                                 toast({
                                   title: 'Sucesso!',
-                                  description: `Registro apagado com sucesso!`,
+                                  description: `Registo apagado com sucesso!`,
                                   variant: 'left-accent',
                                   duration: 9000,
                                   isClosable: true,

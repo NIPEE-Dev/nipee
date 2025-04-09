@@ -57,7 +57,7 @@ const ResourceNew = ({ resource, Form, routeBase, wrapped, ...props }) => {
 
                   toast({
                     title: 'Sucesso!',
-                    description: `Registro criado com sucesso!`,
+                    description: `Registo criado com sucesso!`,
                     variant: 'left-accent',
                     duration: 9000,
                     isClosable: true,

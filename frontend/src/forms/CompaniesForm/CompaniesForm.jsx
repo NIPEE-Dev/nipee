@@ -59,7 +59,7 @@ export const CompaniesForm = ({
             <FastField
               id='corporate_name'
               name='corporate_name'
-              placeholder='Registro Comercial'
+              placeholder='Registo Comercial'
               component={FormField}
               readOnly={readOnly}
               required

@@ -339,7 +339,7 @@ export const CandidatesForm = ({ readOnly, isLoading, typeForm, ...props }) => {
                   onMouseOver={(e) => (e.target.style.color = '#63b3ed')}
                   onMouseOut={(e) => (e.target.style.color = '#3182ce')}
                 >
-                  Ver o Curriculum Vitae
+                  Ver o Currículo
                 </a>
               )}
 
@@ -487,7 +487,7 @@ export const CandidatesForm = ({ readOnly, isLoading, typeForm, ...props }) => {
                 <option value='13'>OUTRO</option>
                 <option value='9'>PANFLETO</option>
                 <option value='8'>PLACA DE DIVULGAÇÃO</option>
-                <option value='12'>PROPAGANDA</option>
+                <option value='12'>ANUNCIO</option>
               </FastField>
             </Stack>
 

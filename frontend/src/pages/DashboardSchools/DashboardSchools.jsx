@@ -34,7 +34,7 @@ const DashboardSchools = () => {
         },
         {
           field: "courseTitle",
-          header: "Curso/Área de Estudo",
+          header: "Curso",
         },
         {
           field: "startContractDate",
@@ -64,7 +64,7 @@ const DashboardSchools = () => {
           accessor: "name",
         },
         {
-          Header: "Curso/Área de Estudo",
+          Header: "Curso",
           accessor: "courseTitle",
         },
         {

@@ -18,14 +18,14 @@ export const BaseRecordsForm = ({ readOnly, isLoading, ...props }) => {
     >
       <Form>
         <GroupContainer
-          title='Dados do registro base'
+          title='Dados do registo base'
           subtitle='Informações pertinentes a escola de emprego ou estágio'
         >
           <Stack direction={['column', 'row']} spacing='24px'>
             <Field
               id='type'
               name='type'
-              placeholder='Tipo de registro'
+              placeholder='Tipo de registo'
               component={FormField.Select}
               readOnly={readOnly}
               required

@@ -24,7 +24,7 @@ const DocumentsPage = () => {
 
   return (
     <ResourceScreen 
-      title='Listagem de Documentos'
+      title='Lista de Documentos'
       permissions={['']}
       resource='Documents'
       routeBase={routes.documents}
@@ -142,7 +142,7 @@ const DocumentsPage = () => {
           }
         },
         {
-          Header: 'Quem',
+          Header: 'Nome',
           accessor: (originalData) => {
             const availableNames = {
               Candidate: originalData.attachable?.name,
@@ -156,7 +156,7 @@ const DocumentsPage = () => {
           }
         },
         {
-          Header: 'Nome',
+          Header: 'Ficheiro',
           accessor: (originalRow) => (
             <Link
               target='_blank'

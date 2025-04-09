@@ -22,7 +22,7 @@ enum FileUploadTypeEnum: string
             FileUploadTypeEnum::SCHOOL_STATEMENT => 'Declaração Escolar',
             FileUploadTypeEnum::EVALUATION_CLOSES => 'Ficha de avaliação',
             FileUploadTypeEnum::OTHERS => 'Outros',
-            FileUploadTypeEnum::CUURRICULUM => 'Curriculum Vitae (CV)',
+            FileUploadTypeEnum::CUURRICULUM => 'Currículo (CV)',
             FileUploadTypeEnum::VOLUNTEERING => 'Voluntariado',
             FileUploadTypeEnum::COVERLETTER => 'Carta de Apresentação'
         };

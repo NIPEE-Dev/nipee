@@ -30,7 +30,7 @@ const ContractsPage = () => {
 
   return (
     <ResourceScreen
-      title='Listagem de Protocolos'
+      title='Lista de Protocolos'
       permissions={['']}
       resource='Contracts'
       routeBase={routes.contracts}

@@ -492,7 +492,7 @@ const FormularioRegistro = () => {
                 />
               </FormControl>
               <FormControl isRequired>
-                <FormLabel>Anexar Curriculum Vitae (CV)</FormLabel>
+                <FormLabel>Anexar Currículo (CV)</FormLabel>
                 <Input
                   name="resume"
                   type="file"
