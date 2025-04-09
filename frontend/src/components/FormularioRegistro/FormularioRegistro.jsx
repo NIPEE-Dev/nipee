@@ -38,7 +38,7 @@ const FormularioRegistro = () => {
     useStudentPreRegistrations();
   const toast = useToast();
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const [formType, setFormType] = useState("empresa");
+  const [formType, setFormType] = useState("aluno");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [schools, setSchools] = useState([]);
   const [errors, setErrors] = useState({ empresa: {}, aluno: {} });
@@ -68,6 +68,16 @@ const FormularioRegistro = () => {
       resume: null,
     },
   });
+
+  const today = new Date();
+
+  const minus_100_years = new Date();
+  minus_100_years.setFullYear(today.getFullYear() - 100);
+  const minus_100_years_from_today = minus_100_years.toISOString().split('T')[0];
+
+  const minus_13_years = new Date();
+  minus_13_years.setFullYear(today.getFullYear() - 13);
+  const minus_13_years_from_today = minus_13_years.toISOString().split('T')[0];
 
   const handleRecaptchaChange = (token) => {
     setRecaptchaToken(token);
@@ -223,23 +233,6 @@ const FormularioRegistro = () => {
       {/* Botões de seleção */}
       <Flex justifyContent="center" mb={8} wrap="wrap">
         <Button
-          variant={formType === "empresa" ? "solid" : "outline"}
-          color={formType === "empresa" ? "white" : "#5931E9"}
-          bg={formType === "empresa" ? "#5931E9" : "transparent"}
-          borderColor="purple.400"
-          fontWeight="bold"
-          _hover={{
-            bgGradient: "linear(to-r, #7289FF, #5931E9)",
-            color: "white",
-          }}
-          mr={4}
-          px={6}
-          py={3}
-          onClick={() => setFormType("empresa")}
-        >
-          Empresa
-        </Button>
-        <Button
           variant={formType === "aluno" ? "solid" : "outline"}
           color={formType === "aluno" ? "white" : "#5931E9"}
           bg={formType === "aluno" ? "#5931E9" : "transparent"}
@@ -250,10 +243,27 @@ const FormularioRegistro = () => {
             color: "white",
           }}
           px={6}
+          mr={4}
           py={3}
           onClick={() => setFormType("aluno")}
         >
           Candidato
+        </Button>
+        <Button
+          variant={formType === "empresa" ? "solid" : "outline"}
+          color={formType === "empresa" ? "white" : "#5931E9"}
+          bg={formType === "empresa" ? "#5931E9" : "transparent"}
+          borderColor="purple.400"
+          fontWeight="bold"
+          _hover={{
+            bgGradient: "linear(to-r, #7289FF, #5931E9)",
+            color: "white",
+          }}
+          px={6}
+          py={3}
+          onClick={() => setFormType("empresa")}
+        >
+          Empresa
         </Button>
       </Flex>
 
@@ -381,6 +391,8 @@ const FormularioRegistro = () => {
                     value={currentFormData.birth_date}
                     onChange={(e) => handleInputChange(e, "aluno")}
                     bg="gray.50"
+                    min={minus_100_years_from_today}
+                    max={minus_13_years_from_today}
                   />
                 </FormControl>
               </Stack>

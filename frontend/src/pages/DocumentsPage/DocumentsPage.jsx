@@ -142,7 +142,7 @@ const DocumentsPage = () => {
           }
         },
         {
-          Header: 'Quem',
+          Header: 'Nome',
           accessor: (originalData) => {
             const availableNames = {
               Candidate: originalData.attachable?.name,
@@ -156,7 +156,7 @@ const DocumentsPage = () => {
           }
         },
         {
-          Header: 'Nome',
+          Header: 'Ficheiro',
           accessor: (originalRow) => (
             <Link
               target='_blank'
