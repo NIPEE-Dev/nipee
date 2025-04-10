@@ -82,7 +82,7 @@ export const Table = ({
               <Tr>
                 {/* TODO: verificar se tem plugin e somar ou não */}
                 <Th bg='blackAlpha.50' colSpan='100%'>
-                  <Center>Nenhum registro encontrado</Center>
+                  <Center>Nenhum registo encontrado</Center>
                 </Th>
               </Tr>
             )}

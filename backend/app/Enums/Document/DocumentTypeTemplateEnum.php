@@ -17,9 +17,9 @@ enum DocumentTypeTemplateEnum: string
     public static function getFilenameByTemplate(self $template)
     {
         return match ($template) {
-            self::CONTRACT_INTERNSHIP, self::CONTRACT_INTERNSHIP_CPF => self::appendHour('Contrato de FCT'),
-            self::CONTRACT_COMPANY, self::CONTRACT_COMPANY_CPF => self::appendHour('Contrato de Empresa'),
-            self::CONTRACT_SCHOOL => self::appendHour('Contrato de Escola'),
+            self::CONTRACT_INTERNSHIP, self::CONTRACT_INTERNSHIP_CPF => self::appendHour('Protocolo de FCT'),
+            self::CONTRACT_COMPANY, self::CONTRACT_COMPANY_CPF => self::appendHour('Protocolo de Empresa'),
+            self::CONTRACT_SCHOOL => self::appendHour('Protocolo de Escola'),
             self::TERMINATION => self::appendHour('Rescisão'),
             self::ADDENDUM => self::appendHour('Adendo'),
             self::FORWARDED => self::appendHour('Encaminhamento'),

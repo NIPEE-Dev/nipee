@@ -35,7 +35,7 @@ export const WorkflowCandidatesForm = ({
               <FastField
                 id="full_name"
                 name="full_name"
-                placeholder="Nome do canditado"
+                placeholder="Nome do candidato"
                 component={FormField}
                 readOnly={readOnly}
                 required
@@ -155,7 +155,7 @@ export const WorkflowCandidatesForm = ({
                 isLoading={isLoading || isSubmitting}
                 type="submit"
               >
-                Enviar
+                Salvar
               </Button>
             </Box>
           )}

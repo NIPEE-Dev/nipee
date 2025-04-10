@@ -46,7 +46,7 @@ export const InsuranceSettingsForm = ({ readOnly, isLoading, ...props }) => (
               isLoading={isLoading || isSubmitting}
               disabled={!dirty}
             >
-              Enviar
+              Salvar
             </Button>
           </Box>
         )}

@@ -42,7 +42,7 @@ export const menuItems = [
 
   isAdm 
     ? {
-        name: 'Cadastros',
+        name: 'Registos',
         icon: MdOutlineAddBusiness,
         children: [
           {
@@ -64,11 +64,11 @@ export const menuItems = [
       }
     : isEmpresa
     ? {
-        name: 'Cadastro',
+        name: 'Registo',
         icon: MdOutlineAddBusiness,
         children: [
           {
-            name: 'Meu Cadastro',
+            name: 'Meu Registo',
             to: routes.companies.list,
             permission: 'companies.index'
           },
@@ -81,11 +81,11 @@ export const menuItems = [
       }
     : isEscola
     ? {
-        name: 'Cadastro',
+        name: 'Registo',
         icon: MdOutlineAddBusiness,
         children: [
           {
-            name: 'Meu Cadastro',
+            name: 'Meu Registo',
             to: routes.schools.list, 
             permission: 'schools.index'
           },
@@ -98,18 +98,18 @@ export const menuItems = [
       }
     : isCandidato
     ? {
-        name: 'Cadastro',
+        name: 'Registo',
         icon: MdOutlineAddBusiness,
         children: [
           {
-            name: 'Meu Cadastro',
+            name: 'Meu Registo',
             to: routes.candidates.list,
             permission: 'candidates.index'
           }
         ]
       }
     : {
-        name: 'Cadastros',
+        name: 'Registos',
         icon: MdOutlineAddBusiness,
         children: [
           {
@@ -148,7 +148,7 @@ export const menuItems = [
     permission: 'documents.index'
   },
   {
-    name: 'Cadastros Base',
+    name: 'Registos Base',
     icon: MdOutlineTextSnippet,
     to: routes.baseRecords.list,
     permission: 'base-records.index'

@@ -17,24 +17,11 @@ export const cnpjValidator = (cnpj, required) => {
 };
 
 export const nifValidator = (nipc, required) => {
-  const weights = [9, 8, 7, 6, 5, 4, 3, 2]; 
   const cleanNipc = String(nipc).replace(/\D/g, ''); 
 
   if (cleanNipc.length === 0 && !required) return undefined; 
   if (cleanNipc.length !== 9) return 'NIF incompleto';
   if (/^0{9}$/.test(cleanNipc)) return 'NIF inválido'; 
-
-  const digits = cleanNipc.split('').map(Number); 
-  const baseDigits = digits.slice(0, 8); 
-  const checkDigit = digits[8];
-
-  const sum = baseDigits.reduce((acc, digit, index) => acc + digit * weights[index], 0);
-
-  const expectedCheckDigit = 11 - (sum % 11);
-
-  const validCheckDigit = expectedCheckDigit >= 10 ? 0 : expectedCheckDigit;
-
-  if (checkDigit !== validCheckDigit) return 'NIF inválido'; 
 
   return undefined; 
 };

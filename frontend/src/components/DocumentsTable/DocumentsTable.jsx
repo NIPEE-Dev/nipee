@@ -54,7 +54,7 @@ const DocumentsTable = ({
           {documents.length === 0 && (
             <Tr>
               <Th bg='blackAlpha.50' colSpan='100%'>
-                <Center>Nenhum registro encontrado</Center>
+                <Center>Nenhum registo encontrado</Center>
               </Th>
             </Tr>
           )}

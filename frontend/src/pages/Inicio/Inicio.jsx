@@ -1,4 +1,5 @@
-import React from "react";
+import { useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import {
   Box,
   Flex,
@@ -21,6 +22,17 @@ import FormularioContato from "../../components/FormularioContato/FormularioCont
 import BannerConsentimento from "../../components/BannerConsentimento/BannerConsentimento";
 
 const Inicio = () => {
+
+  useEffect(() => {
+    const hash = location.hash;
+    if (hash) {
+      const el = document.querySelector(hash);
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth' });
+      }
+    }
+  }, []);
+
   return (
     <Box bg="white" px={{ base: 4, md: 8 }}>
       <Navbar />
@@ -140,7 +152,7 @@ const Inicio = () => {
 
       <Beneficios />
 
-      <FormularioRegistro />
+      <FormularioRegistro id="registrar"/>
 
       <Flex
         maxW="800px"

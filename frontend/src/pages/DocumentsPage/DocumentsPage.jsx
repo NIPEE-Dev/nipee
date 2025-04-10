@@ -13,6 +13,7 @@ import { dateFormatter } from '../../utils/visualization';
 import getRoute from '../../utils/getRoute';
 import WithModal from '../../components/WithModal/WithModal';
 import SignaturePad from '../../components/SignaturePad/SignaturePad';
+import { Tooltip } from '@chakra-ui/react';
 
 const DocumentsPage = () => {
   const userProfile = JSON.parse(localStorage.getItem('profile'));
@@ -78,9 +79,11 @@ const DocumentsPage = () => {
                       size="xl"
                     >
                       {({ toggleModal }) => (
-                        <Button colorScheme="blue" size="xs" onClick={toggleModal}>
-                          <MdEdit />
-                        </Button>
+                        <Tooltip label="Assinar" hasArrow>
+                          <Button colorScheme="blue" size="xs" onClick={toggleModal}>
+                            <MdEdit />
+                          </Button>
+                        </Tooltip>
                       )}
                     </WithModal>
                   );
@@ -88,10 +91,10 @@ const DocumentsPage = () => {
               },
             ]
           : []),      
-        {
+        /* {
           Header: 'ID',
           accessor: 'id'
-        },
+        }, */
         {
           Header: 'Tipo',
           accessor: (originalData) => {
@@ -142,7 +145,7 @@ const DocumentsPage = () => {
           }
         },
         {
-          Header: 'Quem',
+          Header: 'Nome',
           accessor: (originalData) => {
             const availableNames = {
               Candidate: originalData.attachable?.name,
@@ -156,7 +159,7 @@ const DocumentsPage = () => {
           }
         },
         {
-          Header: 'Nome',
+          Header: 'Ficheiro',
           accessor: (originalRow) => (
             <Link
               target='_blank'

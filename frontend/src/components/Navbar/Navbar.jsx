@@ -38,7 +38,7 @@ const Navbar = () => {
     <Box
       as="header"
       bg="white"
-      px={4}
+      px={0}
       py={4}
       boxShadow={isScrolled ? 'md' : 'sm'}
       position="fixed"
@@ -47,10 +47,10 @@ const Navbar = () => {
       zIndex={10}
       transition="box-shadow 0.3s ease, background-color 0.3s ease"
     >
-      <Flex align="center" maxW="1200px" mx="auto">
+      <Flex align="center" maxW="80%" mx="auto">
         {/* Logo */}
         <HStack spacing={8}>
-          <img src={logo} alt="Logo NIPEE" width={160} height={112} />
+          <img src={logo} alt="Logo NIPEE" width={210} height={112} />
           <HStack spacing={8} display={{ base: 'none', md: 'flex' }}>
             <Link href="#sobre" fontWeight="medium">
               Sobre nós

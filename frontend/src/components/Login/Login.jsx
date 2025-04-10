@@ -223,7 +223,7 @@ const Login = ({ isLoading, handleLogin, authError }) => {
                     onClick={togglePasswordVisibility}
                   />
                 </InputRightElement>
-              </InputGroup>;
+              </InputGroup>
               
               <ReCAPTCHA
                 sitekey={import.meta.env.VITE_RECAPTCHA_SITE_KEY}
@@ -257,7 +257,7 @@ const Login = ({ isLoading, handleLogin, authError }) => {
             <Button
               variant="link"
               color="blue.500"
-              onClick={() => navigate('/')}
+              onClick={() => navigate('/#registrar')}
             >
               Registar
             </Button>

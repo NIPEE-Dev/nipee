@@ -20,12 +20,12 @@ const ViewCandidates = ({ job, status, actionColumns = [] }) => (
         <Table
           columns={[
             ...actionColumns({ records, setRecords }),
-            {
+            /* {
               Header: 'ID',
               accessor: 'id'
-            },
+            }, */
             {
-              Header: 'Data cadastro',
+              Header: 'Data registo',
               accessor: (originalData) =>
                 dateFormatter(
                   originalData.created_at,

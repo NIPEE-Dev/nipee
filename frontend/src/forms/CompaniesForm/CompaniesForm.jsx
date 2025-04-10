@@ -59,7 +59,7 @@ export const CompaniesForm = ({
             <FastField
               id='corporate_name'
               name='corporate_name'
-              placeholder='Registro Comercial'
+              placeholder='Registo Comercial'
               component={FormField}
               readOnly={readOnly}
               required
@@ -106,7 +106,7 @@ export const CompaniesForm = ({
             <FastField
                   id='cnpj'
                   name='cnpj'
-                  placeholder='NIF'
+                  placeholder='NIF/NIPC'
                   component={FormField.InputMask}
                   mask={cnpjMask}
                   readOnly={readOnly}
@@ -145,7 +145,7 @@ export const CompaniesForm = ({
         <Divider my={25} />
 
         <GroupContainer
-          title='Dados do endereço'
+          title='Dados da morada'
           subtitle='Localidade em que a empresa fica sediada.'
         >
           <AddressFields readOnly={readOnly} setFieldValue={setFieldValue} />
@@ -310,7 +310,7 @@ export const CompaniesForm = ({
               type='submit'
               isLoading={isLoading || isSubmitting}
             >
-              Enviar
+              Salvar
             </Button>
           </Box>
         )}

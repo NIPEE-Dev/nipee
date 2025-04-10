@@ -138,7 +138,6 @@ export const ContractsForm = ({
                     {records.map((record) => (
                       <option key={record.id} value={record.id}>
                         {record.corporate_name} --------- {record.fantasy_name}{' '}
-                        #{record.id}
                       </option>
                     ))}
                   </Field>
@@ -172,8 +171,7 @@ export const ContractsForm = ({
                   >
                     {records.map((record) => (
                       <option key={record.id} value={record.id}>
-                        {record.corporate_name} --------- {record.fantasy_name}{' '}
-                        #{record.id}
+                        {record.corporate_name} --------- {record.fantasy_name}{' '}                 
                       </option>
                     ))}
                   </Field>
@@ -209,7 +207,7 @@ export const ContractsForm = ({
                 >
                   {records.map((record) => (
                     <option key={record.id} value={record.id}>
-                      #{record.id} - {record.role?.title}
+                      {record.role?.title}
                     </option>
                   ))}
                   {records.length === 0 && (
@@ -231,7 +229,7 @@ export const ContractsForm = ({
                 <FastField
                   id='candidate.name'
                   name='candidate.name'
-                  placeholder='Nome do canditado'
+                  placeholder='Nome do candidato'
                   component={FormField}
                   readOnly={readOnly}
                 />
@@ -248,7 +246,7 @@ export const ContractsForm = ({
                     <Field
                       id='candidate.name'
                       name='candidate.name'
-                      placeholder='Nome do canditado'
+                      placeholder='Nome do candidato'
                       component={FormField.Select}
                       isLoading={isLoading}
                       readOnly={readOnly}
@@ -290,7 +288,7 @@ export const ContractsForm = ({
                 component={FormField.InputMask}
                 mask={cnpjMask}
                 readOnly={readOnly}
-                validate={(value) => nifValidator(value, true)}
+                validate={(value) => nifValidator(value, false)} 
                 required
               />
 
@@ -858,7 +856,7 @@ export const ContractsForm = ({
                   formProps.initialValues.status === 0
                 }
               >
-                Enviar
+                Salvar
               </Button>
             </Box>
           )}
@@ -892,7 +890,7 @@ export const ContractsForm = ({
                           formProps.initialValues.status === 0)
                       }
                     >
-                      Enviar
+                      Salvar
                     </Button>
                   </Tooltip>
                 )}

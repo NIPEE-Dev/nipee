@@ -11,10 +11,10 @@ const BaseRecordsPage = () => (
     routeBase={routes.baseRecords}
     Form={Form}
     columns={[
-      {
+      /* {
         Header: 'ID',
         accessor: 'id',
-      },
+      }, */
       {
         Header: 'Tipo',
         accessor: 'type_title',

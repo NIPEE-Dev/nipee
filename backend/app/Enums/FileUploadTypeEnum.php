@@ -17,7 +17,7 @@ enum FileUploadTypeEnum: string
     public static function getLabel(self $fileType): string
     {
         return match ($fileType) {
-            FileUploadTypeEnum::CONTRACT => 'Contrato',
+            FileUploadTypeEnum::CONTRACT => 'Protocolo',
             FileUploadTypeEnum::ADDENDUM => 'Adendo',
             FileUploadTypeEnum::SCHOOL_STATEMENT => 'Declaração Escolar',
             FileUploadTypeEnum::EVALUATION_CLOSES => 'Ficha de avaliação',
