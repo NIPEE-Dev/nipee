@@ -24,7 +24,7 @@ const DocumentsPage = () => {
 
   return (
     <ResourceScreen 
-      title='Lista de Documentos'
+      title='Documentos'
       permissions={['']}
       resource='Documents'
       routeBase={routes.documents}

@@ -445,7 +445,7 @@ export const ContractsForm = ({
           </GroupContainer>
 
           <GroupContainer
-            title='Endereço do candidato'
+            title='Morada do candidato'
             subtitle='Dados pertinente a localização da moradia do candidato.'
           >
             <AddressFields

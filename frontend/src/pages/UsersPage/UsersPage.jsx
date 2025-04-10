@@ -5,7 +5,7 @@ import routes from '../../routes';
 
 const UsersPage = () => (
   <ResourceScreen
-    title='Lista de Utilizadores'
+    title='Utilizadores'
     permissions={['']}
     resource='Users'
     routeBase={routes.config.users}

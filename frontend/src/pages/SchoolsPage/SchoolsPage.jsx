@@ -19,7 +19,7 @@ const SchoolsPage = () => {
   const isEscola = userRole === "Escola";
   const isAdm = userRole === "Administrador Geral";
 
-  const title = isAdm ? 'Lista de Escolas' : 'Meu Perfil';
+  const title = isAdm ? 'Escolas' : 'Meu Perfil';
 
  return (
   <ResourceScreen

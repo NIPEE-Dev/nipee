@@ -30,7 +30,7 @@ const ContractsPage = () => {
 
   return (
     <ResourceScreen
-      title='Lista de Protocolos'
+      title='Protocolos'
       permissions={['']}
       resource='Contracts'
       routeBase={routes.contracts}
@@ -179,10 +179,7 @@ const ContractsPage = () => {
             return types[originalRow.status];
           }
         },
-        {
-          Header: 'ID',
-          accessor: 'id'
-        },
+       
         {
           Header: 'Nome fantasia Empresa',
           accessor: 'company.fantasy_name'
@@ -211,30 +208,15 @@ const ContractsPage = () => {
         }
       ]}
       filters={[
-        {
-          field: 'id',
-          header: 'ID'
-        },
-        {
-          field: 'fantasy_name',
-          relation: 'company',
-          header: 'Nome fantasia da empresa'
-        },
-        {
-          field: 'corporate_name',
-          relation: 'company',
-          header: 'Razão social da empresa'
-        },
+       
+    
+   
         {
           field: 'fantasy_name',
           relation: 'school',
-          header: 'Nome fantasia da escola'
+          header: 'Nome da escola'
         },
-        {
-          field: 'corporate_name',
-          relation: 'school',
-          header: 'Razão social da escola'
-        },
+       
         {
           field: 'name',
           relation: 'candidate',
@@ -251,15 +233,7 @@ const ContractsPage = () => {
             { value: 3, header: 'Vencido' }
           ]
         },
-        {
-          field: 'birth_day',
-          header: 'Aniversariantes',
-          type: 'select',
-          options: [
-            { value: 0, header: 'Deste mês' },
-            { value: 1, header: 'Próximo mês' }
-          ]
-        }
+       
       ]}
     />
   );
