@@ -36,12 +36,12 @@ class DocumentsController extends Controller
      */
     public function destroy(Request $request, Document $document): DocumentsResource
     {
-        $pin = config('brilho.termination_pin');
+       /* $pin = config('brilho.termination_pin');
         $terminationPin = $request->get('pin');
 
         if ($pin !== $terminationPin) {
             throw new ApplicationException("Senha informada incorreta", AlertTypeEnum::ERROR);
-        }
+        }*/
 
         $document->delete();
         return new DocumentsResource($document);

@@ -31,7 +31,7 @@ const DocumentsPage = () => {
       canAdd={false}
       canView={false}
       canEdit={false}
-      canRemove={false}
+      canRemove={isAdm}
       resourceListProps={{
         downloadButtonEnabled: false,
       }}
