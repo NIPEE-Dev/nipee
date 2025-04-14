@@ -108,5 +108,3 @@ Route::post('students-pre-registrations/{id}/reject', [StudentsPreRegistrationCo
 //! rotas para criação da assinatura
 Route::post('/contracts/{contractId}/upload-signature-company', [SignatureController::class, 'uploadSignatureCompany'])->name('contracts.upload-signature-company');
 Route::post('/contracts/{contractId}/upload-signature-school', [SignatureController::class, 'uploadSignatureSchool']);
-
-Route::post('/enviar-contato', [ContatoController::class, 'enviarFormulario']);
