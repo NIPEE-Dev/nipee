@@ -47,7 +47,7 @@ class SchoolController extends Controller
     public function show($school)
     {
         $school = School::withTrashed()->whereKey($school)->first();
-        return new SchoolResource($school->load(['contact', 'address', 'responsible', 'documents']));
+        return new SchoolResource($school->load(['contact', 'address', 'responsible', 'documents', 'courses']));
     }
 
     /**
@@ -60,7 +60,7 @@ class SchoolController extends Controller
     public function update(UpdateSchoolRequest $request, School $school)
     {
         $this->schoolService->update($school, $request->all());
-        return new SchoolResource($school->load(['contact', 'address', 'responsible', 'documents']));
+        return new SchoolResource($school->load(['contact', 'address', 'responsible', 'documents', 'courses']));
     }
 
     /**
@@ -72,6 +72,6 @@ class SchoolController extends Controller
     public function destroy(School $school)
     {
         $school->trashed() ? $school->restore() : $school->delete();
-        return new SchoolResource($school->load(['contact', 'address', 'responsible', 'documents']));
+        return new SchoolResource($school->load(['contact', 'address', 'responsible', 'documents', 'courses']));
     }
 }
