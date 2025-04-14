@@ -56,6 +56,7 @@ Route::controller(SchoolController::class)->prefix('schools')->group(function ()
     Route::get('/', 'index')->withoutMiddleware('auth:api');
     Route::post('/', 'store');
     Route::get('/{school}', 'show');
+    Route::get('/{school}/courses', 'getCourses')->withoutMiddleware('auth:api');;
     Route::put('/{school}', 'update');
     Route::delete('/{school}', 'destroy')->withTrashed();
 });

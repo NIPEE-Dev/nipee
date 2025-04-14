@@ -32,10 +32,8 @@ import ReactInputMask from "react-input-mask";
 import api from "../../api";
 
 const FormularioRegistro = () => {
-  const { addCompanyPreRegistration, loading, error } =
-    useCompanyPreRegistrations();
-  const { addStudentPreRegistration, isLoading: isStudentLoading } =
-    useStudentPreRegistrations();
+  const { addCompanyPreRegistration } = useCompanyPreRegistrations();
+  const { addStudentPreRegistration } = useStudentPreRegistrations();
   const toast = useToast();
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [formType, setFormType] = useState("aluno");
@@ -65,24 +63,94 @@ const FormularioRegistro = () => {
       education_level: "",
       interest_area: "",
       school_id: "",
+      course: "",
       volunteer_experience: "",
       resume: null,
     },
   });
 
   const today = new Date();
-
   const minus_100_years = new Date();
   minus_100_years.setFullYear(today.getFullYear() - 100);
-  const minus_100_years_from_today = minus_100_years.toISOString().split('T')[0];
-
+  const minus_100_years_from_today = minus_100_years.toISOString().split("T")[0];
   const minus_12_years = new Date();
   minus_12_years.setFullYear(today.getFullYear() - 12);
-  const minus_12_years_from_today = minus_12_years.toISOString().split('T')[0];
+  const minus_12_years_from_today = minus_12_years.toISOString().split("T")[0];
 
   const handleRecaptchaChange = (token) => {
     setRecaptchaToken(token);
   };
+
+  // Trigger this function whenever a school is selected.
+  const handleSchoolChange = (e) => {
+    const selectedSchoolId = e.target.value;
+    // Update formData with selected school
+    setFormData((prev) => ({
+      ...prev,
+      aluno: {
+        ...prev.aluno,
+        school_id: selectedSchoolId,
+        // Reset course when school changes
+        course: "",
+      },
+    }));
+  };
+
+  // Fetch the list of schools at mount time.
+  useEffect(() => {
+    const fetchAllSchools = async () => {
+      let allSchools = [];
+      let currentPage = 1;
+      let lastPage = 1;
+
+      try {
+        do {
+          const res = await api.get(`/schools?page=${currentPage}`);
+          allSchools = [...allSchools, ...res.data.data];
+          lastPage = res.data.meta.last_page;
+          currentPage++;
+        } while (currentPage <= lastPage);
+
+        setSchools(allSchools);
+      } catch (error) {
+        console.error("Erro ao buscar as escolas:", error);
+      }
+    };
+
+    fetchAllSchools();
+  }, []);
+
+  // Whenever the selected school changes, fetch all courses for that school.
+  useEffect(() => {
+    const fetchCourses = async () => {
+      if (!formData.aluno.school_id) {
+        setRecords([]);
+        return;
+      }
+
+      let allCourses = [];
+      let currentPage = 1;
+      let lastPage = 1;
+
+      try {
+        do {
+          // Pass the current page parameter so the API can return paginated data.
+          const res = await api.get(
+            `/schools/${formData.aluno.school_id}/courses?page=${currentPage}`
+          );
+          allCourses = [...allCourses, ...res.data.data];
+          lastPage = res.data.meta.last_page;
+          currentPage++;
+        } while (currentPage <= lastPage);
+
+        setRecords(allCourses);
+      } catch (error) {
+        console.error("Erro ao buscar os cursos:", error);
+      }
+    };
+
+    fetchCourses();
+  }, [formData.aluno.school_id]);
 
   const handleInputChange = (e, type) => {
     const { name, value, files } = e.target;
@@ -157,55 +225,6 @@ const FormularioRegistro = () => {
       }, {}),
     }));
   };
-
-  useEffect(() => {
-    const fetchAllSchools = async () => {
-      let allSchools = [];
-      let currentPage = 1;
-      let lastPage = 1;
-  
-      try {
-        do {
-          const res = await api.get(`/schools?page=${currentPage}`);
-          allSchools = [...allSchools, ...res.data.data];
-  
-          lastPage = res.data.meta.last_page;
-          currentPage++;
-        } while (currentPage <= lastPage);
-  
-        setSchools(allSchools);
-      } catch (error) {
-        console.error('Erro ao buscar as escolas:', error);
-      }
-    };
-  
-    fetchAllSchools();
-  }, []);  
-
-  useEffect(() => {
-    const fetchAllPages = async () => {
-      let allData = [];
-      let currentPage = 1;
-      let lastPage = 1;
-  
-      try {
-        do {
-          const res = await api.get(`/base-records?page=${currentPage}`);
-          const filtered = res.data.data.filter((item) => item.type === 6);
-          allData = [...allData, ...filtered];
-  
-          lastPage = res.data.meta.last_page;
-          currentPage++;
-        } while (currentPage <= lastPage);
-  
-        setRecords(allData);
-      } catch (error) {
-        console.error('Erro ao buscar os dados:', error);
-      }
-    };
-  
-    fetchAllPages();
-  }, []);   
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -334,7 +353,7 @@ const FormularioRegistro = () => {
                     type="text"
                     maxLength={9}
                     value={currentFormData.nif}
-                    onChange={(e) => handleInputChange(e, formType)}
+                    onChange={(e) => handleInputChange(e, "empresa")}
                     placeholder="Digite o NIF"
                     bg="gray.50"
                   />
@@ -402,9 +421,10 @@ const FormularioRegistro = () => {
                   </Select>
                 </FormControl>
               </Stack>
-              
               <FormControl>
-                <FormLabel>Descreva em poucas palavras o ramo de atividade de sua empresa</FormLabel>
+                <FormLabel>
+                  Descreva em poucas palavras o ramo de atividade de sua empresa
+                </FormLabel>
                 <Textarea
                   name="message"
                   value={currentFormData.message}
@@ -483,12 +503,10 @@ const FormularioRegistro = () => {
                     <option value="E">
                       Cursos Profissionais Nível 4 / Ensino Secundário
                     </option>
-                    {/* <option value='CP4'>Cursos Profissionais nível 4 </option> */}
                     <option value="CP5">
                       Cursos Profissionais CET - Nível 5
                     </option>
                     <option value="TS">Ensino Superior TESP - Nível 5</option>
-                    {/* <option value='TESP'>TESP nível 5</option> */}
                   </Select>
                 </FormControl>
                 <FormControl isRequired isInvalid={!!currentErrors.nif}>
@@ -498,7 +516,7 @@ const FormularioRegistro = () => {
                     type="text"
                     maxLength={9}
                     value={currentFormData.nif}
-                    onChange={(e) => handleInputChange(e, formType)}
+                    onChange={(e) => handleInputChange(e, "aluno")}
                     placeholder="Digite o NIF"
                     bg="gray.50"
                   />
@@ -513,27 +531,32 @@ const FormularioRegistro = () => {
                   <Select
                     name="school_id"
                     value={currentFormData.school_id}
-                    onChange={(e) => handleInputChange(e, "aluno")}
+                    onChange={handleSchoolChange}
                     placeholder="Selecione uma opção"
                     bg="gray.50"
                   >
-                    {schools.map((element) => (<option value={element.id}>
+                    {schools.map((element) => (
+                      <option key={element.id} value={element.id}>
                         {element.fantasy_name}
-                      </option>))}
+                      </option>
+                    ))}
                   </Select>
                 </FormControl>
-                <FormControl>
+                <FormControl isRequired>
                   <FormLabel>Curso</FormLabel>
                   <Select
                     name="course"
                     value={currentFormData.course}
                     onChange={(e) => handleInputChange(e, "aluno")}
                     placeholder="Selecione uma opção"
+                    isDisabled={!currentFormData.school_id}
                     bg="gray.50"
                   >
-                    {records.map((element) => (<option value={element.id}>
-                        {element.title}
-                      </option>))}
+                    {records.map((record) => (
+                      <option key={record.id} value={record.id}>
+                        {record.name}
+                      </option>
+                    ))}
                   </Select>
                 </FormControl>
               </Stack>

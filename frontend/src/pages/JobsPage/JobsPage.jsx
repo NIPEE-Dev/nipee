@@ -45,7 +45,7 @@ const JobsPage = () => {
 
   return (
     <ResourceScreen
-      title='Lista de Vagas'
+      title='Vagas'
       permissions={['']}
       resource='Jobs'
       routeBase={routes.config.jobs}

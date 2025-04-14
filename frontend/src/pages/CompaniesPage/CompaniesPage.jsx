@@ -20,7 +20,7 @@ const CompaniesPage = () => {
   const isEmpresa = userRole === "Empresa";
   const isAdm = userRole === "Administrador Geral";
 
-  const title = isAdm ? 'Listagem de Empresas' : 'Meu Registo';
+  const title = isAdm ? 'Empresas' : 'Meu Registo';
 
   return (
     <ResourceScreen
