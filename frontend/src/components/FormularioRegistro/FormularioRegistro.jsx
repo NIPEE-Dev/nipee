@@ -159,17 +159,53 @@ const FormularioRegistro = () => {
   };
 
   useEffect(() => {
-    api.get('/schools').then((res) => {
-      setSchools(res.data.data);
-    });
-  }, []);
+    const fetchAllSchools = async () => {
+      let allSchools = [];
+      let currentPage = 1;
+      let lastPage = 1;
+  
+      try {
+        do {
+          const res = await api.get(`/schools?page=${currentPage}`);
+          allSchools = [...allSchools, ...res.data.data];
+  
+          lastPage = res.data.meta.last_page;
+          currentPage++;
+        } while (currentPage <= lastPage);
+  
+        setSchools(allSchools);
+      } catch (error) {
+        console.error('Erro ao buscar as escolas:', error);
+      }
+    };
+  
+    fetchAllSchools();
+  }, []);  
 
   useEffect(() => {
-    api.get('/base-records').then((res) => {
-      const filtered = res.data.data.filter((item) => item.type === 6);
-      setRecords(filtered);
-    });
-  }, []);  
+    const fetchAllPages = async () => {
+      let allData = [];
+      let currentPage = 1;
+      let lastPage = 1;
+  
+      try {
+        do {
+          const res = await api.get(`/base-records?page=${currentPage}`);
+          const filtered = res.data.data.filter((item) => item.type === 6);
+          allData = [...allData, ...filtered];
+  
+          lastPage = res.data.meta.last_page;
+          currentPage++;
+        } while (currentPage <= lastPage);
+  
+        setRecords(allData);
+      } catch (error) {
+        console.error('Erro ao buscar os dados:', error);
+      }
+    };
+  
+    fetchAllPages();
+  }, []);   
 
   const handleSubmit = async (event) => {
     event.preventDefault();

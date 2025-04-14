@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect  } from 'react';
 import { Formik, Field, FastField, Form } from 'formik';
 import {
   Accordion,
@@ -302,15 +302,15 @@ export const CandidatesForm = ({ readOnly, isLoading, typeForm, ...props }) => {
             </Stack>
 
           <Stack direction={['column', 'row']} spacing='24px'>
-            {showHoursField && (
-                <FastField
-                  id='hours_fct'
-                  name='hours_fct'
-                  placeholder='N.º Horas FCT'
-                  component={FormField}
-                  readOnly={readOnly}
-                />
-              )}
+            {values.interest === 'EF' && (
+              <FastField
+                id='hours_fct'
+                name='hours_fct'
+                placeholder='N.º Horas FCT'
+                component={FormField}
+                readOnly={readOnly}
+              />
+            )}
           </Stack>
           
           <Stack direction={['column', 'row']} spacing='24px'>
@@ -389,7 +389,7 @@ export const CandidatesForm = ({ readOnly, isLoading, typeForm, ...props }) => {
           <Divider my={25} />
 
           <GroupContainer
-            title='Dados do endereço'
+            title='Dados da morada'
             subtitle='Lugar em que o candidato mora.'
           >
             <AddressFields readOnly={readOnly} setFieldValue={setFieldValue} />
