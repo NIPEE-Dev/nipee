@@ -20,4 +20,14 @@ class BaseRecord extends Model
     {
         return $this->morphTo();
     }
+
+    public function schools()
+    {
+        return $this->belongsToMany(
+            School::class,
+            'courses_schools',
+            'course_id',
+            'school_id'
+        );
+    }
 }
