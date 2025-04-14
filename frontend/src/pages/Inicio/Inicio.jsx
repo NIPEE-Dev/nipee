@@ -20,6 +20,7 @@ import Beneficios from "../../components/Beneficios/Beneficios";
 import FormularioRegistro from "../../components/FormularioRegistro/FormularioRegistro";
 import FormularioContato from "../../components/FormularioContato/FormularioContato";
 import BannerConsentimento from "../../components/BannerConsentimento/BannerConsentimento";
+import Footer from "../../components/Footer/Footer";
 
 const Inicio = () => {
 
@@ -34,6 +35,7 @@ const Inicio = () => {
   }, []);
 
   return (
+    <div>
     <Box bg="white" px={{ base: 4, md: 8 }}>
       <Navbar />
 
@@ -238,8 +240,9 @@ const Inicio = () => {
         <FormularioContato />
 
         <BannerConsentimento/>
-        
     </Box>
+    <Footer h={10} mt={-10}/>
+    </div>
   );
 };
 
