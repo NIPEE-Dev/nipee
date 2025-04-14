@@ -342,16 +342,16 @@ export const ContractsForm = ({
                   required
                 >
                   <optgroup label='Ensino Secundário'>
-                    <option value={11}>1° Série</option>
-                    <option value={12}>2° Série</option>
-                    <option value={13}>3° Série</option>
+                    <option value={11}>1° Ano</option>
+                    <option value={12}>2° Ano</option>
+                    <option value={13}>3° Ano</option>
                   </optgroup>
 
-                  <optgroup label='Outros'>
+                  {/* <optgroup label='Outros'>
                     <option value={14}>1° Ano Supletivo</option>
                     <option value={15}>2° Ano Supletivo</option>
                     <option value={16}>3° Ano Supletivo</option>
-                  </optgroup>
+                  </optgroup> */}
                 </FastField>
               ) : (
                 <>
@@ -385,13 +385,13 @@ export const ContractsForm = ({
                   <FastField
                     id='candidate.semester'
                     name='candidate.semester'
-                    placeholder='Semestre'
+                    placeholder='Ano'
                     component={FormField.Select}
                     readOnly={readOnly}
                   >
-                    {[...Array(32).keys()].map((v) => (
+                     {[...Array(2).keys()].map((v) => (
                       <option key={v} value={v}>
-                        {++v}° Semestre
+                        {++v}° Ano
                       </option>
                     ))}
                   </FastField>
