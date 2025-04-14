@@ -16,6 +16,11 @@ class BaseRecord extends Model
         'type' => BaseRecordsEnum::class
     ];
 
+    public function informative()
+    {
+        return $this->morphTo();
+    }
+
     public function schools()
     {
         return $this->belongsToMany(
