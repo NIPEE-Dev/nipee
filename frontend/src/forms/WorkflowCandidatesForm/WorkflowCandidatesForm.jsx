@@ -35,7 +35,7 @@ export const WorkflowCandidatesForm = ({
               <FastField
                 id="full_name"
                 name="full_name"
-                placeholder="Nome do canditado"
+                placeholder="Nome do candidato"
                 component={FormField}
                 readOnly={readOnly}
                 required
@@ -126,6 +126,14 @@ export const WorkflowCandidatesForm = ({
                 readOnly={readOnly}
                 required
               />
+              <FastField
+                id="course.title"
+                name="course.title"
+                placeholder="Curso"
+                component={FormField}
+                readOnly={readOnly}
+                required
+              />
             </Stack>
 
             <Stack direction={["column", "row"]} spacing="24px">
@@ -147,7 +155,7 @@ export const WorkflowCandidatesForm = ({
                 isLoading={isLoading || isSubmitting}
                 type="submit"
               >
-                Enviar
+                Salvar
               </Button>
             </Box>
           )}

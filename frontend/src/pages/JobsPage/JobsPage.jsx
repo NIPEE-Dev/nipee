@@ -97,7 +97,10 @@ const JobsPage = () => {
             return types[originalRow.deleted_at === null ? 1 : 0];
           }
         },
-      
+       /*  {
+          Header: 'ID',
+          accessor: 'id'
+        }, */
         {
           Header: 'Nome fantasia empresa',
           accessor: 'company.fantasy_name'
@@ -144,7 +147,10 @@ const JobsPage = () => {
         }
       ]}
       filters={[
-     
+        /* {
+          field: 'id',
+          header: 'ID'
+        }, */
         {
           field: 'fantasy_name',
           relation: 'company',

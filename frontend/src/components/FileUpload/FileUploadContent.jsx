@@ -55,7 +55,7 @@ const FileUpload = ({ create, isLoading, types }) => {
       <Select
         mt={2}
         placeholder='Selecione o tipo dos arquivos'
-        onChange={(e) => setType(e.target.value)}
+        onChange={(e) => setType(e.target.value)} value={type}
       >
         {AVAILABLE_TYPES.filter((type) => types.includes(type.type)).map(
           (type) => (
@@ -73,7 +73,7 @@ const FileUpload = ({ create, isLoading, types }) => {
         isLoading={isLoading}
         type='button'
         onClick={() => create(getFormDataFiles())}
-        disabled={type === null}
+        disabled={!type}
       >
         Enviar arquivos
       </Button>

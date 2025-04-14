@@ -58,7 +58,7 @@ export const BaseRecordsForm = ({ readOnly, isLoading, ...props }) => {
         {readOnly !== true && (
           <Box py={3} textAlign='right'>
             <Button mt='3' colorScheme='blue' type='submit' isLoading={isLoading}>
-              Enviar
+            Salvar
             </Button>
           </Box>
         )}

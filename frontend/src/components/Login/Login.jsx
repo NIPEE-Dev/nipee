@@ -62,11 +62,11 @@ const Login = ({ isLoading, handleLogin, authError }) => {
   };  
 
   const handleKeyDown = (event) => {
-    if (event.key === 'Enter') {
+    if (event.key === 'Enter' && recaptchaToken) {
       handleLogin(username, password);
     }
   };
-
+  
   return (
     <Box position="relative">
       <Container
@@ -223,10 +223,10 @@ const Login = ({ isLoading, handleLogin, authError }) => {
                     onClick={togglePasswordVisibility}
                   />
                 </InputRightElement>
-              </InputGroup>;
+              </InputGroup>
               
               <ReCAPTCHA
-                sitekey="6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI"
+                sitekey={import.meta.env.VITE_RECAPTCHA_SITE_KEY}
                 onChange={handleRecaptchaChange}
               />
             </Stack>
@@ -257,7 +257,7 @@ const Login = ({ isLoading, handleLogin, authError }) => {
             <Button
               variant="link"
               color="blue.500"
-              onClick={() => navigate('/')}
+              onClick={() => navigate('/#registrar')}
             >
               Registar
             </Button>

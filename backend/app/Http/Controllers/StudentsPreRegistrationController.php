@@ -27,7 +27,7 @@ class StudentsPreRegistrationController extends Controller
         try {
             $user = Auth::user();
             $roleId = $user->roles[0]->id;
-            $registrations = StudentsPreRegistration::with(['school'])->orderBy('created_at', 'desc');
+            $registrations = StudentsPreRegistration::with(['school', 'course'])->orderBy('created_at', 'desc');
             if ($roleId === 10) {
                 $registrations->where('school_id', $user->school[0]->id ?? 0);
             }
@@ -52,7 +52,7 @@ class StudentsPreRegistrationController extends Controller
     public function show($id)
     {
         try {
-            $preRegistration = StudentsPreRegistration::with(['school'])->findOrFail($id);
+            $preRegistration = StudentsPreRegistration::with(['school', 'course'])->findOrFail($id);
 
             $educationLevel = StudyingLevelEnum::tryFrom($preRegistration->education_level);
             $preRegistration->education_level = $educationLevel ? StudyingLevelEnum::getLabel($educationLevel) : 'Nível de educação desconhecido';
@@ -107,6 +107,7 @@ class StudentsPreRegistrationController extends Controller
                 'rg' => '',
                 'gender' => 'F',
                 'studying_level' => $preRegistration->education_level,
+                'course' => $preRegistration->course,
                 'semester' => 0,
                 'period' => 'M',
                 'interest' => 'ES',
@@ -118,30 +119,33 @@ class StudentsPreRegistrationController extends Controller
             $candidate->contact()->save(new Contact([ 'name' => $preRegistration->full_name, 'phone' => $preRegistration->phone, 'email' => $preRegistration->email ]));
             $user->roles()->attach(13);
 
-            $file = explode('/', $preRegistration->resume)[1];
-            $splitFile = explode('.', $file);
-            $name = $splitFile[0];
-            $extension = $splitFile[1];
-            $from = 'public/' . $preRegistration->resume;
-            $to = 'generated_documents/guarulhos/' . $file;
-            $copy = Storage::copy($from, $to);
-            $size = Storage::disk('public')->size($preRegistration->resume);
-            $fileData = [
-                'filename' => $name,
-                'original_filename' => 'Currículo',
-                'file_extension' => $extension,
-                'filesize' => $size,
-                'type' => 'Currículo',
-            ];
-            $candidate->documents()->create($fileData);
+            if (!empty($preRegistration->resume))
+            {
+                $file = explode('/', $preRegistration->resume)[1];
+                $splitFile = explode('.', $file);
+                $name = $splitFile[0];
+                $extension = $splitFile[1];
+                $from = 'public/' . $preRegistration->resume;
+                $to = 'generated_documents/guarulhos/' . $file;
+                $copy = Storage::copy($from, $to);
+                $size = Storage::disk('public')->size($preRegistration->resume);
+                $fileData = [
+                    'filename' => $name,
+                    'original_filename' => 'Curriculum Vitae',
+                    'file_extension' => $extension,
+                    'filesize' => $size,
+                    'type' => 'Curriculum Vitae',
+                ];
+                $candidate->documents()->create($fileData);
+            }
 
             $passwordResetLink = 'https://nipee.org/redefinir-senha?email=' . urlencode($user->email);
-            /* Mail::to($preRegistration->email)->send(
+             Mail::to($preRegistration->email)->send(
                 new PreRegistrationStudentsApproveSuccess(
                     $preRegistration->full_name,
                     $passwordResetLink
                 )
-            ); */
+            ); 
 
             DB::commit();
 
@@ -234,7 +238,7 @@ class StudentsPreRegistrationController extends Controller
                 'education_level' => 'required|string|max:100',
                 'interest_area' => 'required|string|max:100',
                 'volunteer_experience' => 'nullable|string|max:500',
-                'resume' => 'required|string',
+                'resume' => 'nullable|string',
                 'school_id' => 'required|exists:schools,id'
             ]);
 
@@ -310,7 +314,7 @@ class StudentsPreRegistrationController extends Controller
                 'education_level' => 'required|string|max:100',
                 'interest_area' => 'required|string|max:100',
                 'volunteer_experience' => 'nullable|string|max:500',
-                'resume' => 'required|string',
+                'resume' => 'nullable|string',
             ]);
 
             if ($validatedData->fails()) {

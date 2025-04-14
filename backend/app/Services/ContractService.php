@@ -274,7 +274,7 @@ class ContractService
                 'original_filename' => $generatedDocument['filename'],
                 'file_extension' => 'docx',
                 'filesize' => $generatedDocument['filesize'],
-                'type' => 'Contrato',
+                'type' => 'Protocolo',
             ]);
 
             return $contract->load(['originalJob', 'job', 'workingDay', 'company.address', 'candidate.contact', 'documents', 'userAddress', 'jobOtherAddress']);

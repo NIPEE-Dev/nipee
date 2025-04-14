@@ -69,7 +69,7 @@ export const SchoolsForm = ({ readOnly, isLoading, typeForm, ...props }) => (
         <Divider my={25} />
 
         <GroupContainer
-          title='Morada'
+          title='Dados da morada'
           subtitle='Localidade em que a escola fica sediada.'
         >
           <AddressFields readOnly={readOnly} setFieldValue={setFieldValue} />
@@ -122,7 +122,7 @@ export const SchoolsForm = ({ readOnly, isLoading, typeForm, ...props }) => (
               type='submit'
               isLoading={isLoading || isSubmitting}
             >
-              Enviar
+              Salvar
             </Button>
           </Box>
         )}

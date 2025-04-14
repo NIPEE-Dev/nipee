@@ -128,7 +128,7 @@ export const RolesForm = ({ typeForm, readOnly, isLoading, ...props }) => {
                 type='submit'
                 isLoading={isLoading || isSubmitting}
               >
-                Enviar
+                Salvar
               </Button>
             )}
           </Form>

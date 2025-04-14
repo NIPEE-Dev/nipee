@@ -154,7 +154,7 @@ export const UsersForm = ({ readOnly, isLoading, ...props }) => (
 
           {readOnly !== true && (
             <Button mt="3" type="submit" isLoading={isLoading}>
-              Enviar
+              Salvar
             </Button>
           )}
         </Form>

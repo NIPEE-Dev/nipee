@@ -5,7 +5,7 @@ import { menuItems } from './menuItems';
 import NavItemController from './NavItemController';
 import withAuth from '../../store/utils/withAuth';
 import logo from '../../images/logo.png';
-import logoClaro from '../../images/logoClaro.png';
+import logoClaro from './../../images/logoClaron.png';
 
 const SidebarContent = (props) => {
   const color = useColorModeValue('gray.600', 'gray.300');

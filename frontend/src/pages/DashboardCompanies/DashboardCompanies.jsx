@@ -16,7 +16,7 @@ import routes from "../../routes";
 const DashboardCompanies = () => {
   return (
     <ResourceScreen
-      title="Candidatos"
+      title="Lista de Relatórios"
       permissions={[""]}
       resource="ReportsCandidates"
       routeBase={routes.reports.candidates}
@@ -80,6 +80,22 @@ const DashboardCompanies = () => {
         {
           Header: "Status",
           accessor: (originalData) => {
+            const today = new Date();
+            const endDate = new Date(
+              originalData.endContractDate.split("/").reverse().join("-")
+            );
+
+            const isExpired = endDate < today;
+
+            if (isExpired) {
+              return (
+                <Tag variant="subtle" colorScheme="gray">
+                  <TagLeftIcon boxSize="12px" as={MdUploadFile} />
+                  <TagLabel>Vencido</TagLabel>
+                </Tag>
+              );
+            }
+
             const status = [
               <Tag size="md" variant="subtle" colorScheme="red">
                 <TagLeftIcon boxSize="12px" as={MdUploadFile} />
@@ -91,25 +107,29 @@ const DashboardCompanies = () => {
               </Tag>,
               <Tag size="md" variant="subtle" colorScheme="green">
                 <TagLeftIcon boxSize="12px" as={MdOutlineDriveFileMoveRtl} />
-                <TagLabel>Concluido</TagLabel>
+                <TagLabel>Concluído</TagLabel>
               </Tag>,
             ];
 
-            return status[originalData.status];
+            return status[originalData.status] || null;
           },
         },
         {
           Header: "Avaliação do Candidato",
           accessor: (originalRow) => (
             <>
-              { originalRow.avaliationFileUrl !== '' && (
+              {originalRow.avaliationFileUrl !== "" && (
                 <Link
                   target="_blank"
                   href={`${import.meta.env.VITE_BACKEND_BASE_URL}${originalRow.avaliationFileUrl}`}
                 >
-                  {`${originalRow.avaliationFileUrl.split('/')[originalRow.avaliationFileUrl.split('/').length - 2]}`}
+                  {
+                    originalRow.avaliationFileUrl.split("/")[
+                      originalRow.avaliationFileUrl.split("/").length - 2
+                    ]
+                  }
                 </Link>
-              ) }
+              )}
             </>
           ),
         },
@@ -117,14 +137,18 @@ const DashboardCompanies = () => {
           Header: "Contrato",
           accessor: (originalRow) => (
             <>
-              { originalRow.contractFilename !== '' && (
+              {originalRow.contractFilename !== "" && (
                 <Link
                   target="_blank"
                   href={`${import.meta.env.VITE_BACKEND_BASE_URL}${originalRow.contractFilename}`}
                 >
-                  {`${originalRow.contractFilename.split('/')[originalRow.contractFilename.split('/').length - 2]}`}
+                  {
+                    originalRow.contractFilename.split("/")[
+                      originalRow.contractFilename.split("/").length - 2
+                    ]
+                  }
                 </Link>
-              ) }
+              )}
             </>
           ),
         },

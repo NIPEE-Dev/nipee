@@ -68,7 +68,7 @@ export const menuItems = [
         icon: MdOutlineAddBusiness,
         children: [
           {
-            name: 'Meu Perfil',
+            name: 'Meu Registo',
             to: routes.companies.list,
             permission: 'companies.index'
           },
@@ -85,7 +85,7 @@ export const menuItems = [
         icon: MdOutlineAddBusiness,
         children: [
           {
-            name: 'Meu Perfil',
+            name: 'Meu Registo',
             to: routes.schools.list, 
             permission: 'schools.index'
           },
@@ -102,7 +102,7 @@ export const menuItems = [
         icon: MdOutlineAddBusiness,
         children: [
           {
-            name: 'Meu Perfil',
+            name: 'Meu Registo',
             to: routes.candidates.list,
             permission: 'candidates.index'
           }

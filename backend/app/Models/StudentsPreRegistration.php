@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Shared\BaseRecord;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -15,6 +16,7 @@ class StudentsPreRegistration extends Model
         'full_name',
         'birth_date',
         'email',
+        'course',
         'phone',
         'nif',
         'education_level',
@@ -42,4 +44,9 @@ class StudentsPreRegistration extends Model
     {
         return $this->belongsTo(School::class);
     }
+
+    public function course()
+    {
+        return $this->belongsTo(BaseRecord::class, 'course', 'id'); 
+    }    
 }

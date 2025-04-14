@@ -20,7 +20,7 @@ const CompaniesPage = () => {
   const isEmpresa = userRole === "Empresa";
   const isAdm = userRole === "Administrador Geral";
 
-  const title = isAdm ? 'Empresas' : 'Meu Perfil';
+  const title = isAdm ? 'Listagem de Empresas' : 'Meu Registo';
 
   return (
     <ResourceScreen
@@ -90,7 +90,10 @@ const CompaniesPage = () => {
             return types[originalRow.deleted_at === null ? 1 : 0];
           }
         },
-       
+       /*  {
+          Header: 'ID',
+          accessor: 'id'
+        }, */
         {
           Header: 'Nome da Entidade',
           accessor: 'fantasy_name'
@@ -116,7 +119,62 @@ const CompaniesPage = () => {
           accessor: 'document_status'
         } */
       ]}
-      
+      filters={[
+        /* {
+          field: 'id',
+          header: 'ID'
+        }, */
+        {
+          field: 'fantasy_name',
+          header: 'Nome da Entidade'
+        },
+        {
+          field: 'corporate_name',
+          header: 'Registo Comercial'
+        },
+        {
+          field: 'cnpj',
+          header: 'NIF'
+        },
+        {
+          field: 'status',
+          header: 'Status',
+          type: 'select',
+          options: [
+            { value: 0, header: 'Desativada' },
+            { value: 1, header: 'Ativa' }
+          ],
+          serverType: 'equals'
+        },
+  /*       {
+          field: 'municipal_registration',
+          header: 'Inscrição estadual'
+        }, */
+        {
+          field: 'branch_of_activity',
+          header: 'Ramo de atividade'
+        },
+        {
+          field: 'supervisor',
+          header: 'Supervisor'
+        },
+        {
+          field: 'birth_day',
+          header: 'Aniversariantes (Responsáveis)',
+          type: 'select',
+          options: [
+            { value: 0, header: 'Deste mês' },
+            { value: 1, header: 'Próximo mês' }
+          ]
+        },
+        {
+          field: 'observations',
+          header: 'Ramo de atividade da empresa'
+        },
+        ...citiesFilters,
+        ...responsiblesFilters,
+        ...contactFilters
+      ]}
     />
   );
 
