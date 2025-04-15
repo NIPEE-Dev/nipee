@@ -306,7 +306,7 @@ export const ContractsForm = ({
               <FastField
                 id='candidate.studying_level'
                 name='candidate.studying_level'
-                placeholder='Cursando'
+                placeholder='Tipo de ensino'
                 component={FormField.Select}
                 readOnly={readOnly}
                 required

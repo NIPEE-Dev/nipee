@@ -12,76 +12,6 @@ const Beneficios = () => {
         align="flex-center"
         gap={8}
       >
-        {/* Coluna para Empresas */}
-        <VStack spacing={6} flex="1" textAlign={{ base: "center", md: "left" }}>
-          <Heading
-            as="h3"
-            size="lg"
-            bgGradient="linear(to-r, #5931E9, #7289FF)"
-            bgClip="text"
-          >
-            Benefícios para as Empresas/Instituições
-          </Heading>
-          <Text fontSize={{ base: "md", md: "lg" }} color="gray.600">
-            Por que publicar vagas?
-          </Text>
-
-          {/* Benefícios das Empresas */}
-          <VStack spacing={4} w="100%">
-            <Box
-              bgGradient="linear(to-r, #5931E9, #7289FF)"
-              color="white"
-              borderRadius="md"
-              p={4}
-              textAlign="center"
-              fontSize={{ base: "md", md: "lg" }}
-              fontWeight="semibold"
-              maxW="500px"
-              w="100%"
-              h="100px"
-              display="flex"
-              alignItems="center"
-              justifyContent="center"
-            >
-              Conecte-se com candidatos qualificados
-            </Box>
-            <Box
-              bgGradient="linear(to-r, #5931E9, #7289FF)"
-              color="white"
-              borderRadius="md"
-              p={4}
-              textAlign="center"
-              fontSize={{ base: "md", md: "lg" }}
-              fontWeight="semibold"
-              maxW="500px"
-              w="100%"
-              h="100px"
-              display="flex"
-              alignItems="center"
-              justifyContent="center"
-            >
-              Divulgue ofertas num portal acessível e dinâmico
-            </Box>
-            <Box
-              bgGradient="linear(to-r, #5931E9, #7289FF)"
-              color="white"
-              borderRadius="md"
-              p={4}
-              textAlign="center"
-              fontSize={{ base: "md", md: "lg" }}
-              fontWeight="semibold"
-              maxW="500px"
-              w="100%"
-              h="100px"
-              display="flex"
-              alignItems="center"
-              justifyContent="center"
-            >
-              Simplifique o processo de recrutamento através da gestão do processo global da FCT/Estágio via plataforma
-            </Box>
-          </VStack>
-        </VStack>
-        
         {/* Coluna para Alunos */}
         <VStack spacing={6} flex="1" textAlign={{ base: "center", md: "left" }}>
           <Heading
@@ -151,6 +81,76 @@ const Beneficios = () => {
             </Box>
           </VStack>
         </VStack>
+         {/* Coluna para Empresas */}
+         <VStack spacing={6} flex="1" textAlign={{ base: "center", md: "left" }}>
+          <Heading
+            as="h3"
+            size="lg"
+            bgGradient="linear(to-r, #5931E9, #7289FF)"
+            bgClip="text"
+          >
+            Benefícios para as Empresas/Instituições
+          </Heading>
+          <Text fontSize={{ base: "md", md: "lg" }} color="gray.600">
+            Por que publicar vagas?
+          </Text>
+
+          {/* Benefícios das Empresas */}
+          <VStack spacing={4} w="100%">
+            <Box
+              bgGradient="linear(to-r, #5931E9, #7289FF)"
+              color="white"
+              borderRadius="md"
+              p={4}
+              textAlign="center"
+              fontSize={{ base: "md", md: "lg" }}
+              fontWeight="semibold"
+              maxW="500px"
+              w="100%"
+              h="100px"
+              display="flex"
+              alignItems="center"
+              justifyContent="center"
+            >
+              Conecte-se com candidatos qualificados
+            </Box>
+            <Box
+              bgGradient="linear(to-r, #5931E9, #7289FF)"
+              color="white"
+              borderRadius="md"
+              p={4}
+              textAlign="center"
+              fontSize={{ base: "md", md: "lg" }}
+              fontWeight="semibold"
+              maxW="500px"
+              w="100%"
+              h="100px"
+              display="flex"
+              alignItems="center"
+              justifyContent="center"
+            >
+              Divulgue ofertas num portal acessível e dinâmico
+            </Box>
+            <Box
+              bgGradient="linear(to-r, #5931E9, #7289FF)"
+              color="white"
+              borderRadius="md"
+              p={4}
+              textAlign="center"
+              fontSize={{ base: "md", md: "lg" }}
+              fontWeight="semibold"
+              maxW="500px"
+              w="100%"
+              h="100px"
+              display="flex"
+              alignItems="center"
+              justifyContent="center"
+            >
+              Simplifique o processo de recrutamento através da gestão do processo global da FCT/Estágio via plataforma
+            </Box>
+          </VStack>
+        </VStack>
+        
 
       </Flex>
     </Box>

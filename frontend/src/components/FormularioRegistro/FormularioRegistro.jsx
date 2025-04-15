@@ -81,22 +81,18 @@ const FormularioRegistro = () => {
     setRecaptchaToken(token);
   };
 
-  // Trigger this function whenever a school is selected.
   const handleSchoolChange = (e) => {
     const selectedSchoolId = e.target.value;
-    // Update formData with selected school
     setFormData((prev) => ({
       ...prev,
       aluno: {
         ...prev.aluno,
         school_id: selectedSchoolId,
-        // Reset course when school changes
         course: "",
       },
     }));
   };
 
-  // Fetch the list of schools at mount time.
   useEffect(() => {
     const fetchAllSchools = async () => {
       let allSchools = [];
@@ -120,7 +116,6 @@ const FormularioRegistro = () => {
     fetchAllSchools();
   }, []);
 
-  // Whenever the selected school changes, fetch all courses for that school.
   useEffect(() => {
     const fetchCourses = async () => {
       if (!formData.aluno.school_id) {
@@ -133,17 +128,13 @@ const FormularioRegistro = () => {
       let lastPage = 1;
 
       try {
-        do {
-          // Pass the current page parameter so the API can return paginated data.
           const res = await api.get(
-            `/schools/${formData.aluno.school_id}/courses?page=${currentPage}`
+            `/schools/${formData.aluno.school_id}/courses`
           );
-          allCourses = [...allCourses, ...res.data.data];
-          lastPage = res.data.meta.last_page;
-          currentPage++;
-        } while (currentPage <= lastPage);
+          allCourses = res.data.data;
 
         setRecords(allCourses);
+        console.log(allCourses);
       } catch (error) {
         console.error("Erro ao buscar os cursos:", error);
       }
@@ -554,7 +545,7 @@ const FormularioRegistro = () => {
                   >
                     {records.map((record) => (
                       <option key={record.id} value={record.id}>
-                        {record.name}
+                        {record.title}
                       </option>
                     ))}
                   </Select>

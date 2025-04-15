@@ -78,7 +78,9 @@ const Login = ({ isLoading, handleLogin, authError }) => {
       >
         <Stack spacing={{ base: 10, md: 20 }}>
           <Box textAlign="center">
+            <a href="/">
             <img src={logo} alt="Logo NIPEE" style={{ width: '470px', margin: '0 auto' }} />
+            </a>
           </Box>
 
           <Heading
