@@ -1,8 +1,6 @@
 import React from 'react';
 import { Box, useColorModeValue } from "@chakra-ui/react";
 
-let current_year = new Date().getFullYear();
-
 const Footer = (props = {}) => {
     return (
         <Box as="footer" 
@@ -17,7 +15,7 @@ const Footer = (props = {}) => {
         color={useColorModeValue('black', 'white')}
         textAlign="center"
         {...props}>
-            &copy; 2010 - {current_year} NIPEE, a KUKYDOMAIN LDA. Restricted
+            &copy; 2010 - {new Date().getFullYear()} NIPEE, a KUKYDOMAIN LDA. Restricted
         </Box>
     )
 }
