@@ -12,7 +12,7 @@ import { WithModal } from '../../components/WithModal';
 const WorkflowCandidatesPage = () => {
   const userProfile = JSON.parse(localStorage.getItem('profile'));
   const userRole = userProfile?.role || '';
-  const isAdm = userRole === "Administrador Geral";
+  const isAdm = userRole === "Administrador Geral";
 
   const { approveStudentPreRegistration, rejectStudentPreRegistration, loading } = useStudentPreRegistrations();
   const toast = useToast();
@@ -82,6 +82,7 @@ const WorkflowCandidatesPage = () => {
       resource="WorkflowCandidates"
       Form={Form}
       routeBase={routes.workflow.candidatos}
+      canRemove={isAdm}
       canAdd={false}
       canEdit={false}
       canRemove={isAdm}

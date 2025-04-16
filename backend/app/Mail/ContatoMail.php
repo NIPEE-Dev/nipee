@@ -19,7 +19,7 @@ class ContatoMail extends Mailable
 
     public function build()
     {
-        return $this->from(('mailtrap@luizagarcia.com'))
+        return $this->from(('mailtrap@nipee.org'))
                     ->subject('Mensagem de Contato')
                     ->view('emails.contato')
                     ->with('dados', $this->dados);

@@ -19,11 +19,13 @@ import {
   useDisclosure,
 } from "@chakra-ui/react";
 import ReCAPTCHA from "react-google-recaptcha";
+import useSendContact from '../../hooks/useSendContact';
 
 const FormularioContato = () => {
   const toast = useToast();
   const [recaptchaToken, setRecaptchaToken] = useState(null);
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const { sendContact, loading, error, successMessage } = useSendContact();
 
   const [formData, setFormData] = useState({
     nome: "",
@@ -51,17 +53,25 @@ const FormularioContato = () => {
     });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    toast({
-      title: "Mensagem enviada com sucesso!",
-      status: "success",
-      duration: 3000,
-      isClosable: true,
-    });
-    onOpen();
-    handleClearForm();
-  };
+  
+    try {
+      const success = await sendContact(formData);
+  
+      if (success) {
+        onOpen(); 
+        handleClearForm(); 
+      }
+    } catch (err) {
+      toast({
+        title: err.message || 'Erro ao enviar mensagem.',
+        status: 'error',
+        duration: 3000,
+        isClosable: true,
+      });
+    }
+  };  
 
   return (
     <Box bg="white" py={10} px={{ base: 4, md: 8 }} textAlign="center" id="contato">
@@ -206,6 +216,9 @@ const FormularioContato = () => {
               px={6}
               py={4}
               borderRadius="full"
+              isDisabled={!recaptchaToken || loading}
+              isLoading={loading}
+              loadingText="Enviando..."
             >
               Fechar
             </Button>
