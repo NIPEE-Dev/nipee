@@ -10,8 +10,14 @@ import { WorkflowCandidatesForm as Form } from '../../forms/WorkflowCandidatesFo
 import { WithModal } from '../../components/WithModal';
 
 const WorkflowCandidatesPage = () => {
+  const userProfile = JSON.parse(localStorage.getItem('profile'));
+  const userRole = userProfile?.role || '';
+  const isAdm = userRole === "Administrador Geral";
+
   const { approveStudentPreRegistration, rejectStudentPreRegistration, loading } = useStudentPreRegistrations();
   const toast = useToast();
+
+
 
   const handleApprove = async (id) => {
     try {
@@ -76,9 +82,9 @@ const WorkflowCandidatesPage = () => {
       resource="WorkflowCandidates"
       Form={Form}
       routeBase={routes.workflow.candidatos}
-      canRemove={false}
       canAdd={false}
       canEdit={false}
+      canRemove={isAdm}
       actions={({ id }) => (
         <>
           <Tooltip label="Aprovar Candidato" hasArrow>
