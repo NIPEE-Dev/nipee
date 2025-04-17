@@ -215,6 +215,8 @@ export const handleLogout = () => (dispatch) => {
   localStorage.removeItem('logged');
   localStorage.removeItem('permissions');
   localStorage.removeItem('profile');
+  localStorage.removeItem('chakra-ui-color-mode');
+  window.location.reload();
   return dispatch(handleLogoutSilently());
 };
 
