@@ -19,6 +19,7 @@ import { FinancialClosePage } from '../../pages/FinancialClosePage';
 import { InsuranceSettingsPage } from '../../pages/InsuranceSettingsPage';
 import { RolesPage } from '../../pages/RolesPage';
 import { DocumentsPage } from '../../pages/DocumentsPage';
+import { CandidaturasPage } from '../../pages/CandidaturasPage'; // candidaturas
 import { WorkflowCandidatesPage } from '../../pages/WorkflowCandidatesPage';
 import { WorkflowCompaniesPage } from '../../pages/WorkflowCompaniesPage';
 import { DashboardCompanies } from '../../pages/DashboardCompanies';
@@ -36,7 +37,7 @@ function App() {
       <Route path={routes.resetPassword} element={<ResetPassword />} />
       <Route path={routes.recuperaSenha} element={<ResetPassword2 />} />
       <Route path='logged' element={<Navigate to='/' />} />
-      <Route path='/' element={<Container />}>
+      <Route path='/' element={<Container />}> 
         <Route path='config/*'>
           <Route
             path='users/*'
@@ -185,6 +186,10 @@ function App() {
             </PermissionRoute>
           }
         />
+       <Route 
+       // routa para botam acandidaturas
+       
+       /> 
         <Route path='*' element={<EmptyResult />} />
       </Route>
     </Routes>

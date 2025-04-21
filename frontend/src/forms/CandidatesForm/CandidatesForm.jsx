@@ -169,7 +169,7 @@ export const CandidatesForm = ({ readOnly, isLoading, typeForm, ...props }) => {
                 <FastField
                   id='serie'
                   name='serie'
-                  placeholder='Série'
+                  placeholder='Ano'
                   component={FormField.Select}
                   readOnly={readOnly}
                   required
