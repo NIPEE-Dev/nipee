@@ -82,7 +82,6 @@ const WorkflowCandidatesPage = () => {
       resource="WorkflowCandidates"
       Form={Form}
       routeBase={routes.workflow.candidatos}
-      canRemove={isAdm}
       canAdd={false}
       canEdit={false}
       canRemove={isAdm}

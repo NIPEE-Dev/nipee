@@ -33,7 +33,7 @@ class CandidatesService
 
         $shouldOrderByName = isset($criteria['perPage']) && $criteria['perPage'] == '99999';
         $candidateBuilder = $this->getBuilder(
-            Candidate::query()->orderBy($shouldOrderByName ? 'name' : 'id', $shouldOrderByName ? 'asc' : 'desc'),
+            Candidate::query()->orderBy('name', 'asc'),
             $criteria
         );
 
