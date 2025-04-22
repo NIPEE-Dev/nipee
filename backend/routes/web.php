@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\CompanyPreRegistrationController;
 use App\Http\Controllers\StudentsPreRegistrationController;
 use App\Http\Controllers\Auth\AuthController;
+use App\Http\Controllers\ContatoController;
 
 /*
 |--------------------------------------------------------------------------
@@ -29,4 +30,6 @@ Route::post('company-pre-registrations/store', [CompanyPreRegistrationController
 Route::post('students-pre-registrations/store', [StudentsPreRegistrationController::class, 'store']);
 
 Route::post('change-password', [AuthController::class, 'changePassword']);
+
+Route::post('enviar-contato', [ContatoController::class, 'enviarFormulario']);
 
