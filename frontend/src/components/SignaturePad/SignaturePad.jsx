@@ -64,28 +64,26 @@ function SignaturePad({ documentId, onSuccess }) {
   };
 
   return (
-    <Box>
+    <Box alignItems={'center'} justifyContent='center' textAlign='center' p={4}>
       <Text mb={4}>
         Faça a sua assinatura. A assinatura realizada aqui será adicionada ao protocolo.
       </Text>
 
-      <Box border='2px solid' w={125} h={50}
-      backgroundColor={useColorModeValue('white', 'gray.700')}
-      color={useColorModeValue('black', 'white')}>
+      <Box border='2px solid' w={500} h={200} mx='auto'
+      backgroundColor='white'
+      color='black'>
         <SignatureCanvas
           canvasProps={{ width: 500, height: 200, className: 'sigCanvas' }}
           ref={signRef}
         />
-      </Box>
-
-      <br />
-      <Flex justify="space-between" mt={6} wrap="wrap">
+        <Flex mt={4} wrap="wrap" justifyContent='center' textAlign='center'>
       <Button
               variant="outline"
               colorScheme="gray"
               px={6}
               py={3}
               onClick={handleClear}
+              mr={4}
             >
               Limpar
             </Button>
@@ -101,6 +99,7 @@ function SignaturePad({ documentId, onSuccess }) {
         Assinar
       </Button>
       </Flex>
+      </Box>
 
       <br /><br />
       {loading && <Text>Enviando assinatura...</Text>}
@@ -127,15 +126,24 @@ function SignaturePad({ documentId, onSuccess }) {
           >
             Declaração de Aceitação
           </ModalHeader>
-          <ModalBody textAlign="center" py={6} px={8}>
+          <ModalBody textAlign="center" py={2} px={8}>
             <Box
               bg="whiteAlpha.200"
               p={3}
               borderRadius="md"
               boxShadow="md"
               textAlign="center"
+              mb={4}
             >
               <Text as='p'>Eu, {userProfile.username}, titular do NIF (NIF), declaro que li e compreendi todos os termos e condições apresentados, e concordo com os mesmos.</Text>
+              </Box>  
+              <Box
+              bg="whiteAlpha.200"
+              p={3}
+              borderRadius="md"
+              boxShadow="md"
+              textAlign="center"
+            >
             <Text as='p'>Ao assinar digitalmente este documento, manifesto a minha aceitação plena e consciente, conferindo-lhe validade legal para todos os efeitos.</Text>
             </Box>
           </ModalBody>
