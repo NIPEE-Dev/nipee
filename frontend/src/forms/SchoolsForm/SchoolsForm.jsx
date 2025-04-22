@@ -108,7 +108,7 @@ export const SchoolsForm = ({ readOnly, isLoading, typeForm, ...props }) => (
               {({ field, form }) => (
                 <>
                   <Stack w="100%">
-                    <Text>Cursos</Text>
+                    <Text fontWeight="semibold">Cursos</Text>
                     <CourseSelect
                       value={field.value}
                       onChange={(val) => form.setFieldValue('courses', val)}

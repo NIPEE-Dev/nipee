@@ -5,7 +5,6 @@ const Footer = (props = {}) => {
     return (
         <Box as="footer" 
         bg={useColorModeValue('white', 'gray.900')}
-        borderRadius={5}
         borderTop={'solid'}
         borderColor={useColorModeValue('gray.100', 'gray.700')}
         borderWidth={2}
