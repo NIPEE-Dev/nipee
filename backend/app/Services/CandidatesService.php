@@ -8,6 +8,7 @@ use App\Enums\DisapprovedEnum;
 use App\Helpers\Filter;
 use App\Models\Candidate;
 use App\Models\SchoolMember;
+use App\Models\Users\User;
 use App\Traits\Common\Filterable;
 use App\Traits\Common\IsAdmin;
 use Illuminate\Database\Eloquent\Builder;
@@ -104,7 +105,12 @@ class CandidatesService
         }
         return tap(Candidate::create($data), function (Candidate $candidate) use ($data) {
             if (isset($data['school_id'])) {
-                SchoolMember::create(['user_id' => $candidate->user_id, 'school_id' => $data['school_id']]);
+                if (isset($data['school_id']) && User::find($candidate->user_id)) {
+                    SchoolMember::create([
+                        'user_id' => $candidate->user_id,
+                        'school_id' => $data['school_id']
+                    ]);
+                }                
             }
             $candidate->address()->create(Arr::get($data, 'address'));
             $candidate->contact()->create(Arr::get($data, 'contact'));
