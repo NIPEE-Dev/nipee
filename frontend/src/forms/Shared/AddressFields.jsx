@@ -161,7 +161,7 @@ const AddressFields = ({
         <FastField
           id={`${relation}.address`}
           name={`${relation}.address`}
-          placeholder='Endereço'
+          placeholder='Morada'
           component={FormField}
           readOnly={readOnly}
           required={required}

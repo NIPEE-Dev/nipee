@@ -33,6 +33,7 @@
     "react-number-format": "^4.9.3",
     "react-redux": "^7.2.6",
     "react-router-dom": "^6.28.1",
+    "react-select": "^5.10.1",
     "react-signature-canvas": "^1.0.7",
     "react-table": "^7.7.0",
     "react-text-mask": "^5.5.0",

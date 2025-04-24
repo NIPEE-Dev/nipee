@@ -38,7 +38,7 @@ const Termos = () => {
           <Text>1.3. Conteúdo: Qualquer informação, texto, gráficos, fotografias, vídeos ou outros materiais disponibilizados na plataforma.</Text>
 
           <Heading as="h2" size="md" color="#5931E9">
-            2. Acesso e Cadastro
+            2. Acesso e Registo
           </Heading>
           <Text>
             2.1. Para utilizar certas funcionalidades do site, o usuário deve criar uma conta, fornecendo informações pessoais verdadeiras,
@@ -66,7 +66,7 @@ const Termos = () => {
             4.2. Os dados fornecidos serão utilizados para conectar estudantes e empresas, melhorar os serviços e cumprir obrigações legais.
           </Text>
           <Text>
-            4.3. Os usuários têm o direito de acesso, retificação, exclusão ou limitação do processamento dos seus dados.
+            4.3. Os utilizadores têm o direito de acesso, retificação, exclusão ou limitação do processamento dos seus dados.
           </Text>
 
           <Heading as="h2" size="md" color="#5931E9">
@@ -74,7 +74,7 @@ const Termos = () => {
           </Heading>
           <Text>5.1. A plataforma atua apenas como intermediária entre estudantes e empresas, não garantindo a contratação de estágios.</Text>
           <Text>5.2. Não nos responsabilizamos por:</Text>
-          <Text>- Ações de terceiros, incluindo empresas ou outros usuários.</Text>
+          <Text>- Ações de terceiros, incluindo empresas ou outros utilizadores.</Text>
           <Text>- Erros ou interrupções no funcionamento da plataforma.</Text>
 
           <Heading as="h2" size="md" color="#5931E9">
@@ -89,7 +89,7 @@ const Termos = () => {
             7. Alterações nos Termos e Condições
           </Heading>
           <Text>7.1. Reservamo-nos o direito de alterar estes Termos e Condições a qualquer momento.</Text>
-          <Text>7.2. Alterações significativas serão notificadas aos usuários por meio do site ou de e-mail.</Text>
+          <Text>7.2. Alterações significativas serão notificadas aos utilizadores por meio do site ou de e-mail.</Text>
 
           <Heading as="h2" size="md" color="#5931E9">
             8. Rescisão

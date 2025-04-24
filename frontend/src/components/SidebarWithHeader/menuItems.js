@@ -180,16 +180,16 @@ export const menuItems = [
     ]
   },
   {
-    name: 'Gerenciamento',
+    name: 'Gestão', 
     icon: MdOutlineSettings,
     children: [
       {
-        name: 'Usuários',
+        name: 'Utilizadores',
         to: routes.config.users.list,
         permission: 'users.index'
       },
       {
-        name: 'Perfis administrativos',
+        name: 'Configuração de perfis',
         to: routes.config.roles.list,
         permission: 'roles.index'
       },

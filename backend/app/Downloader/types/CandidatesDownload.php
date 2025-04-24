@@ -34,12 +34,12 @@ class CandidatesDownload extends BaseTypeDownload implements IDownloaderDefiniti
     {
         return [
             'ID' => $row['id'],
-            'Nome do canditado' => $row['name'],
+            'Nome do candidato' => $row['name'],
             'Data de nascimento' => $row['birth_day'],
             'CPF' => $row['cpf'],
             'RG' => $row['rg'],
-            'Gênero' => GenderEnum::getLabel(GenderEnum::tryFrom($row['gender'])),
-            'Cursando' => StudyingLevelEnum::getLabel(StudyingLevelEnum::tryFrom($row['studying_level'])),
+            'Género' => GenderEnum::getLabel(GenderEnum::tryFrom($row['gender'])),
+            'Tipo de ensino' => StudyingLevelEnum::getLabel(StudyingLevelEnum::tryFrom($row['studying_level'])),
             'Curso' => $row['course'],
             'Semestre' => $row['semester'],
             'RA' => $row['ra'],
@@ -47,7 +47,7 @@ class CandidatesDownload extends BaseTypeDownload implements IDownloaderDefiniti
             'Escola' => $row['school.corporate_name'],
             'Interesse' => InterestEnum::getLabel(InterestEnum::tryFrom($row['interest'])),
 
-            'Endereço' => '', // vazio só pra separar no excel
+            'Morada' => '', // vazio só pra separar no excel
             'CEP' => $row['address.cep'] ?? '',
             'Estado' => $row['address.uf'] ?? '',
             'Cidade' => $row['address.city'] ?? '',

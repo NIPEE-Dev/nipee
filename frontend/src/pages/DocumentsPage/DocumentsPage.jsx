@@ -25,14 +25,14 @@ const DocumentsPage = () => {
 
   return (
     <ResourceScreen 
-      title='Listagem de Documentos'
+      title='Documentos'
       permissions={['']}
       resource='Documents'
       routeBase={routes.documents}
       canAdd={false}
       canView={false}
       canEdit={false}
-      canRemove={false}
+      canRemove={isAdm}
       resourceListProps={{
         downloadButtonEnabled: false,
       }}

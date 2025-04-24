@@ -10,6 +10,7 @@ use App\Models\School;
 use App\Services\SchoolService;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use App\Http\Resources\BaseRecordResource;
 
 class SchoolController extends Controller
 {
@@ -24,7 +25,8 @@ class SchoolController extends Controller
      */
     public function index(Request $request)
     {
-        return SchoolResource::collection($this->schoolService->index($request->all()));
+        $schools = $this->schoolService->index($request->all());
+        return SchoolResource::collection($schools);
     }
 
     /**
@@ -74,4 +76,18 @@ class SchoolController extends Controller
         $school->trashed() ? $school->restore() : $school->delete();
         return new SchoolResource($school->load(['contact', 'address', 'responsible', 'documents', 'courses']));
     }
+
+    /**
+     * Display a listing of the courses.
+     *
+     * @param School $school
+     * @return BaseRecordResource
+     */
+    public function getCourses(School $school)
+    {
+        $courses = $school->courses;
+        return BaseRecordResource::collection($courses);
+    }
+
+    
 }

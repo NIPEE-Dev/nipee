@@ -6,7 +6,7 @@ import { dateFormatter } from '../../utils/visualization';
 
 const RolesPage = () => (
   <ResourceScreen
-    title='Listagem de Perfis'
+    title='Perfis'
     permissions={['']}
     resource='Roles'
     routeBase={routes.config.roles}

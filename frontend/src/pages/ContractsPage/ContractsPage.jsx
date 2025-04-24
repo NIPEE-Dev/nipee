@@ -30,7 +30,7 @@ const ContractsPage = () => {
 
   return (
     <ResourceScreen
-      title='Listagem de Protocolos'
+      title='Protocolos'
       permissions={['']}
       resource='Contracts'
       routeBase={routes.contracts}
@@ -228,13 +228,9 @@ const ContractsPage = () => {
         {
           field: 'fantasy_name',
           relation: 'school',
-          header: 'Nome fantasia da escola'
+          header: 'Nome da escola'
         },
-        {
-          field: 'corporate_name',
-          relation: 'school',
-          header: 'Razão social da escola'
-        },
+       
         {
           field: 'name',
           relation: 'candidate',
@@ -251,15 +247,7 @@ const ContractsPage = () => {
             { value: 3, header: 'Vencido' }
           ]
         },
-        {
-          field: 'birth_day',
-          header: 'Aniversariantes',
-          type: 'select',
-          options: [
-            { value: 0, header: 'Deste mês' },
-            { value: 1, header: 'Próximo mês' }
-          ]
-        }
+       
       ]}
     />
   );

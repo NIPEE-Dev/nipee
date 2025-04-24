@@ -364,6 +364,18 @@ class StudentsPreRegistrationController extends Controller
         }
     }
 
+    public function destroy(Request $request, StudentsPreRegistration $StudentsPreRegistration)
+    {
+       /* $pin = config('brilho.termination_pin');
+        $terminationPin = $request->get('pin');
+
+        if ($pin !== $terminationPin) {
+            throw new ApplicationException("Senha informada incorreta", AlertTypeEnum::ERROR);
+        }*/
+
+        $StudentsPreRegistration->delete();
+    }
+
 
     protected function getEducationLevelAttribute($value)
     {

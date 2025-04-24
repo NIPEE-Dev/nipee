@@ -65,12 +65,12 @@ class ContractsDownload extends BaseTypeDownload implements IDownloaderDefinitio
             'Vaga' => $row['job.role'],
 
             'Candidato' => '', // vazio só pra separar no excel
-            'Nome do canditado' => $row['candidate.name'],
+            'Nome do candidato' => $row['candidate.name'],
             'Data de nascimento' => $row['candidate.birth_day'],
             'CPF' => $row['candidate.cpf'],
             'RG' => $row['candidate.rg'],
-            'Gênero' => $row['candidate.gender'],
-            'Cursando' => $row['candidate.studying_level'],
+            'Género' => $row['candidate.gender'],
+            'Tipo de ensino' => $row['candidate.studying_level'],
             'Curso' => $row['candidate.course'],
             'Semestre' => $row['candidate.semester'],
             'RA' => $row['candidate.ra'],
@@ -78,12 +78,12 @@ class ContractsDownload extends BaseTypeDownload implements IDownloaderDefinitio
             'Escola' => $row['school.corporate_name'],
             'Interesse' => $row['candidate.interest'],
 
-            'Endereço do Candidato' => '', // vazio só pra separar no excel
+            'Morada do Candidato' => '', // vazio só pra separar no excel
             'CEP' => $row['userAddress.cep'] ?? '',
             'Estado' => $row['userAddress.uf'] ?? '',
             'Cidade' => $row['userAddress.city'] ?? '',
-            'Bairro' => $row['userAddress.street'] ?? '',
-            'Endereço Completo' => $row['userAddress.address'] ?? '',
+            'Rua' => $row['userAddress.street'] ?? '',
+            'Morada' => $row['userAddress.address'] ?? '',
             'Número' => $row['userAddress.number'] ?? '',
             'Complemento' => $row['userAddress.complement'] ?? '',
 
