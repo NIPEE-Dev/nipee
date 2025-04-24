@@ -30,6 +30,7 @@ Route::post('company-pre-registrations/store', [CompanyPreRegistrationController
 Route::post('students-pre-registrations/store', [StudentsPreRegistrationController::class, 'store']);
 
 Route::post('change-password', [AuthController::class, 'changePassword']);
+Route::post('send-verification-code', [AuthController::class, 'requestPasswordCode']);
 
 Route::post('enviar-contato', [ContatoController::class, 'enviarFormulario']);
 

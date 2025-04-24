@@ -33,7 +33,7 @@ class SchoolService
 
         $shouldOrderByName = isset($criteria['perPage']) && $criteria['perPage'] == '9999';
         $data = $this->applyCriteria(School::withTrashed()->orderBy($shouldOrderByName ? 'corporate_name' : 'id', $shouldOrderByName ? 'asc' : 'desc'), $criteria);
-        $data->with(['responsible', 'documents']);
+        $data->with(['responsible', 'documents', 'courses', 'address']);
         $user = Auth::user();
         if ($user === null) {
             return $data->paginate(Arr::get($criteria, 'perPage', 10));
@@ -92,6 +92,7 @@ class SchoolService
             $school->contact()->update(Arr::get($data, 'contact', []));
             $school->address()->update(Arr::get($data, 'address', []));
             $school->responsible()->update(Arr::get($data, 'responsible', []));
+            $school->courses()->sync(Arr::get($data, 'courses', []));
             return;
         }
         throw new HttpException(403, 'Sem permissão para editar essa escola');
