@@ -21,7 +21,7 @@ const CandidatesPage = () => {
       title={title}
       permissions={['']}
       resource='Candidates'
-      routeBase={routes.config.candidates}
+      routeBase={routes.config.candidates} 
       Form={Form}
       canAdd={!(isEmpresa || isCandidato)}
       canRemove={!(isEmpresa || isCandidato || isEscola)}
