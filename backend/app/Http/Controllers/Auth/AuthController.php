@@ -11,6 +11,7 @@ use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use App\Mail\PasswordChangeSuccess;
+use App\Mail\SendResetCodeMail;
 use Illuminate\Support\Facades\Mail;
 
 class AuthController extends Controller
@@ -83,29 +84,55 @@ class AuthController extends Controller
         ])->withCookie(cookie('brilho-auth-token', $token, 9999999999999999));
     }
 
-    public function changePassword(Request $request)
+    public function requestPasswordCode(Request $request)
     {
-        $validated = $request->validate([
-            'password' => 'required|min:3|confirmed',
-            'password_confirmation' => 'required|min:6',
-        ]);
+        $request->validate(['email' => 'required|email']);
 
-        $email = $request->input('email');
-
-        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            return response()->json(['message' => 'E-mail inválido.'], 422);
-        }
-
-        $user = User::where('email', $email)->first();
+        $user = User::where('email', $request->email)->first();
 
         if (!$user) {
             return response()->json(['message' => 'Usuário não encontrado.'], 404);
         }
 
-        $user->password = Hash::make($validated['password']);
+        $code = rand(100000, 999999); 
+
+        $user->password_reset_code = $code;
+        $user->password_reset_expires_at = now()->addMinutes(10);
         $user->save();
 
-        //Mail::to($user->email)->send(new PasswordChangeSuccess($user->name));
+        Mail::to($user->email)->send(new SendResetCodeMail($user->name, $code));
+
+        return response()->json(['message' => 'Código enviado para seu e-mail.'], 200);
+    }
+
+
+    public function changePassword(Request $request)
+    {
+        $validated = $request->validate([
+            'email' => 'required|email',
+            'code' => 'required|digits:6',
+            'password' => 'required|min:6|confirmed',
+        ]);
+
+        $user = User::where('email', $validated['email'])->first();
+
+        if (!$user) {
+            return response()->json(['message' => 'Usuário não encontrado.'], 404);
+        }
+
+        if (
+            $user->password_reset_code != $validated['code'] ||
+            now()->greaterThan($user->password_reset_expires_at)
+        ) {
+            return response()->json(['message' => 'Código inválido ou expirado.'], 403);
+        }
+
+        $user->password = Hash::make($validated['password']);
+        $user->password_reset_code = null; 
+        $user->password_reset_expires_at = null;
+        $user->save();
+
+        Mail::to($user->email)->send(new PasswordChangeSuccess($user->name));
 
         return response()->json(['message' => 'Senha alterada com sucesso.'], 200);
     }
