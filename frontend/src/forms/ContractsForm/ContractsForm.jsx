@@ -146,10 +146,10 @@ export const ContractsForm = ({
 
               <Resource
                 resource='Schools'
-                autoFetch={ formProps.values.candidate }
+                autoFetch
                 resourceParams={{
                   perPage: 9999,
-                  schoolId: formProps.values.candidate && formProps.values.candidate.user && formProps.values.candidate.user.school && formProps.values.candidate.user.school[0] ? formProps.values.candidate.user.school[0].id : null,
+                  /* schoolId: formProps.values.candidate && formProps.values.candidate.user && formProps.values.candidate.user.school && formProps.values.candidate.user.school[0] ? formProps.values.candidate.user.school[0].id : null, */
                   ...(typeForm === 'add' && { withoutTrashed: true })
                 }}
               >
@@ -162,7 +162,6 @@ export const ContractsForm = ({
                       typeForm === 'edit' ? 'school_id' : 'candidate.school.id'
                     }
                     as="select"
-                    disabled={formProps.values.candidate && formProps.values.candidate.user && formProps.values.candidate.user.school && formProps.values.candidate.user.school[0] && records.length > 0 ? false : true}
                     placeholder='Nome da Escola'
                     component={FormField.Select}
                     readOnly={readOnly}
@@ -236,36 +235,45 @@ export const ContractsForm = ({
               ) : (
                 <Resource
                   resource='Candidates'
-                  autoFetch
+                  autoFetch={formProps.values.candidate}
                   resourceParams={{
                     perPage: 99999,
                     ...(typeForm === 'add' && { withoutTrashed: true })
                   }}
                 >
-                  {({ records, isLoading }) => (
-                    <Field
-                      id='candidate.name'
-                      name='candidate.name'
-                      placeholder='Nome do candidato'
-                      component={FormField.Select}
-                      isLoading={isLoading}
-                      readOnly={readOnly}
-                      onChangeCallback={(e) =>
-                        handleCandidateChange(
-                          formProps.setFieldValue,
-                          records,
-                          e.target.value
-                        )
-                      }
-                      required
-                    >
-                      {records.map((record) => (
-                        <option key={record.id} value={record.id}>
-                          {record.name}
-                        </option>
-                      ))}
-                    </Field>
-                  )}
+                  {({ records, isLoading }) => {
+                    const selectedSchoolId = typeForm === 'edit'
+                      ? formProps.values.school_id
+                      : formProps.values.candidate?.school?.id;
+
+                      const candidatesFromSchool = records.filter(record => 
+                        record.user?.school?.some(school => String(school.id) === String(selectedSchoolId)));                   
+
+                    return (
+                      <Field
+                        id="candidate.name"
+                        name="candidate.name"
+                        placeholder="Nome do candidato"
+                        component={FormField.Select}
+                        isLoading={isLoading}
+                        readOnly={readOnly}
+                        onChangeCallback={(e) =>
+                          handleCandidateChange(
+                            formProps.setFieldValue,
+                            records,
+                            e.target.value
+                          )
+                        }
+                        required
+                      >
+                        {candidatesFromSchool.map((record) => (
+                          <option key={record.id} value={record.id}>
+                            {record.name}
+                          </option>
+                        ))}
+                      </Field>
+                    );
+                  }}
                 </Resource>
               )}
 
