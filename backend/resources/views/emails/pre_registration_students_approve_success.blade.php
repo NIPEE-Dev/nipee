@@ -74,7 +74,7 @@
         <p><strong>Nota:</strong> Este link será válido por 30 dias. Caso tenha alguma dificuldade ou dúvida, não hesite em contactar o nosso suporte.</p>
         <div class="footer">
             <p>Cumprimentos,<br>A equipa da <strong>NIPEE</strong></p>
-            <p>© 2025 NIPEE. Todos os direitos reservados.</p>
+            <p>© {{ date('Y') }} NIPEE. Todos os direitos reservados.</p>
         </div>
     </div>
 

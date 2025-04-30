@@ -72,7 +72,7 @@
         <p>Agora, para completar o seu cadastro e acessar todas as funcionalidades, por favor, acesse a plataforma e complete o seu perfil.</p>
         <div class="footer">
             <p>Cumprimentos,<br>A equipa da <strong>NIPEE</strong></p>
-            <p>© 2025 NIPEE. Todos os direitos reservados.</p>
+            <p>© {{ date('Y') }} NIPEE. Todos os direitos reservados.</p>
         </div>
     </div>
 
