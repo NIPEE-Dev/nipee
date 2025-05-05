@@ -67,7 +67,7 @@
         </div>
         <div class="footer">
             <p>Cumprimentos,<br>A equipa da <strong>NIPEE</strong></p>
-            <p>© 2025 NIPEE. Todos os direitos reservados.</p>
+            <p>© {{ date('Y') }} NIPEE. Todos os direitos reservados.</p>
         </div>
     </div>
 
