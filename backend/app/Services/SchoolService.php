@@ -50,39 +50,42 @@ class SchoolService
     }
 
     public function store($data)
-    {
-        return tap(School::create($data), function (School $school) use ($data) {
-            $address = Arr::get($data, 'address');
-            $responsible = Arr::get($data, 'responsible', []);
+{
+    $data['status'] = 1; // Define a escola como ativa
 
-            $school->contact()->create(Arr::get($data, 'contact', []));
-            $school->address()->create($address);
-            $school->responsible()->create($responsible);
+    return tap(School::create($data), function (School $school) use ($data) {
+        $address = Arr::get($data, 'address');
+        $responsible = Arr::get($data, 'responsible', []);
 
-            /* $generatedDocument = $this->wordProcessor->make(DocumentTypeTemplateEnum::CONTRACT_SCHOOL, [
-                'razaoSocial' => $school->corporate_name,
-                'endereco' => $address['address'],
-                'bairro' => $address['district'],
-                'numero' => $address['number'],
-                'cidade' => $address['city'],
-                'uf' => strtoupper($address['uf']),
-                'cep' => $address['cep'],
-                'cnpj' => $school->cnpj,
-                'responsavel' => $responsible['name'],
-                'data' => now()->translatedFormat("d \\d\\e F \\d\\e Y"),
-            ]);
+        $school->contact()->create(Arr::get($data, 'contact', []));
+        $school->address()->create($address);
+        $school->responsible()->create($responsible);
 
-            $school->documents()->create([
-                'filename' => $generatedDocument['randomName'],
-                'original_filename' => $generatedDocument['filename'],
-                'file_extension' => 'docx',
-                'filesize' => $generatedDocument['filesize'],
-                'type' => 'Empresa Escola',
-            ]); */
+        /* $generatedDocument = $this->wordProcessor->make(DocumentTypeTemplateEnum::CONTRACT_SCHOOL, [
+            'razaoSocial' => $school->corporate_name,
+            'endereco' => $address['address'],
+            'bairro' => $address['district'],
+            'numero' => $address['number'],
+            'cidade' => $address['city'],
+            'uf' => strtoupper($address['uf']),
+            'cep' => $address['cep'],
+            'cnpj' => $school->cnpj,
+            'responsavel' => $responsible['name'],
+            'data' => now()->translatedFormat("d \\d\\e F \\d\\e Y"),
+        ]);
 
-            return $school->load(['contact', 'address', 'responsible', 'documents']);
-        });
-    }
+        $school->documents()->create([
+            'filename' => $generatedDocument['randomName'],
+            'original_filename' => $generatedDocument['filename'],
+            'file_extension' => 'docx',
+            'filesize' => $generatedDocument['filesize'],
+            'type' => 'Empresa Escola',
+        ]); */
+
+        return $school->load(['contact', 'address', 'responsible', 'documents']);
+    });
+}
+
 
     public function update(School $school, $data)
     {
