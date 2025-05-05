@@ -87,7 +87,7 @@ export const CandidatesForm = ({ readOnly, isLoading, typeForm, ...props }) => {
             <Stack direction={['column', 'row']} spacing='24px'>
               <FastField
                 id='name'
-                name='name'
+                name='name' 
                 placeholder='Nome do candidato'
                 component={FormField}
                 readOnly={readOnly}
