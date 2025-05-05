@@ -12,7 +12,7 @@ import {
 } from '../../utils/filterHelpers';
 import { WithModal } from '../../components/WithModal';
 import { ModalConfirm } from '../../components/WithModal/ModalConfirm';
-
+import { getDistrictName } from '../../utils/district';
 const SchoolsPage = () => {
   const userProfile = JSON.parse(localStorage.getItem('profile'));
   const userRole = userProfile?.role || '';
@@ -138,7 +138,8 @@ const SchoolsPage = () => {
     },
     {
       Header: 'Distrito',
-      accessor: 'address.uf'
+      accessor: 'address.uf',
+      Cell: ({value }) => getDistrictName(value)
     }
   ]}
 />
