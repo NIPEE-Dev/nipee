@@ -106,7 +106,7 @@ export const CompaniesForm = ({
             <FastField
                   id='cnpj'
                   name='cnpj'
-                  placeholder='NIF/NIPC'
+                  placeholder='NIPC'
                   component={FormField.InputMask}
                   mask={cnpjMask}
                   readOnly={readOnly}
