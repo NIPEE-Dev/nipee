@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Stack, Divider, Box, Button } from '@chakra-ui/react';
+import { Stack, Divider, Box, Button, Spinner } from '@chakra-ui/react';
 import { Formik, Form, Field } from 'formik';
 import FormField from '../../components/FormField/FormField';
 import GroupContainer from '../GroupContainer';
@@ -17,12 +17,17 @@ import api from "../../api";
 
 const CourseSelect = ({ value = [], onChange, readOnly }) => {
   const [courses, setCourses] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchCourses = async () => {
+      setLoading(true);
       try {
+        const currentValues = value.map(c => String(c.id));
         let res = await api.get('/base-records?type=6');
         setCourses(res.data.data);
+        onChange(currentValues);
+        setLoading(false);
       } catch (err) {
         console.error('Erro ao carregar cursos:', err);
       } 
@@ -35,9 +40,16 @@ const CourseSelect = ({ value = [], onChange, readOnly }) => {
     onChange(selectedValues);
   };
 
+  if (loading) {
+    return (
+      <Box textAlign="center" py={4}>
+        <Spinner size="sm" />
+      </Box>
+    );
+  }
+
   return (
     <Select
-      w="100%"
       isMulti
       isSearchable
       value={courses.filter(course => value.includes(String(course.id))).map(course => ({ value: String(course.id), label: course.title || 'Unknown' }))}
@@ -112,6 +124,7 @@ export const SchoolsForm = ({ readOnly, isLoading, typeForm, ...props }) => (
                     <CourseSelect
                       value={field.value}
                       onChange={(val) => form.setFieldValue('courses', val)}
+                      readOnly={readOnly}
                     />
                   </Stack>
                 </>

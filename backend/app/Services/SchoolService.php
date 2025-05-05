@@ -74,18 +74,17 @@ class SchoolService
             'data' => now()->translatedFormat("d \\d\\e F \\d\\e Y"),
         ]);
 
-        $school->documents()->create([
-            'filename' => $generatedDocument['randomName'],
-            'original_filename' => $generatedDocument['filename'],
-            'file_extension' => 'docx',
-            'filesize' => $generatedDocument['filesize'],
-            'type' => 'Empresa Escola',
-        ]); */
+            $school->documents()->create([
+                'filename' => $generatedDocument['randomName'],
+                'original_filename' => $generatedDocument['filename'],
+                'file_extension' => 'docx',
+                'filesize' => $generatedDocument['filesize'],
+                'type' => 'Empresa Escola',
+            ]); */
 
-        return $school->load(['contact', 'address', 'responsible', 'documents']);
-    });
-}
-
+            return $school->load(['contact', 'address', 'responsible', 'documents']);
+        });
+    }
 
     public function update(School $school, $data)
     {
@@ -93,7 +92,7 @@ class SchoolService
         if ($this->isAdmin() || $user->roles[0]->id === 10) {
             $school->update($data);
             $school->contact()->update(Arr::get($data, 'contact', []));
-            $school->address()->update(Arr::get($data, 'address', []));
+            $school->address()->updateOrCreate([], Arr::get($data, 'address', []));
             $school->responsible()->update(Arr::get($data, 'responsible', []));
             $school->courses()->sync(Arr::get($data, 'courses', []));
             return;
