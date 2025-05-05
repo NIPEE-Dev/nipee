@@ -344,14 +344,14 @@ const FormularioRegistro = () => {
                   />
                 </FormControl>
                 <FormControl isRequired isInvalid={!!currentErrors.nif}>
-                  <FormLabel>NIF (Número de Identificação Fiscal)</FormLabel>
+                  <FormLabel>NIPC (Número de Identificação de Pessoa Coletiva)</FormLabel>
                   <Input
                     name="nif"
                     type="text"
                     maxLength={9}
                     value={currentFormData.nif}
                     onChange={(e) => handleInputChange(e, "empresa")}
-                    placeholder="Digite o NIF"
+                    placeholder="Digite o NIPC"
                     bg="gray.50"
                   />
                   {currentErrors.nif && (
