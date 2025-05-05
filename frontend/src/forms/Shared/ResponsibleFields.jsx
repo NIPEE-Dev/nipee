@@ -56,14 +56,17 @@ export const ResponsibleFields = ({
     </Stack>
 
     <Stack direction={['column', 'row']} spacing="24px">
-      <Field
-        id="responsible.document"
-        name="responsible.document"
-        placeholder="CC / Título de Residência / Passaporte"
-        component={FormField}
-        readOnly={readOnly}
-        required={requiredFields.includes('document')}
-      />
+    <Field
+  id="responsible.document"
+  name="responsible.document"
+  placeholder="NIF"
+  component={FormField}
+  readOnly={readOnly}
+  required={requiredFields.includes('document')}
+  inputMode="numeric"         // mostra apenas o teclado numérico em mobile
+  pattern="[0-9]*"            // restringe a entrada para apenas números
+/>
+
 
         <Field
           id='validade'

@@ -223,7 +223,7 @@ export const ContractsForm = ({
             title='Dados do candidato'
             subtitle='Dados pessoais do candidato para a vaga'
           >
-            <Stack direction={['column', 'row']} spacing='24px'>
+            <Stack direction={['column', 'row']} spacing='24px'> 
               {['edit', 'view'].includes(typeForm) ? (
                 <FastField
                   id='candidate.name'
