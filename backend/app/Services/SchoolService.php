@@ -56,10 +56,12 @@ class SchoolService
     return tap(School::create($data), function (School $school) use ($data) {
         $address = Arr::get($data, 'address');
         $responsible = Arr::get($data, 'responsible', []);
+        $courses = Arr::get($data, 'courses', []);
 
         $school->contact()->create(Arr::get($data, 'contact', []));
         $school->address()->create($address);
         $school->responsible()->create($responsible);
+        $school->courses()->sync($courses);
 
         /* $generatedDocument = $this->wordProcessor->make(DocumentTypeTemplateEnum::CONTRACT_SCHOOL, [
             'razaoSocial' => $school->corporate_name,
@@ -82,7 +84,7 @@ class SchoolService
                 'type' => 'Empresa Escola',
             ]); */
 
-            return $school->load(['contact', 'address', 'responsible', 'documents']);
+            return $school->load(['contact', 'address', 'responsible', 'documents', 'courses']);
         });
     }
 
