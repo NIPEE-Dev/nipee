@@ -33,7 +33,7 @@ export const WorkflowCandidatesForm = ({
           >
             <Stack direction={["column", "row"]} spacing="24px">
               <FastField
-                id="full_name"
+                id="full_name" 
                 name="full_name"
                 placeholder="Nome do candidato"
                 component={FormField}
