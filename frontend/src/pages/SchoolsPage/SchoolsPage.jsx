@@ -135,10 +135,6 @@ const SchoolsPage = () => {
     {
       Header: 'Conselho',
       accessor: 'address.district'
-    },
-    {
-      Header: 'Estado',
-      accessor: 'address.uf'
     }
   ]}
 />
