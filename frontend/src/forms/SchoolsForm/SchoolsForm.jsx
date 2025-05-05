@@ -64,6 +64,7 @@ const CourseSelect = ({ value = [], onChange, readOnly }) => {
 };
 
 export const SchoolsForm = ({ readOnly, isLoading, typeForm, ...props }) => (
+  console.log('props', props.initialValues),
   <Formik
     enableReinitialize
     initialErrors={props.initialErrors}

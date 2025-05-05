@@ -89,10 +89,11 @@ class SchoolService
         $user = Auth::user();
         if ($this->isAdmin() || $user->roles[0]->id === 10) {
             $school->update($data);
-            $school->contact()->update(Arr::get($data, 'contact', []));
-            $school->address()->update(Arr::get($data, 'address', []));
-            $school->responsible()->update(Arr::get($data, 'responsible', []));
+            $school->contact()->updateOrCreate([], Arr::get($data, 'contact', []));
+            $school->address()->updateOrCreate([], Arr::get($data, 'address', []));
+            $school->responsible()->updateOrCreate([], Arr::get($data, 'responsible', []));
             $school->courses()->sync(Arr::get($data, 'courses', []));
+            
             return;
         }
         throw new HttpException(403, 'Sem permissão para editar essa escola');
