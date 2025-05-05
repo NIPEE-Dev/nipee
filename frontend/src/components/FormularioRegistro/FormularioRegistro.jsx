@@ -39,7 +39,7 @@ const FormularioRegistro = () => {
   const [formType, setFormType] = useState("aluno");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [schools, setSchools] = useState([]);
-  const [records, setRecords] = useState([]);
+  const [records, setCourses] = useState([]);
   const [errors, setErrors] = useState({ empresa: {}, aluno: {} });
   const [recaptchaToken, setRecaptchaToken] = useState(null);
 
@@ -82,6 +82,7 @@ const FormularioRegistro = () => {
   };
 
   const handleSchoolChange = (e) => {
+    setCourses([])
     const selectedSchoolId = e.target.value;
     setFormData((prev) => ({
       ...prev,
@@ -119,7 +120,7 @@ const FormularioRegistro = () => {
   useEffect(() => {
     const fetchCourses = async () => {
       if (!formData.aluno.school_id) {
-        setRecords([]);
+        setCourses([]);
         return;
       }
 
@@ -133,7 +134,7 @@ const FormularioRegistro = () => {
           );
           allCourses = res.data.data;
 
-        setRecords(allCourses);
+        setCourses(allCourses);
         console.log(allCourses);
       } catch (error) {
         console.error("Erro ao buscar os cursos:", error);
@@ -540,7 +541,7 @@ const FormularioRegistro = () => {
                     value={currentFormData.course}
                     onChange={(e) => handleInputChange(e, "aluno")}
                     placeholder="Selecione uma opção"
-                    isDisabled={!currentFormData.school_id}
+                    isDisabled={!currentFormData.school_id || records.length === 0}
                     bg="gray.50"
                   >
                     {records.map((record) => (

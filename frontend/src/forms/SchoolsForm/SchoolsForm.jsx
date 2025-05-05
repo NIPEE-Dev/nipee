@@ -64,7 +64,6 @@ const CourseSelect = ({ value = [], onChange, readOnly }) => {
 };
 
 export const SchoolsForm = ({ readOnly, isLoading, typeForm, ...props }) => (
-  console.log('props', props.initialValues),
   <Formik
     enableReinitialize
     initialErrors={props.initialErrors}
@@ -121,7 +120,7 @@ export const SchoolsForm = ({ readOnly, isLoading, typeForm, ...props }) => (
               {({ field, form }) => (
                 <>
                   <Stack w="100%">
-                    <Text>Cursos</Text>
+                    <Text fontWeight="semibold">Cursos</Text>
                     <CourseSelect
                       value={field.value}
                       onChange={(val) => form.setFieldValue('courses', val)}
