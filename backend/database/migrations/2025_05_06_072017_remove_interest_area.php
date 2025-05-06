@@ -12,22 +12,18 @@ return new class extends Migration
      * @return void
      */
     public function up()
-    {
-        Schema::table('students_pre_registrations', function (Blueprint $table) {
-            $table->dropColumn('course');
-            $table->bigInteger('course')->unsigned()->nullable();
-        });
+    {       
+        if (Schema::hasColumn('students_pre_registrations', 'interest_area')) {
+            Schema::table('students_pre_registrations', function (Blueprint $table) {
+                $table->dropColumn('interest_area');
+            });
+        }
     }
 
-    /**
-     * Reverse the migrations.
-     *
-     * @return void
-     */
     public function down()
     {
         Schema::table('students_pre_registrations', function (Blueprint $table) {
-            $table->dropColumn('course');
+            $table->string('interest_area')->nullable();
         });
     }
 };
