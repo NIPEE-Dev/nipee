@@ -18,6 +18,7 @@ const AddressFields = ({
   required = true
 }) => {
   const [isLoading, setIsLoading] = useState(false);
+  const [isCepSelected, setIsCepSelected] = useState(false);  // Estado para controlar se o CEP foi selecionado
   const toast = useToast();
 
   const triggerFindCepFail = () => {
@@ -57,6 +58,7 @@ const AddressFields = ({
     const cepNumbers = cep.replace(/\D/g, ''); 
     if (cepNumbers.length === 7) { 
       setIsLoading(true);
+      setIsCepSelected(true);  // O CEP foi preenchido, marcar como selecionado
       fetch(`https://api.duminio.com/ptcp/v2/ptapi67cf743eba11e8.10231284/${cepNumbers}`)
         .then((response) => response.json())
         .then((response) => {
@@ -65,7 +67,7 @@ const AddressFields = ({
           } else {
             const districtFull = response[0]?.Distrito || "";  
             const districtAbbr = districtMap[districtFull] || ""; 
-  
+            
             setFieldValue(`${relation}.uf`, districtAbbr);
             setFieldValue(`${relation}.city`, response[0]?.Localidade?.charAt(0).toUpperCase() + response[0]?.Localidade?.slice(1).toLowerCase() || "");  
             setFieldValue(`${relation}.address`, response[0]?.Morada || "");  
@@ -110,30 +112,30 @@ const AddressFields = ({
           name={`${relation}.uf`}
           placeholder='Distrito'
           component={FormField.Select}
-          readOnly={readOnly}
+          readOnly={isCepSelected || readOnly}
           required={required}
         >
-          <option value="">Selecione um distrito</option> 
-           <option value="av">Aveiro</option>
-            <option value="be">Beja</option>
-            <option value="br">Braga</option>
-            <option value="bg">Bragança</option>
-            <option value="cb">Castelo Branco</option>
-            <option value="co">Coimbra</option>
-            <option value="ev">Évora</option>
-            <option value="fa">Faro</option>
-            <option value="gu">Guarda</option>
-            <option value="le">Leiria</option>
-            <option value="li">Lisboa</option>
-            <option value="po">Portalegre</option>
-            <option value="pt">Porto</option>
-            <option value="sa">Santarém</option>
-            <option value="se">Setúbal</option>
-            <option value="vc">Viana do Castelo</option>
-            <option value="vr">Vila Real</option>
-            <option value="vi">Viseu</option>
-            <option value="ac">Açores</option>
-            <option value="ma">Madeira</option>
+          <option value="">Selecione um distrito</option>
+          <option value="av">Aveiro</option>
+          <option value="be">Beja</option>
+          <option value="br">Braga</option>
+          <option value="bg">Bragança</option>
+          <option value="cb">Castelo Branco</option>
+          <option value="co">Coimbra</option>
+          <option value="ev">Évora</option>
+          <option value="fa">Faro</option>
+          <option value="gu">Guarda</option>
+          <option value="le">Leiria</option>
+          <option value="li">Lisboa</option>
+          <option value="po">Portalegre</option>
+          <option value="pt">Porto</option>
+          <option value="sa">Santarém</option>
+          <option value="se">Setúbal</option>
+          <option value="vc">Viana do Castelo</option>
+          <option value="vr">Vila Real</option>
+          <option value="vi">Viseu</option>
+          <option value="ac">Açores</option>
+          <option value="ma">Madeira</option>
         </FastField>
       </Stack>
 
@@ -143,7 +145,7 @@ const AddressFields = ({
           name={`${relation}.city`}
           placeholder='Localidade'
           component={FormField}
-          readOnly={readOnly}
+          readOnly={isCepSelected || readOnly}  // Torna o campo apenas leitura quando o CEP for selecionado
           required={required}
         />
 
@@ -152,7 +154,7 @@ const AddressFields = ({
           name={`${relation}.district`}
           placeholder='Conselho'
           component={FormField}
-          readOnly={readOnly}
+          readOnly={isCepSelected || readOnly}
           required={required}
         />
       </Stack>
@@ -163,7 +165,7 @@ const AddressFields = ({
           name={`${relation}.address`}
           placeholder='Morada'
           component={FormField}
-          readOnly={readOnly}
+          readOnly={isCepSelected || readOnly}
           required={required}
         />
 
