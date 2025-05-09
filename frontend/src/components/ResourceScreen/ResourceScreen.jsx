@@ -5,7 +5,6 @@ import ResourceList from '../ResourceList/ResourceList';
 import ResourceDetails from '../ResourceDetails/ResourceDetails';
 import ResourceNew from '../ResourceNew/ResourceNew';
 import ResourceUpdate from '../ResourceUpdate/ResourceUpdate';
-import Footer from '../Footer/Footer';
 
 const ResourceScreen = ({
   resource,
@@ -92,7 +91,6 @@ const ResourceScreen = ({
         />
       </Routes>
     </div>
-    <Footer bg="none" border="none" style={{ marginBottom: -10 }}/>
   </div>
 );
 

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Aprovação do Registo na Plataforma - Acesso Ativado</title>
+    <title>Código de Verificação</title>
     <style>
         body {
             font-family: 'Arial', sans-serif;
@@ -38,17 +38,15 @@
             color: #5A34EA;
             margin-bottom: 15px;
         }
-        .link-button {
+        .code-box {
             display: inline-block;
-            padding: 12px 24px;
-            margin-top: 20px;
-            background-color: #5A34EA;
-            color: #ffffff !important; 
-            text-decoration: none;
-            border-radius: 8px;
+            background-color: #f1f1f1;
+            padding: 14px 24px;
+            font-size: 24px;
             font-weight: bold;
-            font-size: 16px;
-            text-align: center;
+            color: #5A34EA;
+            border-radius: 8px;
+            letter-spacing: 4px;
         }
         .footer {
             text-align: center;
@@ -66,14 +64,13 @@
 <body>
 
     <div class="email-container">
-        <h1>Aprovação do Registo na Plataforma - Acesso Ativado</h1>
-        <p class="greeting">Exmo(a). Sr(a) {{ $representativeName }},</p>
-        <p>É com satisfação que informamos que o vosso cadastro na nossa plataforma foi aprovado com sucesso.</p>
-        <p>Para aceder à plataforma, utilize o link abaixo para definir a vossa senha:</p>
-        <a href="{{ $passwordResetLink }}" class="link-button">Definir Senha</a>
-        <p><strong>Nota:</strong> Este link será válido por 30 dias. Caso tenha alguma dificuldade ou dúvida, não hesite em contactar o nosso suporte.</p>
+        <h1>Código de Verificação</h1>
+        <p class="greeting">Olá, {{ $name }}!</p>
+        <p>Recebemos uma solicitação para alterar a sua senha. Use o código abaixo para prosseguir com a redefinição:</p>
+        <p class="code-box">{{ $code }}</p>
+        <p>Este código é válido por 10 minutos. Se não solicitou esta alteração, ignore este e-mail.</p>
         <div class="footer">
-            <p>Cumprimentos,<br>A equipa da <strong>NIPEE</strong></p>
+            <p>Atenciosamente,<br>A equipa da <strong>NIPEE</strong></p>
             <p>© {{ date('Y') }} NIPEE. Todos os direitos reservados.</p>
         </div>
     </div>

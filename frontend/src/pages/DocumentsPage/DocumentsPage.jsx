@@ -64,14 +64,23 @@ const DocumentsPage = () => {
                 Header: 'Assinar',
                 accessor: 'sign',
                 Cell: ({ row }) => {
-                  if (row.original.type !== 'Contrato') return null;
-      
-                  const { status } = row.original;
-      
-                  if (isEscola && status === '3') return null;
-                  if (isEmpresa && status === '4') return null;
+                  const assinaveis = ['Contrato', 'Protocolo'];
+                  if (!assinaveis.includes(row.original.type)) return null;
+        
+                  const { status, attachable } = row.original;
+        
                   if (status === '5') return null;
-      
+
+                  if (isEmpresa) {
+                    if (status !== '3') return null;
+                    if (attachable.company_signature !== 0) return null;
+                  }
+        
+                  if (isEscola) {
+                    if (status !== '4') return null;
+                    if (attachable.school_signature !== 0) return null;
+                  }
+        
                   return (
                     <WithModal
                       title="Assinar Documento"
@@ -90,7 +99,7 @@ const DocumentsPage = () => {
                 },
               },
             ]
-          : []),      
+          : []),
         /* {
           Header: 'ID',
           accessor: 'id'

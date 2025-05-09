@@ -33,7 +33,7 @@ class SchoolService
 
         $shouldOrderByName = isset($criteria['perPage']) && $criteria['perPage'] == '9999';
         $data = $this->applyCriteria(School::withTrashed()->orderBy($shouldOrderByName ? 'corporate_name' : 'id', $shouldOrderByName ? 'asc' : 'desc'), $criteria);
-        $data->with(['responsible', 'documents']);
+        $data->with(['responsible', 'documents', 'courses', 'address']);
         $user = Auth::user();
         if ($user === null) {
             return $data->paginate(Arr::get($criteria, 'perPage', 10));
@@ -56,10 +56,12 @@ class SchoolService
     return tap(School::create($data), function (School $school) use ($data) {
         $address = Arr::get($data, 'address');
         $responsible = Arr::get($data, 'responsible', []);
+        $courses = Arr::get($data, 'courses', []);
 
         $school->contact()->create(Arr::get($data, 'contact', []));
         $school->address()->create($address);
         $school->responsible()->create($responsible);
+        $school->courses()->sync($courses);
 
         /* $generatedDocument = $this->wordProcessor->make(DocumentTypeTemplateEnum::CONTRACT_SCHOOL, [
             'razaoSocial' => $school->corporate_name,
@@ -74,18 +76,17 @@ class SchoolService
             'data' => now()->translatedFormat("d \\d\\e F \\d\\e Y"),
         ]);
 
-        $school->documents()->create([
-            'filename' => $generatedDocument['randomName'],
-            'original_filename' => $generatedDocument['filename'],
-            'file_extension' => 'docx',
-            'filesize' => $generatedDocument['filesize'],
-            'type' => 'Empresa Escola',
-        ]); */
+            $school->documents()->create([
+                'filename' => $generatedDocument['randomName'],
+                'original_filename' => $generatedDocument['filename'],
+                'file_extension' => 'docx',
+                'filesize' => $generatedDocument['filesize'],
+                'type' => 'Empresa Escola',
+            ]); */
 
-        return $school->load(['contact', 'address', 'responsible', 'documents']);
-    });
-}
-
+            return $school->load(['contact', 'address', 'responsible', 'documents', 'courses']);
+        });
+    }
 
     public function update(School $school, $data)
     {
@@ -93,8 +94,9 @@ class SchoolService
         if ($this->isAdmin() || $user->roles[0]->id === 10) {
             $school->update($data);
             $school->contact()->update(Arr::get($data, 'contact', []));
-            $school->address()->update(Arr::get($data, 'address', []));
+            $school->address()->updateOrCreate([], Arr::get($data, 'address', []));
             $school->responsible()->update(Arr::get($data, 'responsible', []));
+            $school->courses()->sync(Arr::get($data, 'courses', []));
             return;
         }
         throw new HttpException(403, 'Sem permissão para editar essa escola');

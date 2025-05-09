@@ -67,7 +67,7 @@ class CompanyPreRegistrationController extends Controller
 
             $preRegistration = CompanyPreRegistration::create($empresaData);
 
-            //Mail::to($empresaData['corporate_email'])->send(new PreRegistrationSuccess($empresaData['company_name'], $empresaData['representative_name']));
+            Mail::to($empresaData['corporate_email'])->send(new PreRegistrationSuccess($empresaData['company_name'], $empresaData['representative_name']));
 
             return response()->json([
                 'message' => 'Seu pré-registro foi realizado com sucesso! E-mail de confirmação enviado.',

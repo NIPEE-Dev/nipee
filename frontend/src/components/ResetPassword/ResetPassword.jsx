@@ -5,68 +5,66 @@ import useChangePassword from '../../hooks/useChangePassword';
 import ReCAPTCHA from "react-google-recaptcha";
 
 const ResetPassword = () => {
+  const [step, setStep] = useState(1); 
+  const [email, setEmail] = useState('');
+  const [verificationCode, setVerificationCode] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [recaptchaToken, setRecaptchaToken] = useState(null);
   const [errorMessage, setErrorMessage] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
+  
   const location = useLocation();
   const params = new URLSearchParams(location.search);
-  const email = params.get('email'); 
-  const [recaptchaToken, setRecaptchaToken] = useState(null);
-
-  const handleRecaptchaChange = (token) => {
-      setRecaptchaToken(token);
-  };
-
-  const { changeUserPassword, loading, error, successMessage: hookSuccessMessage } = useChangePassword();
+  const emailFromUrl = params.get('email'); 
   const navigate = useNavigate(); 
 
-  const handleResetPassword = async () => {
-    if (!newPassword || !confirmPassword) {
-      setErrorMessage('Por favor, preencha todos os campos.');
-      return;
-    }
+  const { sendVerification, changeUserPassword, loading, successMessage: hookSuccessMessage } = useChangePassword();
 
-    if (newPassword !== confirmPassword) {
-      setErrorMessage('As senhas não coincidem.');
-      return;
-    }
+  const handleRecaptchaChange = (token) => {
+    setRecaptchaToken(token);
+  };
 
+  useEffect(() => {
+    if (emailFromUrl) {
+      setEmail(emailFromUrl); 
+    }
+  }, [emailFromUrl]);
+
+  const handleSubmit = async () => {
     setErrorMessage('');
     setSuccessMessage('');
 
     try {
-      const response = await changeUserPassword(email, newPassword, confirmPassword);
-      if (response.status === 200) {
-        setSuccessMessage(hookSuccessMessage || 'Senha redefinida com sucesso!');
+      if (step === 1) {
+        if (!email) return setErrorMessage('Digite o e-mail.');
+        if (!recaptchaToken) return setErrorMessage('Complete o reCAPTCHA.');
+
+        await sendVerification(email); 
+        setStep(2);
+      } else if (step === 2) {
+        if (!verificationCode) return setErrorMessage('Digite o código de verificação.');
+        setStep(3);
+      } else if (step === 3) {
+        if (!newPassword || !confirmPassword) return setErrorMessage('Preencha todos os campos.');
+        if (newPassword !== confirmPassword) return setErrorMessage('As senhas não coincidem.');
+
+        const response = await changeUserPassword(email, verificationCode, newPassword, confirmPassword);
+        if (response.status === 200) {
+          setSuccessMessage(hookSuccessMessage || 'Senha redefinida com sucesso!');
+        }
       }
     } catch (err) {
-      setErrorMessage(err.message || 'Erro ao redefinir a senha. Tente novamente.');
+      setErrorMessage(err.message || 'Ocorreu um erro.');
     }
   };
 
   useEffect(() => {
     if (successMessage) {
-      setTimeout(() => {
-        navigate('/login');
-      }, 2000);
+      setTimeout(() => navigate('/login'), 2000);
     }
-  }, [successMessage, navigate]); 
+  }, [successMessage, navigate]);
 
-  {successMessage && (
-    <Alert status="success" variant="left-accent">
-      <AlertIcon />
-      {successMessage}
-    </Alert>
-  )}
-  
-  {errorMessage && (
-    <Alert status="error" variant="left-accent">
-      <AlertIcon />
-      {errorMessage}
-    </Alert>
-  )}
-  
   return (
     <Box position="relative" bg="gray.50" minH="100vh" display="flex" alignItems="center">
       <Container
@@ -83,10 +81,14 @@ const ResetPassword = () => {
             fontSize={{ base: '2xl', sm: '3xl' }}
             textAlign="center"
           >
-            Defina a sua senha
+            {step === 1 && 'Verifique seu e-mail'}
+            {step === 2 && 'Insira o código enviado'}
+            {step === 3 && 'Crie uma nova senha'}
           </Heading>
           <Text color="gray.600" fontSize={{ base: 'sm', sm: 'md' }} textAlign="center">
-            Criar a sua nova senha.
+            {step === 1 && 'Digite o e-mail associado à sua conta.'}
+            {step === 2 && 'Digite o código que você recebeu no e-mail.'}
+            {step === 3 && 'Escolha uma nova senha segura.'}
           </Text>
 
           {successMessage && (
@@ -104,45 +106,61 @@ const ResetPassword = () => {
 
           <Box as="form">
             <Stack spacing={4}>
- 
-              <FormControl>
-                <FormLabel hidden={true}>E-mail</FormLabel>
-                <Input
-                  type="email"
-                  value={email} 
-                  readOnly
-                  bg="gray.100"
-                  border={0}
-                  _placeholder={{ color: 'gray.500' }}
-                  hidden={true}
-                />
-              </FormControl>
+              {step === 1 && (
+                <FormControl>
+                  <FormLabel>E-mail</FormLabel>
+                  <Input
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    bg="gray.100"
+                    border={0}
+                    placeholder="Digite seu e-mail"
+                    isReadOnly
+                  />
+                </FormControl>
+              )}
 
-              <FormControl>
-                <FormLabel>Nova senha</FormLabel>
-                <Input
-                  type="password"
-                  placeholder="Digite sua nova senha"
-                  value={newPassword}
-                  onChange={(e) => setNewPassword(e.target.value)}
-                  bg="gray.100"
-                  border={0}
-                  _placeholder={{ color: 'gray.500' }}
-                />
-              </FormControl>
+              {step === 2 && (
+                <FormControl>
+                  <FormLabel>Código de verificação</FormLabel>
+                  <Input
+                    type="text"
+                    value={verificationCode}
+                    onChange={(e) => setVerificationCode(e.target.value)}
+                    placeholder="Código de 6 dígitos"
+                    bg="gray.100"
+                    border={0}
+                  />
+                </FormControl>
+              )}
 
-              <FormControl>
-                <FormLabel>Confirmar nova senha</FormLabel>
-                <Input
-                  type="password"
-                  placeholder="Confirme sua nova senha"
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  bg="gray.100"
-                  border={0}
-                  _placeholder={{ color: 'gray.500' }}
-                />
-              </FormControl>
+              {step === 3 && (
+                <>
+                  <FormControl>
+                    <FormLabel>Nova senha</FormLabel>
+                    <Input
+                      type="password"
+                      value={newPassword}
+                      onChange={(e) => setNewPassword(e.target.value)}
+                      placeholder="Nova senha"
+                      bg="gray.100"
+                      border={0}
+                    />
+                  </FormControl>
+                  <FormControl>
+                    <FormLabel>Confirmar nova senha</FormLabel>
+                    <Input
+                      type="password"
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      placeholder="Confirme a senha"
+                      bg="gray.100"
+                      border={0}
+                    />
+                  </FormControl>
+                </>
+              )}
             </Stack>
 
             <Button
@@ -156,10 +174,12 @@ const ResetPassword = () => {
                 boxShadow: 'xl',
               }}
               isDisabled={!recaptchaToken}
-              onClick={handleResetPassword}
+              onClick={handleSubmit}
               isLoading={loading}
             >
-              Redefinir senha
+              {step === 1 && 'Enviar código'}
+              {step === 2 && 'Validar código'}
+              {step === 3 && 'Redefinir senha'}
             </Button>
             <ReCAPTCHA
               sitekey={import.meta.env.VITE_RECAPTCHA_SITE_KEY}

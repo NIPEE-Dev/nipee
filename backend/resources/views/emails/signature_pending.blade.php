@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Aprovação do Registo na Plataforma - Acesso Ativado</title>
+    <title>Assinatura Pendente - Protocolo de {{ $studentName }}</title>
     <style>
         body {
             font-family: 'Arial', sans-serif;
@@ -38,17 +38,8 @@
             color: #5A34EA;
             margin-bottom: 15px;
         }
-        .link-button {
-            display: inline-block;
-            padding: 12px 24px;
-            margin-top: 20px;
-            background-color: #5A34EA;
-            color: #ffffff !important; 
-            text-decoration: none;
-            border-radius: 8px;
-            font-weight: bold;
-            font-size: 16px;
-            text-align: center;
+        .content {
+            margin-bottom: 25px;
         }
         .footer {
             text-align: center;
@@ -66,12 +57,13 @@
 <body>
 
     <div class="email-container">
-        <h1>Aprovação do Registo na Plataforma - Acesso Ativado</h1>
+    <h1>${{ $companyName }}: Assinatura do Protocolo de {{ $studentName }}</h1>
         <p class="greeting">Exmo(a). Sr(a) {{ $representativeName }},</p>
-        <p>É com satisfação que informamos que o vosso cadastro na nossa plataforma foi aprovado com sucesso.</p>
-        <p>Para aceder à plataforma, utilize o link abaixo para definir a vossa senha:</p>
-        <a href="{{ $passwordResetLink }}" class="link-button">Definir Senha</a>
-        <p><strong>Nota:</strong> Este link será válido por 30 dias. Caso tenha alguma dificuldade ou dúvida, não hesite em contactar o nosso suporte.</p>
+        <div class="content">
+             <p>O protocolo do(a) aluno(a) <strong>{{ $studentName }}</strong> com a empresa {{ $companyName}} aguarda a sua assinatura. </p>
+            <p>Para avançar com o processo, aceda ao nosso <a href="https://nipee.org">website</a>, faça login com as suas credenciais e assine o respetivo documento digitalmente via plataforma.</p>
+            <p>Se tiver dificuldades técnicas ou dúvidas, contacte a nossa <a href="mailto:contacto@nipee.org">equipa de suporte</a>.</p>
+        </div>
         <div class="footer">
             <p>Cumprimentos,<br>A equipa da <strong>NIPEE</strong></p>
             <p>© {{ date('Y') }} NIPEE. Todos os direitos reservados.</p>

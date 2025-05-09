@@ -69,7 +69,7 @@ export const CandidatesForm = ({ readOnly, isLoading, typeForm, ...props }) => {
   const [showHoursField, setShowHoursField] = useState(false);
 
   return (
-    <Formik
+    <Formik 
       enableReinitialize
       initialErrors={props.initialErrors}
       initialValues={props.initialValues}
