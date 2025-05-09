@@ -15,6 +15,7 @@ class VerifyCsrfToken extends Middleware
         'company-pre-registrations/store',
         'students-pre-registrations/store',
         'change-password',
-        'enviar-contato'
+        'enviar-contato',
+        'send-verification-code'
     ];
 }
