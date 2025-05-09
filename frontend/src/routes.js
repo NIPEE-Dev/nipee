@@ -37,7 +37,7 @@ export default {
 
   workflow: {
     candidatos: createResourceRoute('candidate', 'workflow'),
-    empresas: createResourceRoute('companie', 'workflow')
+    empresas: createResourceRoute('company', 'workflow')
   },
 
   financial: {

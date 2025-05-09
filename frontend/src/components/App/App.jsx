@@ -178,7 +178,7 @@ function App() {
           }
         />
         <Route
-          path='workflow/companie/*'
+          path='workflow/company/*'
           element={
             <PermissionRoute permission='workflowEmpresas.index'>
               <WorkflowCompaniesPage />

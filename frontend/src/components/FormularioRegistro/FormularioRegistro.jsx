@@ -539,7 +539,7 @@ const FormularioRegistro = () => {
                       },
                     }));
                   }}
-                  placeholder="Selecione uma opção"
+                  placeholder="Selecione ou escreva uma opção"
                   chakraStyles={{
                     control: (provided) => ({
                       ...provided,

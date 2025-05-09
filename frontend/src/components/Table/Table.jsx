@@ -11,7 +11,8 @@ import {
   chakra,
   HStack,
   Center,
-  Flex
+  Flex,
+  Box
 } from '@chakra-ui/react';
 import { BsArrowDown, BsArrowDownUp, BsArrowUp } from 'react-icons/bs';
 import Pagination from '@choc-ui/paginator';
@@ -111,7 +112,7 @@ export const Table = ({
           <Pagination
             defaultCurrent={pagination.current_page}
             total={pagination.total || 1}
-            showTotal={() => <div>{pagination.total} registos </div>}
+            showTotal={() => <Box>{pagination.total} registo{pagination.total === 1? "" : "s"} </Box>}
             hideOnSinglePage={false}
             pageNeighbours={1}
             pageSize={pagination.per_page}

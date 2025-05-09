@@ -24,6 +24,5 @@ ReactDOM.render(
       </ChakraProvider>
     </Provider>
   </React.StrictMode>,
-  // eslint-disable-next-line no-undef
   document.getElementById('root')
 );
