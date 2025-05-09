@@ -546,6 +546,23 @@ const FormularioRegistro = () => {
                   isClearable
                 />
               </FormControl>
+              <FormControl isRequired>
+                   <FormLabel>Curso</FormLabel>
+                   <Select
+                     name="course"
+                     value={currentFormData.course}
+                     onChange={(e) => handleInputChange(e, "aluno")}
+                     placeholder="Selecione uma opção"
+                     isDisabled={!currentFormData.school_id || records.length === 0}
+                     bg="gray.50"
+                   >
+                     {records.map((record) => (
+                       <option key={record.id} value={record.id}>
+                         {record.title}
+                       </option>
+                     ))}
+                   </Select>
+                 </FormControl>
               </Stack>
               <Stack spacing={4} direction={{ base: "column", md: "row" }}>
                 <FormControl isRequired>
