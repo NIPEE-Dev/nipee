@@ -66,7 +66,6 @@ const FormularioRegistro = () => {
       email: "",
       phone: "",
       education_level: "",
-      interest_area: "",
       school_id: "",
       course: "",
       volunteer_experience: "",
@@ -530,19 +529,27 @@ const FormularioRegistro = () => {
                   options={schoolOptions}
                   value={schoolOptions.find(o => o.value === currentFormData.school_id) || null}
                   onChange={(option) => {
-                    // option is { value, label } or null
-                    const selectedId = option?.value || "";
+                  const selectedId = option?.value || "";
                     setFormData(prev => ({
                       ...prev,
                       aluno: {
                         ...prev.aluno,
                         school_id: selectedId,
-                        course: "",      // reset course when school changes
+                        course: "",
                       },
                     }));
                   }}
                   placeholder="Selecione uma opção"
-                  bg="gray.50"
+                  chakraStyles={{
+                    control: (provided) => ({
+                      ...provided,
+                      background: "gray.50"
+                    }),
+                    dropdownIndicator: (provided) => ({
+                      ...provided,
+                      background: "gray.50"
+                    }),
+                  }}
                   isClearable
                 />
               </FormControl>
@@ -563,18 +570,6 @@ const FormularioRegistro = () => {
                      ))}
                    </Select>
                  </FormControl>
-              </Stack>
-              <Stack spacing={4} direction={{ base: "column", md: "row" }}>
-                <FormControl isRequired>
-                  <FormLabel>Áreas de interesses</FormLabel>
-                  <Input
-                    name="interest_area"
-                    value={currentFormData.interest_area}
-                    onChange={(e) => handleInputChange(e, "aluno")}
-                    placeholder="Tecnologia, Administração, etc."
-                    bg="gray.50"
-                  />
-                </FormControl>
               </Stack>
               <FormControl>
                 <FormLabel>
