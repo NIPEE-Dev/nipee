@@ -46,8 +46,7 @@ export const JobsForm = ({ readOnly, typeForm, isLoading, ...props }) => {
                   >
                     {records.map((record) => (
                       <option key={record.id} value={record.id}>
-                        {record.corporate_name} --------- {record.fantasy_name} #
-                        {record.id}
+                        {record.corporate_name} --------- {record.fantasy_name}
                       </option>
                     ))}
                   </Field>
