@@ -2,7 +2,7 @@ import createResourceRoute from './store/utils/createResourceRoute';
 
 export default {
   auth: {
-    login: '/login',
+  login: '/login',
     register: '/register'
   },
 
