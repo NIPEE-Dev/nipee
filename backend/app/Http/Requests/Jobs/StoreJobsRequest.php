@@ -28,7 +28,7 @@ class StoreJobsRequest extends FormRequest
             'available' => 'required|numeric',
             'type' => 'required|in:ES,EF',
             'show_web' => 'required|bool',
-
+            'description' => ['nullable', 'string', 'max:2000'],
             'working_day.start_weekday' => 'required|between:0,6',
             'working_day.end_weekday' => 'required|between:0,6',
             'working_day.start_hour' => 'nullable',

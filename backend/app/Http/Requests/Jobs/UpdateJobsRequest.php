@@ -29,6 +29,7 @@ class UpdateJobsRequest extends FormRequest
             'available' => 'sometimes|numeric',
             'type' => 'sometimes|in:ES,EF',
             'show_web' => 'sometimes|bool',
+            'description' => ['sometimes', 'string', 'max:2000'],
 
             'workingDay.start_weekday' => 'sometimes|numeric|between:0,6',
             'workingDay.end_weekday' => 'sometimes|numeric|between:0,6',
