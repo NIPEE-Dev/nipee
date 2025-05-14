@@ -3,7 +3,7 @@ import { Stack } from '@chakra-ui/react';
 import { Field } from 'formik';
 import FormField from '../../components/FormField/FormField';
 import { beforeMaskedValueChangePhone } from '../../utils/formHelpers';
-import { phoneValidator, birthDayValidator } from '../../utils/formValidators';
+import { phoneValidator, birthDayValidator, nifValidator } from '../../utils/formValidators';
 
 export const ResponsibleFields = ({
   readOnly,
@@ -57,15 +57,15 @@ export const ResponsibleFields = ({
 
     <Stack direction={['column', 'row']} spacing="24px">
     <Field
-  id="responsible.document"
-  name="responsible.document"
-  placeholder="NIF"
-  component={FormField}
-  readOnly={readOnly}
-  required={requiredFields.includes('document')}
-  inputMode="numeric"         // mostra apenas o teclado numérico em mobile
-  pattern="[0-9]*"            // restringe a entrada para apenas números
-/>
+    id="responsible.document"
+    name="responsible.document"
+    placeholder="NIF"
+    component={FormField}
+    readOnly={readOnly}
+    validate={(value) => nifValidator(value, true)}
+    required={requiredFields.includes('document')}
+    inputMode="numeric"  
+    pattern="[0-9]*"/>
 
 
         <Field

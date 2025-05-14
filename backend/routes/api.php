@@ -46,7 +46,7 @@ Route::group([
     Route::post('refresh', [AuthController::class, 'refresh']);
     Route::post('me', [AuthController::class, 'me']);
 });
-
+Route::get('/nif', [UserController::class, 'getNif']);
 Route::apiResource('documents', DocumentsController::class)->only(['index', 'update', 'destroy'])->middleware('checkPermission:documents.index');
 Route::apiResource('users', UserController::class)->middleware('checkPermission:users.index');
 Route::apiResource('companies', CompanyController::class)->middleware('checkPermission:companies.index')->withTrashed(['destroy']);

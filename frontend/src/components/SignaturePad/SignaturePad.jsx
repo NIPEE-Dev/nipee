@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import SignatureCanvas from 'react-signature-canvas';
 import { useNavigate } from 'react-router-dom';
 import useUploadSignature from '../../hooks/useUploadSignature';
@@ -16,19 +16,35 @@ import { Text,
   useColorMode,
   useColorModeValue, 
   Flex,
+  toast,
   Box} from '@chakra-ui/react';
+import api from "../../api";
 
 function SignaturePad({ documentId, onSuccess }) {
+  const [nif, setNif] = useState(0);
   const [url, setUrl] = useState('');
   const [showConfirm, setShowConfirm] = useState(false);
   const signRef = useRef(null);
   const { uploadSignature, loading, error, successMessage } = useUploadSignature();
   const navigate = useNavigate();
+  const toast = useToast();
 
   const userProfile = JSON.parse(localStorage.getItem('profile'));
   const userRole = userProfile?.role || '';
   const type = userRole === 'Empresa' ? 'empresa' : userRole === 'Escola' ? 'escola' : '';
   const contractId = documentId;
+
+  useEffect(() => {
+    const fetchNif = async () => {
+      try {
+        const response = await api.get('/nif');
+        setNif(response.data.nif);
+      } catch (e) {
+        console.error('Erro ao buscar NIF:', e);
+      }
+    };
+    fetchNif();
+  }, []);
 
   const handleClear = () => {
     if (signRef.current) signRef.current.clear();
@@ -37,13 +53,18 @@ function SignaturePad({ documentId, onSuccess }) {
 
   const handleAttemptSubmit = () => {
     if (!signRef.current || signRef.current.isEmpty()) {
-      alert('Por favor, faça sua assinatura antes de enviar.');
+      toast({
+        title: 'Erro!',
+        description: 'Por favor, faça a sua assinatura antes de enviar.',
+        status: 'error',
+        duration: 5000,
+        isClosable: true,
+      });
       return;
     }
     setShowConfirm(true);
   };
 
-  // Called when user confirms
   const handleConfirm = async () => {
     setShowConfirm(false);
     const imageData = signRef.current.getTrimmedCanvas().toDataURL('image/png');
@@ -54,6 +75,13 @@ function SignaturePad({ documentId, onSuccess }) {
       setTimeout(() => {
         navigate('/documents');
       }, 500);
+      toast({
+        title: 'Sucesso!',
+        description: result.data?.message || 'O protocolo foi assinado com sucesso.',
+        status: 'success',
+        duration: 5000,
+        isClosable: true,
+      });
     } catch (err) {
       console.error('Erro ao enviar a assinatura:', err);
     }
@@ -135,7 +163,7 @@ function SignaturePad({ documentId, onSuccess }) {
               textAlign="center"
               mb={4}
             >
-              <Text as='p'>Eu, {userProfile.username}, titular do NIF (NIF), declaro que li e compreendi todos os termos e condições apresentados, e concordo com os mesmos.</Text>
+              <Text as='p'>Eu, {userProfile.username}, titular do NIF {nif}, declaro que li e compreendi todos os termos e condições apresentados, e concordo com os mesmos.</Text>
               </Box>  
               <Box
               bg="whiteAlpha.200"

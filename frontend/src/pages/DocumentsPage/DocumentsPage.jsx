@@ -24,6 +24,8 @@ const DocumentsPage = () => {
   const isCandidato = userRole === "Candidato";
 
   return (
+    <>
+    <SignaturePad documentId={20} onSuccess={null}/>
     <ResourceScreen 
       title='Documentos'
       permissions={['']}
@@ -233,6 +235,7 @@ const DocumentsPage = () => {
         }
       ]}
     />
+    </>
   );
 };
 
