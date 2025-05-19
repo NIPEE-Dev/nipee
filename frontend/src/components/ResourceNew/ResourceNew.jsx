@@ -7,6 +7,7 @@ import {
   useToast,
   Box,
   Button,
+  Tooltip,
 } from '@chakra-ui/react';
 import { MdKeyboardBackspace } from 'react-icons/md';
 import { useNavigate } from 'react-router-dom';
@@ -29,15 +30,19 @@ const ResourceNew = ({ resource, Form, routeBase, wrapped, ...props }) => {
             divider={<StackDivider borderColor='gray.200' />}
           >
             <HStack>
-              <MdKeyboardBackspace
-                size={24}
-                cursor='pointer'
-                onClick={() =>
-                  navigate(-1, {
-                    state: { preventReloadList: true },
-                  })
-                }
-              />
+              <Tooltip hasArrow label='Voltar'>
+                <Box as="span" tabIndex={0}>
+                  <MdKeyboardBackspace
+                    size={24}
+                    cursor='pointer'
+                    onClick={() =>
+                      navigate(-1, {
+                        state: { preventReloadList: true },
+                      })
+                    }
+                  />
+                </Box>
+              </Tooltip>
               <Text mb='3' align='left' fontSize='3xl'>
                 Adicionar
               </Text>

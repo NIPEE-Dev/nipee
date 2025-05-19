@@ -85,7 +85,8 @@ const ResourceList = ({
                                   title: 'Sucesso!',
                                   description: `Registo apagado com sucesso!`,
                                   variant: 'left-accent',
-                                  duration: 9000,
+                                  duration: 5000,
+                                  status: 'success',
                                   isClosable: true,
                                   position: 'top-right'
                                 });

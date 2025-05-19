@@ -3,13 +3,18 @@ import PropTypes from 'prop-types';
 import { Routes, Route, Link, useParams, useNavigate } from 'react-router-dom';
 import { diff } from 'deep-object-diff';
 import _ from 'lodash';
-import { Box, Button, Spinner, VStack, HStack, Text, StackDivider, useToast } from '@chakra-ui/react';
+import { Box, Button, Spinner, VStack, HStack, Text, StackDivider, useToast, Tooltip } from '@chakra-ui/react';
 import ResourceList from '../ResourceList/ResourceList';
 import ResourceNew from '../ResourceNew/ResourceNew';
 import Resource from '../Resource/Resource';
 import Card from '../Card/Card';
 import EmptyResult from '../EmptyResult/EmptyResult';
 import { MdKeyboardBackspace } from 'react-icons/md';
+import { FaTrashAlt } from 'react-icons/fa';
+import { ModalConfirm } from '../WithModal/ModalConfirm';
+import { WithModal } from '../WithModal';
+import getRoute from '../../utils/getRoute';
+
 
 const ResourceScreen = ({
   resource,
@@ -83,46 +88,81 @@ function ViewEditContainer({ resource, title, Form, Details, onlyDiff, routeBase
   const [isEditing, setIsEditing] = useState(false);
   return (
     <Resource resource={resource} id={id} redirectAfterSuccess="..">
-      {({ isLoading, detailedRecord, update, isSaving }) => {
+      {({ isLoading, detailedRecord, update, isSaving, remove }) => {
         if (isLoading) return <Spinner />;
         if (_.isEmpty(detailedRecord)) return <EmptyResult />;
         return (
           <Card p={6}>
             <VStack spacing={4} align="stretch" divider={<StackDivider borderColor="gray.200" />}>
               <HStack justify="space-between">
-                <HStack>
-                  <MdKeyboardBackspace
-                size={24}
-                cursor='pointer'
-                onClick={() =>
-                  navigate(-1, {
-                    state: { preventReloadList: true },
-                  })
-                }
-              />
-                  <Text fontSize="3xl">{title}</Text>
-                </HStack>
-                {canEdit && (
-                <Button py={4} colorScheme="blue"
+          <HStack>
+            <Tooltip hasArrow label='Voltar'>
+              <Box as="span" tabIndex={0}>
+                <MdKeyboardBackspace
+            size={24}
+            cursor='pointer'
+            onClick={() =>
+              navigate(-1)
+            }
+                />
+              </Box>
+            </Tooltip>
+            <Text fontSize="3xl">{title}</Text>
+          </HStack>
+          {canEdit && (
+            <HStack spacing={2}>
+              <Button py={4} colorScheme="blue"
                 onClick={() => setIsEditing(e => !e)}>
-                  {isEditing ? 'Visualizar' : 'Editar'}
-                </Button>
-                )}
+                {isEditing ? 'Visualizar' : 'Editar'}
+              </Button>
+              <Tooltip hasArrow label='Excluir'>
+            <WithModal
+              modal={({ closeModal }) => (
+                <ModalConfirm
+                  onConfirm={() => {
+                     remove(id).then(() => {
+                                toast({
+                                  title: 'Sucesso!',
+                                  description: `Registo apagado com sucesso!`,
+                                  variant: 'left-accent',
+                                  duration: 5000,
+                                  status: 'success',
+                                  isClosable: true,
+                                  position: 'top-right'
+                                });
+                    closeModal();
+                    navigate(-1);
+                    });
+                  }}
+                  onCancel={closeModal}
+                />
+              )}
+            >
+              {({ toggleModal }) => (
+                <Tooltip hasArrow label='Excluir'>
+                  <Button colorScheme='red' onClick={toggleModal}>
+                    <FaTrashAlt size={24} cursor='pointer' />
+                  </Button>
+                </Tooltip>
+              )}
+            </WithModal>
+              </Tooltip>
+            </HStack>
+          )}
               </HStack>
 
-      {isEditing ? (
-        <Form
-          initialValues={detailedRecord}
-          initialErrors={{}}
-          onSubmit={async (values) => {
-            const result = await update(id, onlyDiff ? diff(detailedRecord, values) : values);
-            setIsEditing(false);
-            navigate('..');
+              {isEditing ? (
+          <Form
+            initialValues={detailedRecord}
+            initialErrors={{}}
+            onSubmit={async (values) => {
+              const result = await update(id, onlyDiff ? diff(detailedRecord, values) : values);
+              setIsEditing(false);
+              navigate('..');
               toast({
                 title: 'Sucesso!',
                 description: 'Dados atualizados com sucesso!',
                 status: 'success',
-                duration: 5000,
                 isClosable: true,
                 position: 'top-right',
                 variant: 'left-accent',
