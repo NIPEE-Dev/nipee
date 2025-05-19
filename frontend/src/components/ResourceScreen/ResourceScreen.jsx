@@ -9,6 +9,7 @@ import ResourceNew from '../ResourceNew/ResourceNew';
 import Resource from '../Resource/Resource';
 import Card from '../Card/Card';
 import EmptyResult from '../EmptyResult/EmptyResult';
+import { MdKeyboardBackspace } from 'react-icons/md';
 
 const ResourceScreen = ({
   resource,
@@ -48,13 +49,15 @@ const ResourceScreen = ({
         <Route
           path="add"
           element={
-            <ResourceNew
-              resource={resource}
-              routeBase={routeBase}
-              Form={Form}
-              typeForm="add"
-              {...props.resourceNewProps}
-            />
+            <Box>
+              <ResourceNew
+                resource={resource}
+                routeBase={routeBase}
+                Form={Form}
+                typeForm="add"
+                {...props.resourceNewProps}
+              />
+            </Box>
           }
         />
         <Route
@@ -88,9 +91,15 @@ function ViewEditContainer({ resource, title, Form, Details, onlyDiff, routeBase
             <VStack spacing={4} align="stretch" divider={<StackDivider borderColor="gray.200" />}>
               <HStack justify="space-between">
                 <HStack>
-                  <Button py={4} onClick={() => navigate('..', { state: { preventReloadList: true } })}>
-                    Voltar
-                  </Button>
+                  <MdKeyboardBackspace
+                size={24}
+                cursor='pointer'
+                onClick={() =>
+                  navigate(-1, {
+                    state: { preventReloadList: true },
+                  })
+                }
+              />
                   <Text fontSize="3xl">{title}</Text>
                 </HStack>
                 {canEdit && (
@@ -108,10 +117,10 @@ function ViewEditContainer({ resource, title, Form, Details, onlyDiff, routeBase
           onSubmit={async (values) => {
             const result = await update(id, onlyDiff ? diff(detailedRecord, values) : values);
             setIsEditing(false);
-            navigate('..', { state: { preventReloadList: true } });
+            navigate('..');
               toast({
                 title: 'Sucesso!',
-                description: 'Dados atualizados com sucesso',
+                description: 'Dados atualizados com sucesso!',
                 status: 'success',
                 duration: 5000,
                 isClosable: true,

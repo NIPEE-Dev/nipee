@@ -6,6 +6,7 @@ import {
   VStack,
   useToast,
   Box,
+  Button,
 } from '@chakra-ui/react';
 import { MdKeyboardBackspace } from 'react-icons/md';
 import { useNavigate } from 'react-router-dom';
@@ -59,15 +60,20 @@ const ResourceNew = ({ resource, Form, routeBase, wrapped, ...props }) => {
                     title: 'Sucesso!',
                     description: `Registo criado com sucesso!`,
                     variant: 'left-accent',
-                    duration: 9000,
+                    duration: 5000,
                     isClosable: true,
                     position: 'top-right',
                     status: 'success',
                   });
                 })
               }
-              isLoading={isLoading}
-            />
+              isLoading={isLoading}>
+                <Box py={3} textAlign='right'>
+                    <Button mt='3' colorScheme='blue' type='submit' isLoading={isLoading}>
+                      Salvar
+                    </Button>
+                  </Box>
+              </Form>
           </VStack>
         </Container>
       )}
