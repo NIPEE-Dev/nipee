@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { Routes, Route, Link, useParams, useNavigate } from 'react-router-dom';
 import { diff } from 'deep-object-diff';
 import _ from 'lodash';
-import { Box, Button, Spinner, VStack, HStack, Text, StackDivider } from '@chakra-ui/react';
+import { Box, Button, Spinner, VStack, HStack, Text, StackDivider, useToast } from '@chakra-ui/react';
 import ResourceList from '../ResourceList/ResourceList';
 import ResourceNew from '../ResourceNew/ResourceNew';
 import Resource from '../Resource/Resource';
@@ -76,6 +76,7 @@ const ResourceScreen = ({
 function ViewEditContainer({ resource, title, Form, Details, onlyDiff, routeBase, canEdit }) {
   const { id } = useParams();
   const navigate = useNavigate();
+  const toast = useToast();
   const [isEditing, setIsEditing] = useState(false);
   return (
     <Resource resource={resource} id={id} redirectAfterSuccess="..">
@@ -100,13 +101,26 @@ function ViewEditContainer({ resource, title, Form, Details, onlyDiff, routeBase
                 )}
               </HStack>
 
-              {isEditing ? (
-                <Form
-                  initialValues={detailedRecord}
-                  initialErrors={{}}
-                  onSubmit={values => update(id, onlyDiff ? diff(detailedRecord, values) : values).then(() => setIsEditing(false))}
-                  isLoading={isSaving}
-                >
+      {isEditing ? (
+        <Form
+          initialValues={detailedRecord}
+          initialErrors={{}}
+          onSubmit={async (values) => {
+            const result = await update(id, onlyDiff ? diff(detailedRecord, values) : values);
+            setIsEditing(false);
+            navigate('..', { state: { preventReloadList: true } });
+              toast({
+                title: 'Sucesso!',
+                description: 'Dados atualizados com sucesso',
+                status: 'success',
+                duration: 5000,
+                isClosable: true,
+                position: 'top-right',
+                variant: 'left-accent',
+              });
+          }}
+          isLoading={isSaving}
+        >
                   <Box py={3} textAlign='right'>
                     <Button mt='3' colorScheme='blue' type='submit' isLoading={isLoading}>
                       Salvar
