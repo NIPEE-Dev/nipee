@@ -1,10 +1,14 @@
-import React from 'react';
+import React, { useState } from 'react';
 import PropTypes from 'prop-types';
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, Link, useParams, useNavigate } from 'react-router-dom';
+import { diff } from 'deep-object-diff';
+import _ from 'lodash';
+import { Box, Button, Spinner, VStack, HStack, Text, StackDivider } from '@chakra-ui/react';
 import ResourceList from '../ResourceList/ResourceList';
-import ResourceDetails from '../ResourceDetails/ResourceDetails';
 import ResourceNew from '../ResourceNew/ResourceNew';
-import ResourceUpdate from '../ResourceUpdate/ResourceUpdate';
+import Resource from '../Resource/Resource';
+import Card from '../Card/Card';
+import EmptyResult from '../EmptyResult/EmptyResult';
 
 const ResourceScreen = ({
   resource,
@@ -13,16 +17,13 @@ const ResourceScreen = ({
   permissions,
   filters,
   actions,
+  Form,
+  Details,
+  onlyDiff,
   ...props
 }) => (
-  <div
-    style={{
-      display: 'flex',
-      flexDirection: 'column',
-      minHeight: '100vh',
-    }}
-  >
-    <div style={{ flex: 1 }}>
+  <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+    <Box flex={1} p={4}>
       <Routes>
         <Route
           index
@@ -50,7 +51,7 @@ const ResourceScreen = ({
             <ResourceNew
               resource={resource}
               routeBase={routeBase}
-              Form={props.Form}
+              Form={Form}
               typeForm="add"
               {...props.resourceNewProps}
             />
@@ -58,41 +59,70 @@ const ResourceScreen = ({
         />
         <Route
           path="view/:id"
-          element={
-            <ResourceDetails
-              title="Visualização"
-              resource={resource}
-              routeBase={routeBase}
-              Details={
-                props.Details ||
-                ((p) => <props.Form initialValues={p.detailedRecord} {...p} />)
-              }
-              typeForm="view"
-              readOnly
-              {...props.resourceDetailsProps}
-            />
-          }
-        />
-        <Route
-          path="edit/:id"
-          element={
-            <ResourceUpdate
-              resource={resource}
-              title="Edição"
-              routeBase={routeBase}
-              Form={
-                props.Edit ||
-                ((p) => <props.Form initialValues={p.detailedRecord} {...p} />)
-              }
-              typeForm="edit"
-              resourceUpdateProps={props.resourceUpdateProps}
-            />
-          }
-        />
+          element={<ViewEditContainer
+            resource={resource}
+            title={props.title}
+            Form={Form}
+            canEdit={props.canEdit}
+            Details={Details || (p => <Form initialValues={p.detailedRecord} {...p} />)}
+            routeBase={routeBase}
+            onlyDiff={onlyDiff}
+          />} />
       </Routes>
-    </div>
+    </Box>
   </div>
 );
+
+function ViewEditContainer({ resource, title, Form, Details, onlyDiff, routeBase, canEdit }) {
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const [isEditing, setIsEditing] = useState(false);
+  return (
+    <Resource resource={resource} id={id} redirectAfterSuccess="..">
+      {({ isLoading, detailedRecord, update, isSaving }) => {
+        if (isLoading) return <Spinner />;
+        if (_.isEmpty(detailedRecord)) return <EmptyResult />;
+        return (
+          <Card p={6}>
+            <VStack spacing={4} align="stretch" divider={<StackDivider borderColor="gray.200" />}>
+              <HStack justify="space-between">
+                <HStack>
+                  <Button py={4} onClick={() => navigate('..', { state: { preventReloadList: true } })}>
+                    Voltar
+                  </Button>
+                  <Text fontSize="3xl">{title}</Text>
+                </HStack>
+                {canEdit && (
+                <Button py={4} colorScheme="blue"
+                onClick={() => setIsEditing(e => !e)}>
+                  {isEditing ? 'Visualizar' : 'Editar'}
+                </Button>
+                )}
+              </HStack>
+
+              {isEditing ? (
+                <Form
+                  initialValues={detailedRecord}
+                  initialErrors={{}}
+                  onSubmit={values => update(id, onlyDiff ? diff(detailedRecord, values) : values).then(() => setIsEditing(false))}
+                  isLoading={isSaving}
+                >
+                  <Box py={3} textAlign='right'>
+                    <Button mt='3' colorScheme='blue' type='submit' isLoading={isLoading}>
+                      Salvar
+                    </Button>
+                  </Box>
+                </Form>
+              ) : (
+                <Details detailedRecord={detailedRecord} readOnly typeForm="view" />
+              )}
+            </VStack>
+          </Card>
+        );
+      }}
+    </Resource>
+  );
+}
 
 ResourceScreen.defaultProps = {
   canList: true,
@@ -102,10 +132,7 @@ ResourceScreen.defaultProps = {
   canRemove: true,
   resourceListProps: {},
   resourceNewProps: {},
-  resourceDetailsProps: {},
-  resourceUpdateProps: {
-    onlyDiff: true,
-  },
+  onlyDiff: true,
   actions: () => null,
 };
 
@@ -119,8 +146,9 @@ ResourceScreen.propTypes = {
   canRemove: PropTypes.bool,
   resourceListProps: PropTypes.object,
   resourceNewProps: PropTypes.object,
-  resourceDetailsProps: PropTypes.object,
-  resourceUpdateProps: PropTypes.object,
+  onlyDiff: PropTypes.bool,
+  Form: PropTypes.oneOfType([PropTypes.func, PropTypes.object]).isRequired,
+  Details: PropTypes.oneOfType([PropTypes.func, PropTypes.object]),
 };
 
 export default ResourceScreen;

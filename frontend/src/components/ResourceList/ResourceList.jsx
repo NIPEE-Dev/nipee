@@ -75,19 +75,6 @@ const ResourceList = ({
                         </Button>
                       </Tooltip>
                     )}
-                    {props.canEdit && (
-                      <Tooltip hasArrow label='Editar'>
-                        <Button
-                          size='xs'
-                          as={isRemoving ? null : Link}
-                          to={`./${getRoute('edit/:id', { id })}`}
-                          disabled={isRemoving}
-                          colorScheme={useColorModeValue('blackAlpha', 'teal')}
-                        >
-                          <FaEdit />
-                        </Button>
-                      </Tooltip>
-                    )}
                     {props.canRemove && (
                       <WithModal
                         modal={({ closeModal }) => (

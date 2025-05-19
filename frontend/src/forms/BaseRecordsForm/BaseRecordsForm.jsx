@@ -54,14 +54,7 @@ export const BaseRecordsForm = ({ readOnly, isLoading, ...props }) => {
             />
           </Stack>
         </GroupContainer>
-
-        {readOnly !== true && (
-          <Box py={3} textAlign='right'>
-            <Button mt='3' colorScheme='blue' type='submit' isLoading={isLoading}>
-            Salvar
-            </Button>
-          </Box>
-        )}
+        {props.children}
       </Form>
     </Formik>
   );

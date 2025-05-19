@@ -614,19 +614,7 @@ export const CandidatesForm = ({ readOnly, isLoading, typeForm, ...props }) => {
               />
             </GroupContainer>
           )}
-
-          {readOnly !== true && (
-            <Box py={3} textAlign='right'>
-              <Button
-                mt='3'
-                colorScheme='blue'
-                isLoading={isLoading || isSubmitting}
-                type='submit'
-              >
-                Salvar
-              </Button>
-            </Box>
-          )}
+          {props.children}
         </Form>
       )}
     </Formik>
