@@ -13,8 +13,6 @@ import { MdKeyboardBackspace } from 'react-icons/md';
 import { FaTrashAlt } from 'react-icons/fa';
 import { ModalConfirm } from '../WithModal/ModalConfirm';
 import { WithModal } from '../WithModal';
-import getRoute from '../../utils/getRoute';
-
 
 const ResourceScreen = ({
   resource,
@@ -101,54 +99,54 @@ function ViewEditContainer({ resource, title, Form, Details, onlyDiff, routeBase
                 <MdKeyboardBackspace
             size={24}
             cursor='pointer'
-            onClick={() =>
-              navigate(-1)
-            }
+            onClick={() => navigate(-1)}
                 />
               </Box>
             </Tooltip>
             <Text fontSize="3xl">{title}</Text>
           </HStack>
-          {canEdit && (
-            <HStack spacing={2}>
+          <HStack spacing={2}>
+            {canEdit && (
               <Button py={4} colorScheme="blue"
                 onClick={() => setIsEditing(e => !e)}>
                 {isEditing ? 'Visualizar' : 'Editar'}
               </Button>
+            )}
+            {canRemove && (
               <Tooltip hasArrow label='Excluir'>
-            <WithModal
-              modal={({ closeModal }) => (
-                <ModalConfirm
-                  onConfirm={() => {
-                     remove(id).then(() => {
-                                toast({
-                                  title: 'Sucesso!',
-                                  description: `Registo apagado com sucesso!`,
-                                  variant: 'left-accent',
-                                  duration: 5000,
-                                  status: 'success',
-                                  isClosable: true,
-                                  position: 'top-right'
-                                });
-                    closeModal();
-                    navigate(-1);
-                    });
-                  }}
-                  onCancel={closeModal}
-                />
-              )}
-            >
-              {({ toggleModal }) => (
-                <Tooltip hasArrow label='Excluir'>
-                  <Button colorScheme='red' onClick={toggleModal}>
-                    <FaTrashAlt size={24} cursor='pointer' />
-                  </Button>
-                </Tooltip>
-              )}
-            </WithModal>
+                <WithModal
+            modal={({ closeModal }) => (
+              <ModalConfirm
+                onConfirm={() => {
+                  remove(id).then(() => {
+              toast({
+                title: 'Sucesso!',
+                description: `Registo apagado com sucesso!`,
+                variant: 'left-accent',
+                duration: 5000,
+                status: 'success',
+                isClosable: true,
+                position: 'top-right'
+              });
+              closeModal();
+              navigate(-1);
+                  });
+                }}
+                onCancel={closeModal}
+              />
+            )}
+                >
+            {({ toggleModal }) => (
+              <Tooltip hasArrow label='Excluir'>
+                <Button colorScheme='red' onClick={toggleModal}>
+                  <FaTrashAlt size={24} cursor='pointer' />
+                </Button>
               </Tooltip>
-            </HStack>
-          )}
+            )}
+                </WithModal>
+              </Tooltip>
+            )}
+          </HStack>
               </HStack>
 
               {isEditing ? (
@@ -167,24 +165,24 @@ function ViewEditContainer({ resource, title, Form, Details, onlyDiff, routeBase
                 position: 'top-right',
                 variant: 'left-accent',
               });
-          }}
-          isLoading={isSaving}
-        >
-                  <Box py={3} textAlign='right'>
-                    <Button mt='3' colorScheme='blue' type='submit' isLoading={isLoading}>
-                      Salvar
-                    </Button>
-                  </Box>
-                </Form>
+            }}
+            isLoading={isSaving}
+          >
+            <Box py={3} textAlign='right'>
+              <Button mt='3' colorScheme='blue' type='submit' isLoading={isLoading}>
+                Salvar
+              </Button>
+            </Box>
+          </Form>
               ) : (
-                <Details detailedRecord={detailedRecord} readOnly typeForm="view" />
+          <Details detailedRecord={detailedRecord} readOnly typeForm="view" />
               )}
             </VStack>
           </Card>
         );
-      }}
-    </Resource>
-  );
+            }}
+          </Resource>
+        );
 }
 
 ResourceScreen.defaultProps = {
