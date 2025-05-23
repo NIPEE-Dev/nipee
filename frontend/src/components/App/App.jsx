@@ -26,6 +26,7 @@ import Inicio from '../../pages/Inicio/Inicio.jsx';
 import Termos from '../../pages/Termos/Termos.jsx';
 import DashboardSchools from '../../pages/DashboardSchools/DashboardSchools.jsx';
 import ActivityReport from '../../pages/ActivityReport/ActivityReport.jsx';
+import ReportsFCT from '../../pages/ReportsFCT/ReportsFCT.jsx';
 
 function App() {
   return (
@@ -108,6 +109,14 @@ function App() {
           element={
             <PermissionRoute permission='schools.index'>
               <DashboardSchools />
+            </PermissionRoute>
+          }
+        />
+        <Route
+          path='reports-fct/*'
+          element={
+            <PermissionRoute permission='reportsCandidates.index'>
+              <ReportsFCT />
             </PermissionRoute>
           }
         />
