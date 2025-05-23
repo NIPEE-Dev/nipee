@@ -174,10 +174,10 @@ export const ContractsForm = ({
                   {({ records, isLoading }) => (
                     <Field
                     id={
-                      typeForm === 'edit' ? 'school_id' : 'candidate.school.id'
+                      typeForm === 'edit' ? 'school_id' : 'school.id'
                     }
                     name={
-                      typeForm === 'edit' ? 'school_id' : 'candidate.school.id'
+                      typeForm === 'edit' ? 'school_id' : 'school.id'
                     }
                     as="select"
                     placeholder='Escola'
@@ -253,16 +253,16 @@ export const ContractsForm = ({
                   ) : (
                   <Resource
                     resource='Candidates'
-                    autoFetch={formProps.values.candidate}
+                    autoFetch={formProps.values.school && formProps.values.school.id}
                     id={formProps.values.candidate?.id}
                     resourceParams={{
                     ...(typeForm === 'add' && { withoutTrashed: true })
-                    }}
-                  >
-                    {({ records, isLoading }) => {
+                  }}
+                >
+                  {({ records, isLoading }) => {
                     const selectedSchoolId = typeForm === 'edit'
                       ? formProps.values.school_id
-                      : formProps.values.candidate?.school?.id;
+                      : formProps.values?.school?.id;
 
                       const candidatesFromSchool = records.filter(record => 
                         record.user?.school?.some(school => String(school.id) === String(selectedSchoolId)));                   

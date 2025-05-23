@@ -175,7 +175,8 @@ class CompanyPreRegistrationController extends Controller
 
             $company->responsible()->save(new Responsible([ 'name' => $preRegistration->company_name, 'phone' => $preRegistration->phone, 'email' => $preRegistration->corporate_email]));
 
-            $passwordResetLink = 'https://nipee.org/redefinir-senha?email=' . urlencode($user->email);
+            $frontendUrl = config('app.frontend_url');
+            $passwordResetLink = $frontendUrl . '/redefinir-senha?email=' . urlencode($user->email);
 
             Mail::to($preRegistration->corporate_email)->send(
                 new PreRegistrationApproveSuccess(
