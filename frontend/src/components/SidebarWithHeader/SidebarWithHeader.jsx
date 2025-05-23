@@ -70,7 +70,7 @@ const SidebarWithHeader = ({ handleLogout, username, role, children }) => {
             aria-label='open menu'
             onClick={toggleColorMode}
             icon={colorMode === 'light' ? <FiMoon /> : <FiSun />}
-          />
+          /> 
           <Flex alignItems='center'>
             <Menu>
               <MenuButton

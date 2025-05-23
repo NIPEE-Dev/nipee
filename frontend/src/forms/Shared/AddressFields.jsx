@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { FastField } from 'formik';
 import {
   InputGroup,
@@ -18,6 +18,7 @@ const AddressFields = ({
   required = true
 }) => {
   const [isLoading, setIsLoading] = useState(false);
+  const [isCepSelected, setIsCepSelected] = useState(false); // Estado para controlar se o CEP foi selecionado
   const toast = useToast();
 
   const triggerFindCepFail = () => {
@@ -52,33 +53,40 @@ const AddressFields = ({
     "Açores": "ac",
     "Madeira": "ma"
   };
-  
-  const searchAddress = (cep) => {
-    const cepNumbers = cep.replace(/\D/g, ''); 
-    if (cepNumbers.length === 7) { 
+
+  const districtNameMap = Object.entries(districtMap).map(([name, code]) => ({
+    name,
+    code
+  }));
+
+  // Função para buscar o endereço através do CEP
+  const searchAddress = useCallback((cep) => {
+    const cepNumbers = cep.replace(/\D/g, '');
+    if (cepNumbers.length === 7) {
       setIsLoading(true);
+      setIsCepSelected(true); // O CEP foi preenchido, marcar como selecionado
       fetch(`https://api.duminio.com/ptcp/v2/ptapi67cf743eba11e8.10231284/${cepNumbers}`)
         .then((response) => response.json())
         .then((response) => {
-          if (!response || response.error) { 
+          if (!response || response.error) {
             triggerFindCepFail();
           } else {
-            const districtFull = response[0]?.Distrito || "";  
-            const districtAbbr = districtMap[districtFull] || ""; 
-  
-            setFieldValue(`${relation}.uf`, districtAbbr);
-            setFieldValue(`${relation}.city`, response[0]?.Localidade?.charAt(0).toUpperCase() + response[0]?.Localidade?.slice(1).toLowerCase() || "");  
-            setFieldValue(`${relation}.address`, response[0]?.Morada || "");  
-            setFieldValue(`${relation}.district`, response[0]?.Concelho || "");  
+            const districtFull = response[0]?.Distrito || "";
+            const districtAbbr = districtMap[districtFull] || "";
+
+            setFieldValue(`${relation}.uf`, districtFull); // Agora preenche o nome completo do distrito
+            setFieldValue(`${relation}.city`, response[0]?.Localidade?.charAt(0).toUpperCase() + response[0]?.Localidade?.slice(1).toLowerCase() || "");
+            setFieldValue(`${relation}.address`, response[0]?.Morada || "");
+            setFieldValue(`${relation}.district`, response[0]?.Concelho || "");
           }
-          setIsLoading(false); 
+          setIsLoading(false);
         })
         .catch((e) => {
           triggerFindCepFail();
           setIsLoading(false);
         });
     }
-  };   
+  }, [setFieldValue, relation]);
 
   return (
     <>
@@ -109,31 +117,16 @@ const AddressFields = ({
           id={`${relation}.uf`}
           name={`${relation}.uf`}
           placeholder='Distrito'
-          component={FormField.Select}
-          readOnly={readOnly}
+          component={FormField}
+          readOnly={isCepSelected || readOnly}
           required={required}
         >
-          <option value="">Selecione um distrito</option> 
-           <option value="av">Aveiro</option>
-            <option value="be">Beja</option>
-            <option value="br">Braga</option>
-            <option value="bg">Bragança</option>
-            <option value="cb">Castelo Branco</option>
-            <option value="co">Coimbra</option>
-            <option value="ev">Évora</option>
-            <option value="fa">Faro</option>
-            <option value="gu">Guarda</option>
-            <option value="le">Leiria</option>
-            <option value="li">Lisboa</option>
-            <option value="po">Portalegre</option>
-            <option value="pt">Porto</option>
-            <option value="sa">Santarém</option>
-            <option value="se">Setúbal</option>
-            <option value="vc">Viana do Castelo</option>
-            <option value="vr">Vila Real</option>
-            <option value="vi">Viseu</option>
-            <option value="ac">Açores</option>
-            <option value="ma">Madeira</option>
+          <option value="">Selecione um distrito</option>
+          {districtNameMap.map(({ name, code }) => (
+            <option key={code} value={name}> {/* Agora preenche o nome completo */}
+              {name} {/* Exibe o nome completo do distrito */}
+            </option>
+          ))}
         </FastField>
       </Stack>
 
@@ -143,7 +136,7 @@ const AddressFields = ({
           name={`${relation}.city`}
           placeholder='Localidade'
           component={FormField}
-          readOnly={readOnly}
+          readOnly={isCepSelected || readOnly}
           required={required}
         />
 
@@ -152,7 +145,7 @@ const AddressFields = ({
           name={`${relation}.district`}
           placeholder='Conselho'
           component={FormField}
-          readOnly={readOnly}
+          readOnly={isCepSelected || readOnly}
           required={required}
         />
       </Stack>
@@ -163,7 +156,7 @@ const AddressFields = ({
           name={`${relation}.address`}
           placeholder='Morada'
           component={FormField}
-          readOnly={readOnly}
+          readOnly={isCepSelected || readOnly}
           required={required}
         />
 
