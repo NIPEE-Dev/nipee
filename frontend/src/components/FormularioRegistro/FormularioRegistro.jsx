@@ -139,7 +139,6 @@ const FormularioRegistro = () => {
           allCourses = res.data.data;
 
         setCourses(allCourses);
-        console.log(allCourses);
       } catch (error) {
         console.error("Erro ao buscar os cursos:", error);
       }

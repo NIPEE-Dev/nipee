@@ -120,7 +120,7 @@ export const CandidatesForm = ({ readOnly, isLoading, typeForm, ...props }) => {
               <FastField
                 id='rg'
                 name='rg'
-                placeholder='CC / Título de Residência / Passaporte '
+                placeholder='CC / T. Residência / Passaporte'
                 component={FormField}
                 readOnly={readOnly}
                 required

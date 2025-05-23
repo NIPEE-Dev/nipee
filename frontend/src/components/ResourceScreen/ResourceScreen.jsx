@@ -73,13 +73,14 @@ const ResourceScreen = ({
             Details={Details || (p => <Form initialValues={p.detailedRecord} {...p} />)}
             routeBase={routeBase}
             onlyDiff={onlyDiff}
+            canRemove={props.canRemove}
           />} />
       </Routes>
     </Box>
   </div>
 );
 
-function ViewEditContainer({ resource, title, Form, Details, onlyDiff, routeBase, canEdit }) {
+function ViewEditContainer({ resource, title, Form, Details, onlyDiff, routeBase, canEdit, canRemove }) {
   const { id } = useParams();
   const navigate = useNavigate();
   const toast = useToast();

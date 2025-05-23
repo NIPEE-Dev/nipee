@@ -40,8 +40,8 @@ const SchoolsPage = () => {
           text={
             <div>
               Essa ação irá{' '}
-              {rowProps.deleted_at === null ? 'desativar' : 'reativar'} a
-              escola
+              {rowProps.deleted_at === null ? 'desativar' : 'reativar'}{''}
+              a escola
             </div>
           }
           onConfirm={(motive) => {

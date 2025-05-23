@@ -2,7 +2,7 @@ import React from 'react';
 import { Stack } from '@chakra-ui/react';
 import { Field } from 'formik';
 import FormField from '../../components/FormField/FormField';
-import { beforeMaskedValueChangePhone } from '../../utils/formHelpers';
+import { beforeMaskedValueChangePhone, cnpjMask } from '../../utils/formHelpers';
 import { phoneValidator, birthDayValidator, nifValidator } from '../../utils/formValidators';
 
 export const ResponsibleFields = ({
@@ -60,10 +60,11 @@ export const ResponsibleFields = ({
     id="responsible.document"
     name="responsible.document"
     placeholder="NIF"
-    component={FormField}
     readOnly={readOnly}
     validate={(value) => nifValidator(value, true)}
     required={requiredFields.includes('document')}
+    mask={cnpjMask}
+    component={FormField.InputMask}
     inputMode="numeric"  
     pattern="[0-9]*"/>
 

@@ -42,7 +42,7 @@ const FormField = ({
             : {})}
           htmlFor={field.name}
         >
-          {props.placeholder}
+          {props.title? props.title : props.placeholder}
         </FormLabel>
         <Component
           field={field}
