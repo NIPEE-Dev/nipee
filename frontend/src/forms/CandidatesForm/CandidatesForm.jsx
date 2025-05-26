@@ -193,28 +193,44 @@ export const CandidatesForm = ({ readOnly, isLoading, typeForm, ...props }) => {
               ) : (
                 <>
                   <Resource
-                    resource='BaseRecords'
-                    autoFetch
-                    resourceParams={{ type: 6, perPage: 9999 }}
-                  >
-                    {({ records, isLoading }) => (
-                      <Field
-                        id='course'
-                        name='course'
-                        placeholder='Curso'
-                        component={FormField.Select}
-                        readOnly={readOnly}
-                        isLoading={isLoading}
-                        required
-                      >
-                        {records.map((record) => (
-                          <option key={record.id} value={record.id}>
-                            {record.title}
-                          </option>
-                        ))}
-                      </Field>
-                    )}
-                  </Resource>
+   resource='BaseRecords'
+  autoFetch
+  resourceParams={{ type: 6, perPage: 9999, school_id: values.school_id || undefined }}
+>
+  {({ records, isLoading }) => {
+    if (isLoading) {
+      return <Text>Loading course...</Text>;
+    }
+
+    const selectedCourse = records.find(
+      (record) => record.id === values.course
+    );
+
+    return (
+      readOnly ? (
+        <Box padding="8px" border="1px solid" borderColor="gray.200" borderRadius="md">
+          {selectedCourse ? selectedCourse.title : 'Curso não selecionado'}
+        </Box>
+      ) : (
+        <Field
+          id='course'
+          name='course'
+          placeholder='Curso'
+          component={FormField.Select}
+          isLoading={isLoading}
+          required
+        >
+          {records.map((record) => (
+            <option key={record.id} value={record.id}>
+              {record.title}
+            </option>
+          ))}
+        </Field>
+      )
+    );
+  }}
+</Resource>
+
                   <FastField
                     id='semester'
                     name='semester'
