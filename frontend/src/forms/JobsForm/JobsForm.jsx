@@ -13,7 +13,7 @@ export const JobsForm = ({ readOnly, typeForm, isLoading, ...props }) => {
   const userProfile = JSON.parse(localStorage.getItem('profile'));
   const userRole = userProfile?.role || '';
   const canEdit = userRole === "Administrador Geral" || userRole === 'Empresa';
-
+  
   return (
     <Formik
       enableReinitialize
@@ -39,7 +39,7 @@ export const JobsForm = ({ readOnly, typeForm, isLoading, ...props }) => {
                     name='company_id'
                     placeholder='Nome da empresa'
                     component={FormField.Select}
-                    disabled={ canEdit === false }
+                    disabled={canEdit === false}
                     readOnly={readOnly}
                     isLoading={isLoading}
                     required
@@ -53,7 +53,6 @@ export const JobsForm = ({ readOnly, typeForm, isLoading, ...props }) => {
                 )}
               </Resource>
             </Stack>
-
             <Stack direction={['column', 'row']} spacing='24px'>
               <Resource
                 resource='BaseRecords'
@@ -64,9 +63,9 @@ export const JobsForm = ({ readOnly, typeForm, isLoading, ...props }) => {
                   <Field
                     id='role_id'
                     name='role_id'
-                    disabled={ canEdit === false }
+                    disabled={canEdit === false}
                     placeholder='Função'
-                    component={FormField}
+                    component={FormField.Select}
                     readOnly={readOnly}
                     isLoading={isLoading}
                     required
@@ -79,10 +78,9 @@ export const JobsForm = ({ readOnly, typeForm, isLoading, ...props }) => {
                   </Field>
                 )}
               </Resource>
-
               <FastField
                 id='period'
-                disabled={ canEdit === false }
+                disabled={canEdit === false}
                 name='period'
                 placeholder='Período'
                 component={FormField.Select}
@@ -95,11 +93,10 @@ export const JobsForm = ({ readOnly, typeForm, isLoading, ...props }) => {
                 <option value='MN'>Integral</option>
               </FastField>
             </Stack>
-
             <Stack direction={['column', 'row']} spacing='24px'>
               <FastField
                 id='gender'
-                disabled={ canEdit === false }
+                disabled={canEdit === false}
                 name='gender'
                 placeholder='Sexo'
                 component={FormField.Select}
@@ -114,7 +111,7 @@ export const JobsForm = ({ readOnly, typeForm, isLoading, ...props }) => {
                 id='transport_voucher'
                 name='transport_voucher'
                 placeholder='Vale transporte'
-                disabled={ canEdit === false }
+                disabled={canEdit === false}
                 component={FormField.Select}
                 readOnly={readOnly}
                 required
@@ -123,13 +120,12 @@ export const JobsForm = ({ readOnly, typeForm, isLoading, ...props }) => {
                 <option value='1'>Sim</option>
               </FastField>
             </Stack>
-
             {values.transport_voucher === '1' && (
               <Stack direction={['column', 'row']} spacing='24px'>
                 <FastField
                   id='transport_voucher_value'
                   name='transport_voucher_value'
-                  disabled={ canEdit === false }
+                  disabled={canEdit === false}
                   placeholder='Valor do vale transporte (€)'
                   component={FormField.InputMoney}
                   readOnly={readOnly}
@@ -137,64 +133,59 @@ export const JobsForm = ({ readOnly, typeForm, isLoading, ...props }) => {
                 <FastField
                   id='transport_voucher_nominal_value'
                   name='transport_voucher_nominal_value'
-                  disabled={ canEdit === false }
+                  disabled={canEdit === false}
                   placeholder='Valor nominal do vale transporte'
                   component={FormField}
                   readOnly={readOnly}
                 />
               </Stack>
             )}
-
             <Stack direction={['column', 'row']} spacing='24px'>
               <FastField
                 id='scholarship_value'
                 name='scholarship_value'
                 placeholder='Bolsa (€)'
-                disabled={ canEdit === false }
+                disabled={canEdit === false}
                 component={FormField.InputMoney}
                 readOnly={readOnly}
                 required
               />
-
               <FastField
                 id='scholarship_nominal_value'
                 name='scholarship_nominal_value'
                 placeholder='Vale nominal da bolsa'
-                disabled={ canEdit === false }
+                disabled={canEdit === false}
                 component={FormField}
                 readOnly={readOnly}
                 required
               />
             </Stack>
-
             <Stack direction={['column', 'row']} spacing='24px'>
-            <FastField
+              <FastField
                 id='meal_voucher'
                 name='meal_voucher'
                 placeholder='Vale refeição (€)'
-                disabled={ canEdit === false }
+                disabled={canEdit === false}
                 component={FormField.InputMoney}
                 readOnly={readOnly}
                 required
               />
-
               <FastField
                 id='available'
                 name='available'
-                disabled={ canEdit === false }
+                disabled={canEdit === false}
                 placeholder='Quantidade de vagas'
                 component={FormField}
                 readOnly={readOnly}
                 required
               />
             </Stack>
-
             <Stack direction={['column', 'row']} spacing='24px'>
-            <FastField
+              <FastField
                 id='type'
                 name='type'
                 placeholder='Tipo de vaga'
-                disabled={ canEdit === false }
+                disabled={canEdit === false}
                 component={FormField.Select}
                 readOnly={readOnly}
                 required
@@ -202,13 +193,12 @@ export const JobsForm = ({ readOnly, typeForm, isLoading, ...props }) => {
                 <option value='ES'>Estágio</option>
                 <option value='EF'>FCT</option>
               </FastField>
-
               <FastField
                 id='show_web'
                 name='show_web'
                 placeholder='Mostrar no site'
                 component={FormField.Select}
-                disabled={ canEdit === false }
+                disabled={canEdit === false}
                 readOnly={readOnly}
                 required
               >
@@ -224,7 +214,7 @@ export const JobsForm = ({ readOnly, typeForm, isLoading, ...props }) => {
                 placeholder='Descrição da vaga'
                 readOnly={readOnly}
                 component={FormField.Textarea}
-                disabled={ canEdit === false }
+                disabled={canEdit === false}
                 onInput={(e) => {
                   e.target.style.height = "auto";
                   e.target.style.height = `${e.target.scrollHeight}px`;
@@ -234,7 +224,6 @@ export const JobsForm = ({ readOnly, typeForm, isLoading, ...props }) => {
               />
             </Stack>
           </GroupContainer>
-
           <GroupContainer
             title='Dados da jornada'
             subtitle='Informações pertinentes a carga horária do estagiário'
@@ -245,52 +234,48 @@ export const JobsForm = ({ readOnly, typeForm, isLoading, ...props }) => {
                 name='working_day.start_weekday'
                 placeholder='De'
                 component={FormField.Select}
-                disabled={ canEdit === false }
+                disabled={canEdit === false}
                 readOnly={readOnly}
                 required
               >
                 {weekDays.map((day, i) => (
-                  <option value={i + 1}>{day}</option>
+                  <option key={i + 1} value={i + 1}>{day}</option>
                 ))}
               </FastField>
-
               <FastField
                 id='working_day.end_weekday'
                 name='working_day.end_weekday'
                 placeholder='Á'
-                disabled={ canEdit === false }
+                disabled={canEdit === false}
                 component={FormField.Select}
                 readOnly={readOnly}
                 required
               >
                 {weekDays.map((day, i) => (
-                  <option value={i + 1}>{day}</option>
+                  <option key={i + 1} value={i + 1}>{day}</option>
                 ))}
               </FastField>
             </Stack>
-
             <Stack direction={['column', 'row']} spacing='24px'>
               <FastField
                 id='working_day.start_hour'
                 name='working_day.start_hour'
                 placeholder='Das'
-                disabled={ canEdit === false }
+                disabled={canEdit === false}
                 component={FormField}
                 type='time'
                 readOnly={readOnly}
               />
-
               <FastField
                 id='working_day.end_hour'
                 name='working_day.end_hour'
                 placeholder='As'
-                disabled={ canEdit === false }
+                disabled={canEdit === false}
                 component={FormField}
                 type='time'
                 readOnly={readOnly}
               />
             </Stack>
-
             <Text
               display='flex'
               flexDirection='row'
@@ -318,10 +303,9 @@ export const JobsForm = ({ readOnly, typeForm, isLoading, ...props }) => {
                 Excessão
               </chakra.div>
             </Text>
-
             <Stack direction={['column', 'row']} spacing='24px'>
               <FastField
-                disabled={ canEdit === false }
+                disabled={canEdit === false}
                 id='working_day.day_off_start_weekday'
                 name='working_day.day_off_start_weekday'
                 placeholder='De'
@@ -329,12 +313,11 @@ export const JobsForm = ({ readOnly, typeForm, isLoading, ...props }) => {
                 readOnly={readOnly}
               >
                 {weekDays.map((day, i) => (
-                  <option value={i + 1}>{day}</option>
+                  <option key={i + 1} value={i + 1}>{day}</option>
                 ))}
               </FastField>
-
               <FastField
-                disabled={ canEdit === false }
+                disabled={canEdit === false}
                 id='working_day.day_off_start_hour'
                 name='working_day.day_off_start_hour'
                 placeholder='Das'
@@ -342,9 +325,8 @@ export const JobsForm = ({ readOnly, typeForm, isLoading, ...props }) => {
                 type='time'
                 readOnly={readOnly}
               />
-
               <FastField
-                disabled={ canEdit === false }
+                disabled={canEdit === false}
                 id='working_day.day_off_end_hour'
                 name='working_day.day_off_end_hour'
                 placeholder='As'
@@ -353,7 +335,6 @@ export const JobsForm = ({ readOnly, typeForm, isLoading, ...props }) => {
                 readOnly={readOnly}
               />
             </Stack>
-
             <Text
               display='flex'
               flexDirection='row'
@@ -381,10 +362,9 @@ export const JobsForm = ({ readOnly, typeForm, isLoading, ...props }) => {
                 Folga
               </chakra.div>
             </Text>
-
             <Stack direction={['column', 'row']} spacing='24px'>
               <FastField
-                disabled={ canEdit === false }
+                disabled={canEdit === false}
                 id='working_day.day_off'
                 name='working_day.day_off'
                 placeholder='Folga'
@@ -392,10 +372,9 @@ export const JobsForm = ({ readOnly, typeForm, isLoading, ...props }) => {
                 readOnly={readOnly}
                 required
               />
-
               <FastField
                 id='working_day.working_hours'
-                disabled={ canEdit === false }
+                disabled={canEdit === false}
                 name='working_day.working_hours'
                 placeholder='Horas semanais'
                 component={FormField}
@@ -406,7 +385,6 @@ export const JobsForm = ({ readOnly, typeForm, isLoading, ...props }) => {
             </Stack>
             {makeJourneyText(values)}
           </GroupContainer>
-
           {['edit', 'view'].includes(typeForm) && (
             <GroupContainer
               title='Documentos'
@@ -427,7 +405,6 @@ export const JobsForm = ({ readOnly, typeForm, isLoading, ...props }) => {
               />
             </GroupContainer>
           )}
-
           {readOnly !== true && (
             <Box py={3} textAlign='right'>
               <Button
