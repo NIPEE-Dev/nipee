@@ -4,6 +4,8 @@ import { Field } from 'formik';
 import FormField from '../../components/FormField/FormField';
 import { beforeMaskedValueChangePhone } from '../../utils/formHelpers';
 import { phoneValidator, birthDayValidator } from '../../utils/formValidators';
+import { nifValidator } from '../../utils/formValidators'; 
+
 
 
 // Função para validar NIF usando seu nifValidator
@@ -31,16 +33,17 @@ export const ResponsibleFields = ({
       />
 
       <Field
-        id="responsible.phone"
-        name="responsible.phone"
-        placeholder="Telemóvel"
-        component={FormField.InputMask}
-        mask="+351 999 999 999"
-        maskChar={null}
-        validate={(value) => phoneValidator(value, requiredFields.includes('phone'))}
-        readOnly={readOnly}
-        required={requiredFields.includes('phone')}
-      />
+  id="responsible.phone"
+  name="responsible.phone"
+  placeholder="Telemóvel"
+  component={FormField.InputMask}
+  mask="+351 999 999 999"
+  maskChar={null}
+  beforeMaskedValueChange={beforeMaskedValueChangePhone} // ✅ Only if needed
+  validate={(value) => phoneValidator(value, requiredFields.includes('phone'))}
+  readOnly={readOnly}
+  required={requiredFields.includes('phone')}
+/>
 
     </Stack>
 
