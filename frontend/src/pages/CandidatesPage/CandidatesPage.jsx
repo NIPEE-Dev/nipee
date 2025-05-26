@@ -19,7 +19,9 @@ const CandidatesPage = () => {
   const title = isAdm || isEscola || isEmpresa ? 'Candidatos' : 'Meu Registo';
 
   useEffect(() => {
+    if (isCandidato) {
     navigate(routes.candidates.self);
+    }
   }, []);
 
   return (  

@@ -17,7 +17,9 @@ export default {
   insuranceSettings: createResourceRoute('insurance-settings'),
   candidates: {
     ...createResourceRoute('candidates'),
+    ...(userProfile?.candidate_id && {
     self: `/candidates/view/${userProfile.candidate_id}`
+  })
   },
   schools: createResourceRoute('schools'),
   jobs: createResourceRoute('jobs'),

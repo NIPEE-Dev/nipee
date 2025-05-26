@@ -90,7 +90,6 @@ function ViewEditContainer({ resource, title, Form, Details, onlyDiff, routeBase
   const navigate = useNavigate();
   const toast = useToast();
   const [isEditing, setIsEditing] = useState(false);
-  console.log(title);
   return (
     <Resource resource={resource} id={id} redirectAfterSuccess="..">
       {({ isLoading, detailedRecord, update, isSaving, remove }) => {
