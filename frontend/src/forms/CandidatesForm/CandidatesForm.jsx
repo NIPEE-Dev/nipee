@@ -69,7 +69,7 @@ export const CandidatesForm = ({ readOnly, isLoading, typeForm, ...props }) => {
   const [showHoursField, setShowHoursField] = useState(false);
 
   return (
-    <Formik
+    <Formik 
       enableReinitialize
       initialErrors={props.initialErrors}
       initialValues={props.initialValues}
@@ -87,7 +87,7 @@ export const CandidatesForm = ({ readOnly, isLoading, typeForm, ...props }) => {
             <Stack direction={['column', 'row']} spacing='24px'>
               <FastField
                 id='name'
-                name='name'
+                name='name' 
                 placeholder='Nome do candidato'
                 component={FormField}
                 readOnly={readOnly}
@@ -120,7 +120,7 @@ export const CandidatesForm = ({ readOnly, isLoading, typeForm, ...props }) => {
               <FastField
                 id='rg'
                 name='rg'
-                placeholder='CC / Título de Residência / Passaporte '
+                placeholder='CC / T. Residência / Passaporte'
                 component={FormField}
                 readOnly={readOnly}
                 required
@@ -169,7 +169,7 @@ export const CandidatesForm = ({ readOnly, isLoading, typeForm, ...props }) => {
                 <FastField
                   id='serie'
                   name='serie'
-                  placeholder='Série'
+                  placeholder='Ano'
                   component={FormField.Select}
                   readOnly={readOnly}
                   required
@@ -248,8 +248,7 @@ export const CandidatesForm = ({ readOnly, isLoading, typeForm, ...props }) => {
                 readOnly={readOnly}
                 required
               >
-                <option value='M'>Manhã</option>
-                <option value='T'>Tarde</option>
+             
                 <option value='N'>Noite</option>
                 <option value='I'>Integral</option>
               </FastField>
@@ -339,7 +338,7 @@ export const CandidatesForm = ({ readOnly, isLoading, typeForm, ...props }) => {
                   onMouseOver={(e) => (e.target.style.color = '#63b3ed')}
                   onMouseOut={(e) => (e.target.style.color = '#3182ce')}
                 >
-                  Ver o Curriculum Vitae
+                  Ver o Currículo
                 </a>
               )}
 
@@ -487,7 +486,7 @@ export const CandidatesForm = ({ readOnly, isLoading, typeForm, ...props }) => {
                 <option value='13'>OUTRO</option>
                 <option value='9'>PANFLETO</option>
                 <option value='8'>PLACA DE DIVULGAÇÃO</option>
-                <option value='12'>PROPAGANDA</option>
+                <option value='12'>ANUNCIO</option>
               </FastField>
             </Stack>
 
@@ -615,19 +614,7 @@ export const CandidatesForm = ({ readOnly, isLoading, typeForm, ...props }) => {
               />
             </GroupContainer>
           )}
-
-          {readOnly !== true && (
-            <Box py={3} textAlign='right'>
-              <Button
-                mt='3'
-                colorScheme='blue'
-                isLoading={isLoading || isSubmitting}
-                type='submit'
-              >
-                Salvar
-              </Button>
-            </Box>
-          )}
+          {props.children}
         </Form>
       )}
     </Formik>

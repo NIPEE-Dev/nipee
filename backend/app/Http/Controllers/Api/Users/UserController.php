@@ -13,6 +13,7 @@ use Illuminate\Http\Response;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Auth;
 
 class UserController extends Controller
 {
@@ -87,4 +88,28 @@ class UserController extends Controller
     {
         $user->delete();
     }
+
+    public function getNIF(Request $request)
+{
+    $user = Auth::user() ?? null;
+    $role = $user->role_id ?? null;
+    // Escola
+    if ($role == 10) {
+        $nif = $user->school?->responsible?->document;
+    }
+    // Empresa
+    else if ($role == 14) {
+        $nif = $user->company?->responsible?->document;
+    }
+    // Candidato
+    else if ($role == 13) {
+        $nif = $user->candidate?->cpf;
+    }
+    // Admin
+    else {
+        $nif = "[NIF não configurado]";
+    }
+
+    return response()->json(['nif' => $nif]);
+}
 }

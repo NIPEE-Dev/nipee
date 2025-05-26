@@ -241,7 +241,7 @@ const ChooseCandidates = ({ handleCallCandidates }) => {
               <WithModal
                 modal={({ closeModal }) => (
                   <ModalConfirm
-                    text='Essa ação irá enviar um email para os usuários selecionados'
+                    text='Essa ação irá enviar um email para os candidatos selecionados'
                     onConfirm={() => {
                       callCandidates();
 

@@ -1,6 +1,6 @@
 export const citiesFilters = [
   {
-    header: 'Endereço',
+    header: 'Morada',
     children: [
       {
         field: 'cep',
@@ -9,7 +9,7 @@ export const citiesFilters = [
       },
       {
         field: 'address',
-        header: 'Endereço',
+        header: 'Morada',
         relation: 'address'
       },
       {

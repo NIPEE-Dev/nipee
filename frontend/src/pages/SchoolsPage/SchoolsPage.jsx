@@ -12,14 +12,14 @@ import {
 } from '../../utils/filterHelpers';
 import { WithModal } from '../../components/WithModal';
 import { ModalConfirm } from '../../components/WithModal/ModalConfirm';
-
+import { getDistrictName } from '../../utils/district';
 const SchoolsPage = () => {
   const userProfile = JSON.parse(localStorage.getItem('profile'));
   const userRole = userProfile?.role || '';
   const isEscola = userRole === "Escola";
   const isAdm = userRole === "Administrador Geral";
 
-  const title = isAdm ? 'Listagem de Escolas' : 'Meu Registo';
+  const title = isAdm ? 'Escolas' : 'Meu Registo';
 
  return (
   <ResourceScreen
@@ -40,8 +40,8 @@ const SchoolsPage = () => {
           text={
             <div>
               Essa ação irá{' '}
-              {rowProps.deleted_at === null ? 'desativar' : 'reativar'} a
-              escola
+              {rowProps.deleted_at === null ? 'desativar' : 'reativar'}{''}
+              a escola
             </div>
           }
           onConfirm={(motive) => {
@@ -137,8 +137,9 @@ const SchoolsPage = () => {
       accessor: 'address.district'
     },
     {
-      Header: 'Estado',
-      accessor: 'address.uf'
+      Header: 'Distrito',
+      accessor: 'address.uf',
+      Cell: ({value }) => getDistrictName(value)
     }
   ]}
 />

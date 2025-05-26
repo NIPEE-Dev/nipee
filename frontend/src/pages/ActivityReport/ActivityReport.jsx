@@ -34,7 +34,7 @@ const ActivityReport = () => {
       //   },
       //   {
       //     field: "courseTitle",
-      //     header: "Curso/Área de Estudo",
+      //     header: "Curso",
       //   },
       //   {
       //     field: "startContractDate",
@@ -61,7 +61,7 @@ const ActivityReport = () => {
       // ]}
       columns={[
         {
-          Header: "Número de Usuários Ativos (Escolas, Empresas, Candidatos)",
+          Header: "Número de Utilizadores Ativos (Escolas, Empresas, Candidatos)",
           accessor: "users",
         },
         {

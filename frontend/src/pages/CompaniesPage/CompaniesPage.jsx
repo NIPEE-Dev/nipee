@@ -20,7 +20,7 @@ const CompaniesPage = () => {
   const isEmpresa = userRole === "Empresa";
   const isAdm = userRole === "Administrador Geral";
 
-  const title = isAdm ? 'Listagem de Empresas' : 'Meu Registo';
+  const title = isAdm ? 'Empresas' : 'Meu Registo';
 
   return (
     <ResourceScreen
@@ -41,8 +41,8 @@ const CompaniesPage = () => {
               text={
                 <div>
                   Essa ação irá{' '}
-                  {rowProps.deleted_at === null ? 'desativar' : 'reativar'}
-                  empresa
+                  {rowProps.deleted_at === null ? 'desativar' : 'reativar'}{' '}
+                  a empresa
                 </div>
               }
               onConfirm={(motive) => {

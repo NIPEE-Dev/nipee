@@ -17,11 +17,13 @@ const WorkflowCandidatesPage = () => {
   const { approveStudentPreRegistration, rejectStudentPreRegistration, loading } = useStudentPreRegistrations();
   const toast = useToast();
 
+
+
   const handleApprove = async (id) => {
     try {
       const result = await approveStudentPreRegistration(id);
       toast({
-        title: 'Candidato aprovada!',
+        title: 'Candidato aprovado!',
         description: result.message,
         status: 'success',
         duration: 5000,
@@ -30,7 +32,7 @@ const WorkflowCandidatesPage = () => {
       window.location.reload()
     } catch (error) {
       toast({
-        title: 'Erro ao aprovar a Candidato.',
+        title: 'Erro ao aprovar o Candidato.',
         description: error.message,
         status: 'error',
         duration: 5000,
@@ -75,14 +77,14 @@ const WorkflowCandidatesPage = () => {
 
   return (
     <ResourceScreen
-      title="Listagem de Pré-Registos Candidatos"
+      title="Pré-Registos Candidatos"
       permissions={['']}
       resource="WorkflowCandidates"
       Form={Form}
       routeBase={routes.workflow.candidatos}
-      canRemove={isAdm}
       canAdd={false}
       canEdit={false}
+      canRemove={isAdm}
       actions={({ id }) => (
         <>
           <Tooltip label="Aprovar Candidato" hasArrow>

@@ -30,6 +30,8 @@ return [
 
     'system_identifier' => env('SYSTEM_IDENTIFIER', 'guarulhos'),
 
+    'frontend_url' => env('APP_FRONTEND_URL', 'https://nipee.org'),
+
     /*
     |--------------------------------------------------------------------------
     | Application Debug Mode

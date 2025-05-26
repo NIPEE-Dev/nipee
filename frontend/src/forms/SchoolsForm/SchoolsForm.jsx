@@ -1,5 +1,5 @@
-import React from 'react';
-import { Stack, Divider, Box, Button } from '@chakra-ui/react';
+import React, { useEffect, useState } from 'react';
+import { Stack, Divider, Box, Button, Spinner } from '@chakra-ui/react';
 import { Formik, Form, Field } from 'formik';
 import FormField from '../../components/FormField/FormField';
 import GroupContainer from '../GroupContainer';
@@ -10,13 +10,74 @@ import { cnpjMask } from '../../utils/formHelpers';
 import DocumentsTable from '../../components/DocumentsTable/DocumentsTable';
 import FileUpload from '../../components/FileUpload/FileUpload';
 import { nifValidator } from '../../utils/formValidators';
-import Resource from '../../components/Resource/Resource';
+import {Text} from '@chakra-ui/react';
+import {Select} from 'chakra-react-select';
+import api from "../../api";
+
+
+const CourseSelect = ({ value = [], onChange, readOnly }) => {
+  const [courses, setCourses] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchCourses = async () => {
+      setLoading(true);
+      try {
+        const currentValues = value.map(c => String(c.id));
+        let res = await api.get('/base-records?type=6');
+        setCourses(res.data.data);
+        onChange(currentValues);
+        setLoading(false);
+      } catch (err) {
+        console.error('Erro ao carregar cursos:', err);
+      } 
+    };
+    fetchCourses();
+  }, []);
+
+  const handleChange = (selectedOptions) => {
+    const selectedValues = selectedOptions ? selectedOptions.map(option => option.value) : [];
+    onChange(selectedValues);
+  };
+
+  if (loading) {
+    return (
+      <Box textAlign="center" py={4}>
+        <Spinner size="sm" />
+      </Box>
+    );
+  }
+
+  return (
+    <Select
+      isMulti
+      isSearchable
+      chakraStyles={{
+        control: (provided) => ({
+          ...provided,
+          background: "gray.50"
+        }),
+        dropdownIndicator: (provided) => ({
+          ...provided,
+          background: "gray.50"
+        }),
+      }}
+      value={courses.filter(course => value.includes(String(course.id))).map(course => ({ value: String(course.id), label: course.title || 'Unknown' }))}
+      onChange={handleChange}
+      isDisabled={readOnly}
+      placeholder="Selecione os cursos"
+      options={courses.map(course => {
+        return { value: String(course.id), label: course.title || 'Unknown' };
+      })}
+    />
+  );
+};
 
 export const SchoolsForm = ({ readOnly, isLoading, typeForm, ...props }) => (
   <Formik
     enableReinitialize
     initialErrors={props.initialErrors}
-    initialValues={props.initialValues}
+    initialValues={props.initialValues} 
     onSubmit={(values) => props.onSubmit(values)}
   >
     {({ values, setFieldValue, isSubmitting }) => (
@@ -63,6 +124,23 @@ export const SchoolsForm = ({ readOnly, isLoading, typeForm, ...props }) => (
               component={FormField}
               readOnly={readOnly}
             />
+            </Stack>
+            <Stack direction={['column', 'row']} spacing='24px' mt={5}>
+            <Field name="courses">
+              {({ field, form }) => (
+                <>
+                  <Stack w="100%">
+                    <Text fontWeight="semibold">Cursos</Text>
+                    <CourseSelect
+                      value={field.value}
+                      onChange={(val) => form.setFieldValue('courses', val)}
+                      readOnly={readOnly}
+                    />
+                  </Stack>
+                </>
+              )}
+            </Field>
+
           </Stack>
         </GroupContainer>
 
@@ -114,18 +192,7 @@ export const SchoolsForm = ({ readOnly, isLoading, typeForm, ...props }) => (
           </GroupContainer>
         )}
 
-        {readOnly !== true && (
-          <Box py={3} textAlign='right'>
-            <Button
-              mt='3'
-              colorScheme='blue'
-              type='submit'
-              isLoading={isLoading || isSubmitting}
-            >
-              Salvar
-            </Button>
-          </Box>
-        )}
+        {props.children}
       </Form>
     )}
   </Formik>

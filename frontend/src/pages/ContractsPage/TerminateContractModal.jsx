@@ -39,42 +39,15 @@ export const TerminateContractModal = ({ onConfirm }) => {
         </Text>
         <Divider />
         <FormControl>
-          <FormLabel>Motivo da rescisão</FormLabel>
-          <Resource
-            resource='BaseRecords'
-            autoFetch
-            resourceParams={{ type: 3, perPage: 9999, page: 1 }}
-            preventParamsFromSearch
-          >
-            {({ records, isLoading }) => (
-              <Select
-                id='motive_id'
-                value={motive}
-                onChange={(e) => setMotive(e.target.value)}
-                isDisabled={isLoading}
-                placeholder='Selecione...'
-                icon={
-                  isLoading ? (
-                    <Spinner
-                      thickness='4px'
-                      speed='0.65s'
-                      emptyColor='gray.200'
-                      color='blue.500'
-                    />
-                  ) : (
-                    <MdArrowDropDown />
-                  )
-                }
-              >
-                {records.map((record) => (
-                  <option key={record.id} value={record.id}>
-                    {record.title}
-                  </option>
-                ))}
-              </Select>
-            )}
-          </Resource>
-        </FormControl>
+  <FormLabel>Motivo da rescisão</FormLabel>
+  <Input
+    id='motive'
+    value={motive}
+    onChange={(e) => setMotive(e.target.value)}
+    placeholder='Descreva o motivo...'
+  />
+</FormControl>
+
         <FormControl>
           <FormLabel>Data da rescisão</FormLabel>
           <Input

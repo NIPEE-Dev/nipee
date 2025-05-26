@@ -20,7 +20,6 @@ class StudentsPreRegistration extends Model
         'phone',
         'nif',
         'education_level',
-        'interest_area',
         'volunteer_experience',
         'resume',
         'status',

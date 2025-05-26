@@ -33,7 +33,7 @@ class SchoolService
 
         $shouldOrderByName = isset($criteria['perPage']) && $criteria['perPage'] == '9999';
         $data = $this->applyCriteria(School::withTrashed()->orderBy($shouldOrderByName ? 'corporate_name' : 'id', $shouldOrderByName ? 'asc' : 'desc'), $criteria);
-        $data->with(['responsible', 'documents']);
+        $data->with(['responsible', 'documents', 'courses', 'address']);
         $user = Auth::user();
         if ($user === null) {
             return $data->paginate(Arr::get($criteria, 'perPage', 10));
@@ -50,27 +50,31 @@ class SchoolService
     }
 
     public function store($data)
-    {
-        return tap(School::create($data), function (School $school) use ($data) {
-            $address = Arr::get($data, 'address');
-            $responsible = Arr::get($data, 'responsible', []);
+{
+    $data['status'] = 1; // Define a escola como ativa
 
-            $school->contact()->create(Arr::get($data, 'contact', []));
-            $school->address()->create($address);
-            $school->responsible()->create($responsible);
+    return tap(School::create($data), function (School $school) use ($data) {
+        $address = Arr::get($data, 'address');
+        $responsible = Arr::get($data, 'responsible', []);
+        $courses = Arr::get($data, 'courses', []);
 
-            /* $generatedDocument = $this->wordProcessor->make(DocumentTypeTemplateEnum::CONTRACT_SCHOOL, [
-                'razaoSocial' => $school->corporate_name,
-                'endereco' => $address['address'],
-                'bairro' => $address['district'],
-                'numero' => $address['number'],
-                'cidade' => $address['city'],
-                'uf' => strtoupper($address['uf']),
-                'cep' => $address['cep'],
-                'cnpj' => $school->cnpj,
-                'responsavel' => $responsible['name'],
-                'data' => now()->translatedFormat("d \\d\\e F \\d\\e Y"),
-            ]);
+        $school->contact()->create(Arr::get($data, 'contact', []));
+        $school->address()->create($address);
+        $school->responsible()->create($responsible);
+        $school->courses()->sync($courses);
+
+        /* $generatedDocument = $this->wordProcessor->make(DocumentTypeTemplateEnum::CONTRACT_SCHOOL, [
+            'razaoSocial' => $school->corporate_name,
+            'endereco' => $address['address'],
+            'bairro' => $address['district'],
+            'numero' => $address['number'],
+            'cidade' => $address['city'],
+            'uf' => strtoupper($address['uf']),
+            'cep' => $address['cep'],
+            'cnpj' => $school->cnpj,
+            'responsavel' => $responsible['name'],
+            'data' => now()->translatedFormat("d \\d\\e F \\d\\e Y"),
+        ]);
 
             $school->documents()->create([
                 'filename' => $generatedDocument['randomName'],
@@ -80,7 +84,7 @@ class SchoolService
                 'type' => 'Empresa Escola',
             ]); */
 
-            return $school->load(['contact', 'address', 'responsible', 'documents']);
+            return $school->load(['contact', 'address', 'responsible', 'documents', 'courses']);
         });
     }
 
@@ -90,8 +94,9 @@ class SchoolService
         if ($this->isAdmin() || $user->roles[0]->id === 10) {
             $school->update($data);
             $school->contact()->update(Arr::get($data, 'contact', []));
-            $school->address()->update(Arr::get($data, 'address', []));
+            $school->address()->updateOrCreate([], Arr::get($data, 'address', []));
             $school->responsible()->update(Arr::get($data, 'responsible', []));
+            $school->courses()->sync(Arr::get($data, 'courses', []));
             return;
         }
         throw new HttpException(403, 'Sem permissão para editar essa escola');

@@ -68,10 +68,10 @@
         <p class="greeting">Olá, {{ $name }}!</p>
         <p>Recebemos uma solicitação para alterar a sua senha. Use o código abaixo para prosseguir com a redefinição:</p>
         <p class="code-box">{{ $code }}</p>
-        <p>Este código é válido por 10 minutos. Se você não solicitou esta alteração, ignore este e-mail.</p>
+        <p>Este código é válido por 10 minutos. Se não solicitou esta alteração, ignore este e-mail.</p>
         <div class="footer">
             <p>Atenciosamente,<br>A equipa da <strong>NIPEE</strong></p>
-            <p>© 2025 NIPEE. Todos os direitos reservados.</p>
+            <p>© {{ date('Y') }} NIPEE. Todos os direitos reservados.</p>
         </div>
     </div>
 

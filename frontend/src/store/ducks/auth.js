@@ -64,7 +64,7 @@ export default createReducer(initialState, {
     state,
     {
       payload: {
-        data: { permissions, username, role, user_id }
+        data: { permissions, username, role, user_id, candidate_id = null }
       }
     }
   ) {
@@ -72,7 +72,9 @@ export default createReducer(initialState, {
     localStorage.setItem('permissions', JSON.stringify(permissions));
     localStorage.setItem(
       'profile',
-      JSON.stringify({ username, role, user_id })
+      JSON.stringify({ username, role, user_id, 
+        ...(candidate_id != null && { candidate_id })
+       })
     );
     return update(state, {
       isLoading: { $set: false },
@@ -183,7 +185,7 @@ export const handleLogin = (email, password) => (dispatch, getState) => {
 
     let redirectPath = '/insurance-settings';
     if (userRole === "Empresa") redirectPath = '/dashboard-companies';
-    else if (userRole === "Candidato") redirectPath = '/candidates';
+    else if (userRole === "Candidato") redirectPath = `/candidates/view/${userProfile.candidate_id}`;
     else if (userRole === "Escola") redirectPath = '/dashboard-schools';
 
     history.push(redirectPath);

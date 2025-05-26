@@ -16,7 +16,7 @@ import routes from "../../routes";
 const DashboardCompanies = () => {
   return (
     <ResourceScreen
-      title="Lista de Relatórios"
+      title="Relatórios"
       permissions={[""]}
       resource="ReportsCandidates"
       routeBase={routes.reports.candidates}
@@ -28,13 +28,10 @@ const DashboardCompanies = () => {
         downloadButtonEnabled: false,
       }}
       filters={[
-        {
-          field: "name",
-          header: "Nome do Candidato",
-        },
+  
         {
           field: "courseTitle",
-          header: "Curso/Área de Estudo",
+          header: "Curso",
         },
         {
           field: "startContractDate",
@@ -65,7 +62,7 @@ const DashboardCompanies = () => {
           accessor: "name",
         },
         {
-          Header: "Curso/Área de Estudo",
+          Header: "Curso",
           accessor: "courseTitle",
         },
         {

@@ -24,7 +24,7 @@ import {
   FormErrorMessage,
 } from "@chakra-ui/react";
 import ReCAPTCHA from "react-google-recaptcha";
-
+import { Select as ReactSelect } from "chakra-react-select";
 import useCompanyPreRegistrations from "../../hooks/useCompanyPreRegistrations";
 import useStudentPreRegistrations from "../../hooks/useStudentPreRegistrations";
 import { nifValidator, phoneValidator } from "../../utils/formValidators";
@@ -32,19 +32,22 @@ import ReactInputMask from "react-input-mask";
 import api from "../../api";
 
 const FormularioRegistro = () => {
-  const { addCompanyPreRegistration, loading, error } =
-    useCompanyPreRegistrations();
-  const { addStudentPreRegistration, isLoading: isStudentLoading } =
-    useStudentPreRegistrations();
+  const { addCompanyPreRegistration } = useCompanyPreRegistrations();
+  const { addStudentPreRegistration } = useStudentPreRegistrations();
   const toast = useToast();
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [formType, setFormType] = useState("aluno");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [schools, setSchools] = useState([]);
-  const [records, setRecords] = useState([]);
+  const [records, setCourses] = useState([]);
   const [errors, setErrors] = useState({ empresa: {}, aluno: {} });
   const [recaptchaToken, setRecaptchaToken] = useState(null);
 
+  const schoolOptions = schools.map(s => ({
+    value: s.id,
+    label: s.fantasy_name,
+  }));
+  
   const [formData, setFormData] = useState({
     empresa: {
       company_name: "",
@@ -63,26 +66,86 @@ const FormularioRegistro = () => {
       email: "",
       phone: "",
       education_level: "",
-      interest_area: "",
       school_id: "",
+      course: "",
       volunteer_experience: "",
       resume: null,
     },
   });
 
   const today = new Date();
-
   const minus_100_years = new Date();
   minus_100_years.setFullYear(today.getFullYear() - 100);
-  const minus_100_years_from_today = minus_100_years.toISOString().split('T')[0];
-
+  const minus_100_years_from_today = minus_100_years.toISOString().split("T")[0];
   const minus_12_years = new Date();
   minus_12_years.setFullYear(today.getFullYear() - 12);
-  const minus_12_years_from_today = minus_12_years.toISOString().split('T')[0];
+  const minus_12_years_from_today = minus_12_years.toISOString().split("T")[0];
 
   const handleRecaptchaChange = (token) => {
     setRecaptchaToken(token);
   };
+
+  const handleSchoolChange = (e) => {
+    setCourses([])
+    const selectedSchoolId = e.target.value;
+    setFormData((prev) => ({
+      ...prev,
+      aluno: {
+        ...prev.aluno,
+        school_id: selectedSchoolId,
+        course: "",
+      },
+    }));
+  };
+
+  useEffect(() => {
+    const fetchAllSchools = async () => {
+      let allSchools = [];
+      let currentPage = 1;
+      let lastPage = 1;
+
+      try {
+        do {
+          const res = await api.get(`/schools?page=${currentPage}`);
+          allSchools = [...allSchools, ...res.data.data];
+          lastPage = res.data.meta.last_page;
+          currentPage++;
+        } while (currentPage <= lastPage);
+
+        setSchools(allSchools);
+      } catch (error) {
+        console.error("Erro ao buscar as escolas:", error);
+      }
+    };
+
+    fetchAllSchools();
+  }, []);
+
+  useEffect(() => {
+    const fetchCourses = async () => {
+      if (!formData.aluno.school_id) {
+        setCourses([]);
+        return;
+      }
+
+      let allCourses = [];
+      let currentPage = 1;
+      let lastPage = 1;
+
+      try {
+          const res = await api.get(
+            `/schools/${formData.aluno.school_id}/courses`
+          );
+          allCourses = res.data.data;
+
+        setCourses(allCourses);
+      } catch (error) {
+        console.error("Erro ao buscar os cursos:", error);
+      }
+    };
+
+    fetchCourses();
+  }, [formData.aluno.school_id]);
 
   const handleInputChange = (e, type) => {
     const { name, value, files } = e.target;
@@ -157,55 +220,6 @@ const FormularioRegistro = () => {
       }, {}),
     }));
   };
-
-  useEffect(() => {
-    const fetchAllSchools = async () => {
-      let allSchools = [];
-      let currentPage = 1;
-      let lastPage = 1;
-  
-      try {
-        do {
-          const res = await api.get(`/schools?page=${currentPage}`);
-          allSchools = [...allSchools, ...res.data.data];
-  
-          lastPage = res.data.meta.last_page;
-          currentPage++;
-        } while (currentPage <= lastPage);
-  
-        setSchools(allSchools);
-      } catch (error) {
-        console.error('Erro ao buscar as escolas:', error);
-      }
-    };
-  
-    fetchAllSchools();
-  }, []);  
-
-  useEffect(() => {
-    const fetchAllPages = async () => {
-      let allData = [];
-      let currentPage = 1;
-      let lastPage = 1;
-  
-      try {
-        do {
-          const res = await api.get(`/base-records?page=${currentPage}`);
-          const filtered = res.data.data.filter((item) => item.type === 6);
-          allData = [...allData, ...filtered];
-  
-          lastPage = res.data.meta.last_page;
-          currentPage++;
-        } while (currentPage <= lastPage);
-  
-        setRecords(allData);
-      } catch (error) {
-        console.error('Erro ao buscar os dados:', error);
-      }
-    };
-  
-    fetchAllPages();
-  }, []);   
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -328,14 +342,14 @@ const FormularioRegistro = () => {
                   />
                 </FormControl>
                 <FormControl isRequired isInvalid={!!currentErrors.nif}>
-                  <FormLabel>NIF (Número de Identificação Fiscal)</FormLabel>
+                  <FormLabel>NIPC (Número de Identificação de Pessoa Coletiva)</FormLabel>
                   <Input
                     name="nif"
                     type="text"
                     maxLength={9}
                     value={currentFormData.nif}
-                    onChange={(e) => handleInputChange(e, formType)}
-                    placeholder="Digite o NIF"
+                    onChange={(e) => handleInputChange(e, "empresa")}
+                    placeholder="Digite o NIPC"
                     bg="gray.50"
                   />
                   {currentErrors.nif && (
@@ -402,9 +416,10 @@ const FormularioRegistro = () => {
                   </Select>
                 </FormControl>
               </Stack>
-              
               <FormControl>
-                <FormLabel>Descreva em poucas palavras o ramo de atividade de sua empresa</FormLabel>
+                <FormLabel>
+                  Descreva em poucas palavras o ramo de atividade de sua empresa
+                </FormLabel>
                 <Textarea
                   name="message"
                   value={currentFormData.message}
@@ -483,12 +498,10 @@ const FormularioRegistro = () => {
                     <option value="E">
                       Cursos Profissionais Nível 4 / Ensino Secundário
                     </option>
-                    {/* <option value='CP4'>Cursos Profissionais nível 4 </option> */}
                     <option value="CP5">
                       Cursos Profissionais CET - Nível 5
                     </option>
                     <option value="TS">Ensino Superior TESP - Nível 5</option>
-                    {/* <option value='TESP'>TESP nível 5</option> */}
                   </Select>
                 </FormControl>
                 <FormControl isRequired isInvalid={!!currentErrors.nif}>
@@ -498,7 +511,7 @@ const FormularioRegistro = () => {
                     type="text"
                     maxLength={9}
                     value={currentFormData.nif}
-                    onChange={(e) => handleInputChange(e, formType)}
+                    onChange={(e) => handleInputChange(e, "aluno")}
                     placeholder="Digite o NIF"
                     bg="gray.50"
                   />
@@ -508,46 +521,54 @@ const FormularioRegistro = () => {
                 </FormControl>
               </Stack>
               <Stack spacing={4} direction={{ base: "column", md: "row" }}>
-                <FormControl isRequired>
-                  <FormLabel>Escola</FormLabel>
-                  <Select
-                    name="school_id"
-                    value={currentFormData.school_id}
-                    onChange={(e) => handleInputChange(e, "aluno")}
-                    placeholder="Selecione uma opção"
-                    bg="gray.50"
-                  >
-                    {schools.map((element) => (<option value={element.id}>
-                        {element.fantasy_name}
-                      </option>))}
-                  </Select>
-                </FormControl>
-                <FormControl>
-                  <FormLabel>Curso</FormLabel>
-                  <Select
-                    name="course"
-                    value={currentFormData.course}
-                    onChange={(e) => handleInputChange(e, "aluno")}
-                    placeholder="Selecione uma opção"
-                    bg="gray.50"
-                  >
-                    {records.map((element) => (<option value={element.id}>
-                        {element.title}
-                      </option>))}
-                  </Select>
-                </FormControl>
-              </Stack>
-              <Stack spacing={4} direction={{ base: "column", md: "row" }}>
-                <FormControl isRequired>
-                  <FormLabel>Áreas de interesses</FormLabel>
-                  <Input
-                    name="interest_area"
-                    value={currentFormData.interest_area}
-                    onChange={(e) => handleInputChange(e, "aluno")}
-                    placeholder="Tecnologia, Administração, etc."
-                    bg="gray.50"
-                  />
-                </FormControl>
+              <FormControl isRequired>
+                <FormLabel>Escola</FormLabel>
+                <ReactSelect
+                  name="school_id"
+                  options={schoolOptions}
+                  value={schoolOptions.find(o => o.value === currentFormData.school_id) || null}
+                  onChange={(option) => {
+                  const selectedId = option?.value || "";
+                    setFormData(prev => ({
+                      ...prev,
+                      aluno: {
+                        ...prev.aluno,
+                        school_id: selectedId,
+                        course: "",
+                      },
+                    }));
+                  }}
+                  placeholder="Selecione ou escreva uma opção"
+                  chakraStyles={{
+                    control: (provided) => ({
+                      ...provided,
+                      background: "gray.50"
+                    }),
+                    dropdownIndicator: (provided) => ({
+                      ...provided,
+                      background: "gray.50"
+                    }),
+                  }}
+                  isClearable
+                />
+              </FormControl>
+              <FormControl isRequired>
+                   <FormLabel>Curso</FormLabel>
+                   <Select
+                     name="course"
+                     value={currentFormData.course}
+                     onChange={(e) => handleInputChange(e, "aluno")}
+                     placeholder="Selecione uma opção"
+                     isDisabled={!currentFormData.school_id || records.length === 0}
+                     bg="gray.50"
+                   >
+                     {records.map((record) => (
+                       <option key={record.id} value={record.id}>
+                         {record.title}
+                       </option>
+                     ))}
+                   </Select>
+                 </FormControl>
               </Stack>
               <FormControl>
                 <FormLabel>

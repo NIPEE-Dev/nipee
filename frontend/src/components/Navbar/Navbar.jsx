@@ -14,7 +14,9 @@ import {
   DrawerContent,
   DrawerCloseButton,
   useDisclosure,
+  VStack,
 } from '@chakra-ui/react';
+import { FiMenu } from 'react-icons/fi'; // Menu icon
 import logo from '/src/images/logo.png';
 
 const Navbar = () => {
@@ -23,16 +25,20 @@ const Navbar = () => {
 
   useEffect(() => {
     const handleScroll = () => {
-      if (window.scrollY > 50) {
-        setIsScrolled(true);
-      } else {
-        setIsScrolled(false);
-      }
+      setIsScrolled(window.scrollY > 50);
     };
 
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  const scrollToRegister = () => {
+    const section = document.getElementById('registrar');
+    if (section) {
+      section.scrollIntoView({ behavior: 'smooth' });
+      onClose(); // Close drawer if open
+    }
+  };
 
   return (
     <Box
@@ -48,45 +54,34 @@ const Navbar = () => {
       transition="box-shadow 0.3s ease, background-color 0.3s ease"
     >
       <Flex align="center" maxW="80%" mx="auto">
-        {/* Logo */}
+        {/* Logo and nav links */}
         <HStack spacing={8}>
           <img src={logo} alt="Logo NIPEE" width={210} height={112} />
           <HStack spacing={8} display={{ base: 'none', md: 'flex' }}>
-            <Link href="#sobre" fontWeight="medium">
-              Sobre nós
-            </Link>
-            <Link href="#contato" fontWeight="medium">
-              Contacto
-            </Link>
+            <Link href="#sobre" fontWeight="medium">Sobre nós</Link>
+            <Link href="#contato" fontWeight="medium">Contacto</Link>
           </HStack>
         </HStack>
 
         <Spacer />
 
-        {/* Desktop */}
-        <HStack spacing={10} display={{ base: 'none', md: 'flex' }}>
-          <Link href="/login" variant="link" colorScheme="black">
-            Entrar
-          </Link>
+        {/* Desktop actions */}
+        <HStack spacing={6} display={{ base: 'none', md: 'flex' }}>
+          <Link href="/login" fontWeight="medium">Entrar</Link>
           <Button
             bgGradient="linear(to-r, #5931E9, #7289FF)"
             color="white"
             _hover={{ bgGradient: 'linear(to-r, #7289FF, #5931E9)' }}
-            onClick={() => {
-              const section = document.getElementById('registrar');
-              if (section) {
-                section.scrollIntoView({ behavior: 'smooth' });
-              }
-            }}
+            onClick={scrollToRegister}
           >
             Registar
           </Button>
         </HStack>
 
-        {/* Mobile */}
+        {/* Mobile menu button */}
         <IconButton
-          aria-label="Open menu"
-          icon={<box-icon name="menu"></box-icon>}
+          aria-label="Abrir menu"
+          icon={<FiMenu />}
           display={{ base: 'flex', md: 'none' }}
           onClick={onOpen}
           bg="transparent"
@@ -94,54 +89,26 @@ const Navbar = () => {
         />
       </Flex>
 
+      {/* Mobile drawer menu */}
       <Drawer isOpen={isOpen} placement="right" onClose={onClose}>
         <DrawerOverlay />
-        <DrawerContent maxW="100vw" width="100vw">
+        <DrawerContent width="100vw" maxW="100vw">
           <DrawerCloseButton />
           <DrawerHeader>Menu</DrawerHeader>
           <DrawerBody>
-            <Link
-              href="#sobre"
-              fontWeight="medium"
-              display="block"
-              mb={4}
-              onClick={onClose}
-            >
-              Sobre nós
-            </Link>
-            <Link
-              href="#contato"
-              fontWeight="medium"
-              display="block"
-              mb={4}
-              onClick={onClose}
-            >
-              Contacto
-            </Link>
-            <Link
-              href="/login"
-              variant="link"
-              colorScheme="black"
-              display="block"
-              w="full"
-              mb={4}
-              onClick={onClose}
-            >
-              Entrar
-            </Link>
-            <Button
-              bgGradient="linear(to-r, #5931E9, #7289FF)"
-              color="white"
-              w="full"
-              onClick={() => {
-                const section = document.getElementById('registrar');
-                if (section) {
-                  section.scrollIntoView({ behavior: 'smooth' });
-                }
-              }}
-            >
-              Registar
-            </Button>
+            <VStack align="start" spacing={4}>
+              <Link href="#sobre" fontWeight="medium" onClick={onClose}>Sobre nós</Link>
+              <Link href="#contato" fontWeight="medium" onClick={onClose}>Contacto</Link>
+              <Link href="/login" fontWeight="medium" onClick={onClose}>Entrar</Link>
+              <Button
+                w="full"
+                bgGradient="linear(to-r, #5931E9, #7289FF)"
+                color="white"
+                onClick={scrollToRegister}
+              >
+                Registar
+              </Button>
+            </VStack>
           </DrawerBody>
         </DrawerContent>
       </Drawer>

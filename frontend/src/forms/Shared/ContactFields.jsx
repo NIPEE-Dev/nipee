@@ -38,6 +38,7 @@ export const ContactFields = ({ readOnly, requiredFields = ['name', 'phone'] }) 
         type='email'
         component={FormField}
         readOnly={readOnly}
+        required
       />
 
       {requiredFields.includes('role') && (
@@ -47,6 +48,7 @@ export const ContactFields = ({ readOnly, requiredFields = ['name', 'phone'] }) 
           placeholder='Função'
           component={FormField}
           readOnly={readOnly}
+          required
         />
       )}
     </Stack>

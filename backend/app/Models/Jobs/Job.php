@@ -36,6 +36,7 @@ class Job extends Model
         'available',
         'type',
         'show_web',
+        'description'
     ];
 
     public $casts = [

@@ -13,8 +13,8 @@ const SidebarContent = (props) => {
     <Box
       as='nav'
       pos='fixed'
-      top='0'
-      left='0'
+      top='0' 
+      left='0' 
       zIndex='sticky'
       h='full'
       pb='10'
@@ -63,3 +63,4 @@ const SidebarContent = (props) => {
 };
 
 export default withAuth(SidebarContent);
+  

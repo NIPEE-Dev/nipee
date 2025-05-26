@@ -33,7 +33,7 @@ export const WorkflowCandidatesForm = ({
           >
             <Stack direction={["column", "row"]} spacing="24px">
               <FastField
-                id="full_name"
+                id="full_name" 
                 name="full_name"
                 placeholder="Nome do candidato"
                 component={FormField}
@@ -93,15 +93,6 @@ export const WorkflowCandidatesForm = ({
                 <option value="TS">Superior</option>
                 <option value="TESP">TESP nível 5</option>
               </FastField>
-
-              <FastField
-                id="interest_area"
-                name="interest_area"
-                placeholder="Áreas de interesses"
-                component={FormField}
-                readOnly={readOnly}
-                required
-              />
             </Stack>
 
             <Stack direction={["column", "row"]} spacing="24px">

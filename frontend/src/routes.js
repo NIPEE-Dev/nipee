@@ -1,8 +1,10 @@
 import createResourceRoute from './store/utils/createResourceRoute';
 
+const userProfile = JSON.parse(localStorage.getItem('profile'));
+
 export default {
   auth: {
-    login: '/login',
+  login: '/login',
     register: '/register'
   },
 
@@ -13,7 +15,12 @@ export default {
   dashboardCompanies: '/dashboard-schools',
   companies: createResourceRoute('companies'),
   insuranceSettings: createResourceRoute('insurance-settings'),
-  candidates: createResourceRoute('candidates'),
+  candidates: {
+    ...createResourceRoute('candidates'),
+    ...(userProfile?.candidate_id && {
+    self: `/candidates/view/${userProfile.candidate_id}`
+  })
+  },
   schools: createResourceRoute('schools'),
   jobs: createResourceRoute('jobs'),
   jobsChooseCandidates: '/jobs/choose-candidate',
@@ -37,7 +44,7 @@ export default {
 
   workflow: {
     candidatos: createResourceRoute('candidate', 'workflow'),
-    empresas: createResourceRoute('companie', 'workflow')
+    empresas: createResourceRoute('company', 'workflow')
   },
 
   financial: {

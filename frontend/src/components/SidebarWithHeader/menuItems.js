@@ -9,7 +9,8 @@ import {
   MdOutlinePersonSearch,
   MdOutlineSettings,
   MdOutlineTextSnippet,
-  MdAssignmentInd 
+  MdAssignmentInd,
+  MdMenu  
 } from 'react-icons/md';
 import routes from '../../routes';
 
@@ -20,17 +21,17 @@ const isEmpresa = userRole === "Empresa";
 const isEscola = userRole === "Escola";
 const isCandidato = userRole === "Candidato";
 
-export const menuItems = [
+export const baseMenuItems = [
   { 
     name: 'Relatórios Empresa', 
     icon: MdOutlineDashboard, 
-    to: '/dashboard-companies' ,
+    to: '/dashboard-companies',
     permission: 'companies.index'
   },
   { 
     name: 'Relatórios Escola', 
     icon: MdOutlineDashboard, 
-    to: '/dashboard-schools' ,
+    to: '/dashboard-schools',
     permission: 'schools.index'
   },
   {
@@ -86,7 +87,7 @@ export const menuItems = [
         children: [
           {
             name: 'Meu Registo',
-            to: routes.schools.list, 
+            to: routes.schools.list,
             permission: 'schools.index'
           },
           {
@@ -103,7 +104,7 @@ export const menuItems = [
         children: [
           {
             name: 'Meu Registo',
-            to: routes.candidates.list,
+            to: routes.candidates.self,
             permission: 'candidates.index'
           }
         ]
@@ -153,51 +154,65 @@ export const menuItems = [
     to: routes.baseRecords.list,
     permission: 'base-records.index'
   },
-/*   {
-    name: 'Fechamento',
-    icon: MdOutlineMonetizationOn,
-    to: routes.financial.close.list,
-    permission: [
-      'financial-close.index',
-      'financial-close.commission-all',
-      'financial-close.commission-me'
-    ]
-  }, */
+   // Descomente se tiver suporte a arrays em permission
+  // {
+  //   name: 'Fechamento',
+  //   icon: MdOutlineMonetizationOn,
+  //   to: routes.financial.close.list,
+  //   permission: [
+  //     'financial-close.index',
+  //     'financial-close.commission-all',
+  //     'financial-close.commission-me'
+  //   ]
+  // },
+  ...((isAdm) ? [
+    {
+      name: 'Gestão',
+      icon: MdOutlineSettings,
+      children: [
+        {
+          name: 'Utilizadores',
+          to: routes.config.users.list,
+          permission: 'users.index'
+        },
+        {
+          name: 'Configuração de perfis',
+          to: routes.config.roles.list,
+          permission: 'roles.index'
+        },
+        {
+          name: 'Relatório de Atividade',
+          to: routes.config.report.list,
+          permission: 'roles.index'
+        }
+      ]
+    }
+  ] : []),
+
+  ...((isAdm || isEscola) ? [
+    {
+      name: 'Aprovação',
+      icon: MdAssignmentInd,
+      children: [
+        {
+          name: 'Candidatos',
+          to: routes.workflow.candidatos.list,
+          permission: 'workflowCandidatos.index'
+        },
+        {
+          name: 'Empresas',
+          to: routes.workflow.empresas.list,
+          permission: 'workflowEmpresas.index'
+        }
+      ]
+    }
+  ] : []),
+];
+
+export const menuItems = [
   {
-    name: 'Aprovação',
-    icon: MdAssignmentInd ,
-    children: [
-      {
-        name: 'Candidatos',
-        to: routes.workflow.candidatos.list,
-        permission: 'workflowCandidatos.index'
-      },
-      {
-        name: 'Empresas',
-        to: routes.workflow.empresas.list,
-        permission: 'workflowEmpresas.index'
-      }
-    ]
-  },
-  {
-    name: 'Gerenciamento',
-    icon: MdOutlineSettings,
-    children: [
-      {
-        name: 'Usuários',
-        to: routes.config.users.list,
-        permission: 'users.index'
-      },
-      {
-        name: 'Perfis administrativos',
-        to: routes.config.roles.list,
-        permission: 'roles.index'
-      },
-      {
-        name: 'Relatório de Atividade',
-        to: routes.config.report.list,
-        permission: 'roles.index'
-      }
-    ]
+    name: 'Menu',
+    icon: MdMenu,
+    children: baseMenuItems
   }
 ];

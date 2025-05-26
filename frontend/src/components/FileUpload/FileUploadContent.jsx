@@ -14,7 +14,7 @@ const AVAILABLE_TYPES = [
   { type: 'School_Statement', label: 'Declação Escolar' },
   { type: 'Volunteering', label: 'Voluntariado' },
   { type: 'Evaluation_Closes', label: 'Ficha de Avaliação' },
-  { type: 'CurriculumVitae', label: 'Curriculum Vitae (CV)' },
+  { type: 'CurriculumVitae', label: 'Currículo (CV)' },
   { type: 'CoverLetter', label: 'Carta de Apresentação' },
   { type: 'Others', label: 'Outros' }
 ];

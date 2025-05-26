@@ -76,12 +76,17 @@ class AuthController extends Controller
     protected function respondWithToken($token)
     {
         $user = auth()->user()->load('roles.permissions');
-        return response()->json([
+        $response = [
             'permissions' => $user?->roles?->first()?->permissions->pluck('slug') ?? [],
             'username' => $user?->name,
             'user_id' => $user?->id,
-            'role' => $user?->roles?->first()?->title ?? ''
-        ])->withCookie(cookie('brilho-auth-token', $token, 9999999999999999));
+            'role' => $user?->roles?->first()?->title ?? '',
+            'candidate_id' => $user?->candidate?->toArray()['id']
+        ];
+        if (is_null($response['candidate_id'])) {
+        unset($response['candidate_id']);
+    }
+        return response()->json($response)->withCookie(cookie('brilho-auth-token', $token, 9999999999999999));
     }
 
     public function requestPasswordCode(Request $request)

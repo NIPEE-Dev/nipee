@@ -22,6 +22,7 @@ import {
 import { FiChevronDown, FiMenu, FiMoon, FiSun } from 'react-icons/fi';
 import SidebarContent from './SidebarContent';
 import { username, role } from '../../store/ducks/auth';
+import Footer from '../Footer/Footer';
 
 const SidebarWithHeader = ({ handleLogout, username, role, children }) => {
   const sidebar = useDisclosure();
@@ -69,7 +70,7 @@ const SidebarWithHeader = ({ handleLogout, username, role, children }) => {
             aria-label='open menu'
             onClick={toggleColorMode}
             icon={colorMode === 'light' ? <FiMoon /> : <FiSun />}
-          />
+          /> 
           <Flex alignItems='center'>
             <Menu>
               <MenuButton
@@ -108,6 +109,7 @@ const SidebarWithHeader = ({ handleLogout, username, role, children }) => {
       <Box ml={{ base: 0, md: 60 }} p='4'>
         {children}
       </Box>
+      <Footer/>
     </Box>
   );
 };

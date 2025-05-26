@@ -6,7 +6,7 @@ import { dateFormatter } from '../../utils/visualization';
 
 const InsuranceSettingsPage = () => (
   <ResourceScreen
-    title='Configurações do Seguro'
+    title='Seguros'
     permissions={['']}
     resource='InsuranceSettings'
     routeBase={routes.insuranceSettings}

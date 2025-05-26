@@ -5,7 +5,7 @@ import routes from '../../routes';
 
 const BaseRecordsPage = () => (
   <ResourceScreen
-    title='Listagem de Registos Base'
+    title='Registos Base'
     permissions={['']}
     resource='BaseRecords'
     routeBase={routes.baseRecords}
