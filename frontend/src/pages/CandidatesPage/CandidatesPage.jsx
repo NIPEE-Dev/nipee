@@ -1,12 +1,14 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import ResourceScreen from '../../components/ResourceScreen/ResourceScreen';
 import { CandidatesForm as Form } from '../../forms/CandidatesForm/CandidatesForm';
 import { Link } from '@chakra-ui/react';
 import routes from '../../routes';
 import { citiesFilters } from '../../utils/filterHelpers';
+import { useNavigate } from 'react-router-dom';
 
 const CandidatesPage = () => {
 
+  const navigate = useNavigate();
   const userProfile = JSON.parse(localStorage.getItem('profile'));
   const userRole = userProfile?.role || '';
   const isEmpresa = userRole === "Empresa";
@@ -15,6 +17,10 @@ const CandidatesPage = () => {
   const isAdm = userRole === "Administrador Geral";
 
   const title = isAdm || isEscola || isEmpresa ? 'Candidatos' : 'Meu Registo';
+
+  useEffect(() => {
+    navigate(routes.candidates.self);
+  }, []);
 
   return (  
     <ResourceScreen

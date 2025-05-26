@@ -104,7 +104,7 @@ export const baseMenuItems = [
         children: [
           {
             name: 'Meu Registo',
-            to: routes.candidates.list,
+            to: routes.candidates.self,
             permission: 'candidates.index'
           }
         ]

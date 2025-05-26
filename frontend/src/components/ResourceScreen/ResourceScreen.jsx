@@ -14,6 +14,11 @@ import { FaTrashAlt } from 'react-icons/fa';
 import { ModalConfirm } from '../WithModal/ModalConfirm';
 import { WithModal } from '../WithModal';
 
+const userProfile = JSON.parse(localStorage.getItem('profile'));
+  const userRole = userProfile?.role || '';
+  const isEscola = userRole === "Escola";
+  const isAdm = userRole === "Administrador Geral";
+
 const ResourceScreen = ({
   resource,
   columns,
@@ -85,6 +90,7 @@ function ViewEditContainer({ resource, title, Form, Details, onlyDiff, routeBase
   const navigate = useNavigate();
   const toast = useToast();
   const [isEditing, setIsEditing] = useState(false);
+  console.log(title);
   return (
     <Resource resource={resource} id={id} redirectAfterSuccess="..">
       {({ isLoading, detailedRecord, update, isSaving, remove }) => {
@@ -95,6 +101,7 @@ function ViewEditContainer({ resource, title, Form, Details, onlyDiff, routeBase
             <VStack spacing={4} align="stretch" divider={<StackDivider borderColor="gray.200" />}>
               <HStack justify="space-between">
           <HStack>
+            {!title.localeCompare("Meu Registo", undefined, { sensitivity: "base" }) === 0 && (
             <Tooltip hasArrow label='Voltar'>
               <Box as="span" tabIndex={0}>
                 <MdKeyboardBackspace
@@ -103,7 +110,7 @@ function ViewEditContainer({ resource, title, Form, Details, onlyDiff, routeBase
             onClick={() => navigate(-1)}
                 />
               </Box>
-            </Tooltip>
+            </Tooltip>)}
             <Text fontSize="3xl">{title}</Text>
           </HStack>
           <HStack spacing={2}>
