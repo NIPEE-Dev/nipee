@@ -4,7 +4,7 @@ import { Box, useColorModeValue } from "@chakra-ui/react";
 const Footer = (props = {}) => {
     return (
         <Box as="footer" 
-        bg={useColorModeValue('white', 'gray.900')}
+        bg={useColorModeValue('white', 'gray.700')}
         borderTop={'solid'}
         borderColor={useColorModeValue('gray.100', 'gray.700')}
         borderWidth={2}
