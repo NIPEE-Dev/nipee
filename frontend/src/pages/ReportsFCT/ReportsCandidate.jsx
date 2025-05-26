@@ -274,412 +274,422 @@ const ReportsCandidate = () => {
   const isFormDisabled = currentEntryStatus === "pending_approval";
 
   return (
-    <Flex
-      direction={{ base: "column", md: "row" }}
-      p={{ base: 3, md: 5 }}
-      gap={6}
-      align="flex-start"
-    >
-      <Box
-        flex={{ base: "1 1 100%", md: "1 1 auto" }}
-        p={4}
-        borderWidth="1px"
-        borderRadius="lg"
-        boxShadow="md"
+    <Box p={5}>
+      <Heading mb={6} textAlign="center">
+        Registo de Atividadees
+      </Heading>
+      <Flex
+        direction={{ base: "column", md: "row" }}
+        p={{ base: 3, md: 5 }}
+        gap={6}
+        align="flex-start"
       >
-        <Heading size="lg" mb={4} textAlign="center">
-          Calendário
-        </Heading>
         <Box
-          display="flex"
-          justifyContent="center"
-          className="calendar-container"
+          flex={{ base: "1 1 100%", md: "1 1 auto" }}
+          p={4}
+          borderWidth="1px"
+          borderRadius="lg"
+          boxShadow="md"
         >
-          <Calendar
-            onChange={handleDateChange}
-            value={selectedDate}
-            tileContent={tileContent}
-            locale="pt-BR"
-            prevLabel={
-              <IconButton
-                aria-label="Mês anterior"
-                icon={<FaChevronLeft />}
-                size="sm"
-                variant="ghost"
-              />
-            }
-            nextLabel={
-              <IconButton
-                aria-label="Próximo mês"
-                icon={<FaChevronRight />}
-                size="sm"
-                variant="ghost"
-              />
-            }
-            prev2Label={
-              <IconButton
-                aria-label="Ano anterior"
-                icon={<FaAngleDoubleLeft />}
-                size="sm"
-                variant="ghost"
-              />
-            }
-            next2Label={
-              <IconButton
-                aria-label="Próximo ano"
-                icon={<FaAngleDoubleRight />}
-                size="sm"
-                variant="ghost"
-              />
-            }
-            navigationLabel={({ date, view }) => {
-              let currentLabel = date.toLocaleDateString("pt-BR", {
-                month: "long",
-                year: "numeric",
-              });
-              if (view === "year") currentLabel = date.getFullYear().toString();
-              if (view === "decade") {
-                const startYear =
-                  date.getFullYear() - (date.getFullYear() % 10);
-                currentLabel = `${startYear} - ${startYear + 9}`;
-              }
-              if (view === "century") {
-                const startYear =
-                  date.getFullYear() - (date.getFullYear() % 100);
-                currentLabel = `${startYear} - ${startYear + 99}`;
-              }
-              return (
-                <Button
+          <Heading size="lg" mb={4} textAlign="center">
+            Calendário
+          </Heading>
+          <Box
+            display="flex"
+            justifyContent="center"
+            className="calendar-container"
+          >
+            <Calendar
+              onChange={handleDateChange}
+              value={selectedDate}
+              tileContent={tileContent}
+              locale="pt-BR"
+              prevLabel={
+                <IconButton
+                  aria-label="Mês anterior"
+                  icon={<FaChevronLeft />}
                   size="sm"
                   variant="ghost"
-                  color="purple.700"
-                  _hover={{ bg: "purple.50" }}
-                  textTransform="capitalize"
-                >
-                  {currentLabel}
-                </Button>
-              );
-            }}
-          />
-        </Box>
-        <Text mt={4} fontSize="md">
-          Data selecionada:{" "}
-          <Text as="span" fontWeight="bold">
-            {selectedDate.toLocaleDateString("pt-BR")}
+                />
+              }
+              nextLabel={
+                <IconButton
+                  aria-label="Próximo mês"
+                  icon={<FaChevronRight />}
+                  size="sm"
+                  variant="ghost"
+                />
+              }
+              prev2Label={
+                <IconButton
+                  aria-label="Ano anterior"
+                  icon={<FaAngleDoubleLeft />}
+                  size="sm"
+                  variant="ghost"
+                />
+              }
+              next2Label={
+                <IconButton
+                  aria-label="Próximo ano"
+                  icon={<FaAngleDoubleRight />}
+                  size="sm"
+                  variant="ghost"
+                />
+              }
+              navigationLabel={({ date, view }) => {
+                let currentLabel = date.toLocaleDateString("pt-BR", {
+                  month: "long",
+                  year: "numeric",
+                });
+                if (view === "year")
+                  currentLabel = date.getFullYear().toString();
+                if (view === "decade") {
+                  const startYear =
+                    date.getFullYear() - (date.getFullYear() % 10);
+                  currentLabel = `${startYear} - ${startYear + 9}`;
+                }
+                if (view === "century") {
+                  const startYear =
+                    date.getFullYear() - (date.getFullYear() % 100);
+                  currentLabel = `${startYear} - ${startYear + 99}`;
+                }
+                return (
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    color="purple.700"
+                    _hover={{ bg: "purple.50" }}
+                    textTransform="capitalize"
+                  >
+                    {currentLabel}
+                  </Button>
+                );
+              }}
+            />
+          </Box>
+          <Text mt={4} fontSize="md">
+            Data selecionada:{" "}
+            <Text as="span" fontWeight="bold">
+              {selectedDate.toLocaleDateString("pt-BR")}
+            </Text>
           </Text>
-        </Text>
-        {summaryEntries.length > 0 && (
+          {summaryEntries.length > 0 && (
+            <Box
+              mt={8}
+              borderWidth="1px"
+              borderRadius="lg"
+              borderColor="gray.200"
+              boxShadow="sm"
+              overflowX="auto"
+            >
+              <Heading size="md" textAlign="center" mt={4} mb={2}>
+                Resumo de Atividades
+              </Heading>
+              <TableContainer>
+                <Table variant="striped" colorScheme="purple" size="sm">
+                  <Thead>
+                    <Tr>
+                      <Th>Data</Th>
+                      <Th>Título</Th>
+                      <Th isNumeric>Horas</Th>
+                      <Th>Status</Th>
+                    </Tr>
+                  </Thead>
+                  <Tbody>
+                    {summaryEntries.map((entry) => (
+                      <Tr key={entry.dateKey}>
+                        <Td>{entry.displayDate}</Td>
+                        <Td
+                          whiteSpace="normal"
+                          wordBreak="break-word"
+                          maxW="180px"
+                          title={entry.title}
+                        >
+                          {entry.title}
+                        </Td>
+                        <Td isNumeric>{entry.hours.toLocaleString("pt-BR")}</Td>
+                        <Td>
+                          <Text
+                            fontSize="xs"
+                            fontWeight="medium"
+                            color={
+                              entry.status === "pending_approval"
+                                ? "orange.600"
+                                : entry.status === "approved"
+                                ? "green.600"
+                                : entry.status === "draft"
+                                ? "blue.600"
+                                : "gray.600"
+                            }
+                          >
+                            {entry.displayStatus}
+                          </Text>
+                        </Td>
+                      </Tr>
+                    ))}
+                  </Tbody>
+                </Table>
+              </TableContainer>
+            </Box>
+          )}
+        </Box>
+        <Box
+          flex={{ base: "1 1 100%", md: "1 1 50%" }}
+          p={4}
+          borderWidth="1px"
+          borderRadius="lg"
+          boxShadow="md"
+          mt={{ base: 6, md: 0 }}
+        >
+          <Heading size="lg" mb={6}>
+            Registar para {selectedDate.toLocaleDateString("pt-BR")}
+          </Heading>
+          <VStack spacing={5} align="stretch">
+            <FormControl isInvalid={isFormDisabled && !!currentTitle}>
+              <FormLabel htmlFor="titulo" fontWeight="semibold">
+                Título
+              </FormLabel>
+              <Input
+                id="titulo"
+                placeholder="Título da atividade/registo"
+                value={currentTitle}
+                onChange={handleTitleInputChange}
+                focusBorderColor="purple.500"
+                autoComplete="off"
+                isDisabled={isFormDisabled}
+              />
+            </FormControl>
+            <FormControl isInvalid={isFormDisabled && !!currentNote}>
+              <FormLabel htmlFor="anotacao" fontWeight="semibold">
+                Anotação
+              </FormLabel>
+              <Textarea
+                id="anotacao"
+                placeholder="Detalhes, tarefas realizadas, etc."
+                value={currentNote}
+                onChange={handleNoteInputChange}
+                size="md"
+                minHeight="100px"
+                focusBorderColor="purple.500"
+                isDisabled={isFormDisabled}
+              />
+            </FormControl>
+            <FormControl isInvalid={isFormDisabled && !!currentHours}>
+              <FormLabel htmlFor="horas" fontWeight="semibold">
+                Horas Trabalhadas no Dia
+              </FormLabel>
+              <NumberInput
+                id="horas"
+                value={currentHours}
+                onChange={handleHoursInputChange}
+                min={0}
+                max={24}
+                step={0.5}
+                precision={1}
+                focusBorderColor="purple.500"
+                isDisabled={isFormDisabled}
+              >
+                <NumberInputField
+                  placeholder="Ex: 8 ou 4,5"
+                  isDisabled={isFormDisabled}
+                />
+                <NumberInputStepper>
+                  <NumberIncrementStepper isDisabled={isFormDisabled} />
+                  <NumberDecrementStepper isDisabled={isFormDisabled} />
+                </NumberInputStepper>
+              </NumberInput>
+            </FormControl>
+
+            {isFormDisabled ? (
+              <Box
+                textAlign="center"
+                p={3}
+                borderWidth="1px"
+                borderRadius="md"
+                borderColor="orange.300"
+                bg="orange.50"
+                mt={4}
+              >
+                <Text color="orange.600" fontWeight="bold">
+                  Este registo está Pendente de Aprovação e não pode ser
+                  alterado ou excluído.
+                </Text>
+              </Box>
+            ) : (
+              <>
+                <HStack spacing={4} mt={4} width="full">
+                  <Button
+                    colorScheme="blue"
+                    variant="outline"
+                    onClick={handleSaveAsDraft}
+                    flex={1}
+                    size="lg"
+                  >
+                    Salvar como Rascunho
+                  </Button>
+                  <Button
+                    colorScheme="purple"
+                    onClick={handleSubmitForValidation}
+                    flex={1}
+                    size="lg"
+                  >
+                    Submeter para Validação
+                  </Button>
+                </HStack>
+                {currentEntryStatus === "draft" && dataForSelectedDate && (
+                  <Button
+                    colorScheme="red"
+                    variant="ghost"
+                    onClick={handleDeleteDraft}
+                    mt={3}
+                    width="full"
+                    leftIcon={<Icon as={FaTrash} />}
+                    size="md"
+                  >
+                    Excluir Rascunho
+                  </Button>
+                )}
+              </>
+            )}
+          </VStack>
+
+          {dataForSelectedDate &&
+            (dataForSelectedDate.title ||
+              dataForSelectedDate.note ||
+              dataForSelectedDate.hours !== undefined) && (
+              <Box
+                mt={8}
+                p={4}
+                bg={
+                  dataForSelectedDate.status === "pending_approval"
+                    ? "orange.50"
+                    : dataForSelectedDate.status === "draft"
+                    ? "blue.50"
+                    : dataForSelectedDate.status === "approved"
+                    ? "green.50"
+                    : "gray.50"
+                }
+                borderRadius="md"
+                borderWidth="1px"
+                borderColor={
+                  dataForSelectedDate.status === "pending_approval"
+                    ? "orange.200"
+                    : dataForSelectedDate.status === "draft"
+                    ? "blue.200"
+                    : dataForSelectedDate.status === "approved"
+                    ? "green.200"
+                    : "gray.200"
+                }
+              >
+                <Heading
+                  size="md"
+                  color={
+                    dataForSelectedDate.status === "pending_approval"
+                      ? "orange.700"
+                      : dataForSelectedDate.status === "draft"
+                      ? "blue.700"
+                      : dataForSelectedDate.status === "approved"
+                      ? "green.700"
+                      : "gray.700"
+                  }
+                  mb={3}
+                >
+                  Informações Salvas (
+                  {getDisplayStatus(dataForSelectedDate.status)})
+                </Heading>
+                {dataForSelectedDate.title &&
+                  dataForSelectedDate.title.trim() !== "" && (
+                    <Box
+                      mb={
+                        dataForSelectedDate.note ||
+                        dataForSelectedDate.hours !== undefined
+                          ? 3
+                          : 0
+                      }
+                    >
+                      <Text fontWeight="bold">Título:</Text>
+                      <Text
+                        whiteSpace="normal"
+                        wordBreak="break-word"
+                        fontSize="sm"
+                        color="gray.600"
+                      >
+                        {dataForSelectedDate.title}
+                      </Text>
+                    </Box>
+                  )}
+                {dataForSelectedDate.note &&
+                  dataForSelectedDate.note.trim() !== "" && (
+                    <Box mb={dataForSelectedDate.hours !== undefined ? 3 : 0}>
+                      <Text fontWeight="bold">Anotação:</Text>
+                      <Text
+                        whiteSpace="pre-wrap"
+                        fontSize="sm"
+                        color="gray.600"
+                      >
+                        {dataForSelectedDate.note}
+                      </Text>
+                    </Box>
+                  )}
+                {dataForSelectedDate.hours !== undefined && (
+                  <Box>
+                    <Text fontWeight="bold">Horas Trabalhadas no Dia:</Text>
+                    <Text fontSize="sm" color="gray.600">
+                      {dataForSelectedDate.hours.toLocaleString("pt-BR")}
+                    </Text>
+                  </Box>
+                )}
+              </Box>
+            )}
+          <Divider my={8} />
           <Box
-            mt={8}
+            p={4}
             borderWidth="1px"
             borderRadius="lg"
             borderColor="gray.200"
             boxShadow="sm"
-            overflowX="auto"
           >
-            <Heading size="md" textAlign="center" mt={4} mb={2}>
-              Resumo de Atividades
+            <Heading size="md" mb={4} textAlign="center">
+              Resumo Geral de Horas
             </Heading>
-            <TableContainer>
-              <Table variant="striped" colorScheme="purple" size="sm">
-                <Thead>
-                  <Tr>
-                    <Th>Data</Th>
-                    <Th>Título</Th>
-                    <Th isNumeric>Horas</Th>
-                    <Th>Status</Th>
-                  </Tr>
-                </Thead>
-                <Tbody>
-                  {summaryEntries.map((entry) => (
-                    <Tr key={entry.dateKey}>
-                      <Td>{entry.displayDate}</Td>
-                      <Td
-                        whiteSpace="normal"
-                        wordBreak="break-word"
-                        maxW="180px"
-                        title={entry.title}
-                      >
-                        {entry.title}
-                      </Td>
-                      <Td isNumeric>{entry.hours.toLocaleString("pt-BR")}</Td>
-                      <Td>
-                        <Text
-                          fontSize="xs"
-                          fontWeight="medium"
-                          color={
-                            entry.status === "pending_approval"
-                              ? "orange.600"
-                              : entry.status === "approved"
-                              ? "green.600"
-                              : entry.status === "draft"
-                              ? "blue.600"
-                              : "gray.600"
-                          }
-                        >
-                          {entry.displayStatus}
-                        </Text>
-                      </Td>
-                    </Tr>
-                  ))}
-                </Tbody>
-              </Table>
-            </TableContainer>
+            <StatGroup justifyContent="space-around">
+              <Stat>
+                <StatLabel textAlign="center">Horas Totais</StatLabel>
+                <StatNumber textAlign="center">
+                  {totalProjectHours.toLocaleString("pt-BR")}
+                </StatNumber>
+              </Stat>
+              <Stat>
+                <StatLabel textAlign="center">Horas Trabalhadas</StatLabel>
+                <StatNumber
+                  textAlign="center"
+                  color={
+                    workedHours > totalProjectHours ? "orange.500" : "green.500"
+                  }
+                >
+                  {workedHours.toLocaleString("pt-BR")}
+                </StatNumber>
+              </Stat>
+              <Stat>
+                <StatLabel textAlign="center">Horas Restantes</StatLabel>
+                <StatNumber
+                  textAlign="center"
+                  color={
+                    remainingHours < 0
+                      ? "red.500"
+                      : remainingHours === 0
+                      ? "green.500"
+                      : "inherit"
+                  }
+                >
+                  {remainingHours.toLocaleString("pt-BR")}
+                </StatNumber>
+              </Stat>
+            </StatGroup>
           </Box>
-        )}
-      </Box>
-      <Box
-        flex={{ base: "1 1 100%", md: "1 1 50%" }}
-        p={4}
-        borderWidth="1px"
-        borderRadius="lg"
-        boxShadow="md"
-        mt={{ base: 6, md: 0 }}
-      >
-        <Heading size="lg" mb={6}>
-          Registrar para {selectedDate.toLocaleDateString("pt-BR")}
-        </Heading>
-        <VStack spacing={5} align="stretch">
-          <FormControl isInvalid={isFormDisabled && !!currentTitle}>
-            <FormLabel htmlFor="titulo" fontWeight="semibold">
-              Título
-            </FormLabel>
-            <Input
-              id="titulo"
-              placeholder="Título da atividade/registro"
-              value={currentTitle}
-              onChange={handleTitleInputChange}
-              focusBorderColor="purple.500"
-              autoComplete="off"
-              isDisabled={isFormDisabled}
-            />
-          </FormControl>
-          <FormControl isInvalid={isFormDisabled && !!currentNote}>
-            <FormLabel htmlFor="anotacao" fontWeight="semibold">
-              Anotação
-            </FormLabel>
-            <Textarea
-              id="anotacao"
-              placeholder="Detalhes, tarefas realizadas, etc."
-              value={currentNote}
-              onChange={handleNoteInputChange}
-              size="md"
-              minHeight="100px"
-              focusBorderColor="purple.500"
-              isDisabled={isFormDisabled}
-            />
-          </FormControl>
-          <FormControl isInvalid={isFormDisabled && !!currentHours}>
-            <FormLabel htmlFor="horas" fontWeight="semibold">
-              Horas Trabalhadas no Dia
-            </FormLabel>
-            <NumberInput
-              id="horas"
-              value={currentHours}
-              onChange={handleHoursInputChange}
-              min={0}
-              max={24}
-              step={0.5}
-              precision={1}
-              focusBorderColor="purple.500"
-              isDisabled={isFormDisabled}
-            >
-              <NumberInputField
-                placeholder="Ex: 8 ou 4,5"
-                isDisabled={isFormDisabled}
-              />
-              <NumberInputStepper>
-                <NumberIncrementStepper isDisabled={isFormDisabled} />
-                <NumberDecrementStepper isDisabled={isFormDisabled} />
-              </NumberInputStepper>
-            </NumberInput>
-          </FormControl>
-
-          {isFormDisabled ? (
-            <Box
-              textAlign="center"
-              p={3}
-              borderWidth="1px"
-              borderRadius="md"
-              borderColor="orange.300"
-              bg="orange.50"
-              mt={4}
-            >
-              <Text color="orange.600" fontWeight="bold">
-                Este registro está Pendente de Aprovação e não pode ser alterado
-                ou excluído.
-              </Text>
-            </Box>
-          ) : (
-            <>
-              <HStack spacing={4} mt={4} width="full">
-                <Button
-                  colorScheme="blue"
-                  variant="outline"
-                  onClick={handleSaveAsDraft}
-                  flex={1}
-                  size="lg"
-                >
-                  Salvar como Rascunho
-                </Button>
-                <Button
-                  colorScheme="purple"
-                  onClick={handleSubmitForValidation}
-                  flex={1}
-                  size="lg"
-                >
-                  Submeter para Validação
-                </Button>
-              </HStack>
-              {currentEntryStatus === "draft" && dataForSelectedDate && (
-                <Button
-                  colorScheme="red"
-                  variant="ghost"
-                  onClick={handleDeleteDraft}
-                  mt={3}
-                  width="full"
-                  leftIcon={<Icon as={FaTrash} />}
-                  size="md"
-                >
-                  Excluir Rascunho
-                </Button>
-              )}
-            </>
-          )}
-        </VStack>
-
-        {dataForSelectedDate &&
-          (dataForSelectedDate.title ||
-            dataForSelectedDate.note ||
-            dataForSelectedDate.hours !== undefined) && (
-            <Box
-              mt={8}
-              p={4}
-              bg={
-                dataForSelectedDate.status === "pending_approval"
-                  ? "orange.50"
-                  : dataForSelectedDate.status === "draft"
-                  ? "blue.50"
-                  : dataForSelectedDate.status === "approved"
-                  ? "green.50"
-                  : "gray.50"
-              }
-              borderRadius="md"
-              borderWidth="1px"
-              borderColor={
-                dataForSelectedDate.status === "pending_approval"
-                  ? "orange.200"
-                  : dataForSelectedDate.status === "draft"
-                  ? "blue.200"
-                  : dataForSelectedDate.status === "approved"
-                  ? "green.200"
-                  : "gray.200"
-              }
-            >
-              <Heading
-                size="md"
-                color={
-                  dataForSelectedDate.status === "pending_approval"
-                    ? "orange.700"
-                    : dataForSelectedDate.status === "draft"
-                    ? "blue.700"
-                    : dataForSelectedDate.status === "approved"
-                    ? "green.700"
-                    : "gray.700"
-                }
-                mb={3}
-              >
-                Informações Salvas (
-                {getDisplayStatus(dataForSelectedDate.status)})
-              </Heading>
-              {dataForSelectedDate.title &&
-                dataForSelectedDate.title.trim() !== "" && (
-                  <Box
-                    mb={
-                      dataForSelectedDate.note ||
-                      dataForSelectedDate.hours !== undefined
-                        ? 3
-                        : 0
-                    }
-                  >
-                    <Text fontWeight="bold">Título:</Text>
-                    <Text
-                      whiteSpace="normal"
-                      wordBreak="break-word"
-                      fontSize="sm"
-                      color="gray.600"
-                    >
-                      {dataForSelectedDate.title}
-                    </Text>
-                  </Box>
-                )}
-              {dataForSelectedDate.note &&
-                dataForSelectedDate.note.trim() !== "" && (
-                  <Box mb={dataForSelectedDate.hours !== undefined ? 3 : 0}>
-                    <Text fontWeight="bold">Anotação:</Text>
-                    <Text whiteSpace="pre-wrap" fontSize="sm" color="gray.600">
-                      {dataForSelectedDate.note}
-                    </Text>
-                  </Box>
-                )}
-              {dataForSelectedDate.hours !== undefined && (
-                <Box>
-                  <Text fontWeight="bold">Horas Trabalhadas no Dia:</Text>
-                  <Text fontSize="sm" color="gray.600">
-                    {dataForSelectedDate.hours.toLocaleString("pt-BR")}
-                  </Text>
-                </Box>
-              )}
-            </Box>
-          )}
-        <Divider my={8} />
-        <Box
-          p={4}
-          borderWidth="1px"
-          borderRadius="lg"
-          borderColor="gray.200"
-          boxShadow="sm"
-        >
-          <Heading size="md" mb={4} textAlign="center">
-            Resumo Geral de Horas
-          </Heading>
-          <StatGroup justifyContent="space-around">
-            <Stat>
-              <StatLabel textAlign="center">Horas Totais</StatLabel>
-              <StatNumber textAlign="center">
-                {totalProjectHours.toLocaleString("pt-BR")}
-              </StatNumber>
-            </Stat>
-            <Stat>
-              <StatLabel textAlign="center">Horas Trabalhadas</StatLabel>
-              <StatNumber
-                textAlign="center"
-                color={
-                  workedHours > totalProjectHours ? "orange.500" : "green.500"
-                }
-              >
-                {workedHours.toLocaleString("pt-BR")}
-              </StatNumber>
-            </Stat>
-            <Stat>
-              <StatLabel textAlign="center">Horas Restantes</StatLabel>
-              <StatNumber
-                textAlign="center"
-                color={
-                  remainingHours < 0
-                    ? "red.500"
-                    : remainingHours === 0
-                    ? "green.500"
-                    : "inherit"
-                }
-              >
-                {remainingHours.toLocaleString("pt-BR")}
-              </StatNumber>
-            </Stat>
-          </StatGroup>
         </Box>
-      </Box>
-    </Flex>
+      </Flex>
+    </Box>
   );
 };
 
