@@ -5,6 +5,16 @@ import FormField from '../../components/FormField/FormField';
 import { beforeMaskedValueChangePhone } from '../../utils/formHelpers';
 import { phoneValidator, birthDayValidator } from '../../utils/formValidators';
 
+
+// Função para validar NIF usando seu nifValidator
+const validateNIF = (value) => {
+  if (!value) return 'NIF é obrigatório';
+  // O nifValidator deve retornar string com erro ou undefined/null se OK
+  const error = nifValidator(value, true); 
+  if (error) return error;
+  return undefined;
+};
+
 export const ResponsibleFields = ({
   readOnly,
   requiredFields = ['name', 'phone']
@@ -43,20 +53,10 @@ export const ResponsibleFields = ({
         component={FormField}
         readOnly={readOnly}
         required={requiredFields.includes('email')}
+        
       />
 
-      <Field
-        id="responsible.role"
-        name="responsible.role"
-        placeholder="Função"
-        component={FormField}
-        readOnly={readOnly}
-        required={requiredFields.includes('role')}
-      />
-    </Stack>
-
-    <Stack direction={['column', 'row']} spacing="24px">
-    <Field
+<Field
   id="responsible.document"
   name="responsible.document"
   placeholder="NIF"
@@ -65,30 +65,25 @@ export const ResponsibleFields = ({
   required={requiredFields.includes('document')}
   inputMode="numeric"         // mostra apenas o teclado numérico em mobile
   pattern="[0-9]*"            // restringe a entrada para apenas números
+    validate={validateNIF}
 />
 
+      
+    </Stack>
 
-        <Field
-          id='validade'
-          name='responsible.validade'
-          type='date'
-          placeholder='Validade'
-          component={FormField}
-          readOnly={readOnly}
-        />
-
-      <Field
-        id="responsible.birth_day"
-        name="responsible.birth_day"
-        placeholder="Data de nascimento"
-        component={FormField.InputMask}
-        mask="99/99/9999"
+    <Stack direction={['column', 'row']} spacing="24px">
+  
+<Field
+        id="responsible.role"
+        name="responsible.role"
+        placeholder="Função"
+        component={FormField}
         readOnly={readOnly}
-        required={requiredFields.includes('birth_day')}
-        validate={(value) =>
-          birthDayValidator(value, requiredFields.includes('birth_day'))
-        }
+        required={requiredFields.includes('role')}
       />
+
+
+
     </Stack>
   </>
 );

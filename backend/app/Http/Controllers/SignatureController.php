@@ -9,6 +9,8 @@ use App\Models\Contracts\Contract;
 use App\Models\Document;
 use PhpOffice\PhpWord\TemplateProcessor;
 use Exception;
+use App\Mail\SignaturePending;
+use Illuminate\Support\Facades\Mail;
 
 class SignatureController extends Controller
 {
@@ -63,6 +65,14 @@ class SignatureController extends Controller
             Log::error("Erro ao processar assinatura para o contrato {$contractId}: {$e->getMessage()}");
             return response()->json(['error' => 'Erro interno ao processar a assinatura.'], 500);
         }
+
+        if ($type == "empresa") {
+            $school = $contract->school;
+            Mail::to($school->email)->send(new SignaturePending(
+            $contract->candidate->name,
+            $contract->company->corporate_name,
+            $contract->company->responsible->name));
+    }
     }
 
     private function insertSignatureIntoContract($contractId, $type)

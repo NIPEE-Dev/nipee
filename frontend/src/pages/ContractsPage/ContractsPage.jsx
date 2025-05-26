@@ -35,7 +35,7 @@ const ContractsPage = () => {
       resource='Contracts'
       routeBase={routes.contracts}
       Form={ContractsForm}
-      canAdd={isEmpresa || isAdm}
+      canAdd={isEmpresa || isAdm} 
       canEdit={isEmpresa || isAdm}
       canRemove={false}
       resourceUpdateProps={{

@@ -6,7 +6,7 @@ import withAuth from '../../store/utils/withAuth';
 import NavItem from './NavItem';
 
 const NavItemController = ({ auth, menu, color, nestedChildrenMenu = 4 }) => {
-  const collapse = useDisclosure();
+  const collapse = useDisclosure({defaultIsOpen: true});
   const { name, icon, to, children, permission } = menu;
 
   if (permission) {
@@ -22,7 +22,7 @@ const NavItemController = ({ auth, menu, color, nestedChildrenMenu = 4 }) => {
 
   if (to) {
     return (
-      <NavItem
+      <NavItem 
         pl={nestedChildrenMenu}
         color={color}
         icon={icon}

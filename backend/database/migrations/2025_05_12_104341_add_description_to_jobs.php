@@ -13,9 +13,8 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::table('students_pre_registrations', function (Blueprint $table) {
-            $table->dropColumn('course');
-            $table->bigInteger('course')->unsigned()->nullable();
+        Schema::table('jobs', function (Blueprint $table) {
+            $table->string('description', 2000)->nullable();
         });
     }
 
@@ -26,8 +25,8 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::table('students_pre_registrations', function (Blueprint $table) {
-            $table->dropColumn('course');
+        Schema::table('jobs', function (Blueprint $table) {
+            $table->dropColumn('description');
         });
     }
 };

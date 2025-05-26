@@ -2,7 +2,7 @@ import createResourceRoute from './store/utils/createResourceRoute';
 
 export default {
   auth: {
-    login: '/login',
+  login: '/login',
     register: '/register'
   },
 
@@ -37,7 +37,7 @@ export default {
 
   workflow: {
     candidatos: createResourceRoute('candidate', 'workflow'),
-    empresas: createResourceRoute('companie', 'workflow')
+    empresas: createResourceRoute('company', 'workflow')
   },
 
   financial: {

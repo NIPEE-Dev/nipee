@@ -25,6 +25,7 @@ use Illuminate\Routing\Middleware\ThrottleRequests;
 use Illuminate\Routing\Middleware\ValidateSignature;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
+use App\Http\Middleware\CheckPermission;
 
 class Kernel extends HttpKernel
 {
@@ -86,5 +87,6 @@ class Kernel extends HttpKernel
         'verified' => EnsureEmailIsVerified::class,
         'substitutes' => SubstituteBindings::class,
         'auth.gate' => AuthGate::class,
+        'checkPermission' => \App\Http\Middleware\CheckPermission::class,
     ];
 }

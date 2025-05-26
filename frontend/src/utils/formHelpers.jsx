@@ -81,16 +81,16 @@ export const getDayByNumber = (number) => {
 };
 
 export const makeJourneyText = (values) =>
-  `DE ${getDayByNumber(values.working_day?.start_weekday)} À ${getDayByNumber(
+  `DE ${getDayByNumber(values.working_day?.start_weekday) || ""} À ${getDayByNumber(
     values.working_day?.end_weekday
-  )} DAS ${values.working_day?.start_hour} ÀS ${values.working_day?.end_hour} ${
+  )} DAS ${values.working_day?.start_hour || "__:__"} ÀS ${values.working_day?.end_hour || "__:__"} ${
     values.working_day?.day_off_start_weekday
       ? ` E DE ${getDayByNumber(
           values.working_day.day_off_start_weekday
-        )} DAS ${values.working_day.day_off_start_hour} ÀS ${
-          values.working_day.day_off_end_hour
+        )} DAS ${values.working_day.day_off_start_hour || "__:__"} ÀS ${
+          values.working_day.day_off_end_hour || "__:__"
         }`
       : ''
   } (COM ${values.working_day?.day_off}) TOTALIZANDO ${
-    values.working_day?.working_hours
+    values.working_day?.working_hours || 'X'
   } HORAS SEMANAIS`.toUpperCase();

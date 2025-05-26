@@ -1,5 +1,5 @@
 import React from 'react';
-import { Stack, Box, Button, Text, chakra } from '@chakra-ui/react';
+import { Stack, Box, Button, Text, chakra, Textarea } from '@chakra-ui/react';
 import { Formik, Form, Field, FastField } from 'formik';
 import FormField from '../../components/FormField/FormField';
 import GroupContainer from '../GroupContainer';
@@ -46,8 +46,7 @@ export const JobsForm = ({ readOnly, typeForm, isLoading, ...props }) => {
                   >
                     {records.map((record) => (
                       <option key={record.id} value={record.id}>
-                        {record.corporate_name} --------- {record.fantasy_name} #
-                        {record.id}
+                        {record.corporate_name} --------- {record.fantasy_name}
                       </option>
                     ))}
                   </Field>
@@ -67,7 +66,7 @@ export const JobsForm = ({ readOnly, typeForm, isLoading, ...props }) => {
                     name='role_id'
                     disabled={ canEdit === false }
                     placeholder='Função'
-                    component={FormField.Select}
+                    component={FormField}
                     readOnly={readOnly}
                     isLoading={isLoading}
                     required
@@ -216,6 +215,23 @@ export const JobsForm = ({ readOnly, typeForm, isLoading, ...props }) => {
                 <option value='0'>Não</option>
                 <option value='1'>Sim</option>
               </FastField>
+            </Stack>
+            <Stack direction={['column', 'row']} spacing='24px'>
+              <Field
+                as={Textarea}
+                id='description'
+                name='description'
+                placeholder='Descrição da vaga'
+                readOnly={readOnly}
+                component={FormField.Textarea}
+                disabled={ canEdit === false }
+                onInput={(e) => {
+                  e.target.style.height = "auto";
+                  e.target.style.height = `${e.target.scrollHeight}px`;
+                }}
+                style={{ overflow: "hidden" }}
+                maxLength={2000}
+              />
             </Stack>
           </GroupContainer>
 

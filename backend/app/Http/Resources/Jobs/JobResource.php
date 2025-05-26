@@ -32,7 +32,7 @@ class JobResource extends JsonResource
             'show_web_title' => BooleanEnum::getLabel($this->show_web),
             'deleted_at' => $this->deleted_at,
             'created_at' => $this->created_at,
-
+            'description' => $this->description,
             'company' => new CompanyResource($this->whenLoaded('company')),
             'working_day' => new JobWorkingDayResource($this->whenLoaded('workingDay')),
             'role' => new JobWorkingDayResource($this->whenLoaded('role')),

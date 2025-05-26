@@ -52,6 +52,16 @@ const CourseSelect = ({ value = [], onChange, readOnly }) => {
     <Select
       isMulti
       isSearchable
+      chakraStyles={{
+        control: (provided) => ({
+          ...provided,
+          background: "gray.50"
+        }),
+        dropdownIndicator: (provided) => ({
+          ...provided,
+          background: "gray.50"
+        }),
+      }}
       value={courses.filter(course => value.includes(String(course.id))).map(course => ({ value: String(course.id), label: course.title || 'Unknown' }))}
       onChange={handleChange}
       isDisabled={readOnly}
@@ -182,18 +192,7 @@ export const SchoolsForm = ({ readOnly, isLoading, typeForm, ...props }) => (
           </GroupContainer>
         )}
 
-        {readOnly !== true && (
-          <Box py={3} textAlign='right'>
-            <Button
-              mt='3'
-              colorScheme='blue'
-              type='submit'
-              isLoading={isLoading || isSubmitting}
-            >
-              Salvar
-            </Button>
-          </Box>
-        )}
+        {props.children}
       </Form>
     )}
   </Formik>

@@ -183,7 +183,7 @@ const Login = ({ isLoading, handleLogin, authError }) => {
           {authError && (
             <Alert status="error" variant="left-accent" mt="1">
               <AlertIcon />
-              {authError}
+              {authError === 'Unauthorized' ? 'E-mail ou palavra-passe inválida' : authError}
             </Alert>
           )}
 
