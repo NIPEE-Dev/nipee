@@ -14,7 +14,6 @@ import { cepMask } from '../../utils/formHelpers';
 import { cepValidator } from '../../utils/formValidators';
 
 const AddressFields = ({
-  readOnly = false,
   setFieldValue,
   relation = 'address',
   required = true
@@ -22,6 +21,14 @@ const AddressFields = ({
   const [isLoading, setIsLoading] = useState(false);
   const [isCepSelected, setIsCepSelected] = useState(false);
   const toast = useToast();
+
+  const districtMap = {
+    "Aveiro": "av", "Beja": "be", "Braga": "br", "Bragança": "bg",
+    "Castelo Branco": "cb", "Coimbra": "co", "Évora": "ev", "Faro": "fa",
+    "Guarda": "gu", "Leiria": "le", "Lisboa": "li", "Portalegre": "po",
+    "Porto": "pt", "Santarém": "sa", "Setúbal": "se", "Viana do Castelo": "vc",
+    "Vila Real": "vr", "Viseu": "vi", "Açores": "ac", "Madeira": "ma"
+  };
 
   const triggerFindCepFail = () => {
     toast({
@@ -33,43 +40,53 @@ const AddressFields = ({
     });
   };
 
-  const searchAddress = useCallback(
-    (cep) => {
-      const cepNumbers = cep.replace(/\D/g, '');
-      if (cepNumbers.length === 7) {
-        setIsLoading(true);
-        setIsCepSelected(true);
-        fetch(`https://api.duminio.com/ptcp/v2/ptapi67cf743eba11e8.10231284/${cepNumbers}`)
-          .then((res) => res.json())
-          .then((response) => {
-            if (!response || response.error) {
-              triggerFindCepFail();
-            } else {
-              const districtFull = response[0]?.Distrito || '';
-              setFieldValue(`${relation}.uf`, districtFull); // full name, not code
-              setFieldValue(
-                `${relation}.city`,
-                response[0]?.Localidade
-                  ? response[0].Localidade.charAt(0).toUpperCase() +
-                    response[0].Localidade.slice(1).toLowerCase()
-                  : ''
-              );
-              setFieldValue(`${relation}.address`, response[0]?.Morada || '');
-              setFieldValue(`${relation}.district`, response[0]?.Concelho || '');
-            }
-            setIsLoading(false);
-          })
-          .catch(() => {
+  const getDistrictCode = (value) => {
+    if (!value) return '';
+    const match = Object.entries(districtMap).find(
+      ([name, code]) =>
+        name.toLowerCase() === value.toLowerCase() ||
+        code.toLowerCase() === value.toLowerCase()
+    );
+    return match ? match[1] : '';
+  };
+
+  const searchAddress = useCallback((cep) => {
+    const cepNumbers = cep.replace(/\D/g, '');
+    if (cepNumbers.length === 7) {
+      setIsLoading(true);
+      fetch(`https://api.duminio.com/ptcp/v2/ptapi67cf743eba11e8.10231284/${cepNumbers}`)
+        .then((res) => res.json())
+        .then((response) => {
+          if (!response || response.error) {
             triggerFindCepFail();
-            setIsLoading(false);
-          });
-      }
-    },
-    [setFieldValue, relation]
-  );
+            setIsCepSelected(false);
+          } else {
+            const rawDistrict = response[0]?.Distrito || '';
+            const districtCode = getDistrictCode(rawDistrict);
+
+            setFieldValue(`${relation}.uf`, districtCode);
+            setFieldValue(`${relation}.city`,
+              response[0]?.Localidade
+                ? response[0].Localidade.charAt(0).toUpperCase() +
+                  response[0].Localidade.slice(1).toLowerCase()
+                : ''
+            );
+            setFieldValue(`${relation}.address`, response[0]?.Morada || '');
+            setFieldValue(`${relation}.district`, response[0]?.Concelho || '');
+            setIsCepSelected(true);
+          }
+          setIsLoading(false);
+        })
+        .catch(() => {
+          triggerFindCepFail();
+          setIsLoading(false);
+          setIsCepSelected(false);
+        });
+    }
+  }, [setFieldValue, relation]);
 
   return (
-    <>
+    <Stack spacing={4}>
       <Stack direction={['column', 'row']} spacing="24px">
         <InputGroup flex="1">
           <FastField
@@ -79,7 +96,6 @@ const AddressFields = ({
             component={FormField.InputMask}
             mask={cepMask}
             placeholder="Código Postal"
-            readOnly={readOnly}
             required={required}
             onBlur={(e) => searchAddress(e.target.value)}
             width="100%"
@@ -96,11 +112,27 @@ const AddressFields = ({
             id={`${relation}.uf`}
             name={`${relation}.uf`}
             placeholder="Distrito"
-            component={FormField}
-            readOnly={true} // always read-only
+            component={FormField.Select}
+            disabled={true}
+            readOnly={true}
             required={required}
             width="100%"
-          />
+            validate={(value) => {
+              if (!value && required) return 'Campo obrigatório';
+              return Object.values(districtMap).includes(value)
+                ? undefined
+                : 'Distrito inválido';
+            }}
+          >
+            <option value="">Selecione um distrito</option>
+            {Object.entries(districtMap).map(([name, code]) => (
+              <option key={code} value={code}>
+                {name}
+              </option>
+            ))}
+          </FastField>
+          {/* Hidden input to submit even though it's disabled */}
+          <FastField type="hidden" name={`${relation}.uf`} />
         </Box>
       </Stack>
 
@@ -111,19 +143,18 @@ const AddressFields = ({
             name={`${relation}.city`}
             placeholder="Localidade"
             component={FormField}
-            readOnly={isCepSelected || readOnly}
+            readOnly={true}
             required={required}
             width="100%"
           />
         </Box>
-
         <Box flex="1">
           <FastField
             id={`${relation}.district`}
             name={`${relation}.district`}
             placeholder="Concelho"
             component={FormField}
-            readOnly={isCepSelected || readOnly}
+            readOnly={true}
             required={required}
             width="100%"
           />
@@ -137,19 +168,17 @@ const AddressFields = ({
             name={`${relation}.address`}
             placeholder="Morada"
             component={FormField}
-            readOnly={isCepSelected || readOnly}
+            readOnly={true}
             required={required}
             width="100%"
           />
         </Box>
-
         <Box flex="1">
           <FastField
             id={`${relation}.number`}
             name={`${relation}.number`}
             placeholder="Número"
             component={FormField}
-            readOnly={readOnly}
             required={required}
             width="100%"
           />
@@ -163,12 +192,11 @@ const AddressFields = ({
             name={`${relation}.complement`}
             placeholder="Andar"
             component={FormField}
-            readOnly={readOnly}
             width="100%"
           />
         </Box>
       </Stack>
-    </>
+    </Stack>
   );
 };
 
