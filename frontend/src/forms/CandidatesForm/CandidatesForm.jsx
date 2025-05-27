@@ -164,89 +164,81 @@ export const CandidatesForm = ({ readOnly, isLoading, typeForm, ...props }) => {
               </FastField>
             </Stack>
 
-            <Stack direction={['column', 'row']} spacing='24px'>
-              {values.studying_level === 'E' ? (
-                <FastField
-                  id='serie'
-                  name='serie'
-                  placeholder='Ano'
-                  component={FormField.Select}
-                  readOnly={readOnly}
-                  required
-                >
-                  <optgroup label='Ensino Secundário'>
-                    <option value={11}>1° Ano</option>
-                    <option value={12}>2° Ano</option>
-                    <option value={13}>3° Ano</option>
-                  </optgroup>
+  <Stack direction={['column', 'row']} spacing='24px'>
+  {values.studying_level === 'E' ? (
+    <FastField
+      id='serie'
+      name='serie'
+      placeholder='Ano'
+      component={FormField.Select}
+      readOnly={readOnly}
+      required
+    >
+      <optgroup label='Ensino Secundário'>
+        <option value={11}>1° Ano</option>
+        <option value={12}>2° Ano</option>
+        <option value={13}>3° Ano</option>
+      </optgroup>
+    </FastField>
+  ) : (
+    <>
+      <Resource
+        resource="BaseRecords"
+        autoFetch
+        resourceParams={{ type: 6, perPage: 9999, school_id: values.school_id || undefined }}
+      >
+        {({ records, isLoading }) => {
+          const selectedCourse = records.find(
+            (record) => String(record.id) === String(values.course)
+          );
 
-                  {/* <optgroup label='Outros'>
-                    <option value={14}>1° Ano Supletivo</option>
-                    <option value={15}>2° Ano Supletivo</option>
-                    <option value={16}>3° Ano Supletivo</option>
-                  </optgroup>
+          return readOnly ? (
+            <Box
+              flex={1}
+              padding="8px"
+              border="1px solid"
+              borderColor="gray.200"
+              borderRadius="md"
+            >
+              {selectedCourse ? selectedCourse.title : 'Curso não selecionado'}
+            </Box>
+          ) : (
+            <Field
+              id="course"
+              name="course"
+              placeholder="Curso"
+              component={FormField.Select}
+              isLoading={isLoading}
+              required
+            >
+              <option value="">Selecione um curso</option>
+              {records.map((record) => (
+                <option key={record.id} value={record.id}>
+                  {record.title}
+                </option>
+              ))}
+            </Field>
+          );
+        }}
+      </Resource>
 
-                  <option value={17}>Incompleto</option>
-                  <option value={18}>Completo</option>
-                  <option value={19}>9ª ano fundamental (eja)</option> */}
-                </FastField>
-              ) : (
-                <>
-                  <Resource
-   resource='BaseRecords'
-  autoFetch
-  resourceParams={{ type: 6, perPage: 9999, school_id: values.school_id || undefined }}
->
-  {({ records, isLoading }) => {
-    if (isLoading) {
-      return <Text>Loading course...</Text>;
-    }
+      <FastField
+        id='semester'
+        name='semester'
+        placeholder='Ano'
+        component={FormField.Select}
+        readOnly={readOnly}
+      >
+        {[...Array(2).keys()].map((v) => (
+          <option key={v} value={v + 1}>
+            {v + 1}° Ano
+          </option>
+        ))}
+      </FastField>
+    </>
+  )}
+</Stack>
 
-    const selectedCourse = records.find(
-      (record) => record.id === values.course
-    );
-
-    return (
-      readOnly ? (
-        <Box padding="8px" border="1px solid" borderColor="gray.200" borderRadius="md">
-          {selectedCourse ? selectedCourse.title : 'Curso não selecionado'}
-        </Box>
-      ) : (
-        <Field
-          id='course'
-          name='course'
-          placeholder='Curso'
-          component={FormField.Select}
-          isLoading={isLoading}
-          required
-        >
-          {records.map((record) => (
-            <option key={record.id} value={record.id}>
-              {record.title}
-            </option>
-          ))}
-        </Field>
-      )
-    );
-  }}
-</Resource>
-
-                  <FastField
-                    id='semester'
-                    name='semester'
-                    placeholder='Ano'
-                    component={FormField.Select}
-                    readOnly={readOnly}
-                  >
-                    {[...Array(2).keys()].map((v) => (
-                      <option key={v} value={v}>
-                        {++v}° Ano
-                      </option>
-                    ))}
-                  </FastField>
-                </>
-              )}
-            </Stack>
 
             <Stack direction={['column', 'row']} spacing='24px'>
               <FastField
@@ -271,30 +263,31 @@ export const CandidatesForm = ({ readOnly, isLoading, typeForm, ...props }) => {
             </Stack>
 
             <Stack direction={['column', 'row']} spacing='24px'>
-              <Resource
-                resource='Schools'
-                autoFetch
-                resourceParams={{ perPage: 9999 }}
-              >
-                {({ records, isLoading }) => (
-                  <Field
-                    id='school_id'
-                    name='school_id'
-                    placeholder='Escola'
-                    component={FormField.Select}
-                    readOnly={readOnly}
-                    isLoading={isLoading}
-                    required
-                  >
-                    <option value={ null }>Selecione</option>
-                    {records.map((record) => (
-                      <option key={record.id} value={record.id}>
-                        {record.corporate_name}
-                      </option>
-                    ))}
-                  </Field>
-                )}
-              </Resource>
+           <Resource
+  resource="Schools"
+  autoFetch
+  resourceParams={{ perPage: 9999 }}
+>
+  {({ records, isLoading }) => (
+    <Field
+      id="school_id"
+      name="school_id"
+      placeholder="Escola"
+      component={FormField.Select}
+      readOnly={readOnly}
+      isLoading={isLoading}
+      required
+    >
+      <option value="">Selecione</option>
+      {records.map((record) => (
+        <option key={record.id} value={record.id}>
+          {record.name}
+        </option>
+      ))}
+    </Field>
+  )}
+</Resource>
+
 
               <FastField
                 id="interest"
