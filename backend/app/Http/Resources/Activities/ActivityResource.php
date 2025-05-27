@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources\Activities;
 
+use App\Enums\RolesEnum;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class ActivityResource extends JsonResource
@@ -14,6 +15,8 @@ class ActivityResource extends JsonResource
      */
     public function toArray($request)
     {
+        $roles = [RolesEnum::COMPANY->value, RolesEnum::SCHOOL->value, RolesEnum::GENERAL_ADMIN->value];
+        $roleId = $request->user()->roles[0]->id;
         return [
             "id" => $this->id,
             "title" => $this->title,
@@ -21,6 +24,7 @@ class ActivityResource extends JsonResource
             "activityDate" => $this->activity_date,
             "description" => $this->description,
             "status" => $this->status,
+            "candidateName" => $this->when(in_array($roleId, $roles), $this->user->name),
             'justification' => $this->justification,
         ];
     }
