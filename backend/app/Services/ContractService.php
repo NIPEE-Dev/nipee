@@ -89,7 +89,7 @@ class ContractService
         $contractData = array_merge($data, [
             'job_id' => $data['job']['id'] ?? $data['job_id'],
             'company_id' => $data['job']['company']['id'] ?? $data['company_id'],
-            'school_id' => $data['candidate']['school']['id'],
+            'school_id' => $data['candidate']['school']['id'] ?? $data['school']['id'],
             'candidate_id' => $candidateID,
         ]);
 
