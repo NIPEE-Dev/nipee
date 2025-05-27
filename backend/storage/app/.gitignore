@@ -1,3 +1,6 @@
 *
 !public/
 !.gitignore
+!base_documents/
+!base_documents/*
+!base_documents/*/*
