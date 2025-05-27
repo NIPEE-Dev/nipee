@@ -66,7 +66,7 @@ export const JobsForm = ({ readOnly, typeForm, isLoading, ...props }) => {
                     name='role_id'
                     disabled={ canEdit === false }
                     placeholder='Função'
-                    component={FormField}
+                    component={FormField.Select}
                     readOnly={readOnly}
                     isLoading={isLoading}
                     required
