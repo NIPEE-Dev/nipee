@@ -20,6 +20,7 @@ class Activity extends Model
         'estimated_time',
         'status',
         'activity_date',
+        'justification',
     ];
 
     public function user(): BelongsTo

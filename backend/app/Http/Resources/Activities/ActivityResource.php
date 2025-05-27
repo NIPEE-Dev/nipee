@@ -20,7 +20,8 @@ class ActivityResource extends JsonResource
             "estimatedTime" => $this->estimated_time,
             "activityDate" => $this->activity_date,
             "description" => $this->description,
-            "status" => $this->status
+            "status" => $this->status,
+            'justification' => $this->justification,
         ];
     }
 }
