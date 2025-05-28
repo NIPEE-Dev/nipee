@@ -6,12 +6,8 @@ import { beforeMaskedValueChangePhone } from '../../utils/formHelpers';
 import { phoneValidator, birthDayValidator } from '../../utils/formValidators';
 import { nifValidator } from '../../utils/formValidators'; 
 
-
-
-// Função para validar NIF usando seu nifValidator
 const validateNIF = (value) => {
   if (!value) return 'NIF é obrigatório';
-  // O nifValidator deve retornar string com erro ou undefined/null se OK
   const error = nifValidator(value, true); 
   if (error) return error;
   return undefined;
@@ -39,7 +35,7 @@ export const ResponsibleFields = ({
   component={FormField.InputMask}
   mask="+351 999 999 999"
   maskChar={null}
-  beforeMaskedValueChange={beforeMaskedValueChangePhone} // ✅ Only if needed
+  beforeMaskedValueChange={beforeMaskedValueChangePhone} 
   validate={(value) => phoneValidator(value, requiredFields.includes('phone'))}
   readOnly={readOnly}
   required={requiredFields.includes('phone')}
