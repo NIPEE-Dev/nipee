@@ -6,12 +6,6 @@ import { beforeMaskedValueChangePhone } from '../../utils/formHelpers';
 import { phoneValidator, birthDayValidator } from '../../utils/formValidators';
 import { nifValidator } from '../../utils/formValidators'; 
 
-const validateNIF = (value) => {
-  if (!value) return 'NIF é obrigatório';
-  const error = nifValidator(value, true); 
-  if (error) return error;
-  return undefined;
-};
 
 export const ResponsibleFields = ({
   readOnly,
@@ -64,7 +58,7 @@ export const ResponsibleFields = ({
   required={requiredFields.includes('document')}
   inputMode="numeric"         // mostra apenas o teclado numérico em mobile
   pattern="[0-9]*"            // restringe a entrada para apenas números
-    validate={validateNIF}
+    validate={(value) => nifValidator(value, requiredFields.includes('document'))}
 />
 
       
