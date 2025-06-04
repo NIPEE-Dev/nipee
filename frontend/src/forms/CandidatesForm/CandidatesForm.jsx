@@ -11,7 +11,8 @@ import {
   Divider,
   Flex,
   Stack,
-  Text
+  Text,
+  Spinner
 } from '@chakra-ui/react';
 import moment from 'moment';
 import { MdStar, MdOutlineBlock } from 'react-icons/md';
@@ -19,7 +20,7 @@ import FormField from '../../components/FormField/FormField';
 import GroupContainer from '../GroupContainer';
 import { ContactFields } from '../Shared/ContactFields';
 import AddressFields from '../Shared/AddressFields';
-import { cpfMask, cnpjMask } from '../../utils/formHelpers';
+import { cnpjMask } from '../../utils/formHelpers';
 import Resource from '../../components/Resource/Resource';
 import TimelineRow from '../../components/TimelineRow/TimelineRow';
 import DocumentsTable from '../../components/DocumentsTable/DocumentsTable';
@@ -165,7 +166,6 @@ export const CandidatesForm = ({ readOnly, isLoading, typeForm, ...props }) => {
             </Stack>
 
             <Stack direction={['column', 'row']} spacing='24px'>
-              {values.studying_level === 'E' ? (
                 <FastField
                   id='serie'
                   name='serie'
@@ -190,46 +190,30 @@ export const CandidatesForm = ({ readOnly, isLoading, typeForm, ...props }) => {
                   <option value={18}>Completo</option>
                   <option value={19}>9ª ano fundamental (eja)</option> */}
                 </FastField>
-              ) : (
                 <>
-                  <Resource
-   resource='BaseRecords'
-  autoFetch
-  resourceParams={{ type: 6, perPage: 9999, school_id: values.school_id || undefined }}
->
-  {({ records, isLoading }) => {
-    if (isLoading) {
-      return <Text>Loading course...</Text>;
-    }
-
-    const selectedCourse = records.find(
-      (record) => record.id === values.course
-    );
-
-    return (
-      readOnly ? (
-        <Box padding="8px" border="1px solid" borderColor="gray.200" borderRadius="md">
-          {selectedCourse ? selectedCourse.title : 'Curso não selecionado'}
-        </Box>
-      ) : (
-        <Field
-          id='course'
-          name='course'
-          placeholder='Curso'
-          component={FormField.Select}
-          isLoading={isLoading}
-          required
-        >
-          {records.map((record) => (
-            <option key={record.id} value={record.id}>
-              {record.title}
-            </option>
-          ))}
-        </Field>
-      )
-    );
-  }}
-</Resource>
+                   <Resource
+                    resource='BaseRecords'
+                    autoFetch
+                    resourceParams={{ type: 6, perPage: 9999 }}
+                  >
+                    {({ records, isLoading }) => (
+                      <Field
+                        id='course'
+                        name='course'
+                        placeholder='Curso'
+                        component={FormField.Select}
+                        readOnly={readOnly}
+                        isLoading={isLoading}
+                        required
+                      >
+                        {records.map((record) => (
+                          <option key={record.id} value={record.id}>
+                            {record.title}
+                          </option>
+                        ))}
+                      </Field>
+                    )}
+                  </Resource>
 
                   <FastField
                     id='semester'
@@ -245,7 +229,6 @@ export const CandidatesForm = ({ readOnly, isLoading, typeForm, ...props }) => {
                     ))}
                   </FastField>
                 </>
-              )}
             </Stack>
 
             <Stack direction={['column', 'row']} spacing='24px'>

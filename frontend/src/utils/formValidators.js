@@ -45,19 +45,11 @@ export const cpfValidator = (cpf, required) => {
 };
 
 export const phoneValidator = (phone, required) => {
-  const sanitized = phone ? phone.replace(/\D/g, '') : '';
-
-  // If not required and empty, allow
-  if (!required && sanitized.length === 0) return undefined;
-
-  // Remove country code if included
-  const withoutPrefix = sanitized.startsWith('351') ? sanitized.slice(3) : sanitized;
-
-  if (!/^[9][0-9]{8}$/.test(withoutPrefix)) {
-    return 'Telemóvel inválido';
-  }
-
-  return undefined;
+  const sanitizedPhone = phone ? phone.replace(/\D/g, '') : '';
+  if (sanitizedPhone.length === 0 && !required) return undefined;
+  return sanitizedPhone.length >= 9 && sanitizedPhone.length <= 12
+    ? undefined
+    : 'Telemóvel inválido';
 };
 
 

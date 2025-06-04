@@ -20,3 +20,4 @@ export { default as WorkflowCompanies } from './WorkflowCompanies';
 export { default as WorkflowCandidates } from './WorkflowCandidates';
 export { default as ReportsCandidates } from './ReportsCandidates';
 export { default as ReportsSystemActivity } from './ReportsSystemActivity';
+export { default as SchoolCourses } from './SchoolCourses';
