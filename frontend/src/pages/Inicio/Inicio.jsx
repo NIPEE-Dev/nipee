@@ -9,7 +9,8 @@ import {
   Icon,
   VStack,
   HStack,
-  Stack
+  Stack,
+  useColorModeValue
 } from "@chakra-ui/react";
 import { FaPhoneAlt, FaEnvelope, FaWhatsapp } from "react-icons/fa";
 import illustation from "../../../src/images/img.png";
@@ -241,7 +242,7 @@ const Inicio = () => {
 
         <BannerConsentimento/>
     </Box>
-    <Footer h={10} mt={-10}/>
+    <Footer h={10} mt={-10} borderTop={'solid'} borderColor={useColorModeValue('gray.100', 'gray.800')}/>
     </div>
   );
 };

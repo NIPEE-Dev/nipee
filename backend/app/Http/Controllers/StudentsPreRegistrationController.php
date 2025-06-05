@@ -237,7 +237,6 @@ class StudentsPreRegistrationController extends Controller
                 'email' => 'required|email|max:255|unique:students_pre_registrations,email',
                 'phone' => 'nullable|string|max:20',
                 'education_level' => 'required|string|max:100',
-                'interest_area' => 'required|string|max:100',
                 'volunteer_experience' => 'nullable|string|max:500',
                 'resume' => 'nullable|string',
                 'school_id' => 'required|exists:schools,id'
@@ -313,7 +312,6 @@ class StudentsPreRegistrationController extends Controller
                 'email' => 'required|email|max:255|unique:students_pre_registrations,email,' . $id,
                 'phone' => 'nullable|string|max:20',
                 'education_level' => 'required|string|max:100',
-                'interest_area' => 'required|string|max:100',
                 'volunteer_experience' => 'nullable|string|max:500',
                 'resume' => 'nullable|string',
             ]);

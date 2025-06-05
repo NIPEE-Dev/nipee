@@ -111,7 +111,18 @@ export const CompaniesForm = ({
           </Stack>
 
           <Stack direction={['column', 'row']} spacing='24px'>
-            {/* Campos adicionais, se precisar */}
+                     {/* <FastField
+              id="type"
+              name="type"
+              placeholder="Tipo"
+              component={FormField.Select}
+              readOnly={readOnly}
+              required
+              value={values.type}
+            >
+              <option value="PJ">Pessoa Jurídica</option>
+              <option value="PF">Pessoa Física</option>
+            </FastField> */}
           </Stack>
 
           <Stack direction={['column', 'row']} spacing='24px'>
@@ -156,7 +167,123 @@ export const CompaniesForm = ({
 
         <Divider my={25} />
 
-        {/* Outros campos ocultos para billing ... */}
+          <Stack direction={['column', 'row']} spacing='24px' display={'none'}>
+            <Resource resource='Sellers' autoFetch>
+              {({ records, isLoading }) => (
+                <Field
+                  id='billing.seller_id'
+                  name='billing.seller_id'
+                  placeholder='Vendedor'
+                  component={FormField.Select}
+                  readOnly={readOnly}
+                  isLoading={isLoading}
+                  required
+                >
+                  {records.map((record) => (
+                    <option key={record.id} value={record.id}>
+                      {record.name}
+                    </option>
+                  ))}
+                </Field>
+              )}
+            </Resource>
+
+            <FastField
+              id='billing.colocacao'
+              name='billing.colocacao'
+              placeholder='Adesão (€)'
+              component={FormField.InputMoney}
+              readOnly={readOnly}
+              required
+            />
+          </Stack>
+
+          <Stack direction={['column', 'row']} spacing='24px' display={'none'}>
+            <FastField
+              id='billing.monthly_payment'
+              name='billing.monthly_payment'
+              placeholder='Mensalidade/Estagiário'
+              component={FormField.InputMoney}
+              readOnly={readOnly}
+              required
+            />
+
+            <FastField
+              id='billing.email'
+              name='billing.email'
+              placeholder='Email'
+              component={FormField}
+              readOnly={readOnly}
+              required
+            />
+          </Stack>
+
+          <Stack direction={['column', 'row']} spacing='24px' display={'none'}>
+            <FastField
+              id='billing.due_date'
+              name='billing.due_date'
+              placeholder='Vencimento'
+              component={FormField.Select}
+              readOnly={readOnly}
+              required
+            >
+              {_range(1, 31).map((day) => (
+                <option key={day} value={day}>
+                  {day}
+                </option>
+              ))}
+            </FastField>
+
+            <FastField
+              id='billing.business_day'
+              name='billing.business_day'
+              placeholder='Dia útil?'
+              component={FormField.Select}
+              readOnly={readOnly}
+              required
+            >
+              <option value='1'>Sim</option>
+              <option value='0'>Não</option>
+            </FastField>
+          </Stack>
+
+          <Stack direction={['column', 'row']} spacing='24px' display={'none'}>
+            <FastField
+              id='billing.issue_invoice'
+              name='billing.issue_invoice'
+              placeholder='Emite NF?'
+              component={FormField.Select}
+              readOnly={readOnly}
+              required
+            >
+              <option value='1'>Sim</option>
+              <option value='0'>Não</option>
+            </FastField>
+
+            <FastField
+              id='billing.issue_bank_slip'
+              name='billing.issue_bank_slip'
+              placeholder='Emite Boleto?'
+              component={FormField.Select}
+              readOnly={readOnly}
+              required
+            >
+              <option value='1'>Sim</option>
+              <option value='0'>Não</option>
+            </FastField>
+          </Stack>
+
+        <Divider my={25} />
+
+        <GroupContainer
+          title='Dados do responsável'
+          subtitle='Pessoa que iremos tratar em relação a esta empresa'
+        >
+          <ResponsibleFields
+            requiredFields={['name', 'phone', 'email']}
+            readOnly={readOnly}
+          />
+        </GroupContainer>
 
         <Divider my={25} />
 

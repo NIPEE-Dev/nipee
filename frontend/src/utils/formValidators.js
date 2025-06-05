@@ -52,6 +52,7 @@ export const phoneValidator = (phone, required) => {
     : 'Telemóvel inválido';
 };
 
+
 export const birthDayValidator = (birthDay, required) => {
   const sanitizedBirthDayLength = birthDay
     ? birthDay.replace(/\D/g, '').length

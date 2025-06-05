@@ -83,7 +83,7 @@ class SchoolController extends Controller
      * @param School $school
      * @return BaseRecordResource
      */
-    public function getCourses(School $school)
+     public function getCourses(School $school)
     {
         $courses = $school->courses;
         return BaseRecordResource::collection($courses);

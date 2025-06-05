@@ -4,16 +4,8 @@ import { Field } from 'formik';
 import FormField from '../../components/FormField/FormField';
 import { beforeMaskedValueChangePhone } from '../../utils/formHelpers';
 import { phoneValidator, birthDayValidator } from '../../utils/formValidators';
+import { nifValidator } from '../../utils/formValidators'; 
 
-
-// Função para validar NIF usando seu nifValidator
-const validateNIF = (value) => {
-  if (!value) return 'NIF é obrigatório';
-  // O nifValidator deve retornar string com erro ou undefined/null se OK
-  const error = nifValidator(value, true); 
-  if (error) return error;
-  return undefined;
-};
 
 export const ResponsibleFields = ({
   readOnly,
@@ -31,16 +23,17 @@ export const ResponsibleFields = ({
       />
 
       <Field
-        id="responsible.phone"
-        name="responsible.phone"
-        placeholder="Telemóvel"
-        component={FormField.InputMask}
-        mask="+351 999 999 999"
-        maskChar={null}
-        validate={(value) => phoneValidator(value, requiredFields.includes('phone'))}
-        readOnly={readOnly}
-        required={requiredFields.includes('phone')}
-      />
+  id="responsible.phone"
+  name="responsible.phone"
+  placeholder="Telemóvel"
+  component={FormField.InputMask}
+  mask="+351 999 999 999"
+  maskChar={null}
+  beforeMaskedValueChange={beforeMaskedValueChangePhone}
+  validate={(value) => phoneValidator(value, requiredFields.includes('phone'))}
+  readOnly={readOnly}
+  required={requiredFields.includes('phone')}
+/>
 
     </Stack>
 
@@ -62,10 +55,11 @@ export const ResponsibleFields = ({
   placeholder="NIF"
   component={FormField}
   readOnly={readOnly}
-  required={requiredFields.includes('document')}
-  inputMode="numeric"         // mostra apenas o teclado numérico em mobile
-  pattern="[0-9]*"            // restringe a entrada para apenas números
-    validate={validateNIF}
+  required
+  inputMode="numeric"  
+  pattern="[0-9]*"
+  validate={nifValidator}
+  maxLength={9}
 />
 
       

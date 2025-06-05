@@ -1,16 +1,16 @@
 import {
-  MdNotificationsNone,
-  MdOutlineAddBusiness,
-  MdOutlineDashboard,
-  MdOutlineDocumentScanner,
-  MdOutlineFilePresent,
-  MdOutlineFolderShared,
-  MdOutlineMonetizationOn,
-  MdOutlinePersonSearch,
-  MdOutlineSettings,
-  MdOutlineTextSnippet,
-  MdAssignmentInd,
-  MdMenu  
+  MdNotificationsNone,              // Not used in current menu
+  MdOutlineAddBusiness,             // 🏢 Usado em: Registos, Registo
+  MdOutlineDashboard,               // 📊 Usado em: Relatórios Empresa, Relatórios Escola
+  MdOutlineDocumentScanner,         // 📄 Usado em: Dados do seguro
+  MdOutlineFilePresent,             // 📁 Usado em: Documentos
+  MdOutlineFolderShared,            // 🗂️ Usado em: Protocolos
+  MdOutlineMonetizationOn,          // 💰 Comentado: Fechamento
+  MdOutlinePersonSearch,            // 👤 Usado em: Vagas
+  MdOutlineSettings,                // ⚙️ Usado em: Gestão
+  MdOutlineTextSnippet,             // 📝 Usado em: Registos Base
+  MdAssignmentInd,                  // ✅ Usado em: Aprovação
+  MdMenu                            // 📋 Usado em: container do menu principal
 } from 'react-icons/md';
 import routes from '../../routes';
 
@@ -110,7 +110,7 @@ export const baseMenuItems = [
         children: [
           {
             name: 'Meu Registo',
-            to: routes.candidates.list,
+            to: routes.candidates.self,
             permission: 'candidates.index'
           }
         ]
