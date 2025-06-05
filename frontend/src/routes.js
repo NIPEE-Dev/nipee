@@ -49,5 +49,9 @@ export default {
 
   financial: {
     close: createResourceRoute('close', 'financial')
+  },
+
+  reportFCT: {
+    reportFCT: createResourceRoute('fct', 'reports')
   }
 };

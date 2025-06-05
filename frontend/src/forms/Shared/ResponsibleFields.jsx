@@ -29,7 +29,7 @@ export const ResponsibleFields = ({
   component={FormField.InputMask}
   mask="+351 999 999 999"
   maskChar={null}
-  beforeMaskedValueChange={beforeMaskedValueChangePhone} 
+  beforeMaskedValueChange={beforeMaskedValueChangePhone}
   validate={(value) => phoneValidator(value, requiredFields.includes('phone'))}
   readOnly={readOnly}
   required={requiredFields.includes('phone')}
@@ -55,10 +55,11 @@ export const ResponsibleFields = ({
   placeholder="NIF"
   component={FormField}
   readOnly={readOnly}
-  required={requiredFields.includes('document')}
-  inputMode="numeric"         // mostra apenas o teclado numérico em mobile
-  pattern="[0-9]*"            // restringe a entrada para apenas números
-    validate={(value) => nifValidator(value, requiredFields.includes('document'))}
+  required
+  inputMode="numeric"  
+  pattern="[0-9]*"
+  validate={nifValidator}
+  maxLength={9}
 />
 
       
