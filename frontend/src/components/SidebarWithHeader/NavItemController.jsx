@@ -79,6 +79,7 @@ const NavItemController = ({ auth, menu, color, nestedChildrenMenu = 4 }) => {
               pl={nestedChildrenMenu + 8}
               py='2'
               key={menuChildren.name}
+              icon={menuChildren.icon}
             >
               {menuChildren.name}
             </NavItem>
