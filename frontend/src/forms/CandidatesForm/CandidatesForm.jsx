@@ -255,30 +255,29 @@ export const CandidatesForm = ({ readOnly, isLoading, typeForm, ...props }) => {
 
             <Stack direction={['column', 'row']} spacing='24px'>
            <Resource
-  resource="Schools"
-  autoFetch
-  resourceParams={{ perPage: 9999 }}
->
-  {({ records, isLoading }) => (
-    <Field
-      id="school_id"
-      name="school_id"
-      placeholder="Escola"
-      component={FormField.Select}
-      readOnly={readOnly}
-      isLoading={isLoading}
-      required
-    >
-      <option value="">Selecione</option>
-      {records.map((record) => (
-        <option key={record.id} value={record.id}>
-          {record.name}
-        </option>
-      ))}
-    </Field>
-  )}
-</Resource>
-
+              resource="Schools"
+              autoFetch
+              resourceParams={{ perPage: 9999 }}
+            >
+              {({ records, isLoading }) => (
+                <Field
+                  id="school_id"
+                  name="school_id"
+                  placeholder="Escola"
+                  component={FormField.Select}
+                  readOnly={readOnly}
+                  isLoading={isLoading}
+                  required
+                >
+                  <option value="">Selecione</option>
+                  {records.map((record) => (
+                    <option key={record.id} value={record.id}>
+                      {record.corporate_name}
+                    </option>
+                  ))}
+                </Field>
+              )}
+            </Resource>
 
               <FastField
                 id="interest"
