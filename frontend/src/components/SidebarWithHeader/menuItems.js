@@ -1,5 +1,5 @@
 import {
-  MdNotificationsNone,              // Not used in current menu
+  MdNotificationsNone,              
   MdOutlineAddBusiness,             // 🏢 Usado em: Registos, Registo
   MdOutlineDashboard,               // 📊 Usado em: Relatórios Empresa, Relatórios Escola
   MdOutlineDocumentScanner,         // 📄 Usado em: Dados do seguro
@@ -12,6 +12,7 @@ import {
   MdAssignmentInd,                  // ✅ Usado em: Aprovação
   MdMenu                            // 📋 Usado em: container do menu principal
 } from 'react-icons/md';
+import { FaSchool  } from "react-icons/fa"; // icon para escola
 import routes from '../../routes';
 
 const userProfile = JSON.parse(localStorage.getItem('profile'));
@@ -30,7 +31,7 @@ export const baseMenuItems = [
   },
   { 
     name: 'Relatórios Escola', 
-    icon: MdOutlineDashboard, 
+    icon: FaSchool, 
     to: '/dashboard-schools',
     permission: 'schools.index'
   },
@@ -48,16 +49,19 @@ export const baseMenuItems = [
         children: [
           {
             name: 'Empresas',
+            icon: MdOutlineAddBusiness,
             to: routes.companies.list,
             permission: 'companies.index'
           },
           {
             name: 'Escolas',
+    icon: FaSchool, 
             to: routes.schools.list,
             permission: 'schools.index'
           },
           {
             name: 'Candidatos',
+            icon: MdOutlinePersonSearch,
             to: routes.candidates.list,
             permission: 'candidates.index'
           }
@@ -70,11 +74,13 @@ export const baseMenuItems = [
         children: [
           {
             name: 'Meu Registo',
+                        icon: MdOutlinePersonSearch,
             to: routes.companies.list,
             permission: 'companies.index'
           },
           {
             name: 'Candidatos',
+                        icon: MdOutlinePersonSearch,
             to: routes.candidates.list,
             permission: 'candidates.index'
           }
@@ -87,12 +93,16 @@ export const baseMenuItems = [
         children: [
           {
             name: 'Meu Registo',
+                        icon: MdOutlineAddBusiness,
+
             to: routes.schools.list,
             permission: 'schools.index'
           },
           {
             name: 'Candidatos',
             to: routes.candidates.list,
+                        icon: MdOutlinePersonSearch,
+
             permission: 'candidates.index'
           }
         ]
@@ -172,16 +182,19 @@ export const baseMenuItems = [
       children: [
         {
           name: 'Utilizadores',
+           icon: MdOutlinePersonSearch,
           to: routes.config.users.list,
           permission: 'users.index'
         },
         {
           name: 'Configuração de perfis',
           to: routes.config.roles.list,
+                                  icon: MdOutlineSettings,
           permission: 'roles.index'
         },
         {
           name: 'Relatório de Atividade',
+          icon: MdOutlineDashboard,
           to: routes.config.report.list,
           permission: 'roles.index'
         }
@@ -196,12 +209,14 @@ export const baseMenuItems = [
       children: [
         {
           name: 'Candidatos',
+          icon: MdOutlinePersonSearch,
           to: routes.workflow.candidatos.list,
           permission: 'workflowCandidatos.index'
         },
         {
           name: 'Empresas',
           to: routes.workflow.empresas.list,
+          icon: MdOutlineAddBusiness,
           permission: 'workflowEmpresas.index'
         }
       ]
