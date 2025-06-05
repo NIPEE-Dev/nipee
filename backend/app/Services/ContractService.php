@@ -311,7 +311,7 @@ class ContractService
             $contract->jobOtherAddress()->updateOrCreate([], [...$jobOtherAddress, ...['custom_type' => 'jobOtherAddress']]);
         }
         $contract->candidate->update(Arr::get($data, 'candidate', []));
-        $contract->candidate->contact->update(Arr::get($data, 'candidate.contact'));
+        $contract->candidate->contact->update(Arr::get($data, 'candidate.contact', []));
 
         if ($newCompanyId = Arr::get($data, 'company_id')) {
             if ($newCompanyId != $contract->company->id) {
@@ -320,23 +320,86 @@ class ContractService
             }
         }
 
-        $contract->load('company.address');
-        $company = $contract->company;
+        $contract->documents()->delete();
+
+        $contract->load('company.address', 'school.address', 'candidate', 'candidate.contact', 'job', 'workingDay', 'userAddress', 'jobOtherAddress');
+
         $school = $contract->school;
+        $company = $contract->company;
         $candidate = $contract->candidate;
-        /*  $generatedDocument = $this->wordProcessor->make(DocumentTypeTemplateEnum::ADDENDUM, [
+        $job = Arr::get($data, 'job', []);
+        $workingDay = $contract->workingDay;
+        $jobAddress = $contract->jobOtherAddress ?? $company->address;
+        $userAddress = $contract->userAddress;
+        $candidateAddress = $candidate->address ?? [];
+        $anoAtual = date('Y');
+        $anoLetivo = $anoAtual . '/' . ($anoAtual + 1);
+
+        $periodValue = Arr::get($job, 'period');
+        try {
+            $periodEnum = $periodValue !== null ? PeriodEnum::from($periodValue) : null;
+            $periodLabel = $periodEnum ? PeriodEnum::getLabel($periodEnum) : null;
+        } catch (\ValueError $e) {
+            $periodLabel = null;
+        }
+
+        $generatedDocument = $this->wordProcessor->make(DocumentTypeTemplateEnum::CONTRACT_INTERNSHIP, [
             'razaoSocialEscola' => $school->corporate_name,
+            'cnpjEscola' => $school->cnpj,
+            'enderecoEscola' => $school->address->address ?? '',
+            'bairroEscola' => $school->address->district ?? '',
+            'numeroEscola' => $school->address->number ?? '',
+            'cidadeEscola' => $school->address->city ?? '',
+            'estadoEscola' => strtoupper($school->address->uf ?? ''),
+            'cepEscola' => $school->address->cep ?? '',
+            'responsavelEscola' => $school->responsible?->name,
+            'responsavelFuncaoEscola' => $school->responsible?->role,
+            'telefoneEscola' => $school->responsible?->phone,
+
             'razaoSocialEmpresa' => $company->corporate_name,
-            'razaoSocialEmpresa2' => $company->corporate_name,
             'cnpjEmpresa' => $company->cnpj,
+            'caeEmpresa' => $company->cae,
+            'supervisorEmpresa' => $contract->supervisor,
+            'funcaoSupervisorEmpresa' => $contract->funcao,
+            'telefoneEmpresa' => $company->responsible?->phone,
+            'emailEmpresa' => $company->responsible?->email,
+
+            'enderecoEmpresa' => $jobAddress->address ?? '',
+            'numeroEmpresa' => $jobAddress->number ?? '',
+            'bairroEmpresa' => $jobAddress->district ?? '',
+            'cidadeEmpresa' => $jobAddress->city ?? '',
+            'estadoEmpresa' => strtoupper($jobAddress->uf ?? ''),
+            'cepEmpresa' => $jobAddress->cep ?? '',
+
+            'anos' => (string) $anoLetivo,
+
+            'period' => $periodLabel,
+
             'nomeCandidato' => $candidate->name,
-            'nomeCandidato2' => $candidate->name,
+            'nascimentoCandidato' => $candidate->birth_day,
             'cpfCandidato' => $candidate->cpf,
+            'cursoCandidato' => $candidate->userCourse?->title ?? 'Ensino Secundário',
+            'nivelCandidato' => StudyingLevelEnum::getLabel($candidate->studying_level ?? null),
+            'rgCandidato' => $candidate->rg,
+            'enderecoCandidato' => $candidateAddress['address'] ?? '',
+            'numeroCandidato' => $userAddress->number ?? '',
+            'bairroCandidato' => $userAddress->district ?? '',
+            'cidadeCandidato' => $userAddress->city ?? '',
+            'estadoCandidato' => strtoupper($userAddress->uf ?? ''),
+            'cepCandidato' => $userAddress->cep ?? '',
+            'estagioObrigatorio' => $candidate->mandatory_internship == '1' ? 'Obrigatório' : 'Não obrigatório',
+
+            'estagio' => 'Estágio',
+            'funcao' => $contract->job->role,
             'dataInicial' => $contract->start_contract_vigence->format("d/m/Y"),
             'dataFinal' => $contract->end_contract_vigence->format("d/m/Y"),
-            'item' => Arr::get($data, 'adendo_number'),
-            'adendo' => Arr::get($data, 'adendo_description'),
-            'dataAtual' => now()->translatedFormat("d \\d\\e F \\d\\e Y"),
+            'bolsa' => "R$ " . number_format($contract->job->scholarship_value, 2, ",", "."),
+            'jornada' => strtolower(journeyText($workingDay)),
+            'supervisor' => $contract->supervisor,
+            'razaoSocialEmpresa2' => $company->corporate_name,
+            'razaoSocialEscola2' => $school->corporate_name,
+            'nomeCandidato2' => $candidate->name,
+            'data' => $contract->start_contract_vigence->translatedFormat("d \\d\\e F \\d\\e Y"),
         ]);
 
         $contract->documents()->create([
@@ -344,8 +407,8 @@ class ContractService
             'original_filename' => $generatedDocument['filename'],
             'file_extension' => 'docx',
             'filesize' => $generatedDocument['filesize'],
-            'type' => 'Contrato',
-        ]); */
+            'type' => 'Protocolo',
+        ]);
 
         return $contract->load(['originalJob', 'job', 'workingDay', 'company.address', 'candidate.contact', 'documents', 'userAddress', 'jobOtherAddress']);
     }
