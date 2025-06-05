@@ -34,6 +34,8 @@ use App\Http\Middleware\CheckPermission;
 // is assigned the "api" middleware group. Enjoy building your API!
 */
 
+require __DIR__ . '/activities/activities.php';
+
 Route::get('ping', function () {
     return response('pong');
 });
@@ -42,7 +44,7 @@ Route::group([
     'prefix' => 'auth'
 ], function () {
     Route::post('login', [AuthController::class, 'login'])->withoutMiddleware('auth:api');
-    Route::post('logout', fn () => response()->json()->withoutCookie('brilho-auth-token'))->name('logout');
+    Route::post('logout', fn() => response()->json()->withoutCookie('brilho-auth-token'))->name('logout');
     Route::post('refresh', [AuthController::class, 'refresh']);
     Route::post('me', [AuthController::class, 'me']);
 });

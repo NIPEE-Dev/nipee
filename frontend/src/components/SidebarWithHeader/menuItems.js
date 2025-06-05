@@ -34,6 +34,12 @@ export const baseMenuItems = [
     to: '/dashboard-schools',
     permission: 'schools.index'
   },
+   { 
+    name: 'Relatórios FCT', 
+    icon: MdOutlineDashboard, 
+    to: '/reports-fct' ,
+    permission: 'reportsCandidates.index'
+  },
   {
     name: 'Dados do seguro',
     icon: MdOutlineDocumentScanner,
