@@ -55,19 +55,16 @@ export const baseMenuItems = [
         children: [
           {
             name: 'Empresas',
-            icon: MdOutlineAddBusiness,
             to: routes.companies.list,
             permission: 'companies.index'
           },
           {
             name: 'Escolas',
-    icon: FaSchool, 
             to: routes.schools.list,
             permission: 'schools.index'
           },
           {
             name: 'Candidatos',
-            icon: MdOutlinePersonSearch,
             to: routes.candidates.list,
             permission: 'candidates.index'
           }
@@ -188,19 +185,16 @@ export const baseMenuItems = [
       children: [
         {
           name: 'Utilizadores',
-           icon: MdOutlinePersonSearch,
           to: routes.config.users.list,
           permission: 'users.index'
         },
         {
           name: 'Configuração de perfis',
           to: routes.config.roles.list,
-                                  icon: MdOutlineSettings,
           permission: 'roles.index'
         },
         {
           name: 'Relatório de Atividade',
-          icon: MdOutlineDashboard,
           to: routes.config.report.list,
           permission: 'roles.index'
         }
@@ -215,14 +209,12 @@ export const baseMenuItems = [
       children: [
         {
           name: 'Candidatos',
-          icon: MdOutlinePersonSearch,
           to: routes.workflow.candidatos.list,
           permission: 'workflowCandidatos.index'
         },
         {
           name: 'Empresas',
           to: routes.workflow.empresas.list,
-          icon: MdOutlineAddBusiness,
           permission: 'workflowEmpresas.index'
         }
       ]
