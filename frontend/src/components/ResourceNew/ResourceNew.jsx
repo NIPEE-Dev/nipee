@@ -36,9 +36,7 @@ const ResourceNew = ({ resource, Form, routeBase, wrapped, ...props }) => {
                     size={24}
                     cursor='pointer'
                     onClick={() =>
-                      navigate(-1, {
-                        state: { preventReloadList: true },
-                      })
+                      navigate(-1)
                     }
                   />
                 </Box>
@@ -56,8 +54,7 @@ const ResourceNew = ({ resource, Form, routeBase, wrapped, ...props }) => {
                 create(values).then(() => {
                   if (redirectAfterSuccess) {
                     navigate('..', {
-                      replace: true,
-                      state: { preventReloadList: true },
+                      replace: true
                     });
                   }
 

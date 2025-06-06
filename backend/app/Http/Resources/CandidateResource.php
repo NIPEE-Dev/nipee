@@ -15,7 +15,8 @@ class CandidateResource extends JsonResource
             'gender_title' => GenderEnum::getLabel($this->gender),
             'period_title' => PeriodEnum::getLabel($this->period),
             'interest_title' => InterestEnum::getLabel($this->interest),
-            'school_id' => $this->user->school[0]->id ?? null
+            'school_id' => $this->user->school[0]->id ?? null,
+            'course_title' => $this->userCourse->title ?? null,
         ]);
     }
 }

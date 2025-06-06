@@ -51,9 +51,7 @@ const ResourceDetails = ({
                   size={24}
                   cursor='pointer'
                   onClick={() =>
-                    navigate('..', {
-                      state: { preventReloadList: true },
-                    })
+                    navigate('..')
                   }
                 />
                 <Text mb='3' align='left' fontSize='3xl'>

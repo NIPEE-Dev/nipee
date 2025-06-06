@@ -86,6 +86,10 @@ const CandidatesPage = () => {
           accessor: 'birth_day'
         },
         {
+          Header: 'Curso',
+         accessor: 'course_title'
+        },
+        {
           Header: 'Localidade',
           accessor: 'address.city'
         },

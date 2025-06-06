@@ -1,6 +1,6 @@
 import React from 'react';
 import _range from 'lodash/range';
-import { Formik, FastField, Form, useFormikContext } from 'formik';
+import { Formik, FastField, Form, useFormikContext, Field } from 'formik';
 import { Box, Button, Divider, Stack, Checkbox } from '@chakra-ui/react';
 import FormField from '../../components/FormField/FormField';
 import GroupContainer from '../GroupContainer';

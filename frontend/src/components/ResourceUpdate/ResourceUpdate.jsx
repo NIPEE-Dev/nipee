@@ -33,8 +33,7 @@ export default function ResourceUpdate({
             props.update(id, data).then(() => {
               if (props.redirectAfterSuccess) {
                 navigate(-1, {
-                  replace: true,
-                  state: { preventReloadList: true }
+                  replace: true
                 });
               }
 

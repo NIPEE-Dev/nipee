@@ -123,9 +123,10 @@ class Candidate extends Model
     }
 
     public function userCourse()
-    {
-        return $this->hasOne(BaseRecord::class, 'id', 'course')->where('type', '=', BaseRecordsEnum::COURSES->value);
-    }
+{
+    return $this->belongsTo(BaseRecord::class, 'course')
+        ->where('type', '=', BaseRecordsEnum::COURSES->value);
+}
 
     public function school()
     {
