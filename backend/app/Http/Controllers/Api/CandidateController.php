@@ -52,6 +52,7 @@ class CandidateController extends Controller
      */
     public function show(Candidate $candidate)
     {
+        //ddApi(Candidate::query()->get());
         return new CandidateResource($candidate->load([
             'contact',
             'address',

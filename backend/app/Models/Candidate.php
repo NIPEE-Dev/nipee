@@ -68,14 +68,14 @@ class Candidate extends Model
         'studying_level' => StudyingLevelEnum::class
     ];
 
-    protected static function boot()
+   /*  protected static function boot()
     {
         parent::boot();
 
         static::addGlobalScope('default_candidates', function (Builder $builder) {
             $builder->whereNull('candidatable_type');
         });
-    }
+    } */
 
     /**
      * Interact with the user birthday.

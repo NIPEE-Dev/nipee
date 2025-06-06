@@ -56,6 +56,9 @@ export const ContractsForm = ({
   const location = useLocation();
   const navigate = useNavigate();
 
+console.log('typeform', typeForm);
+
+
   useEffect(() => {
     if (state) {
       fetchContractData({ job: state.job, candidate: state.candidate });
@@ -244,8 +247,8 @@ export const ContractsForm = ({
                 <Stack direction={['column', 'row']} spacing='24px'> 
                   {['edit', 'view'].includes(typeForm) ? (
                   <FastField
-                    id='candidate.id'
-                    name='candidate.id'
+                    id='candidate.name'
+                    name='candidate.name'
                     placeholder='Nome do candidato'
                     component={FormField} 
                     readOnly={readOnly}
@@ -254,16 +257,15 @@ export const ContractsForm = ({
                   <Resource
                     resource='Candidates'
                     autoFetch={formProps.values.school && formProps.values.school.id}
-                    id={formProps.values.candidate?.id}
                     resourceParams={{
-                    ...(typeForm === 'add' && { withoutTrashed: true })
+                    ...(typeForm === 'add' && { withoutTrashed: true }), id:formProps.values.candidate?.id
                   }}
                 >
                   {({ records, isLoading }) => {
                     const selectedSchoolId = typeForm === 'edit'
                       ? formProps.values.school_id
                       : formProps.values?.school?.id;
-
+                      
                       const candidatesFromSchool = records.filter(record => 
                         record.user?.school?.some(school => String(school.id) === String(selectedSchoolId)));                   
 
@@ -876,7 +878,7 @@ export const ContractsForm = ({
             </GroupContainer>
           )} */}
 
-          {typeForm === 'add' && (
+          {(typeForm === 'add' || typeForm === undefined) && ( //!ver depois
             <Box py={3} textAlign='right'>
               <Button
                 mt='3'

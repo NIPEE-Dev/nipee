@@ -41,6 +41,9 @@ class CandidatesService
         if (isset($criteria['user_id'])) {
             $candidateBuilder->where('user_id', $criteria['user_id']);
         }
+        if (isset($criteria['id'])) {
+            $candidateBuilder->where('id', $criteria['id']);
+        }
         $user = Auth::user();
 
         $data = $this->applyCriteria($candidateBuilder, $criteria)->select(['*', 'name as nameOriginal']);
