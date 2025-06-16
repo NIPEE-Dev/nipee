@@ -114,23 +114,21 @@ const ReportsCandidate = () => {
     return dailyData[formatDateKey(selectedDate)];
   }, [selectedDate, dailyData]);
 
-  useEffect(() => {
-    if (activityForSelectedDate) {
-      setCurrentTitle(activityForSelectedDate.title || "");
-      setCurrentNote(activityForSelectedDate.description || "");
-      setCurrentHours(activityForSelectedDate.estimatedTime?.toString() || "");
-    } else {
-      setCurrentTitle("");
-      setCurrentNote("");
-      setCurrentHours("");
-    }
-  }, [activityForSelectedDate]);
-
-  const handleDateChange = (newDate) => {
-    setSelectedDate(newDate);
-  };
+  const remainingHours = totalHours - workedHours;
 
   const saveOrSubmitEntry = async (isDraft) => {
+    if (!activityForSelectedDate && remainingHours <= 0) {
+      toast({
+        title: "Horas Finalizadas",
+        description:
+          "Não é possível registrar novas atividades pois as horas do protocolo foram finalizadas.",
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+      });
+      return;
+    }
+
     const hoursToSave = parseFloat(currentHours.replace(",", ".")) || 0;
 
     if (!currentTitle && !currentNote && hoursToSave === 0) {
@@ -161,6 +159,22 @@ const ReportsCandidate = () => {
     } catch (error) {
 
     }
+  };
+
+  useEffect(() => {
+    if (activityForSelectedDate) {
+      setCurrentTitle(activityForSelectedDate.title || "");
+      setCurrentNote(activityForSelectedDate.description || "");
+      setCurrentHours(activityForSelectedDate.estimatedTime?.toString() || "");
+    } else {
+      setCurrentTitle("");
+      setCurrentNote("");
+      setCurrentHours("");
+    }
+  }, [activityForSelectedDate]);
+
+  const handleDateChange = (newDate) => {
+    setSelectedDate(newDate);
   };
 
   const handleSaveAsDraft = () => {
@@ -266,10 +280,13 @@ const ReportsCandidate = () => {
       .sort((a, b) => a.date.getTime() - b.date.getTime());
   }, [activities, getDisplayStatusInfo]);
 
-  const remainingHours = totalHours - workedHours;
+  const allHoursUsed = remainingHours <= 0;
+
   const isFormDisabled =
     loading ||
-    (activityForSelectedDate && activityForSelectedDate.status !== "Rascunho");
+    (activityForSelectedDate &&
+      activityForSelectedDate.status !== "Rascunho") ||
+    (allHoursUsed && !activityForSelectedDate);
 
   return (
     <Box p={5}>
@@ -498,36 +515,51 @@ const ReportsCandidate = () => {
               </NumberInput>
             </FormControl>
 
-            {activityForSelectedDate &&
-              activityForSelectedDate.status !== "Rascunho" && (
-                <Box
-                  textAlign="center"
-                  p={3}
-                  borderWidth="1px"
-                  borderRadius="md"
-                  borderColor={
+            {allHoursUsed && !activityForSelectedDate ? (
+              <Box
+                textAlign="center"
+                p={3}
+                borderWidth="1px"
+                borderRadius="md"
+                borderColor="red.300"
+                bg="red.50"
+                mt={4}
+              >
+                <Text color="red.600" fontWeight="bold">
+                  As horas do protocolo foram finalizadas. Não é possível criar
+                  novos registos.
+                </Text>
+              </Box>
+            ) : activityForSelectedDate &&
+              activityForSelectedDate.status !== "Rascunho" ? (
+              <Box
+                textAlign="center"
+                p={3}
+                borderWidth="1px"
+                borderRadius="md"
+                borderColor={
+                  getDisplayStatusInfo(
+                    activityForSelectedDate.status
+                  ).color.split(".")[0] + ".300"
+                }
+                bg={`${
+                  getDisplayStatusInfo(
+                    activityForSelectedDate.status
+                  ).color.split(".")[0]
+                }.50`}
+                mt={4}
+              >
+                <Text
+                  color={
                     getDisplayStatusInfo(activityForSelectedDate.status).color
                   }
-                  bg={`${
-                    getDisplayStatusInfo(
-                      activityForSelectedDate.status
-                    ).color.split(".")[0]
-                  }.50`}
-                  mt={4}
+                  fontWeight="bold"
                 >
-                  <Text
-                    color={
-                      getDisplayStatusInfo(activityForSelectedDate.status).color
-                    }
-                    fontWeight="bold"
-                  >
-                    Este registo foi enviado para a empresa e não pode ser alterado.
-                  </Text>
-                </Box>
-              )}
-
-            {(!activityForSelectedDate ||
-              activityForSelectedDate.status === "Rascunho") && (
+                  Este registo está com status "{activityForSelectedDate.status}
+                  " e não pode ser alterado.
+                </Text>
+              </Box>
+            ) : (
               <>
                 <HStack spacing={4} mt={4} width="full">
                   <Button
