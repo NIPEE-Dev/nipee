@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources\Activities;
 
+use App\Enums\Activities\ActivityStatusEnum;
 use App\Enums\RolesEnum;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -23,7 +24,7 @@ class ActivityResource extends JsonResource
             "estimatedTime" => $this->estimated_time,
             "activityDate" => $this->activity_date,
             "description" => $this->description,
-            "status" => $this->status,
+            "status" => ActivityStatusEnum::parseStatus($this->status),
             "candidateName" => $this->when(in_array($roleId, $roles), $this->user->name),
             'justification' => $this->justification,
         ];
