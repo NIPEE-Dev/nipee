@@ -45,6 +45,8 @@ import {
   TableContainer,
   HStack,
   Spinner,
+  Switch,
+  TableCaption,
 } from "@chakra-ui/react";
 import { useActivities } from "../../hooks/useActivities";
 
@@ -55,6 +57,7 @@ const formatDateForApi = (date) => date.toISOString().split("T")[0];
 
 const ReportsCandidate = () => {
   const [selectedDate, setSelectedDate] = useState(new Date());
+  const [isRangeMode, setIsRangeMode] = useState(false);
   const [currentTitle, setCurrentTitle] = useState("");
   const [currentNote, setCurrentNote] = useState("");
   const [currentHours, setCurrentHours] = useState("");
@@ -111,13 +114,28 @@ const ReportsCandidate = () => {
   }, [activities]);
 
   const activityForSelectedDate = useMemo(() => {
-    return dailyData[formatDateKey(selectedDate)];
+    const firstDate = Array.isArray(selectedDate)
+      ? selectedDate[0]
+      : selectedDate;
+    return dailyData[formatDateKey(firstDate)];
   }, [selectedDate, dailyData]);
 
   const remainingHours = totalHours - workedHours;
+  const allHoursUsed = remainingHours <= 0;
 
   const saveOrSubmitEntry = async (isDraft) => {
-    if (!activityForSelectedDate && remainingHours <= 0) {
+    let startDate, endDate;
+    if (Array.isArray(selectedDate)) {
+      [startDate, endDate] = selectedDate;
+    } else {
+      startDate = endDate = selectedDate;
+    }
+
+    if (
+      !activityForSelectedDate &&
+      allHoursUsed &&
+      !Array.isArray(selectedDate)
+    ) {
       toast({
         title: "Horas Finalizadas",
         description:
@@ -142,22 +160,54 @@ const ReportsCandidate = () => {
       return;
     }
 
-    const payload = {
-      title: currentTitle,
-      description: currentNote,
-      estimatedTime: hoursToSave,
-      activityDate: formatDateForApi(selectedDate),
-      draft: isDraft,
-    };
+    const promises = [];
+    let currentDate = new Date(startDate);
+
+    while (currentDate <= endDate) {
+      const dateKey = formatDateKey(currentDate);
+      const existingActivity = dailyData[dateKey];
+      const canEdit =
+        !existingActivity || existingActivity.status === "Rascunho";
+
+      if (canEdit) {
+        const payload = {
+          title: currentTitle,
+          description: currentNote,
+          estimatedTime: hoursToSave,
+          activityDate: formatDateForApi(currentDate),
+          draft: isDraft,
+        };
+
+        if (existingActivity) {
+          promises.push(updateActivity(existingActivity.id, payload));
+        } else {
+          if (allHoursUsed) continue;
+          promises.push(createNewActivity(payload));
+        }
+      }
+      currentDate.setDate(currentDate.getDate() + 1);
+    }
 
     try {
-      if (activityForSelectedDate) {
-        await updateActivity(activityForSelectedDate.id, payload);
-      } else {
-        await createNewActivity(payload);
+      await Promise.all(promises);
+      if (
+        promises.length === 0 &&
+        (Array.isArray(selectedDate) ||
+          activityForSelectedDate?.status !== "Rascunho")
+      ) {
+        toast({
+          title: "Nenhuma atividade foi alterada",
+          description:
+            "Atividades já submetidas ou com horas finalizadas não podem ser editadas.",
+          status: "info",
+          duration: 4000,
+          isClosable: true,
+        });
       }
     } catch (error) {
-
+    } finally {
+      setSelectedDate(endDate);
+      setIsRangeMode(false);
     }
   };
 
@@ -177,24 +227,43 @@ const ReportsCandidate = () => {
     setSelectedDate(newDate);
   };
 
-  const handleSaveAsDraft = () => {
-    saveOrSubmitEntry(false);
+  const handleRangeModeToggle = (event) => {
+    const isChecked = event.target.checked;
+    setIsRangeMode(isChecked);
+
+    if (!isChecked && Array.isArray(selectedDate)) {
+      setSelectedDate(selectedDate[0]);
+    }
   };
 
-  const handleSubmitForValidation = () => {
+  const handleSaveAsDraft = () => {
     saveOrSubmitEntry(true);
   };
 
+  const handleSubmitForValidation = () => {
+    saveOrSubmitEntry(false);
+  };
+
   const handleDeleteDraft = async () => {
-    if (activityForSelectedDate && activityForSelectedDate.id) {
+    if (
+      activityForSelectedDate &&
+      activityForSelectedDate.id &&
+      activityForSelectedDate.status === "Rascunho"
+    ) {
       try {
         await deleteActivity(activityForSelectedDate.id);
         setCurrentTitle("");
         setCurrentNote("");
         setCurrentHours("");
-      } catch (error) {
-
-      }
+      } catch (error) {}
+    } else {
+      toast({
+        title: "Ação não permitida",
+        description: "Apenas rascunhos podem ser excluídos.",
+        status: "warning",
+        duration: 3000,
+        isClosable: true,
+      });
     }
   };
 
@@ -280,13 +349,22 @@ const ReportsCandidate = () => {
       .sort((a, b) => a.date.getTime() - b.date.getTime());
   }, [activities, getDisplayStatusInfo]);
 
-  const allHoursUsed = remainingHours <= 0;
+  const displaySelectedDate = () => {
+    if (Array.isArray(selectedDate)) {
+      const startDate = selectedDate[0].toLocaleDateString("pt-BR");
+      const endDate = selectedDate[1]?.toLocaleDateString("pt-BR") || startDate;
+      return startDate === endDate ? startDate : `${startDate} - ${endDate}`;
+    }
+    return selectedDate.toLocaleDateString("pt-BR");
+  };
 
-  const isFormDisabled =
-    loading ||
-    (activityForSelectedDate &&
-      activityForSelectedDate.status !== "Rascunho") ||
-    (allHoursUsed && !activityForSelectedDate);
+  const isFormDisabled = useMemo(() => {
+    if (loading) return true;
+    if (activityForSelectedDate) {
+      return activityForSelectedDate.status !== "Rascunho";
+    }
+    return false;
+  }, [loading, activityForSelectedDate]);
 
   return (
     <Box p={5}>
@@ -322,6 +400,22 @@ const ReportsCandidate = () => {
           <Heading size="lg" mb={4} textAlign="center">
             Calendário
           </Heading>
+          <FormControl
+            display="flex"
+            alignItems="center"
+            justifyContent="center"
+            mb={4}
+          >
+            <FormLabel htmlFor="range-switch" mb="0" mr={2}>
+              Selecionar intervalo
+            </FormLabel>
+            <Switch
+              id="range-switch"
+              colorScheme="purple"
+              isChecked={isRangeMode}
+              onChange={handleRangeModeToggle}
+            />
+          </FormControl>
           <Box
             display="flex"
             justifyContent="center"
@@ -330,6 +424,7 @@ const ReportsCandidate = () => {
             <Calendar
               onChange={handleDateChange}
               value={selectedDate}
+              selectRange={isRangeMode}
               tileContent={tileContent}
               locale="pt-BR"
               prevLabel={
@@ -396,9 +491,9 @@ const ReportsCandidate = () => {
             />
           </Box>
           <Text mt={4} fontSize="md">
-            Data selecionada:{" "}
+            Data(s) selecionada(s):{" "}
             <Text as="span" fontWeight="bold">
-              {selectedDate.toLocaleDateString("pt-BR")}
+              {displaySelectedDate()}
             </Text>
           </Text>
           {summaryEntries.length > 0 && (
@@ -465,7 +560,7 @@ const ReportsCandidate = () => {
           mt={{ base: 6, md: 0 }}
         >
           <Heading size="lg" mb={6}>
-            Registar para {selectedDate.toLocaleDateString("pt-BR")}
+            Registar para {displaySelectedDate()}
           </Heading>
           <VStack spacing={5} align="stretch">
             <FormControl isDisabled={isFormDisabled}>
@@ -515,93 +610,102 @@ const ReportsCandidate = () => {
               </NumberInput>
             </FormControl>
 
-            {allHoursUsed && !activityForSelectedDate ? (
-              <Box
-                textAlign="center"
-                p={3}
-                borderWidth="1px"
-                borderRadius="md"
-                borderColor="red.300"
-                bg="red.50"
-                mt={4}
-              >
-                <Text color="red.600" fontWeight="bold">
-                  As horas do protocolo foram finalizadas. Não é possível criar
-                  novos registos.
-                </Text>
-              </Box>
-            ) : activityForSelectedDate &&
-              activityForSelectedDate.status !== "Rascunho" ? (
-              <Box
-                textAlign="center"
-                p={3}
-                borderWidth="1px"
-                borderRadius="md"
-                borderColor={
-                  getDisplayStatusInfo(
-                    activityForSelectedDate.status
-                  ).color.split(".")[0] + ".300"
-                }
-                bg={`${
-                  getDisplayStatusInfo(
-                    activityForSelectedDate.status
-                  ).color.split(".")[0]
-                }.50`}
-                mt={4}
-              >
-                <Text
-                  color={
-                    getDisplayStatusInfo(activityForSelectedDate.status).color
-                  }
-                  fontWeight="bold"
-                >
-                  Este registo está com status "{activityForSelectedDate.status}
-                  " e não pode ser alterado.
-                </Text>
-              </Box>
-            ) : (
-              <>
-                <HStack spacing={4} mt={4} width="full">
-                  <Button
-                    colorScheme="blue"
-                    variant="outline"
-                    onClick={handleSaveAsDraft}
-                    flex={1}
-                    size="lg"
-                    isDisabled={loading}
+            {(() => {
+              if (allHoursUsed && !activityForSelectedDate) {
+                return (
+                  <Box
+                    textAlign="center"
+                    p={3}
+                    borderWidth="1px"
+                    borderRadius="md"
+                    mt={4}
+                    borderColor="red.300"
+                    bg="red.50"
                   >
-                    Salvar como Rascunho
-                  </Button>
-                  <Button
-                    colorScheme="purple"
-                    onClick={handleSubmitForValidation}
-                    flex={1}
-                    size="lg"
-                    isDisabled={loading}
+                    <Text color="red.600" fontWeight="bold">
+                      As horas do protocolo foram finalizadas. Não é possível
+                      criar novos registos.
+                    </Text>
+                  </Box>
+                );
+              }
+              if (isFormDisabled && !Array.isArray(selectedDate)) {
+                return (
+                  <Box
+                    textAlign="center"
+                    p={3}
+                    borderWidth="1px"
+                    borderRadius="md"
+                    mt={4}
+                    borderColor={
+                      getDisplayStatusInfo(
+                        activityForSelectedDate?.status
+                      ).color.split(".")[0] + ".300"
+                    }
+                    bg={`${
+                      getDisplayStatusInfo(
+                        activityForSelectedDate?.status
+                      ).color.split(".")[0]
+                    }.50`}
                   >
-                    Submeter para Validação
-                  </Button>
-                </HStack>
-                {activityForSelectedDate && (
-                  <Button
-                    colorScheme="red"
-                    variant="ghost"
-                    onClick={handleDeleteDraft}
-                    mt={3}
-                    width="full"
-                    leftIcon={<Icon as={FaTrash} />}
-                    size="md"
-                    isDisabled={loading}
-                  >
-                    Excluir Rascunho
-                  </Button>
-                )}
-              </>
-            )}
+                    <Text
+                      color={
+                        getDisplayStatusInfo(activityForSelectedDate?.status)
+                          .color
+                      }
+                      fontWeight="bold"
+                    >
+                      Este registo está com status "
+                      {activityForSelectedDate?.status}" e não pode ser
+                      alterado.
+                    </Text>
+                  </Box>
+                );
+              }
+              return (
+                <>
+                  <HStack spacing={4} mt={4} width="full">
+                    <Button
+                      colorScheme="blue"
+                      variant="outline"
+                      onClick={handleSaveAsDraft}
+                      flex={1}
+                      size="lg"
+                      isDisabled={loading}
+                    >
+                      Salvar como Rascunho
+                    </Button>
+                    <Button
+                      colorScheme="purple"
+                      onClick={handleSubmitForValidation}
+                      flex={1}
+                      size="lg"
+                      isDisabled={loading}
+                    >
+                      Submeter para Validação
+                    </Button>
+                  </HStack>
+                  {activityForSelectedDate &&
+                    activityForSelectedDate.status === "Rascunho" &&
+                    !Array.isArray(selectedDate) && (
+                      <Button
+                        colorScheme="red"
+                        variant="ghost"
+                        onClick={handleDeleteDraft}
+                        mt={3}
+                        width="full"
+                        leftIcon={<Icon as={FaTrash} />}
+                        size="md"
+                        isDisabled={loading}
+                      >
+                        Excluir Rascunho
+                      </Button>
+                    )}
+                </>
+              );
+            })()}
           </VStack>
-
           <Divider my={8} />
-
           <Box
             p={4}
             borderWidth="1px"
