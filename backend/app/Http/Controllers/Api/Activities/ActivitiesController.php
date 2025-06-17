@@ -38,7 +38,7 @@ class ActivitiesController extends Controller
 
             return response()->json([
                 'activities' => ActivityResource::collection($activities),
-                'totalHours' => $activeContract->workingDay->working_hours ?? 0,
+                'totalHours' => $user->candidate->hours_fct ?? 0,
                 'workedHours' => $workedHours,
             ]);
         }
