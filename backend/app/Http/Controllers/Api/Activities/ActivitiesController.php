@@ -11,6 +11,7 @@ use App\Http\Requests\Activities\UpdateActivityRequest;
 use App\Http\Requests\Activities\UpdateActivityStatusRequest;
 use App\Http\Resources\Activities\ActivityResource;
 use App\Services\Activities\ActivitiesService;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -31,7 +32,6 @@ class ActivitiesController extends Controller
 
         if ($roleId === RolesEnum::CANDIDATE->value) {
             $activities = $this->activitiesService->getByUserId($user->id);
-            $activeContract = $user->candidate->contracts->where('status', ActiveEnum::ACTIVE)->first();
             $workedHours = $activities->reduce(function ($carry, $item) {
                 return $carry + $item->estimated_time ?? 0;
             }, 0);
@@ -98,6 +98,7 @@ class ActivitiesController extends Controller
         $activity = $this->activitiesService->update([
             ...$data,
             'status' => $status,
+            'justificated_at' => Carbon::now(),
         ], $id);
 
         return new ActivityResource($activity);
