@@ -27,6 +27,7 @@ class ActivityResource extends JsonResource
             "status" => ActivityStatusEnum::parseStatus($this->status),
             "candidateName" => $this->when(in_array($roleId, $roles), $this->user->name),
             'justification' => $this->justification,
+            'justificated_at' => $this->justificated_at
         ];
     }
 }
