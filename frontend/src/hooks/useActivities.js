@@ -4,6 +4,7 @@ import {
   createActivity as createActivityApi,
   updateActivity as updateActivityApi,
   deleteActivity as deleteActivityApi,
+  updateActivityStatus as updateActivityStatusApi,
 } from "../services/activitiesService";
 
 export const useActivities = () => {
@@ -13,6 +14,7 @@ export const useActivities = () => {
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
+  const [activeContract, setActiveContract] = useState(true);
 
   const clearMessages = useCallback(() => {
     setErrorMessage("");
@@ -24,63 +26,109 @@ export const useActivities = () => {
     clearMessages();
     try {
       const response = await fetchActivitiesApi();
-      setActivities(response.data.activities || []);
-      setTotalHours(response.data.totalHours || 0);
-      setWorkedHours(response.data.workedHours || 0);
+      if (response.data.activeContract === false) {
+        setActiveContract(false);
+        setActivities([]);
+        setTotalHours(0);
+        setWorkedHours(0);
+      } else {
+        setActiveContract(true);
+        setActivities(response.data.activities || []);
+        setTotalHours(response.data.totalHours || 0);
+        setWorkedHours(response.data.workedHours || 0);
+      }
     } catch (err) {
-      setErrorMessage(err.response?.data?.message || "Erro ao buscar atividades");
+      setErrorMessage(
+        err.response?.data?.message || "Erro ao buscar atividades"
+      );
     } finally {
       setLoading(false);
     }
   }, [clearMessages]);
 
-  const createNewActivity = useCallback(async (payload) => {
-    setLoading(true);
-    clearMessages();
-    try {
-      await createActivityApi(payload);
-      setSuccessMessage("Atividade criada com sucesso!");
-      await fetchActivities();
-    } catch (err) {
-      setErrorMessage(err.response?.data?.message || "Erro ao criar atividade");
-      throw err;
-    } finally {
-      setLoading(false);
-    }
-  }, [clearMessages, fetchActivities]);
+  const createNewActivity = useCallback(
+    async (payload) => {
+      setLoading(true);
+      clearMessages();
+      try {
+        await createActivityApi(payload);
+        setSuccessMessage("Atividade criada com sucesso!");
+        await fetchActivities();
+      } catch (err) {
+        setErrorMessage(
+          err.response?.data?.message || "Erro ao criar atividade"
+        );
+        throw err;
+      } finally {
+        setLoading(false);
+      }
+    },
+    [clearMessages, fetchActivities]
+  );
 
-  const updateActivity = useCallback(async (id, payload) => {
-    setLoading(true);
-    clearMessages();
-    try {
-      await updateActivityApi(id, payload);
-      setSuccessMessage("Atividade atualizada com sucesso!");
-      await fetchActivities();
-    } catch (err) {
-      setErrorMessage(err.response?.data?.message || "Erro ao atualizar atividade");
-      throw err;
-    } finally {
-      setLoading(false);
-    }
-  }, [clearMessages, fetchActivities]);
+  const updateActivity = useCallback(
+    async (id, payload) => {
+      setLoading(true);
+      clearMessages();
+      try {
+        await updateActivityApi(id, payload);
+        setSuccessMessage("Atividade atualizada com sucesso!");
+        await fetchActivities();
+      } catch (err) {
+        setErrorMessage(
+          err.response?.data?.message || "Erro ao atualizar atividade"
+        );
+        throw err;
+      } finally {
+        setLoading(false);
+      }
+    },
+    [clearMessages, fetchActivities]
+  );
 
-  const deleteActivity = useCallback(async (id) => {
-    setLoading(true);
-    clearMessages();
-    try {
-      await deleteActivityApi(id);
-      setSuccessMessage("Atividade excluída com sucesso!");
-      await fetchActivities();
-    } catch (err) {
-      setErrorMessage(err.response?.data?.message || "Erro ao excluir atividade");
-      throw err;
-    } finally {
-      setLoading(false);
-    }
-  }, [clearMessages, fetchActivities]);
+  const deleteActivity = useCallback(
+    async (id) => {
+      setLoading(true);
+      clearMessages();
+      try {
+        await deleteActivityApi(id);
+        setSuccessMessage("Atividade excluída com sucesso!");
+        await fetchActivities();
+      } catch (err) {
+        setErrorMessage(
+          err.response?.data?.message || "Erro ao excluir atividade"
+        );
+        throw err;
+      } finally {
+        setLoading(false);
+      }
+    },
+    [clearMessages, fetchActivities]
+  );
+
+  const updateActivityStatus = useCallback(
+    async (id, payload) => {
+      setLoading(true);
+      clearMessages();
+      try {
+        await updateActivityStatusApi(id, payload);
+        setSuccessMessage("Status da atividade atualizado com sucesso!");
+        await fetchActivities();
+      } catch (err) {
+        setErrorMessage(
+          err.response?.data?.message || "Erro ao atualizar status da atividade"
+        );
+        throw err;
+      } finally {
+        setLoading(false);
+      }
+    },
+    [clearMessages, fetchActivities]
+  );
 
   return {
     activities,
+    activeContract,
     loading,
     totalHours,
     workedHours,
@@ -90,6 +138,7 @@ export const useActivities = () => {
     createNewActivity,
     updateActivity,
     deleteActivity,
+    updateActivityStatus,
     clearMessages,
   };
 };

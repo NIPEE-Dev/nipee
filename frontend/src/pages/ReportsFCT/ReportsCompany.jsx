@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useCallback } from "react";
 import {
   Box,
   Heading,
@@ -34,80 +34,11 @@ import {
   Flex,
 } from "@chakra-ui/react";
 import { FaCheckCircle, FaTimesCircle } from "react-icons/fa";
-
-const initialMockSubmissions = [
-  {
-    id: "1",
-    studentId: "aluno001",
-    studentName: "Carlos Andrade",
-    date: "2025-05-26",
-    title: "Desenvolvimento UI",
-    note: "Criação da tela de login.",
-    hours: 4,
-    status: "pending_approval",
-    submissionTimestamp: new Date("2025-05-26T10:00:00Z"),
-  },
-  {
-    id: "2",
-    studentId: "aluno001",
-    studentName: "Carlos Andrade",
-    date: "2025-05-26",
-    title: "Reunião de time",
-    note: "Alinhamento semanal.",
-    hours: 1,
-    status: "pending_approval",
-    submissionTimestamp: new Date("2025-05-26T14:00:00Z"),
-  },
-  {
-    id: "3",
-    studentId: "aluno002",
-    studentName: "Beatriz Lima",
-    date: "2025-05-27",
-    title: "Pesquisa de UX",
-    note: "Entrevistas com usuários.",
-    hours: 6,
-    status: "pending_approval",
-    submissionTimestamp: new Date("2025-05-27T09:00:00Z"),
-  },
-  {
-    id: "4",
-    studentId: "aluno001",
-    studentName: "Carlos Andrade",
-    date: "2025-05-25",
-    title: "Testes unitários",
-    note: "Cobertura da classe Auth.",
-    hours: 3,
-    status: "approved",
-    decisionTimestamp: new Date("2025-05-26T11:00:00Z"),
-  },
-  {
-    id: "5",
-    studentId: "aluno002",
-    studentName: "Beatriz Lima",
-    date: "2025-05-26",
-    title: "Relatório de progresso",
-    note: "Criação do relatório semanal.",
-    hours: 2,
-    status: "reproved",
-    reprovalJustification: "Faltou incluir as métricas de engajamento.",
-    decisionTimestamp: new Date("2025-05-27T15:00:00Z"),
-  },
-  {
-    id: "6",
-    studentId: "aluno003",
-    studentName: "Daniel Costa",
-    date: "2025-05-28",
-    title: "Configuração de Ambiente",
-    note: "Setup do Docker.",
-    hours: 5,
-    status: "pending_approval",
-    submissionTimestamp: new Date("2025-05-28T11:00:00Z"),
-  },
-];
+import { getActivities, updateActivityStatus } from "../../services/activitiesService";
 
 const ReportsCompany = () => {
-  const [submissions, setSubmissions] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [activities, setActivities] = useState([]);
+  const [loading, setLoading] = useState(true);
   const {
     isOpen: isReproveModalOpen,
     onOpen: onReproveModalOpen,
@@ -117,31 +48,40 @@ const ReportsCompany = () => {
   const [reprovalReason, setReprovalReason] = useState("");
   const toast = useToast();
 
-  useEffect(() => {
-    setTimeout(() => {
-      setSubmissions(initialMockSubmissions);
-      setIsLoading(false);
-    }, 1000);
-  }, []);
+  const fetchCompanyActivities = useCallback(async () => {
+    setLoading(true);
+    try {
+      const response = await getActivities();
+      setActivities(response.data.data || []);
+    } catch (error) {
+      toast({
+        title: "Erro ao buscar atividades",
+        description: error.response?.data?.message || "Não foi possível carregar os dados.",
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+      });
+    } finally {
+      setLoading(false);
+    }
+  }, [toast]);
 
-  const handleApprove = (submissionId) => {
-    setSubmissions((prev) =>
-      prev.map((sub) =>
-        sub.id === submissionId
-          ? {
-              ...sub,
-              status: "approved",
-              decisionTimestamp: new Date(),
-            }
-          : sub
-      )
-    );
-    toast({
-      title: "Atividade Aprovada!",
-      status: "success",
-      duration: 3000,
-      isClosable: true,
-    });
+  useEffect(() => {
+    fetchCompanyActivities();
+  }, [fetchCompanyActivities]);
+
+  const handleApprove = async (submissionId) => {
+    setLoading(true);
+    const payload = { approved: true };
+    try {
+      await updateActivityStatus(submissionId, payload);
+      toast({ title: "Atividade Aprovada!", status: "success", duration: 3000, isClosable: true });
+      fetchCompanyActivities(); 
+    } catch (error) {
+      toast({ title: "Erro ao aprovar", status: "error", duration: 3000, isClosable: true });
+    } finally {
+      setLoading(false);
+    }
   };
 
   const openReproveModal = (submission) => {
@@ -150,7 +90,7 @@ const ReportsCompany = () => {
     onReproveModalOpen();
   };
 
-  const submitReproval = () => {
+  const submitReproval = async () => {
     if (!reprovalReason.trim()) {
       toast({
         title: "Justificativa obrigatória!",
@@ -161,60 +101,51 @@ const ReportsCompany = () => {
       });
       return;
     }
-    setSubmissions((prev) =>
-      prev.map((sub) =>
-        sub.id === currentSubmission.id
-          ? {
-              ...sub,
-              status: "reproved",
-              reprovalJustification: reprovalReason,
-              decisionTimestamp: new Date(),
-            }
-          : sub
-      )
-    );
-    toast({
-      title: "Atividade Reprovada!",
-      status: "warning",
-      duration: 3000,
-      isClosable: true,
-    });
-    onReproveModalClose();
+    setLoading(true);
+    const payload = {
+      approved: false,
+      justification: reprovalReason,
+    };
+    try {
+      await updateActivityStatus(currentSubmission.id, payload);
+      toast({ title: "Atividade Reprovada!", status: "warning", duration: 3000, isClosable: true });
+      fetchCompanyActivities();
+      onReproveModalClose();
+    } catch(error) {
+      toast({ title: "Erro ao reprovar", status: "error", duration: 3000, isClosable: true });
+    } finally {
+      setLoading(false);
+    }
   };
 
   const pendingSubmissionsGrouped = useMemo(() => {
-    const pending = submissions.filter(
-      (sub) => sub.status === "pending_approval"
-    );
+    const pending = activities.filter((sub) => sub.status === "Pendente");
     return pending.reduce((acc, sub) => {
-      const studentKey = sub.studentId + "_" + sub.studentName;
+      const studentKey = sub.candidateName;
       if (!acc[studentKey]) {
-        acc[studentKey] = { studentName: sub.studentName, dates: {} };
+        acc[studentKey] = { studentName: sub.candidateName, dates: {} };
       }
-      if (!acc[studentKey].dates[sub.date]) {
-        acc[studentKey].dates[sub.date] = [];
+      if (!acc[studentKey].dates[sub.activityDate]) {
+        acc[studentKey].dates[sub.activityDate] = [];
       }
-      acc[studentKey].dates[sub.date].push(sub);
-      acc[studentKey].dates[sub.date].sort(
-        (a, b) =>
-          new Date(a.submissionTimestamp) - new Date(b.submissionTimestamp)
-      );
+      acc[studentKey].dates[sub.activityDate].push(sub);
       return acc;
     }, {});
-  }, [submissions]);
+  }, [activities]);
 
   const historySubmissions = useMemo(() => {
-    return submissions
-      .filter((sub) => sub.status === "approved" || sub.status === "reproved")
+    return activities
+      .filter((sub) => sub.status === "Aprovado" || sub.status === "Reprovado")
       .sort(
-        (a, b) => new Date(b.decisionTimestamp) - new Date(a.decisionTimestamp)
+        (a, b) =>
+          new Date(b.justificated_at || b.updated_at) - new Date(a.justificated_at || a.updated_at)
       );
-  }, [submissions]);
+  }, [activities]);
 
-  if (isLoading) {
+  if (loading && activities.length === 0) {
     return (
       <Flex justify="center" align="center" height="50vh">
-        <Spinner size="xl" />
+        <Spinner size="xl" color="purple.500"/>
       </Flex>
     );
   }
@@ -309,10 +240,10 @@ const ReportsCompany = () => {
                                       noOfLines={2}
                                       mb={1}
                                     >
-                                      Descrição: {activity.note || "N/A"}
+                                      Descrição: {activity.description || "N/A"}
                                     </Text>
                                     <Text fontSize="sm" color="gray.600" mb={2}>
-                                      Horas: {activity.hours}
+                                      Horas: {activity.estimatedTime}
                                     </Text>
                                     <HStack
                                       justifyContent="flex-end"
@@ -326,6 +257,7 @@ const ReportsCompany = () => {
                                           openReproveModal(activity)
                                         }
                                         leftIcon={<FaTimesCircle />}
+                                        isDisabled={loading}
                                       >
                                         Reprovar
                                       </Button>
@@ -336,6 +268,7 @@ const ReportsCompany = () => {
                                           handleApprove(activity.id)
                                         }
                                         leftIcon={<FaCheckCircle />}
+                                        isDisabled={loading}
                                       >
                                         Aprovar
                                       </Button>
@@ -366,46 +299,52 @@ const ReportsCompany = () => {
                     shadow="md"
                     borderWidth="1px"
                     borderRadius="md"
-                    bg={sub.status === "approved" ? "green.50" : "red.50"}
+                    bg={sub.status === "Aprovado" ? "green.50" : "red.50"}
                     borderColor={
-                      sub.status === "approved" ? "green.200" : "red.200"
+                      sub.status === "Aprovado" ? "green.200" : "red.200"
                     }
                   >
                     <HStack justifyContent="space-between" mb={2}>
                       <Heading size="sm">{sub.title}</Heading>
                       <Badge
                         colorScheme={
-                          sub.status === "approved" ? "green" : "red"
+                          sub.status === "Aprovado" ? "green" : "red"
                         }
                         fontSize="sm"
                       >
-                        {sub.status === "approved" ? "Aprovado" : "Reprovado"}
+                        {sub.status}
                       </Badge>
                     </HStack>
                     <Text fontSize="sm">
-                      <strong>Candidato:</strong> {sub.studentName}
+                      <strong>Candidato:</strong> {sub.candidateName}
                     </Text>
                     <Text fontSize="sm">
                       <strong>Data da Atividade:</strong>{" "}
-                      {new Date(sub.date + "T00:00:00").toLocaleDateString(
+                      {new Date(sub.activityDate + "T00:00:00").toLocaleDateString(
                         "pt-BR"
                       )}
                     </Text>
                     <Text fontSize="sm">
-                      <strong>Horas:</strong> {sub.hours}
+                      <strong>Horas:</strong> {sub.estimatedTime}
                     </Text>
-                    {sub.note && (
+                    {sub.description && (
                       <Text fontSize="sm" noOfLines={2}>
-                        <strong>Descrição:</strong> {sub.note}
+                        <strong>Descrição:</strong> {sub.description}
                       </Text>
                     )}
-                    {sub.status === "reproved" && sub.reprovalJustification && (
+                    {sub.status === "Reprovado" && sub.justification && (
                       <Text fontSize="sm" color="red.700" mt={1}>
                         <strong>Justificativa:</strong>{" "}
-                        {sub.reprovalJustification}
+                        {sub.justification}
                       </Text>
                     )}
                     <Divider my={2} />
+                    <Text fontSize="xs" color="gray.500">
+                      Decidido em:{" "}
+                      {sub.justificated_at
+                        ? new Date(sub.justificated_at).toLocaleString("pt-BR")
+                        : "N/A"}
+                    </Text>
                   </Box>
                 ))}
               </VStack>
@@ -439,7 +378,7 @@ const ReportsCompany = () => {
             <Button variant="ghost" mr={3} onClick={onReproveModalClose}>
               Cancelar
             </Button>
-            <Button colorScheme="red" onClick={submitReproval}>
+            <Button colorScheme="red" onClick={submitReproval} isLoading={loading}>
               Confirmar Reprovação
             </Button>
           </ModalFooter>

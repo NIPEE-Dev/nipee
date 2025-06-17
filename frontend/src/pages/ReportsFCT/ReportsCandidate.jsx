@@ -46,7 +46,7 @@ import {
   HStack,
   Spinner,
   Switch,
-  TableCaption,
+  Center,
 } from "@chakra-ui/react";
 import { useActivities } from "../../hooks/useActivities";
 
@@ -65,6 +65,7 @@ const ReportsCandidate = () => {
   const toast = useToast();
   const {
     activities,
+    activeContract,
     loading,
     totalHours,
     workedHours,
@@ -237,11 +238,11 @@ const ReportsCandidate = () => {
   };
 
   const handleSaveAsDraft = () => {
-    saveOrSubmitEntry(true);
+    saveOrSubmitEntry(false);
   };
 
   const handleSubmitForValidation = () => {
-    saveOrSubmitEntry(false);
+    saveOrSubmitEntry(true);
   };
 
   const handleDeleteDraft = async () => {
@@ -365,6 +366,36 @@ const ReportsCandidate = () => {
     }
     return false;
   }, [loading, activityForSelectedDate]);
+
+  if (loading) {
+    return (
+      <Center h="80vh">
+        {" "}
+        <Spinner
+          thickness="4px"
+          speed="0.65s"
+          emptyColor="gray.200"
+          color="purple.500"
+          size="xl"
+        />{" "}
+      </Center>
+    );
+  }
+
+  if (!activeContract) {
+    return (
+      <Center h="80vh">
+        {" "}
+        <Box textAlign="center" p={5}>
+          {" "}
+          <Heading as="h2" size="lg" mb={4}>
+            Atenção{" "}
+          </Heading>{" "}
+          <Text fontSize="xl">Você não possui nenhum protocolo ativo.</Text>{" "}
+        </Box>{" "}
+      </Center>
+    );
+  }
 
   return (
     <Box p={5}>

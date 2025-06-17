@@ -15,3 +15,7 @@ export const updateActivity = async (id, payload) => {
 export const deleteActivity = async (id) => {
   return await api.delete(`/activities/${id}`);
 };
+
+export const updateActivityStatus = async (id, payload) => {
+  return await api.put(`/activities/${id}/status`, payload);
+};
