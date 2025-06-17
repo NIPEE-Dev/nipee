@@ -32,11 +32,19 @@ class ActivitiesController extends Controller
 
         if ($roleId === RolesEnum::CANDIDATE->value) {
             $activities = $this->activitiesService->getByUserId($user->id);
+            $activeContract = $user->candidate->contracts->where('status', ActiveEnum::ACTIVE)->first() ?? null;
             $workedHours = $activities->reduce(function ($carry, $item) {
                 return $carry + $item->estimated_time ?? 0;
             }, 0);
 
+            if (!isset($activeContract)) {
+                response()->json([
+                    'activeContract' => false,
+                ]);
+            }
+
             return response()->json([
+                'activeContract' => true,
                 'activities' => ActivityResource::collection($activities),
                 'totalHours' => $user->candidate->hours_fct ?? 0,
                 'workedHours' => $workedHours,
