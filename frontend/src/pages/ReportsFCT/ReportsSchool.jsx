@@ -6,7 +6,7 @@ import routes from '../../routes';
 
 const ReportsSchool = () => {
 
-  const title = 'Atividades dos Candidatos';
+  const title = 'Relatórios dos Alunos';
 
   return (  
     <ResourceScreen
@@ -23,18 +23,10 @@ const ReportsSchool = () => {
       }}
       filters={[
         { field: 'name', header: 'Nome' },
-        {
-          field: 'status',
-          header: 'Status',
-          type: 'select',
-          options: [
-              { value: 'approved', header: 'Aprovadas' },
-          ]
-        },
       ]}
       columns={[
         {
-          Header: 'Nome Candidato',
+          Header: 'Nome Aluno',
           accessor: 'name'
         },
         {
@@ -42,23 +34,15 @@ const ReportsSchool = () => {
           accessor: 'company'
         },
         {
-          Header: 'Título da Atividade',
-          accessor: 'activity'
+          Header: 'Total de horas',
+          accessor: 'hours_fct'
         },
         {
-          Header: 'Data da Atividade',
+          Header: 'Data de Envio',
           accessor: 'date'
         },
         {
-          Header: 'Horas',
-          accessor: 'hours'
-        },
-        {
-          Header: 'Status',
-          accessor: 'status'
-        },
-        {
-          Header: 'Atividade',
+          Header: 'Relatório',
           accessor: (originalRow) => {
             const filePath = `${import.meta.env.VITE_BACKEND_BASE_URL_EX}/storage/${originalRow.resume}`;
             
