@@ -38,7 +38,7 @@ class ActivitiesController extends Controller
             }, 0);
 
             if (!isset($activeContract)) {
-                response()->json([
+                return response()->json([
                     'activeContract' => false,
                 ]);
             }
