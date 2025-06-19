@@ -26,6 +26,7 @@ class ActivitiesService
         if (!isset($activity)) {
             throw new HttpException(400, 'Atividade não encontrada');
         }
+        $activity->update($data);
 
         $availableTotalHours = $activity->user->candidate->hours_fct ?? 0;
         $currentTotalHours = $activity->user->activities->where('status', '!=', ActivityStatusEnum::PENDING->value)->sum('estimated_time');
@@ -58,7 +59,6 @@ class ActivitiesService
                 Mail::to($recipient)->send(new FctReportMail($docPath));
             }
         }
-        $activity->update($data);
 
         return $activity;
     }
