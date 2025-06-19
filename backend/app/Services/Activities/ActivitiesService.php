@@ -2,9 +2,13 @@
 
 namespace App\Services\Activities;
 
+use App\Enums\ActiveEnum;
 use App\Enums\Activities\ActivityStatusEnum;
+use App\Mail\FctReportMail;
 use App\Models\Activities\Activity;
-use Illuminate\Contracts\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Mail;
+use PhpOffice\PhpWord\TemplateProcessor;
+use Illuminate\Support\Str;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 
 class ActivitiesService
@@ -21,6 +25,38 @@ class ActivitiesService
         $activity = Activity::query()->where('id', $id)->first();
         if (!isset($activity)) {
             throw new HttpException(400, 'Atividade não encontrada');
+        }
+
+        $availableTotalHours = $activity->user->candidate->hours_fct ?? 0;
+        $currentTotalHours = $activity->user->activities->where('status', '!=', ActivityStatusEnum::PENDING->value)->sum('estimated_time');
+        if ($availableTotalHours !== 0 && $currentTotalHours >= $availableTotalHours) {
+            $contract = $activity->user->candidate->contracts->where('status', ActiveEnum::ACTIVE)->first();
+            $school = $contract->school;
+            $company = $contract->company;
+            $activities = $activity->user->activities->map(function ($item, $key) {
+                return [
+                    'date' => $item->created_at->format('d/m/Y'),
+                    'hours' => $item->estimated_time,
+                    'justification' => $item->justification ?? '',
+                ];
+            });
+
+            $docPath = $this->generateReportDoc([
+                'schoolName' => $school->corporate_name ?? '',
+                'designation' => 'Designação',
+                'companyName' => $company->corporate_name ?? '',
+                'companyPhone' => $company->contact->phone ?? '',
+                'studentName' => $activity->user->candidate->name ?? '',
+                'studentPhone' => $activity->user->candidate->contact->phone ?? '',
+                'jobName' => $contract->job->role ?? '',
+                'hoursDuration' => "$availableTotalHours",
+                'monthsDuration' => "" . $contract->start_contract_vigence->diffInMonths($contract->end_contract_vigence),
+                'activitiesBlock' => $activities->all(),
+            ]);
+
+            foreach ([$school->contact->email, $company->contact->email] as $recipient) {
+                Mail::to($recipient)->send(new FctReportMail($docPath));
+            }
         }
         $activity->update($data);
 
@@ -57,5 +93,24 @@ class ActivitiesService
         })->get();
 
         return $activities;
+    }
+
+    public function generateReportDoc($data)
+    {
+        $template = new TemplateProcessor(storage_path('app/base_documents/guarulhos/relatorioFct.docx'));
+        foreach ($data as $key => $value) {
+            if (is_string($value)) {
+                $template->setValue($key, $value);
+                continue;
+            }
+            if (is_array($value)) {
+                $template->cloneRowAndSetValues('date', $value);
+                continue;
+            }
+        }
+        $path = storage_path('app/docs/' . Str::uuid() . '.docx');
+        $template->saveAs($path);
+
+        return $path;
     }
 }
