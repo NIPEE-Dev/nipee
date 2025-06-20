@@ -9,7 +9,8 @@ import {
   Spinner,
   Stack,
   Text,
-  Tooltip
+  Tooltip,
+  Checkbox,
 } from '@chakra-ui/react';
 import _isEmpty from 'lodash/isEmpty';
 import { FastField, Field, Form, Formik } from 'formik';
@@ -56,7 +57,6 @@ export const ContractsForm = ({
   const location = useLocation();
   const navigate = useNavigate();
 
-console.log('typeform', typeForm);
 
 
   useEffect(() => {
@@ -71,29 +71,29 @@ console.log('typeform', typeForm);
   }
 
   const handleCandidateChange = (
-  setFieldValue,
-  candidates,
-  selectedCandidate
-) => {
-  const candidate = candidates.find((c) => c.id === +selectedCandidate);
-  if (candidate) {
+    setFieldValue,
+    candidates,
+    selectedCandidate
+  ) => {
+    const candidate = candidates.find((c) => c.id === +selectedCandidate);
+    if (candidate) {
 
-    setFieldValue('candidate', {
-      id: candidate.id,
-      ...candidate
-    }, false);;
-    setFieldValue('userAddress', candidate.address, false);
-    
-    setTimeout(() => {
-      if (candidate.contact?.phone) {
-        setFieldValue('candidate.contact.phone', candidate.contact.phone, true);
-      }
-      if (candidate.cpf) {
-        setFieldValue('candidate.cpf', candidate.cpf, true);
-      }
-    }, 100);
-  }
-};
+      setFieldValue('candidate', {
+        id: candidate.id,
+        ...candidate
+      }, false);;
+      setFieldValue('userAddress', candidate.address, false);
+
+      setTimeout(() => {
+        if (candidate.contact?.phone) {
+          setFieldValue('candidate.contact.phone', candidate.contact.phone, true);
+        }
+        if (candidate.cpf) {
+          setFieldValue('candidate.cpf', candidate.cpf, true);
+        }
+      }, 100);
+    }
+  };
 
   const handleJobChange = (setFieldValue, jobs, selectedJob) => {
     const job = jobs.find((j) => j.id === +selectedJob);
@@ -113,11 +113,13 @@ console.log('typeform', typeForm);
         ...(_isEmpty(props.initialValues) ? {} : props.initialValues),
         retroative_billing: props.initialValues?.retroative_billing || '0',
         working_day: {
-        ...props.initialValues?.working_day,
-        day_off: props.initialValues?.working_day?.day_off || 'DUAS FOLGAS SEMANAIS AO SÁBADO E DOMINGO',
-        start_weekday: props.initialValues?.working_day?.start_weekday || 1,
-        end_weekday: props.initialValues?.working_day?.start_weekday || 5,
-        }
+          ...props.initialValues?.working_day,
+          day_off: props.initialValues?.working_day?.day_off || 'DUAS FOLGAS SEMANAIS AO SÁBADO E DOMINGO',
+          start_weekday: props.initialValues?.working_day?.start_weekday || 1,
+          end_weekday: props.initialValues?.working_day?.start_weekday || 5,
+        },
+        manual_contract_upload: false,
+        manual_contract_file: null,
       }}
       onSubmit={(values) => props.onSubmit(values)}
     >
@@ -170,12 +172,12 @@ console.log('typeform', typeForm);
                 autoFetch
                 resourceParams={{
                   perPage: 9999,
-                    /* schoolId: formProps.values.candidate && formProps.values.candidate.user && formProps.values.candidate.user.school && formProps.values.candidate.user.school[0] ? formProps.values.candidate.user.school[0].id : null, */
-                    ...(typeForm === 'add' && { withoutTrashed: true })
-                  }}
-                  >
-                  {({ records, isLoading }) => (
-                    <Field
+                  /* schoolId: formProps.values.candidate && formProps.values.candidate.user && formProps.values.candidate.user.school && formProps.values.candidate.user.school[0] ? formProps.values.candidate.user.school[0].id : null, */
+                  ...(typeForm === 'add' && { withoutTrashed: true })
+                }}
+              >
+                {({ records, isLoading }) => (
+                  <Field
                     id={
                       typeForm === 'edit' ? 'school_id' : 'school.id'
                     }
@@ -188,86 +190,86 @@ console.log('typeform', typeForm);
                     readOnly={readOnly}
                     isLoading={isLoading}
                     required
-                    >
+                  >
                     {records.map((record) => (
                       <option key={record.id} value={record.id}>
-                      {record.fantasy_name}              
+                        {record.fantasy_name}
                       </option>
                     ))}
-                    </Field>
-                  )}
-                  </Resource>
-                </Stack>
-                <Resource
-                  resource='Jobs'
-                  resourceParams={{
-                  company_id: formProps.values.company_id,
-                  perPage: 9999,
-                  ...(typeForm === 'add' && { withoutTrashed: true })
-                  }}
-                  autoFetch={formProps.values.company_id}
-                >
-                  {({ records, isLoading }) => (
-                  <Field
-                    id='job.id'
-                    name='job.id'
-                    placeholder='Vaga'
-                    component={FormField.Select}
-                    readOnly={readOnly}
-                    isLoading={isLoading}
-                    disabled={!formProps.values.company_id}
-                    onChangeCallback={(e) =>
+                  </Field>
+                )}
+              </Resource>
+            </Stack>
+            <Resource
+              resource='Jobs'
+              resourceParams={{
+                company_id: formProps.values.company_id,
+                perPage: 9999,
+                ...(typeForm === 'add' && { withoutTrashed: true })
+              }}
+              autoFetch={formProps.values.company_id}
+            >
+              {({ records, isLoading }) => (
+                <Field
+                  id='job.id'
+                  name='job.id'
+                  placeholder='Vaga'
+                  component={FormField.Select}
+                  readOnly={readOnly}
+                  isLoading={isLoading}
+                  disabled={!formProps.values.company_id}
+                  onChangeCallback={(e) =>
                     handleJobChange(
                       formProps.setFieldValue,
                       records,
                       e.target.value
                     )
-                    }
-                    required
-                  >
-                    {records.map((record) => (
+                  }
+                  required
+                >
+                  {records.map((record) => (
                     <option key={record.id} value={record.id}>
                       {record.role?.title}
                     </option>
-                    ))}
-                    {records.length === 0 && (
+                  ))}
+                  {records.length === 0 && (
                     <option disabled>
                       Nenhuma vaga disponível para esta empresa
                     </option>
-                    )}
-                  </Field>
                   )}
-                </Resource>
-                </GroupContainer>
+                </Field>
+              )}
+            </Resource>
+          </GroupContainer>
 
-                <GroupContainer
-                title='Dados do candidato'
-                subtitle='Dados pessoais do candidato para a vaga'
-                >
-                <Stack direction={['column', 'row']} spacing='24px'> 
-                  {['edit', 'view'].includes(typeForm) ? (
-                  <FastField
-                    id='candidate.name'
-                    name='candidate.name'
-                    placeholder='Nome do candidato'
-                    component={FormField} 
-                    readOnly={readOnly}
-                  />
-                  ) : (
-                  <Resource
-                    resource='Candidates'
-                    autoFetch={formProps.values.school && formProps.values.school.id}
-                    resourceParams={{
-                    ...(typeForm === 'add' && { withoutTrashed: true }), id:formProps.values.candidate?.id
+          <GroupContainer
+            title='Dados do candidato'
+            subtitle='Dados pessoais do candidato para a vaga'
+          >
+            <Stack direction={['column', 'row']} spacing='24px'>
+              {['edit', 'view'].includes(typeForm) ? (
+                <FastField
+                  id='candidate.name'
+                  name='candidate.name'
+                  placeholder='Nome do candidato'
+                  component={FormField}
+                  readOnly={readOnly}
+                />
+              ) : (
+                <Resource
+                  resource='Candidates'
+                  autoFetch={formProps.values.school && formProps.values.school.id}
+                  resourceParams={{
+                    ...(typeForm === 'add' && { withoutTrashed: true }), id: formProps.values.candidate?.id
                   }}
                 >
                   {({ records, isLoading }) => {
                     const selectedSchoolId = typeForm === 'edit'
                       ? formProps.values.school_id
                       : formProps.values?.school?.id;
-                      
-                      const candidatesFromSchool = records.filter(record => 
-                        record.user?.school?.some(school => String(school.id) === String(selectedSchoolId)));                   
+
+                    const candidatesFromSchool = records.filter(record =>
+                      record.user?.school?.some(school => String(school.id) === String(selectedSchoolId)));
 
                     return (
                       <Field
@@ -321,7 +323,7 @@ console.log('typeform', typeForm);
                 component={FormField.InputMask}
                 mask={cnpjMask}
                 readOnly={readOnly}
-                validate={(value) => nifValidator(value, false)} 
+                validate={(value) => nifValidator(value, false)}
                 required
               />
 
@@ -390,14 +392,14 @@ console.log('typeform', typeForm);
                 <>
                   <Resource
                     resource='BaseRecords'
-                    autoFetch={typeForm === 'edit' 
-                    ? !!formProps.values.school_id 
-                    : !!formProps.values.candidate?.school?.id}
+                    autoFetch={typeForm === 'edit'
+                      ? !!formProps.values.school_id
+                      : !!formProps.values.candidate?.school?.id}
                     resourceParams={{
                       type: 6,
-                      school_id: typeForm === 'edit' 
-                      ? formProps.values.school_id 
-                      : formProps.values.candidate?.school?.id,
+                      school_id: typeForm === 'edit'
+                        ? formProps.values.school_id
+                        : formProps.values.candidate?.school?.id,
                       perPage: 9999,
                       ...(typeForm === 'add' && { withoutTrashed: true })
                     }}
@@ -428,7 +430,7 @@ console.log('typeform', typeForm);
                     component={FormField.Select}
                     readOnly={readOnly}
                   >
-                     {[...Array(2).keys()].map((v) => (
+                    {[...Array(2).keys()].map((v) => (
                       <option key={v} value={v}>
                         {++v}° Ano
                       </option>
@@ -739,7 +741,7 @@ console.log('typeform', typeForm);
                 placeholder='Horas semanais'
                 component={FormField}
                 type='number'
-                inputMode="numeric"  
+                inputMode="numeric"
                 pattern="[0-9]*"
                 readOnly={readOnly}
                 required
@@ -793,20 +795,65 @@ console.log('typeform', typeForm);
               />
             </Stack>
 
-             <Stack direction={['column', 'row']} spacing='24px' display={'none'}>
-            <FastField
-              id='retroative_billing'
-              name='retroative_billing'
-              placeholder='Cobrança Retroativa'
-              component={FormField.Select}
-              readOnly={readOnly}
-              required
-              style={{ display: 'none' }}
-            >
-              <option value='0'>Não</option>
-              <option value='1'>Sim</option>
-            </FastField>
+            <Stack direction={['column', 'row']} spacing='24px' display={'none'}>
+              <FastField
+                id='retroative_billing'
+                name='retroative_billing'
+                placeholder='Cobrança Retroativa'
+                component={FormField.Select}
+                readOnly={readOnly}
+                required
+                style={{ display: 'none' }}
+              >
+                <option value='0'>Não</option>
+                <option value='1'>Sim</option>
+              </FastField>
             </Stack>
+
+            <Box mt={4}>
+              <Field name="manual_contract_upload">
+                {({ field }) => (
+                  <Checkbox
+                    {...field}
+                    id="manual_contract_upload"
+                    isChecked={field.value}
+                    onChange={(e) => {
+                      formProps.setFieldValue('manual_contract_upload', e.target.checked);
+
+                      if (!e.target.checked) {
+                        formProps.setFieldValue('manual_contract_file', null);
+                      }
+                    }}
+                    isDisabled={readOnly}
+                  >
+                    Deseja subir um contrato manual?
+                  </Checkbox>
+                )}
+              </Field>
+            </Box>
+
+            {formProps.values.manual_contract_upload && (
+              <Box mt={4}>
+                <Text mb={2}>Anexar contrato manual:</Text>
+                <input
+                  type="file"
+                  id="manual_contract_file"
+                  name="manual_contract_file"
+                  onChange={(event) => {
+                    formProps.setFieldValue(
+                      'manual_contract_file',
+                      event.currentTarget.files[0]
+                    );
+                  }}
+                  disabled={readOnly}
+                />
+                {formProps.errors.manual_contract_file && formProps.touched.manual_contract_file && (
+                  <Text color="red.500" fontSize="sm">
+                    {formProps.errors.manual_contract_file}
+                  </Text>
+                )}
+              </Box>
+            )}
           </GroupContainer>
 
           <GroupContainer title='Dados do seguro' subtitle='Dados pertinentes ao seguro'>
@@ -834,19 +881,19 @@ console.log('typeform', typeForm);
                 {...(typeForm === 'edit' &&
                   formProps.initialValues &&
                   formProps.initialValues.status !== 0 && {
-                    thContent: (
-                      <FileUpload
-                        resource={props.resource}
-                        types={[
-                          'Contracts',
-                          'Addendum',
-                          'School_Statement',
-                          'Evaluation_Closes'
-                        ]}
-                        model='Contract'
-                      />
-                    )
-                  })}
+                  thContent: (
+                    <FileUpload
+                      resource={props.resource}
+                      types={[
+                        'Contracts',
+                        'Addendum',
+                        'School_Statement',
+                        'Evaluation_Closes'
+                      ]}
+                      model='Contract'
+                    />
+                  )
+                })}
               />
             </GroupContainer>
           )}
