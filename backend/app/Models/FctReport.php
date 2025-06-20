@@ -15,5 +15,8 @@ class FctReport extends Model
         'total_hours',
         'report',
         'sent_date',
+        'candidate_id',
+        'school_id',
+        'company_id',
     ];
 }

@@ -48,7 +48,7 @@ class ActivitiesService
                     ];
                 });
 
-                $docPath = $this->generateReportDoc([
+                $data = [
                     'schoolName' => $school->corporate_name ?? '',
                     'designation' => 'Designação',
                     'companyName' => $company->corporate_name ?? '',
@@ -59,10 +59,23 @@ class ActivitiesService
                     'hoursDuration' => "$availableTotalHours",
                     'monthsDuration' => "" . $contract->start_contract_vigence->diffInMonths($contract->end_contract_vigence),
                     'activitiesBlock' => $activities->all(),
+                ];
+
+                $docPath = $this->generateReportDoc($data);
+
+                FctReport::create([
+                    'candidate_name' => $data['studentName'],
+                    'company_name' => $data['companyName'],
+                    'total_hours' => $data['hoursDuration'],
+                    'report' => '/docs/' . $docPath['name'],
+                    'candidate_id' => $activity->user->candidate->id,
+                    'school_id' => $school->id,
+                    'company_id' => $company->id,
+                    'sent_date' => Carbon::now(),
                 ]);
 
                 foreach ([$school->contact->email, $company->contact->email] as $recipient) {
-                    Mail::to($recipient)->send(new FctReportMail($docPath));
+                    Mail::to($recipient)->send(new FctReportMail($docPath['path']));
                 }
             }
             DB::commit();
@@ -123,14 +136,6 @@ class ActivitiesService
         $path = storage_path('app/public/docs/' . $name);
         $template->saveAs($path);
 
-        FctReport::create([
-            'candidate_name' => $data['studentName'],
-            'company_name' => $data['companyName'],
-            'total_hours' => $data['hoursDuration'],
-            'report' => '/docs/' . $name,
-            'sent_date' => Carbon::now(),
-        ]);
-
-        return $path;
+        return ['path' => $path, 'name' => $name];
     }
 }
