@@ -119,6 +119,20 @@ class ActivitiesService
         return $activities;
     }
 
+    public function getReportsBySchoolId($schoolId)
+    {
+        $reports = FctReport::query()->where('school_id', $schoolId)->get();
+
+        return $reports;
+    }
+
+    public function getReportsByCompanyId($companyId)
+    {
+        $reports = FctReport::query()->where('company_id', $companyId)->get();
+
+        return $reports;
+    }
+
     public function generateReportDoc($data)
     {
         $template = new TemplateProcessor(storage_path('app/base_documents/guarulhos/relatorioFct.docx'));

@@ -10,6 +10,7 @@ use App\Http\Requests\Activities\CreateActivityRequest;
 use App\Http\Requests\Activities\UpdateActivityRequest;
 use App\Http\Requests\Activities\UpdateActivityStatusRequest;
 use App\Http\Resources\Activities\ActivityResource;
+use App\Http\Resources\FctReportResource;
 use App\Services\Activities\ActivitiesService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -22,6 +23,25 @@ class ActivitiesController extends Controller
     public function __construct(ActivitiesService $activitiesService = new ActivitiesService)
     {
         $this->activitiesService = $activitiesService;
+    }
+
+    public function indexReports()
+    {
+        $user = Auth::user();
+        $roleId = $user->roles[0]->id;
+        $reports = [];
+
+        if ($roleId === RolesEnum::SCHOOL->value) {
+            $schoolId = $user->school->first()->id;
+            $reports = $this->activitiesService->getReportsBySchoolId($schoolId);
+        }
+
+        if ($roleId === RolesEnum::COMPANY->value) {
+            $companyId = $user->company->id;
+            $reports = $this->activitiesService->getReportsByCompanyId($companyId);
+        }
+
+        return FctReportResource::collection($reports);
     }
 
     public function index()
