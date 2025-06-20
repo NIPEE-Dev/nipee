@@ -1,3 +1,3 @@
 import createResourceApi from '../utils/createResourceApi';
 
-export default createResourceApi('reports/fct');
+export default createResourceApi('activities/reports');

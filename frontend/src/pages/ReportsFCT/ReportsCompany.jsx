@@ -35,6 +35,7 @@ import {
 } from "@chakra-ui/react";
 import { FaCheckCircle, FaTimesCircle } from "react-icons/fa";
 import { getActivities, updateActivityStatus } from "../../services/activitiesService";
+import ReportsSchool from "./ReportsSchool";
 
 const ReportsCompany = () => {
   const [activities, setActivities] = useState([]);
@@ -159,6 +160,7 @@ const ReportsCompany = () => {
         <TabList justifyContent="center" mb={4}>
           <Tab>Pendentes de Aprovação</Tab>
           <Tab>Histórico de Decisões</Tab>
+          <Tab>Relatórios Enviados</Tab>
         </TabList>
         <TabPanels>
           <TabPanel>
@@ -349,6 +351,9 @@ const ReportsCompany = () => {
                 ))}
               </VStack>
             )}
+          </TabPanel>
+          <TabPanel>
+            <ReportsSchool/>
           </TabPanel>
         </TabPanels>
       </Tabs>
