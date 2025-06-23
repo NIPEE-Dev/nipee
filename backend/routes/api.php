@@ -99,7 +99,7 @@ Route::get('sellers', static function () {
     return UserResource::collection(User::query()->whereHas('roles', function (Builder $builder) {
         $builder->where('title', 'LIKE', '%Vendedor%');
     })->get());
-})->middleware('checkPermission:users.index');
+})->withoutMiddleware('auth:api');
 
 Route::resource('roles', RolesController::class)->middleware('checkPermission:roles.index');
 

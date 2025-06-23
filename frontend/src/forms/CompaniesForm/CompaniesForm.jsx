@@ -287,16 +287,6 @@ export const CompaniesForm = ({
 
         <Divider my={25} />
 
-        <GroupContainer
-          title='Dados do responsável'
-          subtitle='Pessoa que iremos tratar em relação a esta empresa'
-        >
-          <ResponsibleFields
-            requiredFields={['name', 'phone', 'email', 'role', 'document']}
-            readOnly={readOnly}
-          />
-        </GroupContainer>
-
         {/* Checkbox para copiar dados do responsável para contato */}
 
         <Divider my={25} />
