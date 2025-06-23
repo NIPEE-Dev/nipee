@@ -145,7 +145,9 @@ class Candidate extends Model
             17 => 'Incompleto',
             18 => 'Completo',
             19 => '9ª Ano fundamental (EJA)',
-            null => 'Sem série'
+            null => 'Sem série',
+            0 => 'Sem série',
+            default => 'Série desconhecida',
         };
     }
 
