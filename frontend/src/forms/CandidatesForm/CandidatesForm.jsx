@@ -166,7 +166,7 @@ export const CandidatesForm = ({ readOnly, isLoading, typeForm, ...props }) => {
             </Stack>
 
             <Stack direction={['column', 'row']} spacing='24px'>
-                <FastField
+                {/* <FastField
                   id='serie'
                   name='serie'
                   placeholder='Ano'
@@ -180,7 +180,7 @@ export const CandidatesForm = ({ readOnly, isLoading, typeForm, ...props }) => {
                     <option value={13}>3° Ano</option>
                   </optgroup>
 
-                  {/* <optgroup label='Outros'>
+                  <optgroup label='Outros'>
                     <option value={14}>1° Ano Supletivo</option>
                     <option value={15}>2° Ano Supletivo</option>
                     <option value={16}>3° Ano Supletivo</option>
@@ -188,8 +188,8 @@ export const CandidatesForm = ({ readOnly, isLoading, typeForm, ...props }) => {
 
                   <option value={17}>Incompleto</option>
                   <option value={18}>Completo</option>
-                  <option value={19}>9ª ano fundamental (eja)</option> */}
-                </FastField>
+                  <option value={19}>9ª ano fundamental (eja)</option>
+                </FastField> */}
                 <>
                    <Resource
                     resource='BaseRecords'
