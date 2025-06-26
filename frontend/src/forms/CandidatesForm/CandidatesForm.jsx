@@ -222,7 +222,7 @@ export const CandidatesForm = ({ readOnly, isLoading, typeForm, ...props }) => {
                     component={FormField.Select}
                     readOnly={readOnly}
                   >
-                    {[...Array(2).keys()].map((v) => (
+                    {[...Array(3).keys()].map((v) => (
                       <option key={v} value={v}>
                         {++v}° Ano
                       </option>
