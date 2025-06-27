@@ -48,8 +48,8 @@ class DocumentsService
         if (!$isAdmin && in_array($roleId, [13, 10, 14])) {
             $data->orWhereHasMorph('attachable', Contract::class, function (Builder $query) use ($user) {
                 $query->where('candidate_id', $user->candidate->id ?? 0)
-                      ->orWhere('company_id', $user->company->id ?? 0);
-                      /* ->orWhere('school_id', $user->school[0]->id ?? 0); */
+                      ->orWhere('company_id', $user->company->id ?? 0)
+                      ->orWhere('school_id', $user->school[0]->id ?? 0);
             });
         }
 

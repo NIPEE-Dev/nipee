@@ -113,4 +113,4 @@ Route::post('students-pre-registrations/{id}/reject', [StudentsPreRegistrationCo
 
 //! rotas para criação da assinatura
 Route::post('/contracts/{contractId}/upload-signature-company', [SignatureController::class, 'uploadSignatureCompany'])->name('contracts.upload-signature-company')->middleware('checkPermission:contracts.reactive');
-Route::post('/contracts/{contractId}/upload-signature-school', [SignatureController::class, 'uploadSignatureSchool'])->middleware('checkPermission:contracts.reactive');
+Route::post('/contracts/{contractId}/upload-signature-school', [SignatureController::class, 'uploadSignatureSchool'])->middleware('checkPermission:documents.index');
