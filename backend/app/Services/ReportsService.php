@@ -42,17 +42,17 @@ class ReportsService
             }
         }
 
-        // $roleId = $user->roles[0]->id;
-        // if ($roleId === 14) {
-        //     $data->whereHas('jobs', function ($query) use ($user) {
-        //         $query->where('company_id', $user->company->id ?? 0);
-        //     });
-        // }
-        // if ($roleId === 10) {
-        //     $data->whereHas('contracts', function ($query) use ($user) {
-        //         $query->where('school_id', $user->school[0]->id ?? 0);
-        //     });
-        // }
+        $roleId = $user->roles[0]->id;
+        if ($roleId === 14) {
+            $data->whereHas('contracts', function ($query) use ($user) {
+                $query->where('company_id', $user->company->id ?? 0);
+            });
+        }
+        if ($roleId === 10) {
+            $data->whereHas('contracts', function ($query) use ($user) {
+                $query->where('school_id', $user->school[0]->id ?? 0);
+            });
+        }
 
         if ($hasFilter && isset($filters['name'])) {
             $data->where('name', 'LIKE', $filters['name'] . '%');
