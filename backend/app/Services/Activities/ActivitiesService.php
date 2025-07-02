@@ -44,6 +44,8 @@ class ActivitiesService
                     return [
                         'date' => $item->created_at->format('d/m/Y'),
                         'hours' => $item->estimated_time,
+                        'title' => $item->title,
+                        'description' => $item->description,
                         'justification' => $item->justification ?? '',
                     ];
                 });

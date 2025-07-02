@@ -191,7 +191,7 @@ console.log('typeform', typeForm);
                     >
                     {records.map((record) => (
                       <option key={record.id} value={record.id}>
-                      {record.fantasy_name}              
+                      {record.corporate_name}              
                       </option>
                     ))}
                     </Field>
