@@ -10,6 +10,7 @@ import DocumentsTable from '../../components/DocumentsTable/DocumentsTable';
 import FileUpload from '../../components/FileUpload/FileUpload';
 import { Select } from 'chakra-react-select';
 import api from "../../api";
+import CandidacyTable from '../../components/CandidacyTable/CandidacyTable';
 
 const CourseSelect = ({ value = [], onChange, readOnly }) => {
   const [courses, setCourses] = useState([]);
@@ -84,6 +85,18 @@ export const JobsForm = ({ readOnly, typeForm, isLoading, ...props }) => {
     >
       {({ values, isSubmitting, setFieldValue }) => (
         <Form>
+          {['edit', 'view'].includes(typeForm) && props.initialValues?.id && (
+            <Box py={3} textAlign='right'>
+                <Button
+                  mt='3'
+                  colorScheme='red'
+                  type='button'
+                  isLoading={isLoading || isSubmitting}
+                >
+                  Encerrar vaga
+                </Button>
+              </Box>
+          )}
           <GroupContainer
             title='Dados da vaga'
             subtitle='Informações pertinentes à empresa e à vaga'
@@ -332,6 +345,18 @@ export const JobsForm = ({ readOnly, typeForm, isLoading, ...props }) => {
                 <option value='ES'>Estágio</option>
                 <option value='EF'>FCT</option>
               </FastField>
+              {values.type === 'EF' && (
+                <FastField
+                  id='fct_hours'
+                  name='fct_hours'
+                  placeholder='Horas FCT'
+                  component={FormField}
+                  type='number'
+                  readOnly={readOnly}
+                  disabled={canEdit === false}
+                  required={values.type === 'EF'}
+                />
+              )}
               <FastField
                 id='show_web'
                 name='show_web'
@@ -545,6 +570,19 @@ export const JobsForm = ({ readOnly, typeForm, isLoading, ...props }) => {
             </GroupContainer>
           )}
 
+       {['edit', 'view'].includes(typeForm) && props.initialValues?.id && (
+            <GroupContainer
+              title='Candidaturas'
+              subtitle='Todas as candidaturas para esta vaga'
+            >
+              <CandidacyTable
+                typeForm={typeForm}
+                readOnly={readOnly}
+                jobId={props.initialValues.id}
+              />
+            </GroupContainer>
+          )}
+
           {readOnly !== true && (
             <Box py={3} textAlign='right'>
               <Button
@@ -554,6 +592,15 @@ export const JobsForm = ({ readOnly, typeForm, isLoading, ...props }) => {
                 isLoading={isLoading || isSubmitting}
               >
                 Salvar
+              </Button>
+              <Button
+                mt='3'
+                ml={3}
+                colorScheme='orange'
+                type='submit'
+                isLoading={isLoading || isSubmitting}
+              >
+                Salvar como Rascunho
               </Button>
             </Box>
           )}
