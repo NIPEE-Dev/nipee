@@ -17,6 +17,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Illuminate\Support\Facades\Log;
+use App\Enums\BaseRecordsEnum;
 
 class CandidatesService
 {
@@ -31,6 +32,15 @@ class CandidatesService
                 1 => $builder->whereRaw("MONTH(birth_day) = " . date("n", strtotime("+1 month")))
             };
         });
+
+        $this->addSpecialField('course', function (Builder $builder, Filter $filter) {
+        $val = $filter->getValue();
+        
+        $builder->whereHas('userCourse', function (Builder $q) use ($val) {
+        $q->where('type', BaseRecordsEnum::COURSES->value)
+          ->where('title', 'LIKE', "%{$val}%");
+        });
+    });
 
         $shouldOrderByName = isset($criteria['perPage']) && $criteria['perPage'] == '99999';
         $candidateBuilder = $this->getBuilder(
