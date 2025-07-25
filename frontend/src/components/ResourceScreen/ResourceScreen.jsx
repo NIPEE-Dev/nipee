@@ -162,6 +162,7 @@ function ViewEditContainer({ resource, title, Form, Details, onlyDiff, routeBase
   initialErrors={{}}
   onSubmit={async (values) => {
     try {
+      console.log("SUBMITTING", values);
       const result = await update(id, onlyDiff ? diff(detailedRecord, values) : values);
       setIsEditing(false);
       navigate('..');

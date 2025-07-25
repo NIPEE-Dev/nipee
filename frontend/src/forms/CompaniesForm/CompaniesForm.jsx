@@ -64,7 +64,28 @@ export const CompaniesForm = ({
         issue_bank_slip: props.initialValues?.billing?.issue_bank_slip ?? '1',
       }
     }}
-    onSubmit={(values) => props.onSubmit(values)}
+    onSubmit={async (values, { setSubmitting, setFieldError }) => {
+    try {
+      await props.onSubmit(values);
+    } catch (error) {
+      if (error.response?.data?.errors) {
+        Object.keys(error.response.data.errors).forEach(field => {
+          setFieldError(field, error.response.data.errors[field][0]);
+        });
+      }
+      toast({
+        title: "Erro!",
+        description: error.response?.data?.message || error.message || "Ocorreu um erro desconhecido.",
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+        position: 'top-right',
+        variant: 'left-accent',
+      });
+    } finally {
+      setSubmitting(false);
+    }
+  }}
   >
     {({ values, setFieldValue, isSubmitting }) => (
       <Form>

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Stack, Box, Button, Text, chakra, Textarea } from '@chakra-ui/react';
+import { Stack, Box, Button, Text, chakra, Textarea, useToast } from '@chakra-ui/react';
 import { Formik, Form, Field, FastField } from 'formik';
 import FormField from '../../components/FormField/FormField';
 import GroupContainer from '../GroupContainer';
@@ -13,13 +13,43 @@ export const JobsForm = ({ readOnly, typeForm, isLoading, ...props }) => {
   const userProfile = JSON.parse(localStorage.getItem('profile'));
   const userRole = userProfile?.role || '';
   const canEdit = userRole === "Administrador Geral" || userRole === 'Empresa';
+  const toast = useToast();
   
   return (
     <Formik
       enableReinitialize
       initialErrors={props.initialErrors}
       initialValues={props.initialValues}
-      onSubmit={(values) => props.onSubmit(values)}
+      onSubmit={async (values, { setSubmitting, setFieldError }) => {
+    try {
+      await props.onSubmit(values);
+      toast({
+        title: "Sucesso",
+        description: "Dados salvo com sucesso!",
+        status: "success",
+        duration: 5000,
+        isClosable: true,
+      });
+    } catch (error) {
+      if (error.response?.data?.errors) {
+        Object.keys(error.response.data.errors).forEach(field => {
+          setFieldError(field, error.response.data.errors[field][0]);
+        });
+      }
+      
+      toast({
+        title: "Erro!",
+        description: error.response?.data?.message || error.message || "Ocorreu um erro desconhecido.",
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+        position: 'top-right',
+        variant: 'left-accent',
+      });
+    } finally {
+      setSubmitting(false);
+    }
+  }}
     >
       {({ values, isSubmitting }) => (
         <Form>
