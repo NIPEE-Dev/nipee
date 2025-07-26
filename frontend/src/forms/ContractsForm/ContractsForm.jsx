@@ -220,7 +220,7 @@ export const ContractsForm = ({
                     >
                     {records.map((record) => (
                       <option key={record.id} value={record.id}>
-                      {record.fantasy_name}              
+                      {record.corporate_name}              
                       </option>
                     ))}
                     </Field>
@@ -368,14 +368,14 @@ export const ContractsForm = ({
               <FastField
                 id='candidate.studying_level'
                 name='candidate.studying_level'
-                placeholder='Tipo de ensino'
+                placeholder='Nível de Ensino'
                 component={FormField.Select}
                 readOnly={readOnly}
                 required
               >
-                <option value='M'>Técnico</option>
-                <option value='E'>Ensino Secundário</option>
-                <option value='TS'>Superior</option>
+                <option value='E'>Cursos Profissionais nível 4 / Ensino Secundário</option>
+                <option value='CP5'>Cursos Profissionais CET nível 5</option>
+                <option value='TS'>Ensino Superior TESP - Nível 5</option>
               </FastField>
 
               {formProps.values?.candidate?.studying_level === 'TS' && (
@@ -394,7 +394,7 @@ export const ContractsForm = ({
             </Stack>
 
             <Stack direction={['column', 'row']} spacing='24px'>
-              {formProps.values?.candidate?.studying_level === 'E' ? (
+              {formProps.values?.candidate?.studying_level === '-' ? (
                 <FastField
                   id='candidate.serie'
                   name='candidate.serie'
@@ -419,18 +419,9 @@ export const ContractsForm = ({
                 <>
                   <Resource
                     resource='BaseRecords'
-                    autoFetch={typeForm === 'edit' 
-                    ? !!formProps.values.school_id 
-                    : !!formProps.values.candidate?.school?.id}
-                    resourceParams={{
-                      type: 6,
-                      school_id: typeForm === 'edit' 
-                      ? formProps.values.school_id 
-                      : formProps.values.candidate?.school?.id,
-                      perPage: 9999,
-                      ...(typeForm === 'add' && { withoutTrashed: true })
-                    }}
-                  >
+                    autoFetch
+                    resourceParams={{ type: 6, perPage: 9999 }}
+                   >
                     {({ records, isLoading }) => (
                       <Field
                         id='candidate.course'
@@ -439,16 +430,15 @@ export const ContractsForm = ({
                         component={FormField.Select}
                         readOnly={readOnly}
                         isLoading={isLoading}
-                        isDisabled={!formProps.values.school_id || records.length === 0}
                         required
                       >
-                        {records.map((record) => (
-                          <option key={record.id} value={record.id}>
-                            {record.title}
-                          </option>
-                        ))}
+                      {records.map((record) => (
+                        <option key={record.id} value={record.id}>
+                          {record.title}
+                        </option>
+                      ))}
                       </Field>
-                    )}
+                     )}
                   </Resource>
                   <FastField
                     id='candidate.semester'

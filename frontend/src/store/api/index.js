@@ -19,6 +19,6 @@ export { default as Documents } from './Documents';
 export { default as WorkflowCompanies } from './WorkflowCompanies';
 export { default as WorkflowCandidates } from './WorkflowCandidates';
 export { default as ReportsCandidates } from './ReportsCandidates';
-//export { default as ReportsFCT } from './ReportsFCT';
+export { default as ReportsFCT } from './ReportsFCT';
 export { default as ReportsSystemActivity } from './ReportsSystemActivity';
 export { default as SchoolCourses } from './SchoolCourses';

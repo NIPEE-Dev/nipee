@@ -4,3 +4,7 @@
 !base_documents/
 !base_documents/*
 !base_documents/*/*
+!docs/
+!docs/.gitkeep
+!public/docs/
+!public/docs/.gitkeep

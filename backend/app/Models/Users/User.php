@@ -2,6 +2,7 @@
 
 namespace App\Models\Users;
 
+use App\Models\Activities\Activity;
 use App\Models\Candidate;
 use App\Models\Company\Company;
 use App\Models\Credentials\Sessions;
@@ -31,7 +32,13 @@ class User extends Authenticatable implements JWTSubject
      */
     protected $fillable = [
         'role_id',
-        'name', 'email', 'password', 'commission', 'start_hour', 'end_hour', 'role_id'
+        'name',
+        'email',
+        'password',
+        'commission',
+        'start_hour',
+        'end_hour',
+        'role_id'
     ];
 
     /**
@@ -83,6 +90,11 @@ class User extends Authenticatable implements JWTSubject
     public function school()
     {
         return $this->belongsToMany(School::class, 'school_members', 'user_id', 'school_id')->withTrashed();
+    }
+
+    public function activities()
+    {
+        return $this->hasMany(Activity::class);
     }
 
     /*   public function permissions(): array

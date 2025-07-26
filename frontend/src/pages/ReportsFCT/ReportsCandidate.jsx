@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect, useCallback } from "react";
 import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
 import "../../../app.css";
@@ -44,239 +44,406 @@ import {
   Td,
   TableContainer,
   HStack,
+  Spinner,
+  Switch,
+  Center,
 } from "@chakra-ui/react";
+import { useActivities } from "../../hooks/useActivities";
 
-const formatDateKey = (date) => date.toDateString();
+const formatDateKey = (date) =>
+  new Date(date.getFullYear(), date.getMonth(), date.getDate()).toDateString();
+
+const formatDateForApi = (date) => date.toISOString().split("T")[0];
 
 const ReportsCandidate = () => {
   const [selectedDate, setSelectedDate] = useState(new Date());
-  const [dailyData, setDailyData] = useState({});
+  const [isRangeMode, setIsRangeMode] = useState(false);
   const [currentTitle, setCurrentTitle] = useState("");
   const [currentNote, setCurrentNote] = useState("");
   const [currentHours, setCurrentHours] = useState("");
-  const [currentEntryStatus, setCurrentEntryStatus] = useState(null);
+
   const toast = useToast();
+  const {
+    activities,
+    activeContract,
+    loading,
+    totalHours,
+    workedHours,
+    errorMessage,
+    successMessage,
+    fetchActivities,
+    createNewActivity,
+    updateActivity,
+    deleteActivity,
+    clearMessages,
+  } = useActivities();
 
-  const totalProjectHours = 600;
+  useEffect(() => {
+    fetchActivities();
+  }, [fetchActivities]);
 
-  const workedHours = useMemo(() => {
-    return Object.values(dailyData).reduce((sum, data) => {
-      if (data && typeof data.hours === "number" && !isNaN(data.hours)) {
-        return sum + data.hours;
-      }
-      return sum;
-    }, 0);
-  }, [dailyData]);
-
-  const remainingHours = totalProjectHours - workedHours;
-
-  const handleDateChange = (newDate) => {
-    setSelectedDate(newDate);
-    const dateKey = formatDateKey(newDate);
-    const dataForDate = dailyData[dateKey];
-    setCurrentTitle(dataForDate?.title || "");
-    setCurrentNote(dataForDate?.note || "");
-    setCurrentHours(dataForDate?.hours?.toString() || "");
-    setCurrentEntryStatus(dataForDate?.status || null);
-  };
-
-  const handleTitleInputChange = (e) => {
-    setCurrentTitle(e.target.value);
-  };
-
-  const handleNoteInputChange = (e) => {
-    setCurrentNote(e.target.value);
-  };
-
-  const handleHoursInputChange = (valueAsString) => {
-    setCurrentHours(valueAsString);
-  };
-
-  const saveEntryWithStatus = (statusToSet) => {
-    if (selectedDate) {
-      const dateKey = formatDateKey(selectedDate);
-      const hoursToSave = parseFloat(currentHours.replace(",", "."));
-
-      if (currentHours !== "" && isNaN(hoursToSave)) {
-        if (!(currentHours === "" && statusToSet === "draft")) {
-          toast({
-            title: "Entrada Inválida",
-            description:
-              "Por favor, insira um número válido para as horas ou deixe o campo vazio para rascunhos.",
-            status: "error",
-            duration: 3000,
-            isClosable: true,
-          });
-          return;
-        }
-      }
-
-      setDailyData((prevData) => ({
-        ...prevData,
-        [dateKey]: {
-          title: currentTitle,
-          note: currentNote,
-          hours: currentHours === "" ? undefined : hoursToSave,
-          status: statusToSet,
-        },
-      }));
-
-      setCurrentEntryStatus(statusToSet);
-
-      let toastTitle = "Dados Salvos!";
-      if (statusToSet === "draft") toastTitle = "Salvo como Rascunho!";
-      if (statusToSet === "pending_approval")
-        toastTitle = "Submetido para Validação!";
-
+  useEffect(() => {
+    if (successMessage) {
       toast({
-        title: toastTitle,
-        description: `Informações para ${selectedDate.toLocaleDateString(
-          "pt-BR"
-        )} foram processadas.`,
+        title: "Sucesso!",
+        description: successMessage,
         status: "success",
-        duration: 3000,
+        duration: 4000,
         isClosable: true,
       });
+      clearMessages();
     }
-  };
+    if (errorMessage) {
+      toast({
+        title: "Ocorreu um erro",
+        description: errorMessage,
+        status: "error",
+        duration: 4000,
+        isClosable: true,
+      });
+      clearMessages();
+    }
+  }, [successMessage, errorMessage, toast, clearMessages]);
 
-  const handleSaveAsDraft = () => {
-    saveEntryWithStatus("draft");
-  };
+  const dailyData = useMemo(() => {
+    return activities.reduce((acc, activity) => {
+      const activityDate = new Date(`${activity.activityDate}T00:00:00`);
+      const dateKey = formatDateKey(activityDate);
+      acc[dateKey] = activity;
+      return acc;
+    }, {});
+  }, [activities]);
 
-  const handleSubmitForValidation = () => {
-    if (
-      !currentTitle &&
-      !currentNote &&
-      (currentHours === "" || parseFloat(currentHours.replace(",", ".")) === 0)
-    ) {
+  const activityForSelectedDate = useMemo(() => {
+    const firstDate = Array.isArray(selectedDate)
+      ? selectedDate[0]
+      : selectedDate;
+    return dailyData[formatDateKey(firstDate)];
+  }, [selectedDate, dailyData]);
+
+  const remainingHours = totalHours - workedHours;
+  const allHoursUsed = remainingHours <= 0;
+
+  const saveOrSubmitEntry = async (isDraft) => {
+    let startDate, endDate;
+    if (Array.isArray(selectedDate)) {
+      [startDate, endDate] = selectedDate;
+    } else {
+      startDate = endDate = selectedDate;
+    }
+
+    const hoursToSave = parseFloat(currentHours.replace(",", ".")) || 0;
+
+    if (!currentTitle && !currentNote && hoursToSave === 0) {
       toast({
         title: "Entrada Vazia",
-        description: "Preencha ao menos um campo para submeter.",
+        description: "Preencha ao menos um campo para salvar.",
         status: "warning",
         duration: 3000,
         isClosable: true,
       });
       return;
     }
-    saveEntryWithStatus("pending_approval");
+
+    const promises = [];
+    let currentDate = new Date(startDate);
+    const datesProcessed = [];
+    const datesExceedingLimit = [];
+    const datesBlockedBecauseSubmitted = [];
+    let currentWorkedHoursSum = workedHours;
+
+    while (currentDate <= endDate) {
+      const dateKey = formatDateKey(currentDate);
+      const existingActivity = dailyData[dateKey];
+      const canEdit = !existingActivity || existingActivity.status === "Rascunho";
+
+      if (!canEdit) {
+        datesBlockedBecauseSubmitted.push(currentDate.toLocaleDateString("pt-PT"));
+        currentDate.setDate(currentDate.getDate() + 1);
+        continue;
+      }
+      let hoursForThisDate = hoursToSave;
+
+      let hoursToSubtractFromWorked = 0;
+      if (existingActivity) {
+        hoursToSubtractFromWorked = existingActivity.estimatedTime || 0;
+      }
+      const potentialNewWorkedHours = currentWorkedHoursSum - hoursToSubtractFromWorked + hoursForThisDate;
+
+      if (potentialNewWorkedHours > totalHours) {
+        datesExceedingLimit.push(currentDate.toLocaleDateString("pt-PT"));
+        currentDate.setDate(currentDate.getDate() + 1);
+        continue;
+      } else {
+        currentWorkedHoursSum = potentialNewWorkedHours;
+      }
+
+      const payload = {
+        title: currentTitle,
+        description: currentNote,
+        estimatedTime: hoursForThisDate,
+        activityDate: formatDateForApi(currentDate),
+        draft: isDraft,
+      };
+
+      if (existingActivity) {
+        promises.push(updateActivity(existingActivity.id, payload));
+      } else {
+        promises.push(createNewActivity(payload));
+      }
+      datesProcessed.push(currentDate);
+
+      currentDate.setDate(currentDate.getDate() + 1);
+    }
+
+    if (datesExceedingLimit.length > 0) {
+      toast({
+        title: "Limite de Horas Atingido",
+        description: `Não foi possível registrar atividades para ${datesExceedingLimit.join(", ")} pois o limite total de horas do protocolo seria excedido.`,
+        status: "error",
+        duration: 7000,
+        isClosable: true,
+      });
+    }
+
+    if (datesBlockedBecauseSubmitted.length > 0) {
+      toast({
+        title: "Atenção: Atividades Já Submetidas",
+        description: `As atividades para ${datesBlockedBecauseSubmitted.join(", ")} não foram alteradas pois já foram submetidas para validação ou aprovadas.`,
+        status: "info",
+        duration: 7000,
+        isClosable: true,
+      });
+    }
+
+
+    try {
+      await Promise.all(promises);
+      if (
+        promises.length === 0 &&
+        datesExceedingLimit.length === 0 &&
+        datesBlockedBecauseSubmitted.length === 0 &&
+        (Array.isArray(selectedDate) || activityForSelectedDate?.status !== "Rascunho")
+      ) {
+        toast({
+          title: "Nenhuma atividade foi alterada",
+          description:
+            "Nenhum registro foi modificado ou criado dentro do período selecionado.",
+          status: "info",
+          duration: 4000,
+          isClosable: true,
+        });
+      }
+    } catch (error) {
+    } finally {
+      setSelectedDate(endDate);
+      setIsRangeMode(false);
+    }
   };
 
-  const handleDeleteDraft = () => {
-    if (
-      selectedDate &&
-      dailyData[formatDateKey(selectedDate)]?.status === "draft"
-    ) {
-      const dateKey = formatDateKey(selectedDate);
-      const { [dateKey]: _, ...remainingData } = dailyData;
-      setDailyData(remainingData);
-
+  useEffect(() => {
+    if (activityForSelectedDate) {
+      setCurrentTitle(activityForSelectedDate.title || "");
+      setCurrentNote(activityForSelectedDate.description || "");
+      setCurrentHours(activityForSelectedDate.estimatedTime?.toString() || "");
+    } else {
       setCurrentTitle("");
       setCurrentNote("");
       setCurrentHours("");
-      setCurrentEntryStatus(null);
+    }
+  }, [activityForSelectedDate]);
 
+  const handleDateChange = (newDate) => {
+    setSelectedDate(newDate);
+  };
+
+  const handleRangeModeToggle = (event) => {
+    const isChecked = event.target.checked;
+    setIsRangeMode(isChecked);
+
+    if (!isChecked && Array.isArray(selectedDate)) {
+      setSelectedDate(selectedDate[0]);
+    }
+  };
+
+  const handleSaveAsDraft = () => {
+    saveOrSubmitEntry(false);
+  };
+
+  const handleSubmitForValidation = () => {
+    saveOrSubmitEntry(true);
+  };
+
+  const handleDeleteDraft = async () => {
+    if (
+      activityForSelectedDate &&
+      activityForSelectedDate.id &&
+      activityForSelectedDate.status === "Rascunho"
+    ) {
+      try {
+        await deleteActivity(activityForSelectedDate.id);
+        setCurrentTitle("");
+        setCurrentNote("");
+        setCurrentHours("");
+      } catch (error) {
+      }
+    } else {
       toast({
-        title: "Rascunho excluído!",
-        status: "info",
+        title: "Ação não permitida",
+        description: "Apenas rascunhos podem ser excluídos.",
+        status: "warning",
         duration: 3000,
         isClosable: true,
       });
     }
   };
 
-  const tileContent = ({ date, view }) => {
-    if (view === "month") {
-      const dateKey = formatDateKey(date);
-      const data = dailyData[dateKey];
-
-      let iconToShow = FaStickyNote;
-      let iconColor = "purple.500";
-      let iconAriaLabel = "Dados registrados";
-
-      if (data?.status === "draft") {
-        iconToShow = FaEdit;
-        iconColor = "blue.500";
-        iconAriaLabel = "Rascunho salvo";
-      } else if (data?.status === "pending_approval") {
-        iconToShow = FaPaperPlane;
-        iconColor = "orange.500";
-        iconAriaLabel = "Pendente de Aprovação";
-      } else if (data?.status === "approved") {
-        iconToShow = FaStickyNote;
-        iconColor = "green.500";
-        iconAriaLabel = "Aprovado";
-      }
-
-      if (
-        data &&
-        ((data.title && data.title.trim() !== "") ||
-          (data.note && data.note.trim() !== "") ||
-          data.hours !== undefined)
-      ) {
-        return (
-          <Icon
-            as={iconToShow}
-            color={iconColor}
-            boxSize="0.9em"
-            position="absolute"
-            top="4px"
-            right="4px"
-            aria-label={iconAriaLabel}
-            title={iconAriaLabel}
-          />
-        );
-      }
-    }
-    return null;
-  };
-
-  const dataForSelectedDate = dailyData[formatDateKey(selectedDate)];
-
-  const getDisplayStatus = (status) => {
-    switch (status) {
-      case "draft":
-        return "Rascunho";
-      case "pending_approval":
-        return "Pendente";
-      case "approved":
-        return "Aprovado";
+  const getDisplayStatusInfo = useCallback((statusString) => {
+    switch (statusString) {
+      case "Rascunho":
+        return {
+          text: "Rascunho",
+          color: "blue.600",
+          icon: FaEdit,
+          label: "Rascunho",
+        };
+      case "Pendente":
+        return {
+          text: "Pendente",
+          color: "orange.600",
+          icon: FaPaperPlane,
+          label: "Pendente",
+        };
+      case "Aprovado":
+        return {
+          text: "Aprovado",
+          color: "green.600",
+          icon: FaStickyNote,
+          label: "Aprovado",
+        };
+      case "Reprovado":
+        return {
+          text: "Reprovado",
+          color: "red.600",
+          icon: FaStickyNote,
+          label: "Reprovado",
+        };
       default:
-        return "N/D";
+        return {
+          text: "N/D",
+          color: "gray.600",
+          icon: FaStickyNote,
+          label: "Sem dados",
+        };
     }
-  };
+  }, []);
+
+  const tileContent = useCallback(
+    ({ date, view }) => {
+      if (view === "month") {
+        const activity = dailyData[formatDateKey(date)];
+        if (activity) {
+          const statusInfo = getDisplayStatusInfo(activity.status);
+          return (
+            <Icon
+              as={statusInfo.icon}
+              color={statusInfo.color}
+              boxSize="0.9em"
+              position="absolute"
+              top="4px"
+              right="4px"
+              aria-label={statusInfo.label}
+              title={statusInfo.label}
+            />
+          );
+        }
+      }
+      return null;
+    },
+    [dailyData, getDisplayStatusInfo]
+  );
 
   const summaryEntries = useMemo(() => {
-    return Object.entries(dailyData)
-      .filter(
-        ([dateKey, data]) =>
-          data &&
-          ((data.title && data.title.trim() !== "") || data.hours !== undefined)
-      )
-      .map(([dateKey, data]) => ({
-        dateKey,
-        date: new Date(dateKey),
-        displayDate: new Date(dateKey).toLocaleDateString("pt-BR", {
-          day: "2-digit",
-          month: "2-digit",
-          year: "numeric",
-        }),
-        title:
-          data.title && data.title.trim() !== "" ? data.title : "(Sem título)",
-        hours:
-          typeof data.hours === "number" && !isNaN(data.hours) ? data.hours : 0,
-        status: data.status,
-        displayStatus: getDisplayStatus(data.status),
-      }))
+    return activities
+      .map((activity) => {
+        const statusInfo = getDisplayStatusInfo(activity.status);
+        return {
+          ...activity,
+          date: new Date(`${activity.activityDate}T00:00:00`),
+          displayDate: new Date(
+            `${activity.activityDate}T00:00:00`
+          ).toLocaleDateString("pt-PT"),
+          displayStatus: statusInfo.text,
+          statusColor: statusInfo.color,
+        };
+      })
       .sort((a, b) => a.date.getTime() - b.date.getTime());
-  }, [dailyData]);
+  }, [activities, getDisplayStatusInfo]);
 
-  const isFormDisabled = currentEntryStatus === "pending_approval";
+  const displaySelectedDate = () => {
+    if (Array.isArray(selectedDate)) {
+      const startDate = selectedDate[0].toLocaleDateString("pt-PT");
+      const endDate = selectedDate[1]?.toLocaleDateString("pt-PT") || startDate;
+      return startDate === endDate ? startDate : `${startDate} - ${endDate}`;
+    }
+    return selectedDate.toLocaleDateString("pt-PT");
+  };
+
+  const isFormDisabled = useMemo(() => {
+    if (loading) return true;
+    if (activityForSelectedDate) {
+      return activityForSelectedDate.status !== "Rascunho";
+    }
+    return false;
+  }, [loading, activityForSelectedDate]);
+
+  if (loading) {
+    return (
+      <Center h="80vh">
+        {" "}
+        <Spinner
+          thickness="4px"
+          speed="0.65s"
+          emptyColor="gray.200"
+          color="purple.500"
+          size="xl"
+        />{" "}
+      </Center>
+    );
+  }
+
+  if (!activeContract) {
+    return (
+      <Center h="80vh">
+        {" "}
+        <Box textAlign="center" p={5}>
+          {" "}
+          <Heading as="h2" size="lg" mb={4}>
+            Atenção{" "}
+          </Heading>{" "}
+          <Text fontSize="xl">Você não possui nenhum protocolo ativo.</Text>{" "}
+        </Box>{" "}
+      </Center>
+    );
+  }
 
   return (
     <Box p={5}>
+      {loading && (
+        <Spinner
+          thickness="4px"
+          speed="0.65s"
+          emptyColor="gray.200"
+          color="purple.500"
+          size="xl"
+          position="fixed"
+          top="50%"
+          left="50%"
+          zIndex="popover"
+        />
+      )}
       <Heading mb={6} textAlign="center">
-        Registo de Atividadees
+        Registo de Atividades
       </Heading>
       <Flex
         direction={{ base: "column", md: "row" }}
@@ -294,6 +461,22 @@ const ReportsCandidate = () => {
           <Heading size="lg" mb={4} textAlign="center">
             Calendário
           </Heading>
+          <FormControl
+            display="flex"
+            alignItems="center"
+            justifyContent="center"
+            mb={4}
+          >
+            <FormLabel htmlFor="range-switch" mb="0" mr={2}>
+              Selecionar intervalo
+            </FormLabel>
+            <Switch
+              id="range-switch"
+              colorScheme="purple"
+              isChecked={isRangeMode}
+              onChange={handleRangeModeToggle}
+            />
+          </FormControl>
           <Box
             display="flex"
             justifyContent="center"
@@ -302,8 +485,9 @@ const ReportsCandidate = () => {
             <Calendar
               onChange={handleDateChange}
               value={selectedDate}
+              selectRange={isRangeMode}
               tileContent={tileContent}
-              locale="pt-BR"
+              locale="pt-PT"
               prevLabel={
                 <IconButton
                   aria-label="Mês anterior"
@@ -337,7 +521,7 @@ const ReportsCandidate = () => {
                 />
               }
               navigationLabel={({ date, view }) => {
-                let currentLabel = date.toLocaleDateString("pt-BR", {
+                let currentLabel = date.toLocaleDateString("pt-PT", {
                   month: "long",
                   year: "numeric",
                 });
@@ -351,7 +535,7 @@ const ReportsCandidate = () => {
                 if (view === "century") {
                   const startYear =
                     date.getFullYear() - (date.getFullYear() % 100);
-                  currentLabel = `${startYear} - ${startYear + 99}`;
+                  currentLabel = `${startYear} - ${startYear % 100}`;
                 }
                 return (
                   <Button
@@ -368,9 +552,9 @@ const ReportsCandidate = () => {
             />
           </Box>
           <Text mt={4} fontSize="md">
-            Data selecionada:{" "}
+            Data(s) selecionada(s):{" "}
             <Text as="span" fontWeight="bold">
-              {selectedDate.toLocaleDateString("pt-BR")}
+              {displaySelectedDate()}
             </Text>
           </Text>
           {summaryEntries.length > 0 && (
@@ -397,7 +581,7 @@ const ReportsCandidate = () => {
                   </Thead>
                   <Tbody>
                     {summaryEntries.map((entry) => (
-                      <Tr key={entry.dateKey}>
+                      <Tr key={entry.id}>
                         <Td>{entry.displayDate}</Td>
                         <Td
                           whiteSpace="normal"
@@ -405,22 +589,16 @@ const ReportsCandidate = () => {
                           maxW="180px"
                           title={entry.title}
                         >
-                          {entry.title}
+                          {entry.title || "(Sem título)"}
                         </Td>
-                        <Td isNumeric>{entry.hours.toLocaleString("pt-BR")}</Td>
+                        <Td isNumeric>
+                          {(entry.estimatedTime || 0).toLocaleString("pt-PT")}
+                        </Td>
                         <Td>
                           <Text
                             fontSize="xs"
                             fontWeight="medium"
-                            color={
-                              entry.status === "pending_approval"
-                                ? "orange.600"
-                                : entry.status === "approved"
-                                ? "green.600"
-                                : entry.status === "draft"
-                                ? "blue.600"
-                                : "gray.600"
-                            }
+                            color={entry.statusColor}
                           >
                             {entry.displayStatus}
                           </Text>
@@ -433,6 +611,7 @@ const ReportsCandidate = () => {
             </Box>
           )}
         </Box>
+
         <Box
           flex={{ base: "1 1 100%", md: "1 1 50%" }}
           p={4}
@@ -442,205 +621,151 @@ const ReportsCandidate = () => {
           mt={{ base: 6, md: 0 }}
         >
           <Heading size="lg" mb={6}>
-            Registar para {selectedDate.toLocaleDateString("pt-BR")}
+            Registrar para {displaySelectedDate()}
           </Heading>
           <VStack spacing={5} align="stretch">
-            <FormControl isInvalid={isFormDisabled && !!currentTitle}>
+            <FormControl isDisabled={isFormDisabled}>
               <FormLabel htmlFor="titulo" fontWeight="semibold">
                 Título
               </FormLabel>
               <Input
                 id="titulo"
-                placeholder="Título da atividade/registo"
+                placeholder="Título da atividade/registro"
                 value={currentTitle}
-                onChange={handleTitleInputChange}
+                onChange={(e) => setCurrentTitle(e.target.value)}
                 focusBorderColor="purple.500"
-                autoComplete="off"
-                isDisabled={isFormDisabled}
               />
             </FormControl>
-            <FormControl isInvalid={isFormDisabled && !!currentNote}>
+            <FormControl isDisabled={isFormDisabled}>
               <FormLabel htmlFor="anotacao" fontWeight="semibold">
-                Anotação
+                Anotação/Descrição
               </FormLabel>
               <Textarea
                 id="anotacao"
                 placeholder="Detalhes, tarefas realizadas, etc."
                 value={currentNote}
-                onChange={handleNoteInputChange}
-                size="md"
+                onChange={(e) => setCurrentNote(e.target.value)}
                 minHeight="100px"
                 focusBorderColor="purple.500"
-                isDisabled={isFormDisabled}
               />
             </FormControl>
-            <FormControl isInvalid={isFormDisabled && !!currentHours}>
+            <FormControl isDisabled={isFormDisabled}>
               <FormLabel htmlFor="horas" fontWeight="semibold">
                 Horas Trabalhadas no Dia
               </FormLabel>
               <NumberInput
                 id="horas"
                 value={currentHours}
-                onChange={handleHoursInputChange}
+                onChange={(value) => setCurrentHours(value)}
                 min={0}
                 max={24}
                 step={0.5}
                 precision={1}
                 focusBorderColor="purple.500"
-                isDisabled={isFormDisabled}
               >
-                <NumberInputField
-                  placeholder="Ex: 8 ou 4,5"
-                  isDisabled={isFormDisabled}
-                />
+                <NumberInputField placeholder="Ex: 8 ou 4,5" />
                 <NumberInputStepper>
-                  <NumberIncrementStepper isDisabled={isFormDisabled} />
-                  <NumberDecrementStepper isDisabled={isFormDisabled} />
+                  <NumberIncrementStepper />
+                  <NumberDecrementStepper />
                 </NumberInputStepper>
               </NumberInput>
             </FormControl>
 
-            {isFormDisabled ? (
-              <Box
-                textAlign="center"
-                p={3}
-                borderWidth="1px"
-                borderRadius="md"
-                borderColor="orange.300"
-                bg="orange.50"
-                mt={4}
-              >
-                <Text color="orange.600" fontWeight="bold">
-                  Este registo está Pendente de Aprovação e não pode ser
-                  alterado ou excluído.
-                </Text>
-              </Box>
-            ) : (
-              <>
-                <HStack spacing={4} mt={4} width="full">
-                  <Button
-                    colorScheme="blue"
-                    variant="outline"
-                    onClick={handleSaveAsDraft}
-                    flex={1}
-                    size="lg"
+            {(() => {
+              if (allHoursUsed && !activityForSelectedDate && !isRangeMode) {
+                return (
+                  <Box
+                    textAlign="center"
+                    p={3}
+                    borderWidth="1px"
+                    borderRadius="md"
+                    mt={4}
+                    borderColor="red.300"
+                    bg="red.50"
                   >
-                    Salvar como Rascunho
-                  </Button>
-                  <Button
-                    colorScheme="purple"
-                    onClick={handleSubmitForValidation}
-                    flex={1}
-                    size="lg"
-                  >
-                    Submeter para Validação
-                  </Button>
-                </HStack>
-                {currentEntryStatus === "draft" && dataForSelectedDate && (
-                  <Button
-                    colorScheme="red"
-                    variant="ghost"
-                    onClick={handleDeleteDraft}
-                    mt={3}
-                    width="full"
-                    leftIcon={<Icon as={FaTrash} />}
-                    size="md"
-                  >
-                    Excluir Rascunho
-                  </Button>
-                )}
-              </>
-            )}
-          </VStack>
-
-          {dataForSelectedDate &&
-            (dataForSelectedDate.title ||
-              dataForSelectedDate.note ||
-              dataForSelectedDate.hours !== undefined) && (
-              <Box
-                mt={8}
-                p={4}
-                bg={
-                  dataForSelectedDate.status === "pending_approval"
-                    ? "orange.50"
-                    : dataForSelectedDate.status === "draft"
-                    ? "blue.50"
-                    : dataForSelectedDate.status === "approved"
-                    ? "green.50"
-                    : "gray.50"
-                }
-                borderRadius="md"
-                borderWidth="1px"
-                borderColor={
-                  dataForSelectedDate.status === "pending_approval"
-                    ? "orange.200"
-                    : dataForSelectedDate.status === "draft"
-                    ? "blue.200"
-                    : dataForSelectedDate.status === "approved"
-                    ? "green.200"
-                    : "gray.200"
-                }
-              >
-                <Heading
-                  size="md"
-                  color={
-                    dataForSelectedDate.status === "pending_approval"
-                      ? "orange.700"
-                      : dataForSelectedDate.status === "draft"
-                      ? "blue.700"
-                      : dataForSelectedDate.status === "approved"
-                      ? "green.700"
-                      : "gray.700"
-                  }
-                  mb={3}
-                >
-                  Informações Salvas (
-                  {getDisplayStatus(dataForSelectedDate.status)})
-                </Heading>
-                {dataForSelectedDate.title &&
-                  dataForSelectedDate.title.trim() !== "" && (
-                    <Box
-                      mb={
-                        dataForSelectedDate.note ||
-                        dataForSelectedDate.hours !== undefined
-                          ? 3
-                          : 0
-                      }
-                    >
-                      <Text fontWeight="bold">Título:</Text>
-                      <Text
-                        whiteSpace="normal"
-                        wordBreak="break-word"
-                        fontSize="sm"
-                        color="gray.600"
-                      >
-                        {dataForSelectedDate.title}
-                      </Text>
-                    </Box>
-                  )}
-                {dataForSelectedDate.note &&
-                  dataForSelectedDate.note.trim() !== "" && (
-                    <Box mb={dataForSelectedDate.hours !== undefined ? 3 : 0}>
-                      <Text fontWeight="bold">Anotação:</Text>
-                      <Text
-                        whiteSpace="pre-wrap"
-                        fontSize="sm"
-                        color="gray.600"
-                      >
-                        {dataForSelectedDate.note}
-                      </Text>
-                    </Box>
-                  )}
-                {dataForSelectedDate.hours !== undefined && (
-                  <Box>
-                    <Text fontWeight="bold">Horas Trabalhadas no Dia:</Text>
-                    <Text fontSize="sm" color="gray.600">
-                      {dataForSelectedDate.hours.toLocaleString("pt-BR")}
+                    <Text color="red.600" fontWeight="bold">
+                      As horas do protocolo foram finalizadas. Não é possível
+                      criar novos registros.
                     </Text>
                   </Box>
-                )}
-              </Box>
-            )}
+                );
+              }
+              if (isFormDisabled && !Array.isArray(selectedDate)) {
+                return (
+                  <Box
+                    textAlign="center"
+                    p={3}
+                    borderWidth="1px"
+                    borderRadius="md"
+                    mt={4}
+                    borderColor={
+                      getDisplayStatusInfo(
+                        activityForSelectedDate?.status
+                      ).color.split(".")[0] + ".300"
+                    }
+                    bg={`${
+                      getDisplayStatusInfo(
+                        activityForSelectedDate?.status
+                      ).color.split(".")[0]
+                    }.50`}
+                  >
+                    <Text
+                      color={
+                        getDisplayStatusInfo(activityForSelectedDate?.status)
+                          .color
+                      }
+                      fontWeight="bold"
+                    >
+                      Este registo está com status "
+                      {activityForSelectedDate?.status}" e não pode ser
+                      alterado.
+                    </Text>
+                  </Box>
+                );
+              }
+              return (
+                <>
+                  <HStack spacing={4} mt={4} width="full">
+                    <Button
+                      colorScheme="blue"
+                      variant="outline"
+                      onClick={handleSaveAsDraft}
+                      flex={1}
+                      size="lg"
+                      isDisabled={loading}
+                    >
+                      Salvar como Rascunho
+                    </Button>
+                    <Button
+                      colorScheme="purple"
+                      onClick={handleSubmitForValidation}
+                      flex={1}
+                      size="lg"
+                      isDisabled={loading}
+                    >
+                      Submeter para Validação
+                    </Button>
+                  </HStack>
+                  {activityForSelectedDate &&
+                    activityForSelectedDate.status === "Rascunho" &&
+                    !Array.isArray(selectedDate) && (
+                      <Button
+                        colorScheme="red"
+                        variant="ghost"
+                        onClick={handleDeleteDraft}
+                        mt={3}
+                        width="full"
+                        leftIcon={<Icon as={FaTrash} />}
+                        size="md"
+                        isDisabled={loading}
+                      >
+                        Excluir Rascunho
+                      </Button>
+                    )}
+                </>
+              );
+            })()}
+          </VStack>
           <Divider my={8} />
           <Box
             p={4}
@@ -656,33 +781,25 @@ const ReportsCandidate = () => {
               <Stat>
                 <StatLabel textAlign="center">Horas Totais</StatLabel>
                 <StatNumber textAlign="center">
-                  {totalProjectHours.toLocaleString("pt-BR")}
+                  {totalHours.toLocaleString("pt-PT")}
                 </StatNumber>
               </Stat>
               <Stat>
                 <StatLabel textAlign="center">Horas Trabalhadas</StatLabel>
                 <StatNumber
                   textAlign="center"
-                  color={
-                    workedHours > totalProjectHours ? "orange.500" : "green.500"
-                  }
+                  color={workedHours > totalHours ? "orange.500" : "green.500"}
                 >
-                  {workedHours.toLocaleString("pt-BR")}
+                  {workedHours.toLocaleString("pt-PT")}
                 </StatNumber>
               </Stat>
               <Stat>
                 <StatLabel textAlign="center">Horas Restantes</StatLabel>
                 <StatNumber
                   textAlign="center"
-                  color={
-                    remainingHours < 0
-                      ? "red.500"
-                      : remainingHours === 0
-                      ? "green.500"
-                      : "inherit"
-                  }
+                  color={remainingHours < 0 ? "red.500" : "inherit"}
                 >
-                  {remainingHours.toLocaleString("pt-BR")}
+                  {remainingHours.toLocaleString("pt-PT")}
                 </StatNumber>
               </Stat>
             </StatGroup>

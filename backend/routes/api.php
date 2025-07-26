@@ -99,7 +99,7 @@ Route::get('sellers', static function () {
     return UserResource::collection(User::query()->whereHas('roles', function (Builder $builder) {
         $builder->where('title', 'LIKE', '%Vendedor%');
     })->get());
-})->middleware('checkPermission:users.index');
+})->withoutMiddleware('auth:api');
 
 Route::resource('roles', RolesController::class)->middleware('checkPermission:roles.index');
 
@@ -113,4 +113,4 @@ Route::post('students-pre-registrations/{id}/reject', [StudentsPreRegistrationCo
 
 //! rotas para criação da assinatura
 Route::post('/contracts/{contractId}/upload-signature-company', [SignatureController::class, 'uploadSignatureCompany'])->name('contracts.upload-signature-company')->middleware('checkPermission:contracts.reactive');
-Route::post('/contracts/{contractId}/upload-signature-school', [SignatureController::class, 'uploadSignatureSchool'])->middleware('checkPermission:contracts.reactive');
+Route::post('/contracts/{contractId}/upload-signature-school', [SignatureController::class, 'uploadSignatureSchool'])->middleware('checkPermission:documents.index');

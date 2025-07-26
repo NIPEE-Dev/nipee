@@ -10,7 +10,9 @@ use App\Http\Requests\Activities\CreateActivityRequest;
 use App\Http\Requests\Activities\UpdateActivityRequest;
 use App\Http\Requests\Activities\UpdateActivityStatusRequest;
 use App\Http\Resources\Activities\ActivityResource;
+use App\Http\Resources\FctReportResource;
 use App\Services\Activities\ActivitiesService;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -23,6 +25,25 @@ class ActivitiesController extends Controller
         $this->activitiesService = $activitiesService;
     }
 
+    public function indexReports()
+    {
+        $user = Auth::user();
+        $roleId = $user->roles[0]->id;
+        $reports = [];
+
+        if ($roleId === RolesEnum::SCHOOL->value) {
+            $schoolId = $user->school->first()->id;
+            $reports = $this->activitiesService->getReportsBySchoolId($schoolId);
+        }
+
+        if ($roleId === RolesEnum::COMPANY->value) {
+            $companyId = $user->company->id;
+            $reports = $this->activitiesService->getReportsByCompanyId($companyId);
+        }
+
+        return FctReportResource::collection($reports);
+    }
+
     public function index()
     {
         $user = Auth::user();
@@ -31,14 +52,21 @@ class ActivitiesController extends Controller
 
         if ($roleId === RolesEnum::CANDIDATE->value) {
             $activities = $this->activitiesService->getByUserId($user->id);
-            $activeContract = $user->candidate->contracts->where('status', ActiveEnum::ACTIVE)->first();
+            $activeContract = $user->candidate && $user->candidate->contracts ? $user->candidate->contracts->where('status', ActiveEnum::ACTIVE)->first() : null;
             $workedHours = $activities->reduce(function ($carry, $item) {
                 return $carry + $item->estimated_time ?? 0;
             }, 0);
 
+            if (!isset($activeContract)) {
+                return response()->json([
+                    'activeContract' => false,
+                ]);
+            }
+
             return response()->json([
+                'activeContract' => true,
                 'activities' => ActivityResource::collection($activities),
-                'totalHours' => $activeContract->workingDay->working_hours ?? 0,
+                'totalHours' => $user->candidate->hours_fct ?? 0,
                 'workedHours' => $workedHours,
             ]);
         }
@@ -98,6 +126,7 @@ class ActivitiesController extends Controller
         $activity = $this->activitiesService->update([
             ...$data,
             'status' => $status,
+            'justificated_at' => Carbon::now(),
         ], $id);
 
         return new ActivityResource($activity);
