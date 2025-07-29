@@ -12,6 +12,7 @@ use App\Traits\Common\IsAdmin;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 
 class SchoolService
@@ -19,9 +20,7 @@ class SchoolService
     use Filterable;
     use IsAdmin;
 
-    public function __construct(public WordProcessor $wordProcessor)
-    {
-    }
+    public function __construct(public WordProcessor $wordProcessor) {}
 
     public function index($criteria)
     {
@@ -35,6 +34,19 @@ class SchoolService
         $data = $this->applyCriteria(School::withTrashed()->orderBy($shouldOrderByName ? 'corporate_name' : 'id', $shouldOrderByName ? 'asc' : 'desc'), $criteria);
         $data->with(['responsible', 'documents', 'courses', 'address']);
         $user = Auth::user();
+        if (request()->has('city')) {
+            $city = request()->query('city');
+            $data->whereHas('address', function ($query) use ($city) {
+                $query->where('city', $city);
+            });
+        }
+        Log::info(request()->has('district'));
+        if (request()->has('district')) {
+            $district = request()->query('district');
+            $data->whereHas('address', function ($query) use ($district) {
+                $query->where('uf', $district);
+            });
+        }
         if ($user === null) {
             return $data->paginate(Arr::get($criteria, 'perPage', 10));
         }
@@ -50,20 +62,20 @@ class SchoolService
     }
 
     public function store($data)
-{
-    $data['status'] = 1; // Define a escola como ativa
+    {
+        $data['status'] = 1; // Define a escola como ativa
 
-    return tap(School::create($data), function (School $school) use ($data) {
-        $address = Arr::get($data, 'address');
-        $responsible = Arr::get($data, 'responsible', []);
-        $courses = Arr::get($data, 'courses', []);
+        return tap(School::create($data), function (School $school) use ($data) {
+            $address = Arr::get($data, 'address');
+            $responsible = Arr::get($data, 'responsible', []);
+            $courses = Arr::get($data, 'courses', []);
 
-        $school->contact()->create(Arr::get($data, 'contact', []));
-        $school->address()->create($address);
-        $school->responsible()->create($responsible);
-        $school->courses()->sync($courses);
+            $school->contact()->create(Arr::get($data, 'contact', []));
+            $school->address()->create($address);
+            $school->responsible()->create($responsible);
+            $school->courses()->sync($courses);
 
-        /* $generatedDocument = $this->wordProcessor->make(DocumentTypeTemplateEnum::CONTRACT_SCHOOL, [
+            /* $generatedDocument = $this->wordProcessor->make(DocumentTypeTemplateEnum::CONTRACT_SCHOOL, [
             'razaoSocial' => $school->corporate_name,
             'endereco' => $address['address'],
             'bairro' => $address['district'],
