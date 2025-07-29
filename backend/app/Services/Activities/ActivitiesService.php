@@ -148,7 +148,15 @@ class ActivitiesService
                 continue;
             }
         }
-        $name = Str::uuid() . '.docx';
+        $formattedStudentName = $data['studentName'];
+
+        if (isset($formattedStudentName) && $formattedStudentName !== '') {
+            $formattedStudentName = str_replace(' ', '_', Str::lower($formattedStudentName)) . '_' . Str::random(5);
+        } else {
+            $formattedStudentName = Str::random(5);
+        }
+
+        $name = 'Report_' . $formattedStudentName . '.docx';
         $path = storage_path('app/public/docs/' . $name);
         $template->saveAs($path);
 
