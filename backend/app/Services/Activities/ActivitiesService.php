@@ -59,7 +59,7 @@ class ActivitiesService
                     'studentPhone' => $activity->user->candidate->contact->phone ?? '',
                     'jobName' => $contract->job->role ?? '',
                     'hoursDuration' => "$availableTotalHours",
-                    'monthsDuration' => "" . $contract->start_contract_vigence->diffInMonths($contract->end_contract_vigence),
+                    'monthsDuration' => $contract->start_contract_vigence->format('d/m/Y') . ' - ' . $contract->end_contract_vigence->format('d/m/Y'),
                     'activitiesBlock' => $activities->all(),
                 ];
 
