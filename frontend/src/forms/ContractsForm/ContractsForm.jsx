@@ -10,7 +10,8 @@ import {
   Stack,
   Text,
   useToast,
-  Tooltip
+  Tooltip,
+  Checkbox,
 } from '@chakra-ui/react';
 import _isEmpty from 'lodash/isEmpty';
 import { FastField, Field, Form, Formik } from 'formik';
@@ -111,6 +112,8 @@ export const ContractsForm = ({
       initialErrors={props.initialErrors}
       initialValues={{
         ...(_isEmpty(props.initialValues) ? {} : props.initialValues),
+        company_id: props.initialValues?.id || '0',
+        has_insurance: props.initialValues?.has_insurance || false,
         retroative_billing: props.initialValues?.retroative_billing || '0',
         working_day: {
         ...props.initialValues?.working_day,
@@ -447,7 +450,7 @@ export const ContractsForm = ({
                     component={FormField.Select}
                     readOnly={readOnly}
                   >
-                     {[...Array(2).keys()].map((v) => (
+                     {[...Array(3).keys()].map((v) => (
                       <option key={v} value={v}>
                         {++v}° Ano
                       </option>
@@ -829,17 +832,49 @@ export const ContractsForm = ({
           </GroupContainer>
 
           <GroupContainer title='Dados do seguro' subtitle='Dados pertinentes ao seguro'>
-            <Stack direction={['column', 'row']} spacing='24px'>
-              <FastField
-                id='insurance_date'
-                name='insurance_date'
-                placeholder='Data do seguro'
-                component={FormField}
-                type='date'
-                readOnly={readOnly}
-                required
-              />
+            <Stack direction={['column', 'row']} spacing='24px' alignItems="center">
+              <Field name="has_insurance">
+                {({ field, form }) => (
+                  <Checkbox
+                    {...field}
+                    id="has_insurance"
+                    isChecked={field.value}
+                    onChange={(e) => {
+                      form.setFieldValue('has_insurance', e.target.checked);
+                      if (!e.target.checked) {
+                        form.setFieldValue('insurance_number', '');
+                        form.setFieldValue('insurance_date', '');
+                      }
+                    }}
+                    isReadOnly={readOnly}
+                  >
+                    Possuí seguro?
+                  </Checkbox>
+                )}
+              </Field>
             </Stack>
+
+            {formProps.values.has_insurance && (
+              <Stack direction={['column', 'row']} spacing='24px' mt={4}>
+                <FastField
+                  id='insurance_number'
+                  name='insurance_number'
+                  placeholder='Número do seguro'
+                  component={FormField}
+                  readOnly={readOnly}
+                  required={formProps.values.has_insurance}
+                />
+                <FastField
+                  id='insurance_date'
+                  name='insurance_date'
+                  placeholder='Data início do seguro'
+                  component={FormField}
+                  type='date'
+                  readOnly={readOnly}
+                  required={formProps.values.has_insurance}
+                />
+              </Stack>
+            )}
           </GroupContainer>
 
           {['edit', 'view'].includes(typeForm) && (
