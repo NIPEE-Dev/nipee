@@ -82,9 +82,23 @@ const ReportsCompany = () => {
     setLoading(true);
     try {
       const params = {};
-      if (selectedDate && Array.isArray(selectedDate) && selectedDate.length === 2) {
-        params.startDate = `${selectedDate[0].getFullYear()}-${String(selectedDate[0].getMonth() + 1).padStart(2, '0')}-${String(selectedDate[0].getDate()).padStart(2, '0')}`;
-        params.endDate = `${selectedDate[1].getFullYear()}-${String(selectedDate[1].getMonth() + 1).padStart(2, '0')}-${String(selectedDate[1].getDate()).padStart(2, '0')}`;
+      if (
+        selectedDate &&
+        Array.isArray(selectedDate) &&
+        selectedDate.length === 2
+      ) {
+        params.startDate = `${selectedDate[0].getFullYear()}-${String(
+          selectedDate[0].getMonth() + 1
+        ).padStart(2, "0")}-${String(selectedDate[0].getDate()).padStart(
+          2,
+          "0"
+        )}`;
+        params.endDate = `${selectedDate[1].getFullYear()}-${String(
+          selectedDate[1].getMonth() + 1
+        ).padStart(2, "0")}-${String(selectedDate[1].getDate()).padStart(
+          2,
+          "0"
+        )}`;
       }
       const response = await getActivities(params);
       setActivities(response.data.data || []);
@@ -206,14 +220,26 @@ const ReportsCompany = () => {
     }, {});
   }, [activities]);
 
-  const historySubmissions = useMemo(() => {
-    return activities
-      .filter((sub) => sub.status === "Aprovado" || sub.status === "Reprovado")
-      .sort(
+  const historySubmissionsGrouped = useMemo(() => {
+    const history = activities.filter(
+      (sub) => sub.status === "Aprovado" || sub.status === "Reprovado"
+    );
+    return history.reduce((acc, sub) => {
+      const studentKey = sub.candidateName;
+      if (!acc[studentKey]) {
+        acc[studentKey] = { studentName: sub.candidateName, dates: {} };
+      }
+      if (!acc[studentKey].dates[sub.activityDate]) {
+        acc[studentKey].dates[sub.activityDate] = [];
+      }
+      acc[studentKey].dates[sub.activityDate].push(sub);
+      acc[studentKey].dates[sub.activityDate].sort(
         (a, b) =>
           new Date(b.justificated_at || b.updated_at) -
           new Date(a.justificated_at || a.updated_at)
       );
+      return acc;
+    }, {});
   }, [activities]);
 
   const tileContent = useCallback(
@@ -221,7 +247,12 @@ const ReportsCompany = () => {
       if (view === "month") {
         const activity = dailyData[formatDateKey(date)];
         if (activity) {
-          const statusInfo = (activity.status);
+          const statusInfo = {
+            icon:
+              activity.status === "Aprovado" ? FaCheckCircle : FaTimesCircle,
+            color: activity.status === "Aprovado" ? "green.500" : "red.500",
+            label: activity.status,
+          };
           return (
             <Icon
               as={statusInfo.icon}
@@ -498,67 +529,150 @@ const ReportsCompany = () => {
             )}
           </TabPanel>
           <TabPanel>
-            {historySubmissions.length === 0 ? (
+            {Object.keys(historySubmissionsGrouped).length === 0 ? (
               <Text textAlign="center" p={5}>
                 Nenhuma decisão no histórico ainda.
               </Text>
             ) : (
-              <VStack spacing={4} align="stretch">
-                {historySubmissions.map((sub) => (
-                  <Box
-                    key={sub.id}
-                    p={4}
-                    shadow="md"
-                    borderWidth="1px"
-                    borderRadius="md"
-                    bg={sub.status === "Aprovado" ? "green.50" : "red.50"}
-                    borderColor={
-                      sub.status === "Aprovado" ? "green.200" : "red.200"
-                    }
-                  >
-                    <HStack justifyContent="space-between" mb={2}>
-                      <Heading size="sm">{sub.title}</Heading>
-                      <Badge
-                        colorScheme={
-                          sub.status === "Aprovado" ? "green" : "red"
-                        }
-                        fontSize="sm"
-                      >
-                        {sub.status}
-                      </Badge>
-                    </HStack>
-                    <Text fontSize="sm">
-                      <strong>Candidato:</strong> {sub.candidateName}
-                    </Text>
-                    <Text fontSize="sm">
-                      <strong>Data da Atividade:</strong>{" "}
-                      {new Date(
-                        sub.activityDate + "T00:00:00"
-                      ).toLocaleDateString("pt-BR")}
-                    </Text>
-                    <Text fontSize="sm">
-                      <strong>Horas:</strong> {sub.estimatedTime}
-                    </Text>
-                    {sub.description && (
-                      <Text fontSize="sm" noOfLines={2}>
-                        <strong>Descrição:</strong> {sub.description}
-                      </Text>
-                    )}
-                    {sub.status === "Reprovado" && sub.justification && (
-                      <Text fontSize="sm" color="red.700" mt={1}>
-                        <strong>Justificativa:</strong> {sub.justification}
-                      </Text>
-                    )}
-                    <Divider my={2} />
-                    <Text fontSize="xs" color="gray.500">
-                      Decidido em:{" "}
-                      {sub.justificated_at
-                        ? new Date(sub.justificated_at).toLocaleString("pt-BR")
-                        : "N/A"}
-                    </Text>
-                  </Box>
-                ))}
-              </VStack>
+              <Accordion
+                allowMultiple
+                defaultIndex={Object.keys(historySubmissionsGrouped).map(
+                  (_, i) => i
+                )}
+              >
+                {Object.entries(historySubmissionsGrouped).map(
+                  ([studentKey, studentData]) => (
+                    <AccordionItem
+                      key={studentKey}
+                      mb={4}
+                      borderTopWidth="1px"
+                      borderBottomWidth="1px"
+                    >
+                      <h2>
+                        <AccordionButton
+                          _expanded={{ bg: "purple.100", color: "purple.700" }}
+                        >
+                          <Box
+                            flex="1"
+                            textAlign="left"
+                            fontWeight="bold"
+                            fontSize="lg"
+                          >
+                            {studentData.studentName}
+                          </Box>
+                          <AccordionIcon />
+                        </AccordionButton>
+                      </h2>
+                      <AccordionPanel pb={4} bg="gray.50">
+                        {Object.entries(studentData.dates)
+                          .sort(
+                            ([dateA], [dateB]) =>
+                              new Date(dateB) - new Date(dateA)
+                          )
+                          .map(([date, activities]) => (
+                            <Box key={date} mb={4}>
+                              <Text
+                                fontWeight="semibold"
+                                fontSize="md"
+                                mb={2}
+                                borderBottomWidth="1px"
+                                borderColor="gray.300"
+                                pb={1}
+                              >
+                                Data:{" "}
+                                {new Date(
+                                  date + "T00:00:00"
+                                ).toLocaleDateString("pt-BR", {
+                                  weekday: "long",
+                                  day: "2-digit",
+                                  month: "long",
+                                })}
+                              </Text>
+                              <VStack spacing={3} align="stretch">
+                                {activities.map((sub) => (
+                                  <Box
+                                    key={sub.id}
+                                    p={4}
+                                    shadow="md"
+                                    borderWidth="1px"
+                                    borderRadius="md"
+                                    bg={
+                                      sub.status === "Aprovado"
+                                        ? "green.50"
+                                        : "red.50"
+                                    }
+                                    borderColor={
+                                      sub.status === "Aprovado"
+                                        ? "green.200"
+                                        : "red.200"
+                                    }
+                                  >
+                                    <HStack
+                                      justifyContent="space-between"
+                                      mb={2}
+                                    >
+                                      <Heading size="sm">{sub.title}</Heading>
+                                      <Badge
+                                        colorScheme={
+                                          sub.status === "Aprovado"
+                                            ? "green"
+                                            : "red"
+                                        }
+                                        fontSize="sm"
+                                      >
+                                        {sub.status}
+                                      </Badge>
+                                    </HStack>
+                                    <Text fontSize="sm">
+                                      <strong>Candidato:</strong>{" "}
+                                      {sub.candidateName}
+                                    </Text>
+                                    <Text fontSize="sm">
+                                      <strong>Data da Atividade:</strong>{" "}
+                                      {new Date(
+                                        sub.activityDate + "T00:00:00"
+                                      ).toLocaleDateString("pt-BR")}
+                                    </Text>
+                                    <Text fontSize="sm">
+                                      <strong>Horas:</strong>{" "}
+                                      {sub.estimatedTime}
+                                    </Text>
+                                    {sub.description && (
+                                      <Text fontSize="sm" noOfLines={2}>
+                                        <strong>Descrição:</strong>{" "}
+                                        {sub.description}
+                                      </Text>
+                                    )}
+                                    {sub.status === "Reprovado" &&
+                                      sub.justification && (
+                                        <Text
+                                          fontSize="sm"
+                                          color="red.700"
+                                          mt={1}
+                                        >
+                                          <strong>Justificativa:</strong>{" "}
+                                          {sub.justification}
+                                        </Text>
+                                      )}
+                                    <Divider my={2} />
+                                    <Text fontSize="xs" color="gray.500">
+                                      Decidido em:{" "}
+                                      {sub.justificated_at
+                                        ? new Date(
+                                            sub.justificated_at
+                                          ).toLocaleString("pt-BR")
+                                        : "N/A"}
+                                    </Text>
+                                  </Box>
+                                ))}
+                              </VStack>
+                            </Box>
+                          ))}
+                      </AccordionPanel>
+                    </AccordionItem>
+                  )
+                )}
+              </Accordion>
             )}
           </TabPanel>
           <TabPanel>
