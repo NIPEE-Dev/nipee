@@ -21,11 +21,11 @@ export const useActivities = () => {
     setSuccessMessage("");
   }, []);
 
-  const fetchActivities = useCallback(async () => {
+  const fetchActivities = useCallback(async (params) => {
     setLoading(true);
     clearMessages();
     try {
-      const response = await fetchActivitiesApi();
+      const response = await fetchActivitiesApi(params);
       if (response.data.activeContract === false) {
         setActiveContract(false);
         setActivities([]);

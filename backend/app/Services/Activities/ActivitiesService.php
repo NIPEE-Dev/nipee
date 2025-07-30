@@ -98,9 +98,23 @@ class ActivitiesService
 
     public function getByUserId($userId)
     {
-        $activities = Activity::query()->where('user_id', $userId)->get();
+        $activities = Activity::query()->where('user_id', $userId);
 
-        return $activities;
+        if (isset($filters['startDate'])) {
+            $startDate = new Carbon($filters['startDate']);
+            $activities->whereDate('activity_date', '>=', $startDate->startOfDay());
+        }
+
+        if (isset($filters['endDate'])) {
+            $endDate = new Carbon($filters['endDate']);
+            $activities->whereDate('activity_date', '<=', $endDate->endOfDay());
+        }
+
+        if (!isset($filters['startDate']) && !isset($filters['endDate'])) {
+            $activities->whereMonth('activity_date', Carbon::now()->month);
+        }
+
+        return $activities->get();
     }
 
     public function getByCompanyId($companyId, $filters)
@@ -111,16 +125,16 @@ class ActivitiesService
 
         if (isset($filters['startDate'])) {
             $startDate = new Carbon($filters['startDate']);
-            $activities->whereDate('created_at', '>=', $startDate->startOfDay());
+            $activities->whereDate('activity_date', '>=', $startDate->startOfDay());
         }
 
         if (isset($filters['endDate'])) {
             $endDate = new Carbon($filters['endDate']);
-            $activities->whereDate('created_at', '<=', $endDate->endOfDay());
+            $activities->whereDate('activity_date', '<=', $endDate->endOfDay());
         }
 
         if (!isset($filters['startDate']) && !isset($filters['endDate'])) {
-            $activities->whereMonth('created_at', Carbon::now()->month);
+            $activities->whereMonth('activity_date', Carbon::now()->month);
         }
 
         return $activities->get();
@@ -133,13 +147,17 @@ class ActivitiesService
         });
 
         if (isset($filters['startDate'])) {
+            $startDate = new Carbon($filters['startDate']);
+            $activities->whereDate('activity_date', '>=', $startDate->startOfDay());
         }
 
         if (isset($filters['endDate'])) {
+            $endDate = new Carbon($filters['endDate']);
+            $activities->whereDate('activity_date', '<=', $endDate->endOfDay());
         }
 
         if (!isset($filters['startDate']) && !isset($filters['endDate'])) {
-            $activities->whereMonth('created_at', Carbon::now()->month);
+            $activities->whereMonth('activity_date', Carbon::now()->month);
         }
 
         return $activities->get();

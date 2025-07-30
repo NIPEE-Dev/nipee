@@ -48,6 +48,10 @@ import {
   Spinner,
   Switch,
   Center,
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
+  PopoverBody,
 } from "@chakra-ui/react";
 import { useActivities } from "../../hooks/useActivities";
 
@@ -58,6 +62,7 @@ const formatDateForApi = (date) => date.toISOString().split("T")[0];
 
 const ReportsCandidate = () => {
   const [selectedDate, setSelectedDate] = useState(new Date());
+  const [filterSelectedDate, setFilterSelectedDate] = useState(null);
   const [isRangeMode, setIsRangeMode] = useState(false);
   const [currentTitle, setCurrentTitle] = useState("");
   const [currentNote, setCurrentNote] = useState("");
@@ -80,8 +85,27 @@ const ReportsCandidate = () => {
   } = useActivities();
 
   useEffect(() => {
-    fetchActivities();
-  }, [fetchActivities]);
+    const params = {};
+    if (
+      filterSelectedDate &&
+      Array.isArray(filterSelectedDate) &&
+      filterSelectedDate.length === 2
+    ) {
+      params.startDate = `${filterSelectedDate[0].getFullYear()}-${String(
+        filterSelectedDate[0].getMonth() + 1
+      ).padStart(2, "0")}-${String(filterSelectedDate[0].getDate()).padStart(
+        2,
+        "0"
+      )}`;
+      params.endDate = `${filterSelectedDate[1].getFullYear()}-${String(
+        filterSelectedDate[1].getMonth() + 1
+      ).padStart(2, "0")}-${String(filterSelectedDate[1].getDate()).padStart(
+        2,
+        "0"
+      )}`;
+    }
+    fetchActivities(params);
+  }, [fetchActivities, filterSelectedDate]);
 
   useEffect(() => {
     if (errorMessage) {
@@ -240,7 +264,26 @@ const ReportsCandidate = () => {
             duration: 4000,
             isClosable: true,
           });
-          fetchActivities();
+          const params = {};
+          if (
+            filterSelectedDate &&
+            Array.isArray(filterSelectedDate) &&
+            filterSelectedDate.length === 2
+          ) {
+            params.startDate = `${filterSelectedDate[0].getFullYear()}-${String(
+              filterSelectedDate[0].getMonth() + 1
+            ).padStart(2, "0")}-${String(filterSelectedDate[0].getDate()).padStart(
+              2,
+              "0"
+            )}`;
+            params.endDate = `${filterSelectedDate[1].getFullYear()}-${String(
+              filterSelectedDate[1].getMonth() + 1
+            ).padStart(2, "0")}-${String(filterSelectedDate[1].getDate()).padStart(
+              2,
+              "0"
+            )}`;
+          }
+          fetchActivities(params);
         }
       }
 
@@ -299,6 +342,10 @@ const ReportsCandidate = () => {
 
   const handleDateChange = (newDate) => {
     setSelectedDate(newDate);
+  };
+
+  const handleFilterDateChange = (newDate) => {
+    setFilterSelectedDate(newDate);
   };
 
   const handleRangeModeToggle = (event) => {
@@ -631,6 +678,106 @@ const ReportsCandidate = () => {
               boxShadow="sm"
               overflowX="auto"
             >
+              <Box textAlign="center" mt={4} mb={2}>
+                <Popover autoFocus={false}>
+                  <PopoverTrigger>
+                    <Button
+                      variant={"outline"}
+                      color={"#5931E9"}
+                      bg={"transparent"}
+                      borderColor="linear(to-r, #7289FF, #5931E9)"
+                      fontWeight="bold"
+                      _hover={{
+                        bgGradient: "linear(to-r, #7289FF, #5931E9)",
+                        color: "white",
+                      }}
+                    >
+                      Selecionar periodo
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent
+                    boxShadow="none"
+                    outline="none"
+                    bg="transparent"
+                    borderColor="transparent"
+                  >
+                    <PopoverBody
+                      boxShadow="none"
+                      outline="none"
+                      borderColor="transparent"
+                    >
+                      <Calendar
+                        onChange={handleFilterDateChange}
+                        value={filterSelectedDate}
+                        selectRange={true}
+                        tileContent={tileContent}
+                        locale="pt-PT"
+                        prevLabel={
+                          <IconButton
+                            aria-label="Mês anterior"
+                            icon={<FaChevronLeft />}
+                            size="sm"
+                            variant="ghost"
+                          />
+                        }
+                        nextLabel={
+                          <IconButton
+                            aria-label="Próximo mês"
+                            icon={<FaChevronRight />}
+                            size="sm"
+                            variant="ghost"
+                          />
+                        }
+                        prev2Label={
+                          <IconButton
+                            aria-label="Ano anterior"
+                            icon={<FaAngleDoubleLeft />}
+                            size="sm"
+                            variant="ghost"
+                          />
+                        }
+                        next2Label={
+                          <IconButton
+                            aria-label="Próximo ano"
+                            icon={<FaAngleDoubleRight />}
+                            size="sm"
+                            variant="ghost"
+                          />
+                        }
+                        navigationLabel={({ date, view }) => {
+                          let currentLabel = date.toLocaleDateString("pt-PT", {
+                            month: "long",
+                            year: "numeric",
+                          });
+                          if (view === "year")
+                            currentLabel = date.getFullYear().toString();
+                          if (view === "decade") {
+                            const startYear =
+                              date.getFullYear() - (date.getFullYear() % 10);
+                            currentLabel = `${startYear} - ${startYear + 9}`;
+                          }
+                          if (view === "century") {
+                            const startYear =
+                              date.getFullYear() - (date.getFullYear() % 100);
+                            currentLabel = `${startYear} - ${startYear % 100}`;
+                          }
+                          return (
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              color="purple.700"
+                              _hover={{ bg: "purple.50" }}
+                              textTransform="capitalize"
+                            >
+                              {currentLabel}
+                            </Button>
+                          );
+                        }}
+                      />
+                    </PopoverBody>
+                  </PopoverContent>
+                </Popover>
+              </Box>
               <Heading size="md" textAlign="center" mt={4} mb={2}>
                 Resumo de Atividades
               </Heading>
@@ -670,8 +817,8 @@ const ReportsCandidate = () => {
                           </Text>
                         </Td>
                         <Td>
-                        {entry.status !== "Rascunho" && (
-                          <HStack spacing={1}>
+                          {entry.status !== "Rascunho" && (
+                            <HStack spacing={1}>
                               <IconButton
                                 aria-label="Ver atividade"
                                 icon={<FaEye />}
@@ -682,7 +829,7 @@ const ReportsCandidate = () => {
                                 title="Ver atividade"
                               />
                             </HStack>
-                            )}
+                          )}
                           {entry.status === "Rascunho" && (
                             <HStack spacing={1}>
                               <IconButton
