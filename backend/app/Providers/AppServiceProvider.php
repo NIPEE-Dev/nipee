@@ -28,8 +28,8 @@ class AppServiceProvider extends ServiceProvider
         Schema::defaultStringLength(191);
 
         setlocale(LC_ALL, 'pt_BR', 'pt_BR.utf-8', 'pt_BR.utf-8', 'portuguese');
-        date_default_timezone_set('America/Sao_Paulo');
-        Carbon::setLocale($this->app->getLocale());
+        // date_default_timezone_set('America/Sao_Paulo');
+        // Carbon::setLocale($this->app->getLocale());
 
         header_remove('X-Powered-By');
         require_once __DIR__ . '/../Helpers/utils.php';

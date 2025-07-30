@@ -70,6 +70,8 @@ class ActivitiesController extends Controller
 
             return response()->json([
                 'activeContract' => true,
+                'contractStart' => $activeContract->start_contract_vigence->format('Y-m-d'),
+                'contractEnd' => $activeContract->end_contract_vigence->format('Y-m-d'),
                 'activities' => ActivityResource::collection($activities),
                 'totalHours' => $user->candidate->hours_fct ?? 0,
                 'workedHours' => $workedHours,
