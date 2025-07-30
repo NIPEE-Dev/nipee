@@ -366,9 +366,6 @@ const ReportsCompany = () => {
                 </PopoverBody>
               </PopoverContent>
             </Popover>
-            {/* <Box alignSelf={"center"}>
-              <FaCalendar />
-            </Box> */}
           </Box>
         </Box>
 
