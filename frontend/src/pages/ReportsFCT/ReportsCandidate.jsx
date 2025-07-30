@@ -83,16 +83,6 @@ const ReportsCandidate = () => {
   }, [fetchActivities]);
 
   useEffect(() => {
-    if (successMessage) {
-      toast({
-        title: "Sucesso!",
-        description: successMessage,
-        status: "success",
-        duration: 4000,
-        isClosable: true,
-      });
-      clearMessages();
-    }
     if (errorMessage) {
       toast({
         title: "Ocorreu um erro",
@@ -103,7 +93,7 @@ const ReportsCandidate = () => {
       });
       clearMessages();
     }
-  }, [successMessage, errorMessage, toast, clearMessages]);
+  }, [errorMessage, toast, clearMessages]);
 
   const dailyData = useMemo(() => {
     return activities.reduce((acc, activity) => {
@@ -134,11 +124,11 @@ const ReportsCandidate = () => {
 
     const hoursToSave = parseFloat(currentHours.replace(",", ".")) || 0;
 
-    // Add this validation check
     if (!isDraft && hoursToSave <= 0) {
       toast({
         title: "Horas Inválidas",
-        description: "Não é possível submeter uma atividade com 0 ou menos horas. Salve como rascunho se desejar.",
+        description:
+          "Não é possível submeter uma atividade com 0 ou menos horas. Salve como rascunho se desejar.",
         status: "warning",
         duration: 5000,
         isClosable: true,
@@ -158,29 +148,34 @@ const ReportsCandidate = () => {
     }
 
     const promises = [];
-    let currentDate = new Date(startDate);
     const datesProcessed = [];
     const datesExceedingLimit = [];
     const datesBlockedBecauseSubmitted = [];
     let currentWorkedHoursSum = workedHours;
 
+    let currentDate = new Date(startDate);
     while (currentDate <= endDate) {
       const dateKey = formatDateKey(currentDate);
       const existingActivity = dailyData[dateKey];
-      const canEdit = !existingActivity || existingActivity.status === "Rascunho";
+      const canEdit =
+        !existingActivity || existingActivity.status === "Rascunho";
 
       if (!canEdit) {
-        datesBlockedBecauseSubmitted.push(currentDate.toLocaleDateString("pt-PT"));
+        datesBlockedBecauseSubmitted.push(
+          currentDate.toLocaleDateString("pt-PT")
+        );
         currentDate.setDate(currentDate.getDate() + 1);
         continue;
       }
+
       let hoursForThisDate = hoursToSave;
 
       let hoursToSubtractFromWorked = 0;
       if (existingActivity) {
         hoursToSubtractFromWorked = existingActivity.estimatedTime || 0;
       }
-      const potentialNewWorkedHours = currentWorkedHoursSum - hoursToSubtractFromWorked + hoursForThisDate;
+      const potentialNewWorkedHours =
+        currentWorkedHoursSum - hoursToSubtractFromWorked + hoursForThisDate;
 
       if (potentialNewWorkedHours > totalHours) {
         datesExceedingLimit.push(currentDate.toLocaleDateString("pt-PT"));
@@ -203,53 +198,89 @@ const ReportsCandidate = () => {
       } else {
         promises.push(createNewActivity(payload));
       }
-      datesProcessed.push(currentDate);
+      datesProcessed.push(new Date(currentDate));
 
       currentDate.setDate(currentDate.getDate() + 1);
     }
 
-    if (datesExceedingLimit.length > 0) {
-      toast({
-        title: "Limite de Horas Atingido",
-        description: `Não foi possível registrar atividades para ${datesExceedingLimit.join(", ")} pois o limite total de horas do protocolo seria excedido.`,
-        status: "error",
-        duration: 7000,
-        isClosable: true,
-      });
-    }
-
-    if (datesBlockedBecauseSubmitted.length > 0) {
-      toast({
-        title: "Atenção: Atividades Já Submetidas",
-        description: `As atividades para ${datesBlockedBecauseSubmitted.join(", ")} não foram alteradas pois já foram submetidas para validação ou aprovadas.`,
-        status: "info",
-        duration: 7000,
-        isClosable: true,
-      });
-    }
-
     try {
       await Promise.all(promises);
-      if (
-        promises.length === 0 &&
-        datesExceedingLimit.length === 0 &&
-        datesBlockedBecauseSubmitted.length === 0 &&
-        (Array.isArray(selectedDate) || activityForSelectedDate?.status !== "Rascunho")
-      ) {
+      if (promises.length > 0) {
+        const actionType = isDraft ? "salvas" : "submetidas";
+        let successDescription = "";
+
+        if (datesProcessed.length === 1) {
+          successDescription = `Atividade para ${datesProcessed[0].toLocaleDateString(
+            "pt-PT"
+          )} ${actionType} com sucesso!`;
+        } else if (datesProcessed.length > 1) {
+          successDescription = `Atividades para o período selecionado (${datesProcessed.length} registros) ${actionType} com sucesso!`;
+        } else if (
+          datesProcessed.length === 0 &&
+          (datesExceedingLimit.length > 0 ||
+            datesBlockedBecauseSubmitted.length > 0)
+        ) {
+        } else {
+          toast({
+            title: "Nenhuma atividade foi alterada",
+            description:
+              "Nenhum registro foi modificado ou criado dentro do período selecionado.",
+            status: "info",
+            duration: 4000,
+            isClosable: true,
+          });
+        }
+
+        if (successDescription) {
+          toast({
+            title: "Sucesso!",
+            description: successDescription,
+            status: "success",
+            duration: 4000,
+            isClosable: true,
+          });
+          fetchActivities();
+        }
+      }
+
+      if (datesExceedingLimit.length > 0) {
         toast({
-          title: "Nenhuma atividade foi alterada",
-          description:
-            "Nenhum registro foi modificado ou criado dentro do período selecionado.",
+          title: "Limite de Horas Atingido",
+          description: `Não foi possível registrar atividades para ${datesExceedingLimit.join(
+            ", "
+          )} pois o limite total de horas do protocolo seria excedido.`,
+          status: "error",
+          duration: 7000,
+          isClosable: true,
+        });
+      }
+
+      if (datesBlockedBecauseSubmitted.length > 0) {
+        toast({
+          title: "Atenção: Atividades Já Submetidas",
+          description: `As atividades para ${datesBlockedBecauseSubmitted.join(
+            ", "
+          )} não foram alteradas pois já foram submetidas para validação ou aprovadas.`,
           status: "info",
-          duration: 4000,
+          duration: 7000,
           isClosable: true,
         });
       }
     } catch (error) {
-      // Handle error, maybe log it or show a generic error toast
+      console.error("Erro ao salvar/submeter atividades:", error);
+      toast({
+        title: "Erro inesperado",
+        description: "Ocorreu um erro ao processar as atividades.",
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+      });
     } finally {
       setSelectedDate(endDate);
       setIsRangeMode(false);
+      setCurrentTitle("");
+      setCurrentNote("");
+      setCurrentHours("");
     }
   };
 
@@ -298,7 +329,7 @@ const ReportsCandidate = () => {
         setCurrentNote("");
         setCurrentHours("");
       } catch (error) {
-        // Handle error, maybe log it or show a generic error toast
+        console.error("Erro ao excluir rascunho:", error);
       }
     } else {
       toast({
