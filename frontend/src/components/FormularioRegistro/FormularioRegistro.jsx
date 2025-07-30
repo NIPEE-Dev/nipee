@@ -40,8 +40,16 @@ const FormularioRegistro = () => {
   const [formType, setFormType] = useState("aluno");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [schools, setSchools] = useState([]);
-  const [districts] = useState(Object.keys(districtsAndCities).map((element) => ({ value: element, label: element })));
-  const [schoolLocation, setSchoolLocation] = useState({ district: null, city: null });
+  const [districts] = useState(
+    Object.keys(districtsAndCities).map((element) => ({
+      value: element,
+      label: element,
+    }))
+  );
+  const [schoolLocation, setSchoolLocation] = useState({
+    district: null,
+    city: null,
+  });
   const [records, setCourses] = useState([]);
   const [errors, setErrors] = useState({ empresa: {}, aluno: {} });
   const [recaptchaToken, setRecaptchaToken] = useState(null);
@@ -103,8 +111,16 @@ const FormularioRegistro = () => {
     }));
   };
 
-  const citiesOptions = schoolLocation.district === null ? [] : districtsAndCities[schoolLocation.district].map((element) => ({ label: element, value: element }))
-  const selectedCity = citiesOptions.find((element) => element.value === schoolLocation.city);
+  const citiesOptions =
+    schoolLocation.district === null
+      ? []
+      : districtsAndCities[schoolLocation.district].map((element) => ({
+          label: element,
+          value: element,
+        }));
+  const selectedCity = citiesOptions.find(
+    (element) => element.value === schoolLocation.city
+  );
 
   const fetchAllSchools = async () => {
     let allSchools = [];
@@ -113,7 +129,15 @@ const FormularioRegistro = () => {
 
     try {
       do {
-        const res = await api.get(`/schools`, { params: { currentPage, district: schoolLocation.district ? districtMap[schoolLocation.district] : null, city: schoolLocation.city } });
+        const res = await api.get(`/schools`, {
+          params: {
+            currentPage,
+            district: schoolLocation.district
+              ? districtMap[schoolLocation.district]
+              : null,
+            city: schoolLocation.city,
+          },
+        });
         allSchools = [...allSchools, ...res.data.data];
         lastPage = res.data.meta.last_page;
         currentPage++;
@@ -128,10 +152,10 @@ const FormularioRegistro = () => {
   useEffect(() => {
     fetchAllSchools();
   }, []);
-  
+
   useEffect(() => {
-    fetchAllSchools()
-  }, [schoolLocation])
+    fetchAllSchools();
+  }, [schoolLocation]);
 
   useEffect(() => {
     const fetchCourses = async () => {
@@ -534,14 +558,21 @@ const FormularioRegistro = () => {
                   )}
                 </FormControl>
               </Stack>
-                <div>
+
+              <Stack spacing={4} direction={{ base: "column", md: "row" }}>
+                <FormControl isRequired>
                   <FormLabel>Distrito da Escola</FormLabel>
                   <ReactSelect
                     name="district"
                     options={districts}
                     value={districts[schoolLocation.district]}
                     onChange={(option) => {
-                      if (option && option.value) setSchoolLocation((prev) => ({ ...prev, district: option.value, city: null }))
+                      if (option && option.value)
+                        setSchoolLocation((prev) => ({
+                          ...prev,
+                          district: option.value,
+                          city: null,
+                        }));
                     }}
                     placeholder="Selecione ou escreva uma opção"
                     chakraStyles={{
@@ -556,16 +587,20 @@ const FormularioRegistro = () => {
                     }}
                     isClearable
                   />
-                </div>
-                <div>
+                </FormControl>
+                <FormControl isRequired>
                   <FormLabel>Concelho da Escola</FormLabel>
                   <ReactSelect
                     name="city"
-                    isDisabled={ schoolLocation.district === null }
+                    isDisabled={schoolLocation.district === null}
                     options={citiesOptions}
-                    value={ selectedCity ?? null }
+                    value={selectedCity ?? null}
                     onChange={(option) => {
-                      if (option && option.value) setSchoolLocation((prev) => ({ ...prev, city: option.value }))
+                      if (option && option.value)
+                        setSchoolLocation((prev) => ({
+                          ...prev,
+                          city: option.value,
+                        }));
                     }}
                     placeholder="Selecione ou escreva uma opção"
                     chakraStyles={{
@@ -580,7 +615,8 @@ const FormularioRegistro = () => {
                     }}
                     isClearable
                   />
-                </div>
+                </FormControl>
+              </Stack>
               <Stack spacing={4} direction={{ base: "column", md: "row" }}>
                 <FormControl isRequired>
                   <FormLabel>Escola</FormLabel>

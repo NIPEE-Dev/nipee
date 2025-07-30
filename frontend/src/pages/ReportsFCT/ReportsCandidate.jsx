@@ -134,6 +134,18 @@ const ReportsCandidate = () => {
 
     const hoursToSave = parseFloat(currentHours.replace(",", ".")) || 0;
 
+    // Add this validation check
+    if (!isDraft && hoursToSave <= 0) {
+      toast({
+        title: "Horas Inválidas",
+        description: "Não é possível submeter uma atividade com 0 ou menos horas. Salve como rascunho se desejar.",
+        status: "warning",
+        duration: 5000,
+        isClosable: true,
+      });
+      return;
+    }
+
     if (!currentTitle && !currentNote && hoursToSave === 0) {
       toast({
         title: "Entrada Vazia",
@@ -216,7 +228,6 @@ const ReportsCandidate = () => {
       });
     }
 
-
     try {
       await Promise.all(promises);
       if (
@@ -235,6 +246,7 @@ const ReportsCandidate = () => {
         });
       }
     } catch (error) {
+      // Handle error, maybe log it or show a generic error toast
     } finally {
       setSelectedDate(endDate);
       setIsRangeMode(false);
@@ -286,6 +298,7 @@ const ReportsCandidate = () => {
         setCurrentNote("");
         setCurrentHours("");
       } catch (error) {
+        // Handle error, maybe log it or show a generic error toast
       }
     } else {
       toast({
@@ -663,7 +676,7 @@ const ReportsCandidate = () => {
                 precision={1}
                 focusBorderColor="purple.500"
               >
-                <NumberInputField placeholder="Ex: 8 ou 4,5" />
+                <NumberInputField placeholder="Ex: 8 ou 4" />
                 <NumberInputStepper>
                   <NumberIncrementStepper />
                   <NumberDecrementStepper />
