@@ -32,12 +32,36 @@ import {
   Divider,
   Spinner,
   Flex,
+  IconButton,
+  Input,
+  Popover,
+  Portal,
+  PopoverTrigger,
+  PopoverContent,
+  PopoverArrow,
+  PopoverCloseButton,
+  PopoverHeader,
+  PopoverBody,
 } from "@chakra-ui/react";
-import { FaCheckCircle, FaTimesCircle } from "react-icons/fa";
-import { getActivities, updateActivityStatus } from "../../services/activitiesService";
+import {
+  FaAngleDoubleLeft,
+  FaAngleDoubleRight,
+  FaCheckCircle,
+  FaChevronLeft,
+  FaChevronRight,
+  FaTimesCircle,
+  FaCalendar,
+} from "react-icons/fa";
+import Calendar from "react-calendar";
+import "react-calendar/dist/Calendar.css";
+import {
+  getActivities,
+  updateActivityStatus,
+} from "../../services/activitiesService";
 import ReportsSchool from "./ReportsSchool";
 
 const ReportsCompany = () => {
+  const [selectedDate, setSelectedDate] = useState(null);
   const [activities, setActivities] = useState([]);
   const [loading, setLoading] = useState(true);
   const {
@@ -49,15 +73,26 @@ const ReportsCompany = () => {
   const [reprovalReason, setReprovalReason] = useState("");
   const toast = useToast();
 
+  const handleDateChange = (newDate) => {
+    setSelectedDate(newDate);
+  };
+
   const fetchCompanyActivities = useCallback(async () => {
     setLoading(true);
     try {
-      const response = await getActivities();
+      const params = {};
+      if (selectedDate && Array.isArray(selectedDate) && selectedDate.length === 2) {
+        params.startDate = `${selectedDate[0].getFullYear()}-${String(selectedDate[0].getMonth() + 1).padStart(2, '0')}-${String(selectedDate[0].getDate()).padStart(2, '0')}`;
+        params.endDate = `${selectedDate[1].getFullYear()}-${String(selectedDate[1].getMonth() + 1).padStart(2, '0')}-${String(selectedDate[1].getDate()).padStart(2, '0')}`;
+      }
+      const response = await getActivities(params);
       setActivities(response.data.data || []);
     } catch (error) {
       toast({
         title: "Erro ao buscar atividades",
-        description: error.response?.data?.message || "Não foi possível carregar os dados.",
+        description:
+          error.response?.data?.message ||
+          "Não foi possível carregar os dados.",
         status: "error",
         duration: 5000,
         isClosable: true,
@@ -65,21 +100,31 @@ const ReportsCompany = () => {
     } finally {
       setLoading(false);
     }
-  }, [toast]);
+  }, [toast, selectedDate]);
 
   useEffect(() => {
     fetchCompanyActivities();
-  }, [fetchCompanyActivities]);
+  }, [fetchCompanyActivities, selectedDate]);
 
   const handleApprove = async (submissionId) => {
     setLoading(true);
     const payload = { approved: true };
     try {
       await updateActivityStatus(submissionId, payload);
-      toast({ title: "Atividade Aprovada!", status: "success", duration: 3000, isClosable: true });
-      fetchCompanyActivities(); 
+      toast({
+        title: "Atividade Aprovada!",
+        status: "success",
+        duration: 3000,
+        isClosable: true,
+      });
+      fetchCompanyActivities();
     } catch (error) {
-      toast({ title: "Erro ao aprovar", status: "error", duration: 3000, isClosable: true });
+      toast({
+        title: "Erro ao aprovar",
+        status: "error",
+        duration: 3000,
+        isClosable: true,
+      });
     } finally {
       setLoading(false);
     }
@@ -109,11 +154,21 @@ const ReportsCompany = () => {
     };
     try {
       await updateActivityStatus(currentSubmission.id, payload);
-      toast({ title: "Atividade Reprovada!", status: "warning", duration: 3000, isClosable: true });
+      toast({
+        title: "Atividade Reprovada!",
+        status: "warning",
+        duration: 3000,
+        isClosable: true,
+      });
       fetchCompanyActivities();
       onReproveModalClose();
-    } catch(error) {
-      toast({ title: "Erro ao reprovar", status: "error", duration: 3000, isClosable: true });
+    } catch (error) {
+      toast({
+        title: "Erro ao reprovar",
+        status: "error",
+        duration: 3000,
+        isClosable: true,
+      });
     } finally {
       setLoading(false);
     }
@@ -134,19 +189,61 @@ const ReportsCompany = () => {
     }, {});
   }, [activities]);
 
+  const formatDateKey = (date) =>
+    new Date(
+      date.getFullYear(),
+      date.getMonth(),
+      date.getDate()
+    ).toDateString();
+
+  const dailyData = useMemo(() => {
+    return activities.reduce((acc, activity) => {
+      const activityDate = new Date(`${activity.activityDate}T00:00:00`);
+      const dateKey = formatDateKey(activityDate);
+      acc[dateKey] = activity;
+      return acc;
+    }, {});
+  }, [activities]);
+
   const historySubmissions = useMemo(() => {
     return activities
       .filter((sub) => sub.status === "Aprovado" || sub.status === "Reprovado")
       .sort(
         (a, b) =>
-          new Date(b.justificated_at || b.updated_at) - new Date(a.justificated_at || a.updated_at)
+          new Date(b.justificated_at || b.updated_at) -
+          new Date(a.justificated_at || a.updated_at)
       );
   }, [activities]);
+
+  const tileContent = useCallback(
+    ({ date, view }) => {
+      if (view === "month") {
+        const activity = dailyData[formatDateKey(date)];
+        if (activity) {
+          const statusInfo = getDisplayStatusInfo(activity.status);
+          return (
+            <Icon
+              as={statusInfo.icon}
+              color={statusInfo.color}
+              boxSize="0.9em"
+              position="absolute"
+              top="4px"
+              right="4px"
+              aria-label={statusInfo.label}
+              title={statusInfo.label}
+            />
+          );
+        }
+      }
+      return null;
+    },
+    [dailyData]
+  );
 
   if (loading && activities.length === 0) {
     return (
       <Flex justify="center" align="center" height="50vh">
-        <Spinner size="xl" color="purple.500"/>
+        <Spinner size="xl" color="purple.500" />
       </Flex>
     );
   }
@@ -162,6 +259,118 @@ const ReportsCompany = () => {
           <Tab>Histórico de Decisões</Tab>
           <Tab>Relatórios Enviados</Tab>
         </TabList>
+
+        <Box
+          display={"flex"}
+          position={"relative"}
+          flexDirection={"column"}
+          justifyContent={"center"}
+        >
+          <Box display={"flex"} justifyContent={"center"} flexDirection={"row"}>
+            <Popover autoFocus={false}>
+              <PopoverTrigger>
+                <Button
+                  variant={"outline"}
+                  color={"#5931E9"}
+                  bg={"transparent"}
+                  borderColor="linear(to-r, #7289FF, #5931E9)"
+                  fontWeight="bold"
+                  _hover={{
+                    bgGradient: "linear(to-r, #7289FF, #5931E9)",
+                    color: "white",
+                  }}
+                >
+                  Selecionar periodo
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent
+                boxShadow="none"
+                outline="none"
+                bg="transparent"
+                borderColor="transparent"
+              >
+                <PopoverBody
+                  boxShadow="none"
+                  outline="none"
+                  borderColor="transparent"
+                >
+                  <Calendar
+                    onChange={handleDateChange}
+                    value={selectedDate}
+                    selectRange={true}
+                    tileContent={tileContent}
+                    locale="pt-PT"
+                    prevLabel={
+                      <IconButton
+                        aria-label="Mês anterior"
+                        icon={<FaChevronLeft />}
+                        size="sm"
+                        variant="ghost"
+                      />
+                    }
+                    nextLabel={
+                      <IconButton
+                        aria-label="Próximo mês"
+                        icon={<FaChevronRight />}
+                        size="sm"
+                        variant="ghost"
+                      />
+                    }
+                    prev2Label={
+                      <IconButton
+                        aria-label="Ano anterior"
+                        icon={<FaAngleDoubleLeft />}
+                        size="sm"
+                        variant="ghost"
+                      />
+                    }
+                    next2Label={
+                      <IconButton
+                        aria-label="Próximo ano"
+                        icon={<FaAngleDoubleRight />}
+                        size="sm"
+                        variant="ghost"
+                      />
+                    }
+                    navigationLabel={({ date, view }) => {
+                      let currentLabel = date.toLocaleDateString("pt-PT", {
+                        month: "long",
+                        year: "numeric",
+                      });
+                      if (view === "year")
+                        currentLabel = date.getFullYear().toString();
+                      if (view === "decade") {
+                        const startYear =
+                          date.getFullYear() - (date.getFullYear() % 10);
+                        currentLabel = `${startYear} - ${startYear + 9}`;
+                      }
+                      if (view === "century") {
+                        const startYear =
+                          date.getFullYear() - (date.getFullYear() % 100);
+                        currentLabel = `${startYear} - ${startYear % 100}`;
+                      }
+                      return (
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          color="purple.700"
+                          _hover={{ bg: "purple.50" }}
+                          textTransform="capitalize"
+                        >
+                          {currentLabel}
+                        </Button>
+                      );
+                    }}
+                  />
+                </PopoverBody>
+              </PopoverContent>
+            </Popover>
+            {/* <Box alignSelf={"center"}>
+              <FaCalendar />
+            </Box> */}
+          </Box>
+        </Box>
+
         <TabPanels>
           <TabPanel>
             {Object.keys(pendingSubmissionsGrouped).length === 0 ? (
@@ -322,9 +531,9 @@ const ReportsCompany = () => {
                     </Text>
                     <Text fontSize="sm">
                       <strong>Data da Atividade:</strong>{" "}
-                      {new Date(sub.activityDate + "T00:00:00").toLocaleDateString(
-                        "pt-BR"
-                      )}
+                      {new Date(
+                        sub.activityDate + "T00:00:00"
+                      ).toLocaleDateString("pt-BR")}
                     </Text>
                     <Text fontSize="sm">
                       <strong>Horas:</strong> {sub.estimatedTime}
@@ -336,8 +545,7 @@ const ReportsCompany = () => {
                     )}
                     {sub.status === "Reprovado" && sub.justification && (
                       <Text fontSize="sm" color="red.700" mt={1}>
-                        <strong>Justificativa:</strong>{" "}
-                        {sub.justification}
+                        <strong>Justificativa:</strong> {sub.justification}
                       </Text>
                     )}
                     <Divider my={2} />
@@ -353,7 +561,7 @@ const ReportsCompany = () => {
             )}
           </TabPanel>
           <TabPanel>
-            <ReportsSchool/>
+            <ReportsSchool />
           </TabPanel>
         </TabPanels>
       </Tabs>
@@ -383,7 +591,11 @@ const ReportsCompany = () => {
             <Button variant="ghost" mr={3} onClick={onReproveModalClose}>
               Cancelar
             </Button>
-            <Button colorScheme="red" onClick={submitReproval} isLoading={loading}>
+            <Button
+              colorScheme="red"
+              onClick={submitReproval}
+              isLoading={loading}
+            >
               Confirmar Reprovação
             </Button>
           </ModalFooter>
