@@ -11,6 +11,7 @@ import {
   FaTrash,
   FaEdit,
   FaPaperPlane,
+  FaEye,
 } from "react-icons/fa";
 import {
   Box,
@@ -177,7 +178,7 @@ const ReportsCandidate = () => {
       const potentialNewWorkedHours =
         currentWorkedHoursSum - hoursToSubtractFromWorked + hoursForThisDate;
 
-      if (potentialNewWorkedHours > totalHours) {
+      if (!isDraft && potentialNewWorkedHours > totalHours) {
         datesExceedingLimit.push(currentDate.toLocaleDateString("pt-PT"));
         currentDate.setDate(currentDate.getDate() + 1);
         continue;
@@ -317,19 +318,31 @@ const ReportsCandidate = () => {
     saveOrSubmitEntry(true);
   };
 
-  const handleDeleteDraft = async () => {
-    if (
-      activityForSelectedDate &&
-      activityForSelectedDate.id &&
-      activityForSelectedDate.status === "Rascunho"
-    ) {
+  const handleDeleteActivity = async (activityId, activityStatus) => {
+    if (activityStatus === "Rascunho") {
       try {
-        await deleteActivity(activityForSelectedDate.id);
-        setCurrentTitle("");
-        setCurrentNote("");
-        setCurrentHours("");
+        await deleteActivity(activityId);
+        if (activityForSelectedDate?.id === activityId) {
+          setCurrentTitle("");
+          setCurrentNote("");
+          setCurrentHours("");
+        }
+        toast({
+          title: "Rascunho excluído",
+          description: "O rascunho foi excluído com sucesso.",
+          status: "success",
+          duration: 3000,
+          isClosable: true,
+        });
       } catch (error) {
         console.error("Erro ao excluir rascunho:", error);
+        toast({
+          title: "Erro",
+          description: "Não foi possível excluir o rascunho.",
+          status: "error",
+          duration: 3000,
+          isClosable: true,
+        });
       }
     } else {
       toast({
@@ -340,6 +353,14 @@ const ReportsCandidate = () => {
         isClosable: true,
       });
     }
+  };
+
+  const handleEditDraft = (activity) => {
+    setSelectedDate(new Date(`${activity.activityDate}T00:00:00`));
+    setIsRangeMode(false);
+    setCurrentTitle(activity.title || "");
+    setCurrentNote(activity.description || "");
+    setCurrentHours(activity.estimatedTime?.toString() || "");
   };
 
   const getDisplayStatusInfo = useCallback((statusString) => {
@@ -441,7 +462,7 @@ const ReportsCandidate = () => {
     return false;
   }, [loading, activityForSelectedDate]);
 
-  if (loading) {
+  if (loading && !activities.length) {
     return (
       <Center h="80vh">
         {" "}
@@ -473,7 +494,7 @@ const ReportsCandidate = () => {
 
   return (
     <Box p={5}>
-      {loading && (
+      {loading && activities.length > 0 && (
         <Spinner
           thickness="4px"
           speed="0.65s"
@@ -621,6 +642,7 @@ const ReportsCandidate = () => {
                       <Th>Título</Th>
                       <Th isNumeric>Horas</Th>
                       <Th>Status</Th>
+                      <Th>Ações</Th>
                     </Tr>
                   </Thead>
                   <Tbody>
@@ -646,6 +668,43 @@ const ReportsCandidate = () => {
                           >
                             {entry.displayStatus}
                           </Text>
+                        </Td>
+                        <Td>
+                          <HStack spacing={1}>
+                              <IconButton
+                                aria-label="Ver atividade"
+                                icon={<FaEye />}
+                                size="sm"
+                                variant="ghost"
+                                colorScheme="blue"
+                                onClick={() => handleEditDraft(entry)}
+                                title="Ver atividade"
+                              />
+                            </HStack>
+                          {entry.status === "Rascunho" && (
+                            <HStack spacing={1}>
+                              <IconButton
+                                aria-label="Editar rascunho"
+                                icon={<FaEdit />}
+                                size="sm"
+                                variant="ghost"
+                                colorScheme="blue"
+                                onClick={() => handleEditDraft(entry)}
+                                title="Editar Rascunho"
+                              />
+                              <IconButton
+                                aria-label="Apagar rascunho"
+                                icon={<FaTrash />}
+                                size="sm"
+                                variant="ghost"
+                                colorScheme="red"
+                                onClick={() =>
+                                  handleDeleteActivity(entry.id, entry.status)
+                                }
+                                title="Apagar Rascunho"
+                              />
+                            </HStack>
+                          )}
                         </Td>
                       </Tr>
                     ))}
@@ -796,7 +855,12 @@ const ReportsCandidate = () => {
                       <Button
                         colorScheme="red"
                         variant="ghost"
-                        onClick={handleDeleteDraft}
+                        onClick={() =>
+                          handleDeleteActivity(
+                            activityForSelectedDate.id,
+                            activityForSelectedDate.status
+                          )
+                        }
                         mt={3}
                         width="full"
                         leftIcon={<Icon as={FaTrash} />}
