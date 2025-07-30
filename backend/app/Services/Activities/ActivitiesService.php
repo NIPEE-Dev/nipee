@@ -103,22 +103,46 @@ class ActivitiesService
         return $activities;
     }
 
-    public function getByCompanyId($companyId)
+    public function getByCompanyId($companyId, $filters)
     {
         $activities = Activity::query()->where('status', '!=', ActivityStatusEnum::DRAFT->value)->whereHas('user.candidate.contracts', function ($query) use ($companyId) {
             $query->where('company_id', $companyId);
-        })->get();
+        });
 
-        return $activities;
+        if (isset($filters['startDate'])) {
+            $startDate = new Carbon($filters['startDate']);
+            $activities->whereDate('created_at', '>=', $startDate->startOfDay());
+        }
+
+        if (isset($filters['endDate'])) {
+            $endDate = new Carbon($filters['endDate']);
+            $activities->whereDate('created_at', '<=', $endDate->endOfDay());
+        }
+
+        if (!isset($filters['startDate']) && !isset($filters['endDate'])) {
+            $activities->whereMonth('created_at', Carbon::now()->month);
+        }
+
+        return $activities->get();
     }
 
-    public function getBySchoolId($schoolId)
+    public function getBySchoolId($schoolId, $filters)
     {
         $activities = Activity::query()->where('status', '!=', ActivityStatusEnum::DRAFT->value)->whereHas('user.candidate.contracts', function ($query) use ($schoolId) {
             $query->where('school_id', $schoolId);
-        })->get();
+        });
 
-        return $activities;
+        if (isset($filters['startDate'])) {
+        }
+
+        if (isset($filters['endDate'])) {
+        }
+
+        if (!isset($filters['startDate']) && !isset($filters['endDate'])) {
+            $activities->whereMonth('created_at', Carbon::now()->month);
+        }
+
+        return $activities->get();
     }
 
     public function getReportsBySchoolId($schoolId)

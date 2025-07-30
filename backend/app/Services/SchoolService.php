@@ -40,7 +40,6 @@ class SchoolService
                 $query->where('city', $city);
             });
         }
-        Log::info(request()->has('district'));
         if (request()->has('district')) {
             $district = request()->query('district');
             $data->whereHas('address', function ($query) use ($district) {

@@ -1,7 +1,7 @@
 import api from '../api';
 
-export const getActivities = async () => {
-  return await api.get('/activities');
+export const getActivities = async (params) => {
+  return await api.get('/activities', { params });
 };
 
 export const createActivity = async (payload) => {

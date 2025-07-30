@@ -15,6 +15,7 @@ use App\Services\Activities\ActivitiesService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Validator;
 
 class ActivitiesController extends Controller
 {
@@ -49,6 +50,10 @@ class ActivitiesController extends Controller
         $user = Auth::user();
         $roleId = $user->roles[0]->id;
         $activities = [];
+        $filters = Validator::make(request()->all(), [
+            'startDate' => 'date|date_format:Y-m-d',
+            'endDate' => 'date|date_format:Y-m-d',
+        ])->validate();
 
         if ($roleId === RolesEnum::CANDIDATE->value) {
             $activities = $this->activitiesService->getByUserId($user->id);
@@ -72,14 +77,14 @@ class ActivitiesController extends Controller
         }
 
         if ($roleId === RolesEnum::SCHOOL->value) {
-            $activities = $this->activitiesService->getBySchoolId($user->id);
+            $activities = $this->activitiesService->getBySchoolId($user->id, $filters);
 
             return ActivityResource::collection($activities);
         }
 
         if ($roleId === RolesEnum::COMPANY->value) {
             $companyId = $user->company->id;
-            $activities = $this->activitiesService->getByCompanyId($companyId);
+            $activities = $this->activitiesService->getByCompanyId($companyId, $filters);
 
             return ActivityResource::collection($activities);
         }
