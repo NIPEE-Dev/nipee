@@ -670,6 +670,7 @@ const ReportsCandidate = () => {
                           </Text>
                         </Td>
                         <Td>
+                        {entry.status !== "Rascunho" && (
                           <HStack spacing={1}>
                               <IconButton
                                 aria-label="Ver atividade"
@@ -681,6 +682,7 @@ const ReportsCandidate = () => {
                                 title="Ver atividade"
                               />
                             </HStack>
+                            )}
                           {entry.status === "Rascunho" && (
                             <HStack spacing={1}>
                               <IconButton
