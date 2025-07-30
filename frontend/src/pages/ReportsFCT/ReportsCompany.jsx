@@ -42,6 +42,7 @@ import {
   PopoverCloseButton,
   PopoverHeader,
   PopoverBody,
+  Icon,
 } from "@chakra-ui/react";
 import {
   FaAngleDoubleLeft,
@@ -220,7 +221,7 @@ const ReportsCompany = () => {
       if (view === "month") {
         const activity = dailyData[formatDateKey(date)];
         if (activity) {
-          const statusInfo = getDisplayStatusInfo(activity.status);
+          const statusInfo = (activity.status);
           return (
             <Icon
               as={statusInfo.icon}
