@@ -43,6 +43,7 @@ import {
   PopoverHeader,
   PopoverBody,
   Icon,
+  Checkbox,
 } from "@chakra-ui/react";
 import {
   FaAngleDoubleLeft,
@@ -65,6 +66,8 @@ const ReportsCompany = () => {
   const [selectedDate, setSelectedDate] = useState(null);
   const [activities, setActivities] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [selectedActivitiesByStudent, setSelectedActivitiesByStudent] =
+    useState({});
   const {
     isOpen: isReproveModalOpen,
     onOpen: onReproveModalOpen,
@@ -121,6 +124,36 @@ const ReportsCompany = () => {
     fetchCompanyActivities();
   }, [fetchCompanyActivities, selectedDate]);
 
+  const handleToggleActivitySelection = useCallback(
+    (studentKey, activityId) => {
+      setSelectedActivitiesByStudent((prev) => {
+        const newSelected = new Set(prev[studentKey] || []);
+        if (newSelected.has(activityId)) {
+          newSelected.delete(activityId);
+        } else {
+          newSelected.add(activityId);
+        }
+        return { ...prev, [studentKey]: newSelected };
+      });
+    },
+    []
+  );
+
+  const handleToggleSelectAllForStudent = useCallback(
+    (studentKey, activitiesForStudent, isChecked) => {
+      setSelectedActivitiesByStudent((prev) => {
+        const newSelected = new Set();
+        if (isChecked) {
+          activitiesForStudent.forEach((activity) =>
+            newSelected.add(activity.id)
+          );
+        }
+        return { ...prev, [studentKey]: newSelected };
+      });
+    },
+    []
+  );
+
   const handleApprove = async (submissionId) => {
     setLoading(true);
     const payload = { approved: true };
@@ -151,6 +184,85 @@ const ReportsCompany = () => {
     onReproveModalOpen();
   };
 
+  const handleBulkApprove = async (studentKey) => {
+    const activitiesToApprove = Array.from(
+      selectedActivitiesByStudent[studentKey] || []
+    );
+    if (activitiesToApprove.length === 0) {
+      toast({
+        title: "Nenhuma atividade selecionada",
+        description: "Por favor, selecione as atividades para aprovar.",
+        status: "info",
+        duration: 3000,
+        isClosable: true,
+      });
+      return;
+    }
+
+    setLoading(true);
+    let successCount = 0;
+    let errorCount = 0;
+
+    for (const activityId of activitiesToApprove) {
+      try {
+        await updateActivityStatus(activityId, { approved: true });
+        successCount++;
+      } catch (error) {
+        console.error(`Erro ao aprovar atividade ${activityId}:`, error);
+        errorCount++;
+      }
+    }
+
+    setLoading(false);
+    if (successCount > 0) {
+      toast({
+        title: `${successCount} atividade(s) aprovada(s)!`,
+        status: "success",
+        duration: 3000,
+        isClosable: true,
+      });
+    }
+    if (errorCount > 0) {
+      toast({
+        title: `${errorCount} atividade(s) com erro ao aprovar.`,
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+      });
+    }
+
+    setSelectedActivitiesByStudent((prev) => {
+      const newSelected = { ...prev };
+      delete newSelected[studentKey];
+      return newSelected;
+    });
+    fetchCompanyActivities();
+  };
+
+  const openBulkReproveModal = (studentKey) => {
+    const activitiesToReprove = Array.from(
+      selectedActivitiesByStudent[studentKey] || []
+    );
+    if (activitiesToReprove.length === 0) {
+      toast({
+        title: "Nenhuma atividade selecionada",
+        description: "Por favor, selecione as atividades para reprovar.",
+        status: "info",
+        duration: 3000,
+        isClosable: true,
+      });
+      return;
+    }
+
+    setCurrentSubmission({
+      isBulk: true,
+      studentKey: studentKey,
+      ids: activitiesToReprove,
+    });
+    setReprovalReason("");
+    onReproveModalOpen();
+  };
+
   const submitReproval = async () => {
     if (!reprovalReason.trim()) {
       toast({
@@ -162,31 +274,54 @@ const ReportsCompany = () => {
       });
       return;
     }
+
     setLoading(true);
-    const payload = {
-      approved: false,
-      justification: reprovalReason,
-    };
-    try {
-      await updateActivityStatus(currentSubmission.id, payload);
+    let successCount = 0;
+    let errorCount = 0;
+
+    const activitiesToProcess = currentSubmission.isBulk
+      ? currentSubmission.ids
+      : [currentSubmission.id];
+
+    for (const activityId of activitiesToProcess) {
+      try {
+        await updateActivityStatus(activityId, {
+          approved: false,
+          justification: reprovalReason,
+        });
+        successCount++;
+      } catch (error) {
+        console.error(`Erro ao reprovar atividade ${activityId}:`, error);
+        errorCount++;
+      }
+    }
+
+    setLoading(false);
+    if (successCount > 0) {
       toast({
-        title: "Atividade Reprovada!",
+        title: `${successCount} atividade(s) reprovada(s)!`,
         status: "warning",
         duration: 3000,
         isClosable: true,
       });
-      fetchCompanyActivities();
-      onReproveModalClose();
-    } catch (error) {
+    }
+    if (errorCount > 0) {
       toast({
-        title: "Erro ao reprovar",
+        title: `${errorCount} atividade(s) com erro ao reprovar.`,
         status: "error",
-        duration: 3000,
+        duration: 5000,
         isClosable: true,
       });
-    } finally {
-      setLoading(false);
     }
+    if (currentSubmission.isBulk) {
+      setSelectedActivitiesByStudent((prev) => {
+        const newSelected = { ...prev };
+        delete newSelected[currentSubmission.studentKey];
+        return newSelected;
+      });
+    }
+    fetchCompanyActivities();
+    onReproveModalClose();
   };
 
   const pendingSubmissionsGrouped = useMemo(() => {
@@ -194,12 +329,17 @@ const ReportsCompany = () => {
     return pending.reduce((acc, sub) => {
       const studentKey = sub.candidateName;
       if (!acc[studentKey]) {
-        acc[studentKey] = { studentName: sub.candidateName, dates: {} };
+        acc[studentKey] = {
+          studentName: sub.candidateName,
+          dates: {},
+          allActivities: [],
+        };
       }
       if (!acc[studentKey].dates[sub.activityDate]) {
         acc[studentKey].dates[sub.activityDate] = [];
       }
       acc[studentKey].dates[sub.activityDate].push(sub);
+      acc[studentKey].allActivities.push(sub);
       return acc;
     }, {});
   }, [activities]);
@@ -414,113 +554,203 @@ const ReportsCompany = () => {
                 )}
               >
                 {Object.entries(pendingSubmissionsGrouped).map(
-                  ([studentKey, studentData]) => (
-                    <AccordionItem
-                      key={studentKey}
-                      mb={4}
-                      borderTopWidth="1px"
-                      borderBottomWidth="1px"
-                    >
-                      <h2>
-                        <AccordionButton
-                          _expanded={{ bg: "purple.100", color: "purple.700" }}
-                        >
-                          <Box
-                            flex="1"
-                            textAlign="left"
-                            fontWeight="bold"
-                            fontSize="lg"
+                  ([studentKey, studentData]) => {
+                    const allActivitiesForStudent = studentData.allActivities;
+                    const selectedCount =
+                      selectedActivitiesByStudent[studentKey]?.size || 0;
+                    const isAllSelected =
+                      selectedCount === allActivitiesForStudent.length &&
+                      allActivitiesForStudent.length > 0;
+                    const isIndeterminate =
+                      selectedCount > 0 &&
+                      selectedCount < allActivitiesForStudent.length;
+
+                    return (
+                      <AccordionItem
+                        key={studentKey}
+                        mb={4}
+                        borderTopWidth="1px"
+                        borderBottomWidth="1px"
+                      >
+                        <h2>
+                          <AccordionButton
+                            _expanded={{
+                              bg: "purple.100",
+                              color: "purple.700",
+                            }}
                           >
-                            {studentData.studentName}
-                          </Box>
-                          <AccordionIcon />
-                        </AccordionButton>
-                      </h2>
-                      <AccordionPanel pb={4} bg="gray.50">
-                        {Object.entries(studentData.dates)
-                          .sort(
-                            ([dateA], [dateB]) =>
-                              new Date(dateA) - new Date(dateB)
-                          )
-                          .map(([date, activities]) => (
-                            <Box key={date} mb={4}>
-                              <Text
-                                fontWeight="semibold"
-                                fontSize="md"
-                                mb={2}
-                                borderBottomWidth="1px"
-                                borderColor="gray.300"
-                                pb={1}
+                            <HStack flex="1" justifyContent="space-between">
+                              <Checkbox
+                                isChecked={isAllSelected}
+                                isIndeterminate={isIndeterminate}
+                                onChange={(e) =>
+                                  handleToggleSelectAllForStudent(
+                                    studentKey,
+                                    allActivitiesForStudent,
+                                    e.target.checked
+                                  )
+                                }
+                                mr={2}
                               >
-                                Data:{" "}
-                                {new Date(
-                                  date + "T00:00:00"
-                                ).toLocaleDateString("pt-BR", {
-                                  weekday: "long",
-                                  day: "2-digit",
-                                  month: "long",
-                                })}
-                              </Text>
-                              <VStack spacing={3} align="stretch">
-                                {activities.map((activity) => (
-                                  <Box
-                                    key={activity.id}
-                                    p={3}
-                                    shadow="sm"
-                                    borderWidth="1px"
-                                    borderRadius="md"
-                                    bg="white"
-                                  >
-                                    <Heading size="sm" mb={1}>
-                                      {activity.title}
-                                    </Heading>
-                                    <Text
-                                      fontSize="sm"
-                                      color="gray.600"
-                                      noOfLines={2}
-                                      mb={1}
+                                <Box
+                                  flex="1"
+                                  textAlign="left"
+                                  fontWeight="bold"
+                                  fontSize="lg"
+                                >
+                                  {studentData.studentName}
+                                </Box>
+                              </Checkbox>
+                              <AccordionIcon />
+                            </HStack>
+                          </AccordionButton>
+                        </h2>
+                        <AccordionPanel pb={4} bg="gray.50">
+                          {Object.entries(studentData.dates)
+                            .sort(
+                              ([dateA], [dateB]) =>
+                                new Date(dateA) - new Date(dateB)
+                            )
+                            .map(([date, activities]) => (
+                              <Box key={date} mb={4}>
+                                <Text
+                                  fontWeight="semibold"
+                                  fontSize="md"
+                                  mb={2}
+                                  borderBottomWidth="1px"
+                                  borderColor="gray.300"
+                                  pb={1}
+                                >
+                                  Data:{" "}
+                                  {new Date(
+                                    date + "T00:00:00"
+                                  ).toLocaleDateString("pt-BR", {
+                                    weekday: "long",
+                                    day: "2-digit",
+                                    month: "long",
+                                  })}
+                                </Text>
+                                <VStack spacing={3} align="stretch">
+                                  {activities.map((activity) => (
+                                    <Box
+                                      key={activity.id}
+                                      p={3}
+                                      shadow="sm"
+                                      borderWidth="1px"
+                                      borderRadius="md"
+                                      bg="white"
                                     >
-                                      Descrição: {activity.description || "N/A"}
-                                    </Text>
-                                    <Text fontSize="sm" color="gray.600" mb={2}>
-                                      Horas: {activity.estimatedTime}
-                                    </Text>
-                                    <HStack
-                                      justifyContent="flex-end"
-                                      spacing={3}
-                                    >
-                                      <Button
-                                        size="sm"
-                                        colorScheme="red"
-                                        variant="outline"
-                                        onClick={() =>
-                                          openReproveModal(activity)
-                                        }
-                                        leftIcon={<FaTimesCircle />}
-                                        isDisabled={loading}
+                                      <HStack
+                                        justifyContent="space-between"
+                                        alignItems="flex-start"
                                       >
-                                        Reprovar
-                                      </Button>
-                                      <Button
-                                        size="sm"
-                                        colorScheme="green"
-                                        onClick={() =>
-                                          handleApprove(activity.id)
-                                        }
-                                        leftIcon={<FaCheckCircle />}
-                                        isDisabled={loading}
+                                        <Checkbox
+                                          isChecked={
+                                            selectedActivitiesByStudent[
+                                              studentKey
+                                            ]?.has(activity.id) || false
+                                          }
+                                          onChange={() =>
+                                            handleToggleActivitySelection(
+                                              studentKey,
+                                              activity.id
+                                            )
+                                          }
+                                          mr={2}
+                                        >
+                                          <Heading size="sm" mb={1}>
+                                            {activity.title}
+                                          </Heading>
+                                        </Checkbox>
+                                        <HStack spacing={3}>
+                                          <Button
+                                            size="sm"
+                                            colorScheme="red"
+                                            variant="outline"
+                                            onClick={() =>
+                                              openReproveModal(activity)
+                                            }
+                                            leftIcon={<FaTimesCircle />}
+                                            isDisabled={
+                                              loading ||
+                                              selectedActivitiesByStudent[
+                                                studentKey
+                                              ]?.has(activity.id) ||
+                                              false
+                                            }
+                                          >
+                                            Reprovar
+                                          </Button>
+                                          <Button
+                                            size="sm"
+                                            colorScheme="green"
+                                            onClick={() =>
+                                              handleApprove(activity.id)
+                                            }
+                                            leftIcon={<FaCheckCircle />}
+                                            isDisabled={
+                                              loading ||
+                                              selectedActivitiesByStudent[
+                                                studentKey
+                                              ]?.has(activity.id) ||
+                                              false
+                                            }
+                                          >
+                                            Aprovar
+                                          </Button>
+                                        </HStack>
+                                      </HStack>
+                                      <Text
+                                        fontSize="sm"
+                                        color="gray.600"
+                                        noOfLines={2}
+                                        mb={1}
                                       >
-                                        Aprovar
-                                      </Button>
-                                    </HStack>
-                                  </Box>
-                                ))}
-                              </VStack>
-                            </Box>
-                          ))}
-                      </AccordionPanel>
-                    </AccordionItem>
-                  )
+                                        Descrição:{" "}
+                                        {activity.description || "N/A"}
+                                      </Text>
+                                      <Text
+                                        fontSize="sm"
+                                        color="gray.600"
+                                        mb={2}
+                                      >
+                                        Horas: {activity.estimatedTime}
+                                      </Text>
+                                    </Box>
+                                  ))}
+                                </VStack>
+                              </Box>
+                            ))}
+                          <HStack mt={4} justifyContent="flex-end" spacing={3}>
+                            <Button
+                              size="sm"
+                              colorScheme="red"
+                              onClick={() => openBulkReproveModal(studentKey)}
+                              isDisabled={
+                                !selectedActivitiesByStudent[studentKey]
+                                  ?.size || loading
+                              }
+                              leftIcon={<FaTimesCircle />}
+                            >
+                              Reprovar Selecionados
+                            </Button>
+                            <Button
+                              size="sm"
+                              colorScheme="green"
+                              onClick={() => handleBulkApprove(studentKey)}
+                              isDisabled={
+                                !selectedActivitiesByStudent[studentKey]
+                                  ?.size || loading
+                              }
+                              leftIcon={<FaCheckCircle />}
+                            >
+                              Aprovar Selecionados
+                            </Button>
+                          </HStack>
+                        </AccordionPanel>
+                      </AccordionItem>
+                    );
+                  }
                 )}
               </Accordion>
             )}
@@ -685,7 +915,10 @@ const ReportsCompany = () => {
         <ModalOverlay />
         <ModalContent>
           <ModalHeader>
-            Reprovar Atividade: {currentSubmission?.title}
+            Reprovar Atividade
+            {currentSubmission?.isBulk
+              ? "s selecionadas"
+              : `: ${currentSubmission?.title}`}
           </ModalHeader>
           <ModalCloseButton />
           <ModalBody>
