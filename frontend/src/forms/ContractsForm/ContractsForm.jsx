@@ -826,7 +826,7 @@ export const ContractsForm = ({
                     }}
                     isDisabled={readOnly}
                   >
-                    Deseja subir um contrato manual?
+                    Deseja subir um protocolo manual?
                   </Checkbox>
                 )}
               </Field>
@@ -834,7 +834,7 @@ export const ContractsForm = ({
 
             {formProps.values.manual_contract_upload && (
               <Box mt={4}>
-                <Text mb={2}>Anexar contrato manual:</Text>
+                <Text mb={2}>Anexar protocolo manual:</Text>
                 <input
                   type="file"
                   id="manual_contract_file"
