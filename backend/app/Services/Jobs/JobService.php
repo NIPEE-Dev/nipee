@@ -5,28 +5,35 @@ namespace App\Services\Jobs;
 use App\Beans\MailTask;
 use App\Enums\CandidateStatusEnum;
 use App\Enums\Document\DocumentTypeTemplateEnum;
+use App\Enums\JobStatusEnum;
+use App\Enums\RolesEnum;
 use App\Jobs\SendMail;
 use App\Mail\CandidateCalledMail;
 use App\Models\Candidate;
 use App\Models\Jobs\Job;
+use App\Models\Users\User;
 use App\Services\Documents\WordProcessor;
 use App\Traits\Common\Filterable;
 use Carbon\Carbon;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 
 class JobService
 {
     use Filterable;
 
-    public function __construct(public WordProcessor $wordProcessor)
-    {
-    }
+    public function __construct(public WordProcessor $wordProcessor) {}
 
     public function index($criteria)
     {
         $builder = Job::query()->with(['workingDay', 'company.address', 'role']);
+        $user = Auth::user();
+        $roleId = $user->roles[0]->id;
+        if ($roleId === RolesEnum::CANDIDATE->value) {
+            $builder->where('status', JobStatusEnum::OPEN->value);
+        }
 
         if (!isset($criteria['withoutTrashed'])) {
             $builder->withTrashed();
@@ -46,6 +53,7 @@ class JobService
     public function store($data)
     {
         return tap(Job::create($data), function (Job $job) use ($data) {
+            $job->courses()->sync($data['courses']);
             $job->workingDay()->create(Arr::get($data, 'working_day'));
 
             return $job->load(['workingDay', 'company', 'documents']);
@@ -58,6 +66,9 @@ class JobService
 
         if ($workingData = Arr::get($data, 'working_day')) {
             $job->workingDay()->update($workingData);
+        }
+        if (isset($data['courses'])) {
+            $job->courses()->sync($data['courses']);
         }
 
         return $job->load(['workingDay', 'company.address', 'documents']);
@@ -108,53 +119,23 @@ class JobService
                 ]
             );
 
-            if ($status === CandidateStatusEnum::FORWARDED->value) {
-                $dateTime = Carbon::parse($interviewDate . ' ' . $interviewHour);
-                $company = $job->company;
-                $companyAddress = $company->address;
-
-                $generatedDocument = $this->wordProcessor->make(DocumentTypeTemplateEnum::FORWARDED, [
-                    'nomeCandidato' => $candidate->name,
-                    'nomeEmpresa' => $company->fantasy_name,
-                    'nomeEmpresa2' => $company->corporate_name,
-                    'enderecoEmpresa' => $companyAddress->address,
-                    'numeroEmpresa' => $companyAddress->district,
-                    'bairroEmpresa' => $companyAddress->number,
-                    'cidadeEmpresa' => $companyAddress->city,
-                    'estadoEmpresa' => strtoupper($companyAddress->uf),
-                    'complemento' => $companyAddress->complement,
-
-                    'horarioEntrevista' => $dateTime->format("H:i"),
-                    'dataEntrevista' => $dateTime->format("d/m/Y"),
-
-                    'supervisor' => $company->supervisor,
-                    'telefoneEmpresa' => $company->contact->phone,
-                    'observacao' => $candidate->candidate_observations,
-                    'funcao' => $job->role->title,
-                    'data' => now()->translatedFormat("d \\d\\e F \\d\\e Y"),
-                    'supervisor2' => $company->supervisor,
-                    'nomeCandidato2' => $candidate->name,
-                    'cpf' => $candidate->cpf,
-                    'funcao2' => $job->role->title,
-                    'bolsa' => $job->scholarship_value,
-                    'jornada' => journeyText($job->workingDay),
-                ]);
-
-                $fileData = [
-                    'filename' => $generatedDocument['randomName'],
-                    'original_filename' => $generatedDocument['filename'],
-                    'file_extension' => 'docx',
-                    'filesize' => $generatedDocument['filesize'],
-                    'type' => 'Carta de encaminhamento',
-                ];
-
-                $job->documents()->create($fileData);
-            }
-
             return $job->history()->create([
                 'candidate_id' => $candidate->id,
                 'status' => $status !== null ? $status : -1
             ]);
         });
+    }
+
+    public function apply(Job $job, User $user)
+    {
+        $roleId = $user->roles[0]->id;
+        if ($roleId !== RolesEnum::CANDIDATE->value) {
+            throw new HttpException(400, 'Somente candidatos podem se candidatar em vagas');
+        }
+
+        $alreadyApplied = $job->candidates->where('id', $user->candidate->id)->first();
+        if ($alreadyApplied) throw new HttpException(400, 'Você já se candidatou nessa vaga');
+
+        $job->candidates()->attach($user->candidate);
     }
 }

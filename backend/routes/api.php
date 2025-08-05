@@ -74,6 +74,7 @@ Route::prefix('base-records')->group(function () {
 Route::post('jobs/candidates/call', [JobController::class, 'callCandidates'])->middleware('checkPermission:jobs.index');
 Route::put('jobs/candidates/update-status', [JobController::class, 'updateStatus'])->middleware('checkPermission:jobs.index');
 Route::apiResource('jobs', JobController::class)->middleware('checkPermission:jobs.index')->withTrashed(['destroy']);
+Route::post('jobs/{job}/apply', [JobController::class, 'apply'])->middleware('checkPermission:jobs.index');
 
 Route::get('contracts/job/{job}/candidate/{candidate}', [ContractController::class, 'loadContractData'])->middleware('checkPermission:contracts.index');
 Route::delete('contracts/{contract}', [ContractController::class, 'destroy'])->middleware('checkPermission:contracts.end')->withTrashed();

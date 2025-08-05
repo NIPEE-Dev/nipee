@@ -5,13 +5,20 @@ namespace App\Http\Resources\Jobs;
 use App\Enums\BooleanEnum;
 use App\Enums\GenderEnum;
 use App\Enums\PeriodEnum;
+use App\Enums\RolesEnum;
 use App\Http\Resources\Companies\CompanyResource;
+use App\Http\Resources\JobCandidateResource;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Facades\Auth;
 
 class JobResource extends JsonResource
 {
     public function toArray($request)
     {
+        $user = Auth::user();
+        $roleId = $user->roles[0]->id;
+        // dd($this->candidates);
+
         return [
             'id' => $this->id,
             'company_id' => $this->company_id,
@@ -35,8 +42,17 @@ class JobResource extends JsonResource
             'description' => $this->description,
             'company' => new CompanyResource($this->whenLoaded('company')),
             'working_day' => new JobWorkingDayResource($this->whenLoaded('workingDay')),
-            'role' => new JobWorkingDayResource($this->whenLoaded('role')),
+            'role' => $this->role,
             'documents' => $this->whenLoaded('documents'),
+            'available_candidatures' => $this->when($roleId === RolesEnum::CANDIDATE->value, $this->available - count($this->candidates)),
+            'competences' => $this->competences,
+            'location' => $this->location,
+            'fct_hours' => $this->fct_hours,
+            'start_at' => $this->start_at,
+            'end_at' => $this->end_at,
+            'company' => $this->when($roleId === RolesEnum::CANDIDATE->value, $this->company->corporate_name),
+            'already_applied' => $this->when($roleId === RolesEnum::CANDIDATE->value, $this->candidates->where('id', $user->candidate->id ?? null)->first() !== null),
+            'candidates' => $this->when($roleId === RolesEnum::COMPANY->value, JobCandidateResource::collection($this->candidates)),
         ];
     }
 }

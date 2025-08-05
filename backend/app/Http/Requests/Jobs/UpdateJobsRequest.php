@@ -15,8 +15,20 @@ class UpdateJobsRequest extends FormRequest
     public function rules()
     {
         return [
+
             'company_id' => 'sometimes|exists:companies,id',
-            'role_id' => 'sometimes|numeric',
+
+            'fct_hours' => ['required_if:type,EF', 'integer'],
+            'draft' => ['boolean'],
+            'role' => ['sometimes', 'string'],
+            'courses' => ['sometimes', 'array', 'min:1'],
+            'courses.*' => ['sometimes', 'integer'],
+            'competences' => ['sometimes', 'string', 'max:1000'],
+            'start_at' => ['sometimes', 'date', 'date_format:Y-m-d'],
+            'end_at' => ['sometimes', 'date', 'date_format:Y-m-d'],
+            'location' => ['sometimes', 'string'],
+
+            // 'role_id' => 'sometimes|numeric',
             'period' => 'sometimes|in:N,T,M,MN',
             'gender' => 'sometimes|in:F,M,FM',
 

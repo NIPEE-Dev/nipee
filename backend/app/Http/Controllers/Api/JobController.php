@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Enums\JobStatusEnum;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\FilterRequest;
 use App\Http\Requests\Jobs\StoreJobsRequest;
@@ -9,16 +10,16 @@ use App\Http\Requests\Jobs\UpdateJobsRequest;
 use App\Http\Resources\Jobs\JobResource;
 use App\Models\Candidate;
 use App\Models\Jobs\Job;
+use App\Models\Users\User;
 use App\Services\Jobs\JobService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Support\Facades\Auth;
 
 class JobController extends Controller
 {
-    public function __construct(public JobService $jobService)
-    {
-    }
+    public function __construct(public JobService $jobService) {}
 
     /**
      * Display a listing of the resource.
@@ -61,7 +62,11 @@ class JobController extends Controller
      */
     public function update(UpdateJobsRequest $request, Job $job)
     {
-        $updated = $this->jobService->update($job, $request->all());
+        $data = $request->all();
+        $updated = $this->jobService->update($job, [
+            ...$data,
+            'status' => isset($data['draft']) && $data['draft'] === true ? JobStatusEnum::DRAFT : JobStatusEnum::OPEN,
+        ]);
         return new JobResource($updated);
     }
 
@@ -83,6 +88,15 @@ class JobController extends Controller
         $candidates = $request->post('candidates');
 
         $this->jobService->callCandidates($jobs, $candidates);
+    }
+
+    public function apply(Request $request, Job $job)
+    {
+        /** @var User */
+        $user = Auth::user();
+        $this->jobService->apply($job, $user);
+
+        return response()->json(['message' => 'Candidatura enviada com sucesso'], 201);
     }
 
     public function updateStatus(Request $request)
