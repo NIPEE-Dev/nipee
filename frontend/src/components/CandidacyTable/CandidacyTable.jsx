@@ -118,8 +118,6 @@ const CandidacyTable = ({
         return 'green';
       case 'Reprovado':
         return 'red';
-      case 'Em Análise':
-        return 'blue';
       default:
         return 'gray';
     }

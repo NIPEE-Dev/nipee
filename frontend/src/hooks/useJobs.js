@@ -1,0 +1,80 @@
+import { useState, useCallback } from "react";
+import { getJobs as fetchJobApi, getJobDetail as fetchJobDetailApi, applyToJob as applyToJobApi } from "../services/jobService";
+
+export const useJobs = () => {
+  const [jobs, setJobs] = useState([]);
+  const [jobDetail, setJobDetail] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
+
+  const clearMessages = useCallback(() => {
+    setErrorMessage("");
+    setSuccessMessage("");
+  }, []);
+
+  const fetchJobs = useCallback(async () => {
+    setLoading(true);
+    setJobs([]);
+    clearMessages();
+    try {
+      const response = await fetchJobApi();
+      setJobs(response.data.data || []);
+    } catch (err) {
+      setErrorMessage(
+        err.response?.data?.message || "Erro ao buscar vagas"
+      );
+    } finally {
+      setLoading(false);
+    }
+  }, [clearMessages]);
+
+  const fetchJobDetail = useCallback(async (id) => {
+    setLoading(true);
+    setJobDetail(null);
+    clearMessages();
+    try {
+      const response = await fetchJobDetailApi(id);
+      setJobDetail(response.data.data || null);
+    } catch (err) {
+      setErrorMessage(
+        err.response?.data?.message || "Erro ao buscar detalhes da vaga"
+      );
+    } finally {
+      setLoading(false);
+    }
+  }, [clearMessages]);
+
+  const applyForJob = useCallback(async (jobId) => {
+    setLoading(true);
+    clearMessages();
+    try {
+      await applyToJobApi(jobId);
+      if (jobDetail && jobDetail.id == jobId) {
+        setJobDetail(prev => ({
+          ...prev,
+          already_applied: true
+        }));
+      }
+      setSuccessMessage("Candidatura enviada com sucesso!");
+    } catch (err) {
+      setErrorMessage(
+        err.response?.data?.message || "Erro ao se candidatar à vaga."
+      );
+    } finally {
+      setLoading(false);
+    }
+  }, [clearMessages, jobDetail]);
+
+  return {
+    jobs,
+    jobDetail,
+    loading,
+    errorMessage,
+    successMessage,
+    fetchJobs,
+    fetchJobDetail,
+    applyForJob,
+    clearMessages,
+  };
+};

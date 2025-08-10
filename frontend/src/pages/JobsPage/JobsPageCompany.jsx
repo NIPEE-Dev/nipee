@@ -23,7 +23,7 @@ import RowAction from '../../components/Filters/RowAction';
 import CalledCandidates from '../../components/ViewCandidates/CalledCandidates';
 import { citiesFilters } from '../../utils/filterHelpers';
 import { RiDraftFill } from 'react-icons/ri';
-import { FaBan, FaCheck, FaUndo } from 'react-icons/fa';
+import { FaBan, FaCheck, FaUndo, FaTimes, FaUsers, FaQuestion } from 'react-icons/fa';
 import { ModalConfirm } from '../../components/WithModal/ModalConfirm';
 import { GoKebabVertical } from 'react-icons/go';
 import { dateFormatter } from '../../utils/visualization';
@@ -80,38 +80,45 @@ const JobsPageCompany = () => {
       }}
       columns={[
         {
-          id: 'deleted_at',
+          id: 'status',
           Header: 'Status',
           accessor: (originalRow) => {
-            const types = [
-              <Tag variant='subtle' colorScheme='orange'>
-                <TagLeftIcon boxSize='12px' as={RiDraftFill} />
-                <TagLabel>Desativada</TagLabel>
-              </Tag>,
-              <Tag variant='subtle' colorScheme='green'>
-                <TagLeftIcon boxSize='12px' as={FaCheck} />
-                <TagLabel>Ativa</TagLabel>
-              </Tag>
-            ];
+            const statusMap = {
+              0: { label: 'Rascunho', color: 'orange', icon: RiDraftFill },
+              1: { label: 'Aberta', color: 'green', icon: FaCheck },
+              2: { label: 'Fechada/Encerrada', color: 'red', icon: FaTimes },
+              3: { label: 'Vagas Ocupadas', color: 'purple', icon: FaUsers }
+            };
 
-            return types[originalRow.deleted_at === null ? 1 : 0];
+            const { label, color, icon } = statusMap[originalRow.status] || {
+              label: 'Desconhecido',
+              color: 'gray',
+              icon: FaQuestion
+            };
+
+            return (
+              <Tag variant='subtle' colorScheme={color}>
+                <TagLeftIcon boxSize='12px' as={icon} />
+                <TagLabel>{label}</TagLabel>
+              </Tag>
+            );
           }
         },
         {
           Header: 'Candidaturas',
-          accessor: 'id'
+          accessor: 'available'
         },
         {
           Header: 'Nome fantasia empresa',
-          accessor: 'company.fantasy_name'
+          accessor: 'fantasy_name'
         },
         {
           Header: 'Razão social empresa',
-          accessor: 'company.corporate_name'
+          accessor: 'corporate_name'
         },
         {
           Header: 'Função',
-          accessor: 'role.title'
+          accessor: 'role'
         },
         {
           Header: 'Sexo',
@@ -121,7 +128,7 @@ const JobsPageCompany = () => {
           Header: 'Na web',
           accessor: 'show_web_title'
         },
-        {
+        /* {
           Header: 'Endereço da empresa',
           accessor: (originalRow) => {
             const company = originalRow.company || {};
@@ -131,7 +138,7 @@ const JobsPageCompany = () => {
               ? `${address.address}, ${address.number || 'S/N'}, ${address.city || 'Cidade não informada'} - ${address.district || 'Bairro não informado'}`
               : 'Endereço não disponível';
           }
-        },
+        }, */
         {
           Header: 'Período',
           accessor: 'period_title'

@@ -80,13 +80,18 @@ export const JobsForm = ({ readOnly, typeForm, isLoading, ...props }) => {
     <Formik
       enableReinitialize
       initialErrors={props.initialErrors}
-      initialValues={props.initialValues}
+       initialValues={{
+    ...props.initialValues,
+    has_scholarship: props.initialValues?.has_scholarship ?? '1'
+  }}
       onSubmit={(values) => props.onSubmit(values)}
     >
       {({ values, isSubmitting, setFieldValue }) => (
         <Form>
-          {['edit', 'view'].includes(typeForm) && props.initialValues?.id && (
-            <Box py={3} textAlign='right'>
+          {['edit', 'view'].includes(typeForm) &&
+            props.initialValues?.id &&
+            props.initialValues?.status === 1 && (
+              <Box py={3} textAlign='right'>
                 <Button
                   mt='3'
                   colorScheme='red'
@@ -96,7 +101,7 @@ export const JobsForm = ({ readOnly, typeForm, isLoading, ...props }) => {
                   Encerrar vaga
                 </Button>
               </Box>
-          )}
+            )}
           <GroupContainer
             title='Dados da vaga'
             subtitle='Informações pertinentes à empresa e à vaga'
@@ -130,8 +135,8 @@ export const JobsForm = ({ readOnly, typeForm, isLoading, ...props }) => {
 
             <Stack direction={['column', 'row']} spacing='24px'>
               <FastField
-                id='function'
-                name='function'
+                id='role'
+                name='role'
                 disabled={canEdit === false}
                 placeholder='Função'
                 component={FormField}
@@ -171,8 +176,8 @@ export const JobsForm = ({ readOnly, typeForm, isLoading, ...props }) => {
 
             <Stack direction={['column', 'row']} spacing='24px'>
               <FastField
-                id='required_skills'
-                name='required_skills'
+                id='competences'
+                name='competences'
                 placeholder='Competências requeridas'
                 as={Textarea}
                 component={FormField.Textarea}
@@ -199,8 +204,8 @@ export const JobsForm = ({ readOnly, typeForm, isLoading, ...props }) => {
 
             <Stack direction={['column', 'row']} spacing='24px'>
               <FastField
-                id='start_date'
-                name='start_date'
+                id='start_at'
+                name='start_at'
                 placeholder='Data de Início'
                 component={FormField}
                 type='date'
@@ -209,8 +214,8 @@ export const JobsForm = ({ readOnly, typeForm, isLoading, ...props }) => {
                 required
               />
               <FastField
-                id='end_date'
-                name='end_date'
+                id='end_at'
+                name='end_at'
                 placeholder='Data de Fim'
                 component={FormField}
                 type='date'
