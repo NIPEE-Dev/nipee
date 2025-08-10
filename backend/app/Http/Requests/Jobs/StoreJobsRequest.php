@@ -30,8 +30,8 @@ class StoreJobsRequest extends FormRequest
             'transport_voucher_value' => 'exclude_if:transport_voucher,0',
             'transport_voucher_nominal_value' => ['exclude_if:transport_voucher,0', 'string', 'max:255'],
 
-            'scholarship_value' => 'required',
-            'scholarship_nominal_value' => ['required', 'string', 'max:255'],
+            'scholarship_value' => 'string',
+            'scholarship_nominal_value' => ['string', 'max:255'],
             'available' => 'required|numeric',
             'type' => 'required|in:ES,EF',
             'fct_hours' => ['required_if:type,EF', 'integer'],
