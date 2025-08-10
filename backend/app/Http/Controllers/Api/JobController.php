@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\FilterRequest;
 use App\Http\Requests\Jobs\StoreJobsRequest;
 use App\Http\Requests\Jobs\UpdateJobsRequest;
+use App\Http\Requests\UpdateJobStatusRequest;
 use App\Http\Resources\Jobs\JobResource;
 use App\Models\Candidate;
 use App\Models\Jobs\Job;
@@ -109,5 +110,12 @@ class JobController extends Controller
         $interviewHour = $request->get('hour');
 
         return response()->json(['updated' => $this->jobService->updateStatus($job, $candidate, $status, $interviewDate, $interviewHour)]);
+    }
+
+    public function updateJobStatus(UpdateJobStatusRequest $request, Job $job)
+    {
+        $data = $request->validated();
+        $updated = $this->jobService->updateJobStatus($job, $data['status']);
+        return new JobResource($updated);
     }
 }

@@ -138,4 +138,12 @@ class JobService
 
         $job->candidates()->attach($user->candidate);
     }
+
+    public function updateJobStatus(Job $job, $status)
+    {
+        $job->status = $status;
+        $job->save();
+
+        return $job->load(['workingDay', 'company.address', 'documents']);
+    }
 }

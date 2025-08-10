@@ -50,6 +50,7 @@ class JobResource extends JsonResource
             'fct_hours' => $this->fct_hours,
             'start_at' => $this->start_at,
             'end_at' => $this->end_at,
+            'status' => $this->status,
             'company' => $this->when($roleId === RolesEnum::CANDIDATE->value, $this->company->corporate_name),
             'already_applied' => $this->when($roleId === RolesEnum::CANDIDATE->value, $this->candidates->where('id', $user->candidate->id ?? null)->first() !== null),
             'candidates' => $this->when($roleId === RolesEnum::COMPANY->value, JobCandidateResource::collection($this->candidates)),
