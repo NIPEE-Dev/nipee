@@ -159,12 +159,12 @@ const JobsPageCompany = () => {
           header: 'ID'
         }, */
         {
-          field: 'fantasy_name',
+          field: 'company.fantasy_name',
           relation: 'company',
           header: 'Nome fantasia empresa'
         },
         {
-          field: 'corporate_name',
+          field: 'company.corporate_name',
           relation: 'company',
           header: 'Razao social empresa'
         },
