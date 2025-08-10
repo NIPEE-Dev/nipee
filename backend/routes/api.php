@@ -71,6 +71,7 @@ Route::prefix('base-records')->group(function () {
     Route::delete('/{baseRecord}', [BaseRecordsController::class, 'destroy'])->middleware('checkPermission:base-records.index');
 });
 
+Route::get('jobs/history', [JobController::class, 'jobsHistory'])->middleware('checkPermission:jobs.index');
 Route::post('jobs/candidates/call', [JobController::class, 'callCandidates'])->middleware('checkPermission:jobs.index');
 Route::put('jobs/candidates/update-status', [JobController::class, 'updateStatus'])->middleware('checkPermission:jobs.index');
 Route::apiResource('jobs', JobController::class)->middleware('checkPermission:jobs.index')->withTrashed(['destroy']);

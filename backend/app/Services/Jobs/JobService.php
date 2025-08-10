@@ -15,6 +15,7 @@ use App\Models\Users\User;
 use App\Services\Documents\WordProcessor;
 use App\Traits\Common\Filterable;
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -145,5 +146,14 @@ class JobService
         $job->save();
 
         return $job->load(['workingDay', 'company.address', 'documents']);
+    }
+
+    public function getHistory($candidateId)
+    {
+        $jobs = Job::query()->whereHas('candidates', function (Builder $q) use ($candidateId) {
+            $q->where('candidate_id', $candidateId);
+        })->paginate(10);
+
+        return $jobs;
     }
 }
