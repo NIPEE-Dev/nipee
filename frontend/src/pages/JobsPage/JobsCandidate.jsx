@@ -54,7 +54,13 @@ const JobsCandidate = () => {
   const accentColor = "purple.500";
 
   useEffect(() => {
-    fetchJobs();
+    let isMounted = true;
+    if (isMounted) {
+      fetchJobs();
+    }
+    return () => {
+      isMounted = false;
+    };
   }, [fetchJobs]);
 
   useEffect(() => {
@@ -157,7 +163,7 @@ const JobsCandidate = () => {
 
                         <Flex align="center" fontSize="sm" color="gray.600">
                           <Icon as={FaBuilding} mr={2} />
-                          <Text fontWeight="semibold">{job.fantasy_name || job.company}</Text>
+                          <Text fontWeight="semibold">{job.company?.corporate_name || job.company?.fantasy_name}</Text>
                         </Flex>
 
                         <Flex align="center" fontSize="sm" color="gray.600">
