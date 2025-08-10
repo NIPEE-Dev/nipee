@@ -12,3 +12,6 @@ export const applyToJob = async (jobId) => {
   return await api.post(`/jobs/${jobId}/apply`);
 };
 
+export const getJobsHistory = async () => {
+  return await api.get('/jobs/history');
+};

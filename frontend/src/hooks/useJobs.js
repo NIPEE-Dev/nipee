@@ -1,9 +1,15 @@
 import { useState, useCallback } from "react";
-import { getJobs as fetchJobApi, getJobDetail as fetchJobDetailApi, applyToJob as applyToJobApi } from "../services/jobService";
+import { 
+  getJobs as fetchJobApi,
+  getJobDetail as fetchJobDetailApi, 
+  applyToJob as applyToJobApi,
+  getJobsHistory as getHistoryApi,
+} from "../services/jobService";
 
 export const useJobs = () => {
   const [jobs, setJobs] = useState([]);
   const [jobDetail, setJobDetail] = useState(null);
+  const [myApplications, setMyApplications] = useState([]);
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
@@ -66,15 +72,33 @@ export const useJobs = () => {
     }
   }, [clearMessages, jobDetail]);
 
+  const getHistory = useCallback(async () => {
+    setLoading(true);
+    setMyApplications([]);
+    clearMessages();
+    try {
+      const response = await getHistoryApi();
+      setMyApplications(response.data.data || []);
+    } catch (err) {
+      setErrorMessage(
+        err.response?.data?.message || "Erro ao carregar candidaturas."
+      );
+    } finally {
+      setLoading(false);
+    }
+  }, [clearMessages]);
+
   return {
     jobs,
     jobDetail,
+    myApplications,
     loading,
     errorMessage,
     successMessage,
     fetchJobs,
     fetchJobDetail,
     applyForJob,
+    getHistory,
     clearMessages,
   };
 };

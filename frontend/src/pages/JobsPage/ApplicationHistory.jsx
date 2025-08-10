@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import {
   Box,
   Container,
@@ -15,105 +15,13 @@ import {
   Button,
   useColorModeValue,
   useToast,
+  Spinner,
 } from '@chakra-ui/react';
 import { useNavigate } from 'react-router-dom';
-
-const mockJobs = [
-  {
-    id: '1',
-    company_name: 'Tech Solutions S.A.',
-    function: 'Desenvolvedor Frontend Sênior',
-    description: 'Buscamos um desenvolvedor frontend experiente em React, com foco em performance e usabilidade.',
-    isPublished: true,
-    requiredProfile: 'Ensino Superior em TI',
-    maxApplications: 5,
-    currentApplications: 2,
-    status: 'Open',
-    location: 'Lisboa, Portugal',
-    period: 'M',
-    type: 'ES',
-    has_scholarship: '1',
-    scholarship_value: 800.00,
-    meal_voucher: 7.50,
-  },
-  {
-    id: '2',
-    company_name: 'Data Insights Ltda.',
-    function: 'Analista de Dados Júnior',
-    description: 'Oportunidade para quem busca iniciar carreira em análise de dados, com SQL e Python.',
-    isPublished: true,
-    requiredProfile: 'Ensino Superior em Estatística/Matemática',
-    maxApplications: 3,
-    currentApplications: 3,
-    status: 'Encerrada',
-    location: 'Porto, Portugal',
-    period: 'T',
-    type: 'EF',
-    has_scholarship: '1',
-    scholarship_value: 600.00,
-    meal_voucher: 5.00,
-  },
-  {
-    id: '3',
-    company_name: 'Creative Minds Studio',
-    function: 'Designer UI/UX Pleno',
-    description: 'Criação de interfaces intuitivas e agradáveis, com experiência em Figma e prototipagem.',
-    isPublished: true,
-    requiredProfile: 'Ensino Superior em Design',
-    maxApplications: 10,
-    currentApplications: 7,
-    status: 'Open',
-    location: 'Coimbra, Portugal',
-    period: 'MN',
-    type: 'ES',
-    has_scholarship: '0',
-    scholarship_value: 0,
-    meal_voucher: 6.00,
-  },
-  {
-    id: '7',
-    company_name: 'Future Innovations Inc.',
-    function: 'Engenheiro de QA',
-    description: 'Procuramos um Engenheiro de QA para garantir a qualidade de nossos produtos de software.',
-    isPublished: true,
-    requiredProfile: 'Ensino Superior em TI',
-    maxApplications: 4,
-    currentApplications: 1,
-    status: 'Open',
-    location: 'Funchal, Portugal',
-    period: 'M',
-    type: 'ES',
-    has_scholarship: '1',
-    scholarship_value: 700.00,
-    meal_voucher: 6.00,
-  },
-];
-
-const mockCandidateApplications = [
-  {
-    jobId: '1',
-    applicationDate: '2025-07-10T10:30:00Z',
-    status: 'Pendente',
-  },
-  {
-    jobId: '2',
-    applicationDate: '2025-07-05T14:00:00Z',
-    status: 'Reprovado',
-  },
-  {
-    jobId: '3',
-    applicationDate: '2025-07-01T09:00:00Z',
-    status: 'Aprovado',
-  },
-  {
-    jobId: '7',
-    applicationDate: '2025-07-18T11:45:00Z',
-    status: 'Em Análise',
-  },
-];
+import { useJobs } from "./../../hooks/useJobs";
 
 const ApplicationHistory = () => {
-  const [applications, setApplications] = useState([]);
+  const { myApplications, loading, errorMessage, getHistory, clearMessages } = useJobs();
   const toast = useToast();
   const navigate = useNavigate();
 
@@ -122,28 +30,46 @@ const ApplicationHistory = () => {
   const accentColor = 'purple.500';
 
   useEffect(() => {
-    const enrichedApplications = mockCandidateApplications.map(app => {
-      const job = mockJobs.find(j => j.id === app.jobId);
-      return {
-        ...app,
-        jobDetails: job,
-      };
-    });
-    setApplications(enrichedApplications);
-  }, []);
+    getHistory();
+  }, [getHistory]);
+
+  useEffect(() => {
+    if (errorMessage) {
+      toast({
+        title: "Erro ao carregar histórico.",
+        description: errorMessage,
+        status: "error",
+        duration: 3000,
+        isClosable: true,
+        position: "top",
+      });
+      clearMessages();
+    }
+  }, [errorMessage, clearMessages, toast]);
 
   const getStatusColor = (status) => {
     switch (status) {
-      case 'Pendente':
+      case '1':
         return 'yellow';
-      case 'Aprovado':
+      case '2':
         return 'green';
-      case 'Reprovado':
+      case '3':
         return 'red';
-      case 'Em Análise':
-        return 'blue';
       default:
         return 'gray';
+    }
+  };
+
+  const getStatusLabel = (status) => {
+    switch (status) {
+      case '1':
+        return 'Pendente';
+      case '2':
+        return 'Aprovado';
+      case '3':
+        return 'Reprovado';
+      default:
+        return 'Desconhecido';
     }
   };
 
@@ -164,6 +90,35 @@ const ApplicationHistory = () => {
     navigate(`/jobs-candidate/${jobId}`);
   };
 
+  if (loading) {
+    return (
+      <Container maxW="container.xl" py={10} textAlign="center">
+        <Spinner size="xl" color={accentColor} />
+        <Text mt={4}>Carregando histórico de candidaturas...</Text>
+      </Container>
+    );
+  }
+
+  if (myApplications.length === 0) {
+    return (
+      <Box
+        p={5}
+        shadow="md"
+        borderWidth="1px"
+        borderRadius="md"
+        bg={useColorModeValue('white', 'gray.700')}
+        borderColor={accentColor}
+        textAlign="center"
+      >
+        <Text fontSize="xl" color={textColor}>Você ainda não se candidatou a nenhuma vaga.</Text>
+        <Text fontSize="md" color="gray.500">Comece a explorar as vagas disponíveis agora!</Text>
+        <Button mt={4} colorScheme="purple" onClick={() => navigate('/jobs')}>
+          Ver Vagas Disponíveis
+        </Button>
+      </Box>
+    );
+  }
+
   return (
     <Container maxW="container.xl" py={10}>
       <VStack spacing={8} align="stretch">
@@ -174,61 +129,42 @@ const ApplicationHistory = () => {
           Visualize o status de todas as suas candidaturas.
         </Text>
 
-        {applications.length === 0 ? (
-          <Box
-            p={5}
-            shadow="md"
-            borderWidth="1px"
-            borderRadius="md"
-            bg={useColorModeValue('white', 'gray.700')}
-            borderColor={accentColor}
-            textAlign="center"
-          >
-            <Text fontSize="xl" color={textColor}>Você ainda não se candidatou a nenhuma vaga.</Text>
-            <Text fontSize="md" color="gray.500">Comece a explorar as vagas disponíveis agora!</Text>
-            <Button mt={4} colorScheme="purple" onClick={() => navigate('/jobs')}>
-              Ver Vagas Disponíveis
-            </Button>
-          </Box>
-        ) : (
-          <Box overflowX="auto">
-            <Table variant="simple" size="md">
-              <Thead>
-                <Tr bg={headerBg}>
-                  <Th color={textColor}>Vaga</Th>
-                  <Th color={textColor}>Empresa</Th>
-                  <Th color={textColor}>Data da Candidatura</Th>
-                  <Th color={textColor}>Status</Th>
-                  <Th color={textColor}>Ações</Th>
+        <Box overflowX="auto">
+          <Table variant="simple" size="md">
+            <Thead>
+              <Tr bg={headerBg}>
+                <Th color={textColor}>Vaga</Th>
+                <Th color={textColor}>Empresa</Th>
+                <Th color={textColor}>Data da Candidatura</Th>
+                <Th color={textColor}>Status</Th>
+                <Th color={textColor}>Ações</Th>
+              </Tr>
+            </Thead>
+            <Tbody>
+              {myApplications.map((app) => (
+                <Tr key={app.id}>
+                  <Td color={textColor}>{app.role || 'N/A'}</Td>
+                  <Td color={textColor}>{app.company || 'N/A'}</Td>
+                  <Td color={textColor}>{formatDate(app.appliedAt)}</Td>
+                  <Td>
+                    <Badge colorScheme={getStatusColor(app.status)} px={2} py={1} borderRadius="full">
+                      {getStatusLabel(app.status) || 'Em Análise'}
+                    </Badge>
+                  </Td>
+                  <Td>
+                    <Button
+                      size="sm"
+                      colorScheme="gray"
+                      onClick={() => handleViewDetails(app.id)}
+                    >
+                      Ver Detalhes
+                    </Button>
+                  </Td>
                 </Tr>
-              </Thead>
-              <Tbody>
-                {applications.map((app) => (
-                  <Tr key={app.jobId}>
-                    <Td color={textColor}>{app.jobDetails?.function || 'Vaga Removida'}</Td>
-                    <Td color={textColor}>{app.jobDetails?.company_name || 'N/A'}</Td>
-                    <Td color={textColor}>{formatDate(app.applicationDate)}</Td>
-                    <Td>
-                      <Badge colorScheme={getStatusColor(app.status)} px={2} py={1} borderRadius="full">
-                        {app.status}
-                      </Badge>
-                    </Td>
-                    <Td>
-                      <Button
-                        size="sm"
-                        colorScheme="gray"
-                        onClick={() => handleViewDetails(app.jobId)}
-                        isDisabled={!app.jobDetails}
-                      >
-                        Ver Detalhes
-                      </Button>
-                    </Td>
-                  </Tr>
-                ))}
-              </Tbody>
-            </Table>
-          </Box>
-        )}
+              ))}
+            </Tbody>
+          </Table>
+        </Box>
       </VStack>
     </Container>
   );
