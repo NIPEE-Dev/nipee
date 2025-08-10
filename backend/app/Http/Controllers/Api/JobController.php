@@ -8,6 +8,7 @@ use App\Http\Requests\FilterRequest;
 use App\Http\Requests\Jobs\StoreJobsRequest;
 use App\Http\Requests\Jobs\UpdateJobsRequest;
 use App\Http\Requests\UpdateJobStatusRequest;
+use App\Http\Resources\JobHistoryResource;
 use App\Http\Resources\Jobs\JobResource;
 use App\Models\Candidate;
 use App\Models\Jobs\Job;
@@ -30,6 +31,13 @@ class JobController extends Controller
     public function index(FilterRequest $request)
     {
         return JobResource::collection($this->jobService->index($request->all()));
+    }
+
+    public function jobsHistory(Request $request)
+    {
+        $user = Auth::user();
+
+        return JobHistoryResource::collection($this->jobService->getHistory($user->candidate->id ?? null));
     }
 
     /**

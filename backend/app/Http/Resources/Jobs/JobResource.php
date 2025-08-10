@@ -17,7 +17,6 @@ class JobResource extends JsonResource
     {
         $user = Auth::user();
         $roleId = $user->roles[0]->id;
-        // dd($this->candidates);
 
         return [
             'id' => $this->id,
