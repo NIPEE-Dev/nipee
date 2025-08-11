@@ -15,3 +15,7 @@ export const applyToJob = async (jobId) => {
 export const getJobsHistory = async () => {
   return await api.get('/jobs/history');
 };
+
+export const closeJob = async (jobId, data) => {
+  return await api.patch(`/jobs/${jobId}/status`, data);
+};

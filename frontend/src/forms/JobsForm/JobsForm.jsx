@@ -11,6 +11,7 @@ import FileUpload from '../../components/FileUpload/FileUpload';
 import { Select } from 'chakra-react-select';
 import api from "../../api";
 import CandidacyTable from '../../components/CandidacyTable/CandidacyTable';
+import { useJobs } from './../../hooks/useJobs';
 
 const CourseSelect = ({ value = [], onChange, readOnly }) => {
   const [courses, setCourses] = useState([]);
@@ -72,6 +73,7 @@ const CourseSelect = ({ value = [], onChange, readOnly }) => {
 };
 
 export const JobsForm = ({ readOnly, typeForm, isLoading, ...props }) => {
+  const { closeJob } = useJobs();
   const userProfile = JSON.parse(localStorage.getItem('profile'));
   const userRole = userProfile?.role || '';
   const canEdit = userRole === "Administrador Geral" || userRole === 'Empresa';
@@ -96,6 +98,7 @@ export const JobsForm = ({ readOnly, typeForm, isLoading, ...props }) => {
                   mt='3'
                   colorScheme='red'
                   type='button'
+                  onClick={() => closeJob(props.initialValues.id)}
                   isLoading={isLoading || isSubmitting}
                 >
                   Encerrar vaga
@@ -584,6 +587,7 @@ export const JobsForm = ({ readOnly, typeForm, isLoading, ...props }) => {
                 typeForm={typeForm}
                 readOnly={readOnly}
                 jobId={props.initialValues.id}
+                candidates={props.initialValues.candidates}
               />
             </GroupContainer>
           )}

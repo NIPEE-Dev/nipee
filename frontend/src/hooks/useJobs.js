@@ -4,6 +4,7 @@ import {
   getJobDetail as fetchJobDetailApi, 
   applyToJob as applyToJobApi,
   getJobsHistory as getHistoryApi,
+  closeJob as closeJobApi
 } from "../services/jobService";
 
 export const useJobs = () => {
@@ -88,6 +89,28 @@ export const useJobs = () => {
     }
   }, [clearMessages]);
 
+  const closeJob = useCallback(async (jobId) => {
+    setLoading(true);
+    clearMessages();
+    try {
+      await closeJobApi(jobId, { status: 2 });
+      await fetchJobs();
+
+      if (jobDetail?.id === jobId) {
+        setJobDetail(prev => ({
+          ...prev,
+          status: 2
+        }));
+      }
+
+      setSuccessMessage("Vaga encerrada com sucesso!");
+    } catch (err) {
+      setErrorMessage(err.response?.data?.message || "Erro ao encerrar vaga.");
+    } finally {
+      setLoading(false);
+    }
+  }, [clearMessages, jobDetail, fetchJobs]);
+
   return {
     jobs,
     jobDetail,
@@ -99,6 +122,7 @@ export const useJobs = () => {
     fetchJobDetail,
     applyForJob,
     getHistory,
+    closeJob,
     clearMessages,
   };
 };

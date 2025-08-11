@@ -528,7 +528,7 @@ export const CandidatesForm = ({ readOnly, isLoading, typeForm, ...props }) => {
                     <h2>
                       <AccordionButton>
                         <Box flex='1' textAlign='left'>
-                          {job.company.corporate_name} - {job.role.title}
+                          {job.company?.corporate_name || 'Empresa não informada'} - {job.role || 'Vaga não informada'}
                         </Box>
                         <AccordionIcon />
                       </AccordionButton>

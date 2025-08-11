@@ -40,6 +40,8 @@ class JobResource extends JsonResource
             'created_at' => $this->created_at,
             'description' => $this->description,
             'company' => new CompanyResource($this->whenLoaded('company')),
+            'corporate_name' => $this->company->corporate_name,
+            'fantasy_name' => $this->company->fantasy_name,
             'working_day' => new JobWorkingDayResource($this->whenLoaded('workingDay')),
             'role' => $this->role,
             'documents' => $this->whenLoaded('documents'),
