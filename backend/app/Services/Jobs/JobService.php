@@ -19,6 +19,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 
 class JobService
@@ -134,10 +135,18 @@ class JobService
             throw new HttpException(400, 'Somente candidatos podem se candidatar em vagas');
         }
 
+        $currentCandidates = count($job->candidates);
+        if ($currentCandidates >= $job->available) throw new HttpException(400, 'Essa vaga já alcançou o número máximo de candidaturas');
+
         $alreadyApplied = $job->candidates->where('id', $user->candidate->id)->first();
         if ($alreadyApplied) throw new HttpException(400, 'Você já se candidatou nessa vaga');
 
         $job->candidates()->attach($user->candidate);
+        $job->refresh();
+        if (count($job->candidates) >= $job->available) {
+            $job->status = JobStatusEnum::FULL;
+            $job->save();
+        }
     }
 
     public function updateJobStatus(Job $job, $status)
