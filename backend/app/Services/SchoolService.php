@@ -37,7 +37,7 @@ class SchoolService
         if (request()->has('city')) {
             $city = request()->query('city');
             $data->whereHas('address', function ($query) use ($city) {
-                $query->where('city', $city);
+                $query->where('district', $city);
             });
         }
         if (request()->has('district')) {
