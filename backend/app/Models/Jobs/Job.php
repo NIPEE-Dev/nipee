@@ -36,7 +36,14 @@ class Job extends Model
         'available',
         'type',
         'show_web',
-        'description'
+        'description',
+        'status',
+        'role',
+        'competences',
+        'location',
+        'fct_hours',
+        'start_at',
+        'end_at',
     ];
 
     public $casts = [
@@ -76,6 +83,16 @@ class Job extends Model
             ->using(JobCandidate::class)
             ->withPivot(['status', 'created_at', 'updated_at'])
             ->withTrashed();
+    }
+
+    public function courses()
+    {
+        return $this->belongsToMany(
+            BaseRecord::class,
+            'job_courses',
+            'job_id',
+            'base_record_id'
+        )->withTimestamps();
     }
 
     public function role()
