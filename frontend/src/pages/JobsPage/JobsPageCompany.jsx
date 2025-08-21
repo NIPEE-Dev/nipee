@@ -58,25 +58,7 @@ const JobsPageCompany = () => {
         resourceParams: {
           withoutTrashed: true
         },
-        listTableProps: {
-          hooks: [
-            useRowSelect,
-            ...(!isEscola
-              ? [rowSelectionHook((selectedFlatRows) => (
-                  <Tooltip hasArrow label="Escolher candidatos para as vagas selecionadas">
-                    <Button
-                      size="xs"
-                      colorScheme="telegram"
-                      onClick={() => redirectToChooseCandidates(selectedFlatRows)}
-                      disabled={selectedFlatRows.length === 0}
-                    >
-                      <MdCall size="12" />
-                    </Button>
-                  </Tooltip>
-                ))]
-              : [])
-          ]
-        }
+        
       }}
       columns={[
         {
@@ -278,57 +260,7 @@ const JobsPageCompany = () => {
               )}
             </WithModal>
           )}
-            {!isEscola && (
-              <Menu>
-                <MenuButton
-                  as={IconButton}
-                  aria-label='Opções'
-                  icon={<GoKebabVertical />}
-                  variant='outline'
-                  size='xs'
-                />
-                <MenuList>
-                  {[
-                    {
-                      title: 'Chamados',
-                      status: 1,
-                      component: <CalledCandidates job={id} status={1} />
-                    },
-                    {
-                      title: 'Encaminhados',
-                      status: 2,
-                      component: <CalledCandidates job={id} status={2} />
-                    },
-                    {
-                      title: 'Em testes',
-                      status: 3,
-                      component: <CalledCandidates job={id} status={3} />
-                    }
-                  ]
-                    /* .filter(
-                      (action) =>
-                        statusFilter.length === 0 ||
-                        (statusFilter && statusFilter.includes(action.status))
-                    ) */
-                    .map((action) => (
-                      <WithModal
-                        key={action.status}
-                        size='full'
-                        modal={action.component}
-                      >
-                        {({ toggleModal }) => (
-                          <RowAction
-                            onClick={toggleModal}
-                            key={id}
-                            title={action.title}
-                            {...rowProps}
-                          />
-                        )}
-                      </WithModal>
-                    ))}
-                </MenuList>
-              </Menu>
-            )}
+
           </>
         );
       }}

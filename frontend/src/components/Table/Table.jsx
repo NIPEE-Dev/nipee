@@ -37,7 +37,7 @@ export const Table = ({
     rows,
     prepareRow,
     selectedFlatRows
-  } = useTable({ columns, data: records }, useSortBy, ...hooks);
+  } = useTable({ columns, data: records }, useSortBy);
 
   useEffect(() => {
     if (props.onSelectRowsChange) {
