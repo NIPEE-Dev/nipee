@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Box,
   Container,
@@ -16,6 +16,13 @@ import {
   useColorModeValue,
   useToast,
   Spinner,
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  ModalCloseButton,
+  ModalBody,
+  ModalFooter,
 } from '@chakra-ui/react';
 import { useNavigate } from 'react-router-dom';
 import { useJobs } from "./../../hooks/useJobs";
@@ -24,6 +31,9 @@ const ApplicationHistory = () => {
   const { myApplications, loading, errorMessage, getHistory, clearMessages } = useJobs();
   const toast = useToast();
   const navigate = useNavigate();
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [feedback, setFeedback] = useState('');
 
   const headerBg = useColorModeValue('gray.100', 'gray.600');
   const textColor = useColorModeValue('gray.800', 'whiteAlpha.900');
@@ -88,6 +98,11 @@ const ApplicationHistory = () => {
 
   const handleViewDetails = (jobId) => {
     navigate(`/jobs-candidate/${jobId}`);
+  };
+
+  const handleViewFeedback = (feedbackMessage) => {
+    setFeedback(feedbackMessage || "Nenhum feedback disponível.");
+    setIsModalOpen(true);
   };
 
   if (loading) {
@@ -156,9 +171,20 @@ const ApplicationHistory = () => {
                       size="sm"
                       colorScheme="gray"
                       onClick={() => handleViewDetails(app.id)}
+                      mr={2}
                     >
                       Ver Detalhes
                     </Button>
+
+                    {app.status === '3' && (
+                      <Button
+                        size="sm"
+                        colorScheme="red"
+                        onClick={() => handleViewFeedback(app.feedback)}
+                      >
+                        Ver Feedback
+                      </Button>
+                    )}
                   </Td>
                 </Tr>
               ))}
@@ -166,6 +192,22 @@ const ApplicationHistory = () => {
           </Table>
         </Box>
       </VStack>
+
+      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader>Feedback da Candidatura</ModalHeader>
+          <ModalCloseButton />
+          <ModalBody>
+            <Text>{feedback}</Text>
+          </ModalBody>
+          <ModalFooter>
+            <Button colorScheme="purple" onClick={() => setIsModalOpen(false)}>
+              Fechar
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
     </Container>
   );
 };
