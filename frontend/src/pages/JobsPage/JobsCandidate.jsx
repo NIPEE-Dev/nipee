@@ -28,6 +28,7 @@ import {
 } from "react-icons/fa";
 import ApplicationHistory from "./ApplicationHistory";
 import { useJobs } from './../../hooks/useJobs';
+import InvitesPage from "./InvitesPage";
 
 const formatCurrency = (value) => {
   if (value === null || value === undefined || value === "") return "N/A";
@@ -107,6 +108,7 @@ const JobsCandidate = () => {
         <TabList justifyContent="center" mb={4}>
           <Tab>Vagas</Tab>
           <Tab>Histórico</Tab>
+          <Tab>Convites</Tab>
         </TabList>
         <TabPanels>
           <TabPanel>
@@ -262,6 +264,9 @@ const JobsCandidate = () => {
           </TabPanel>
           <TabPanel>
             <ApplicationHistory />
+          </TabPanel>
+          <TabPanel>
+            <InvitesPage />
           </TabPanel>
         </TabPanels>
       </Tabs>

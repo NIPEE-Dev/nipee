@@ -105,7 +105,7 @@ const JobsPageCompany = () => {
           }
         },
         {
-          Header: 'Candidaturas',
+          Header: 'Max. Candidaturas',
           accessor: 'available'
         },
         {

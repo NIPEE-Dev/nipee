@@ -12,6 +12,7 @@ import { Select } from 'chakra-react-select';
 import api from "../../api";
 import CandidacyTable from '../../components/CandidacyTable/CandidacyTable';
 import { useJobs } from './../../hooks/useJobs';
+import CompatibleCandidacyTable from '../../components/CandidacyTable/CompatibleCandidacyTable';
 
 const CourseSelect = ({ value = [], onChange, readOnly }) => {
   const [courses, setCourses] = useState([]);
@@ -584,6 +585,20 @@ export const JobsForm = ({ readOnly, typeForm, isLoading, ...props }) => {
               subtitle='Todas as candidaturas para esta vaga'
             >
               <CandidacyTable
+                typeForm={typeForm}
+                readOnly={readOnly}
+                jobId={props.initialValues.id}
+                candidates={props.initialValues.candidates}
+              />
+            </GroupContainer>
+          )}
+
+          {['edit', 'view'].includes(typeForm) && props.initialValues?.id && (
+            <GroupContainer
+              title='Candidatos compativeis'
+              subtitle='Todos os candidatos compativeis para esta vaga'
+            >
+              <CompatibleCandidacyTable
                 typeForm={typeForm}
                 readOnly={readOnly}
                 jobId={props.initialValues.id}
