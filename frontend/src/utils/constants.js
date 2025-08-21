@@ -7,6 +7,15 @@ export const CandidateJobStatus = {
   HIRED: 6,
 };
 
+export const CandidateJobStatusNew = {
+  PENDING: 1,
+  CALLED: 2,
+  INTERVIEW: 3, 
+  IN_TESTS: 4,
+  HIRED: 5,
+  REJECTED:6,
+};
+
 export const districtMap = {
   Aveiro: "av",
   Beja: "be",
