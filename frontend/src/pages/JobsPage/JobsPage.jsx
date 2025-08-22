@@ -1,5 +1,6 @@
 import JobsPageCompany from "./JobsPageCompany";
 import JobsCandidate from "./JobsCandidate";
+import JobsSchool from "./JobsSchool";
 
 const JobsPage = () => {
   const userProfile = JSON.parse(localStorage.getItem('profile'));
@@ -7,6 +8,10 @@ const JobsPage = () => {
 
   if (userRole === "Candidato") {
     return <JobsCandidate />;
+  }
+
+  if (userRole === "Escola") {
+    return <JobsSchool />;
   }
 
   if (userRole === "Empresa" || "Administrador Geral") {
