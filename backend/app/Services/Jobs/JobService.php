@@ -5,6 +5,8 @@ namespace App\Services\Jobs;
 use App\Beans\MailTask;
 use App\Enums\CandidateStatusEnum;
 use App\Enums\Document\DocumentTypeTemplateEnum;
+use App\Enums\JobCandidateStatusEnum;
+use App\Enums\JobInterviewInviteStatusEnum;
 use App\Enums\JobStatusEnum;
 use App\Enums\RolesEnum;
 use App\Jobs\SendMail;
@@ -13,6 +15,7 @@ use App\Mail\JobInterviewInviteMail;
 use App\Models\Candidate;
 use App\Models\JobInterviewInvite;
 use App\Models\Jobs\Job;
+use App\Models\Jobs\JobCandidate;
 use App\Models\Users\User;
 use App\Services\Documents\WordProcessor;
 use App\Traits\Common\Filterable;
@@ -167,7 +170,11 @@ class JobService
                 'candidate_id' => $data['candidateId'],
                 'message' => $data['message']
             ]);
+            $candidate = $job->candidates->where('id', $data['candidateId'])->first();
+            if (!isset($candidate)) throw new HttpException(400, 'O candidato selecionado não se candidatou nessa vaga');
 
+            $candidate->pivot->status = JobCandidateStatusEnum::WAITING_RESPONSE;
+            $candidate->pivot->save();
             $invite->schedule()->createMany($data['schedules']);
 
             $candidate = Candidate::where('id', $data['candidateId'])->first();
@@ -190,5 +197,29 @@ class JobService
         $invites = JobInterviewInvite::query()->where('candidate_id', $candidateId)->with(['schedule', 'job'])->get();
 
         return $invites;
+    }
+
+    public function updateJobInterview($data, JobInterviewInvite $jobInterview)
+    {
+        try {
+            DB::beginTransaction();
+            $schedule = $jobInterview->schedule->where('id', $data['scheduleId'])->first();
+            if (!isset($schedule)) throw new HttpException(400, 'Horário não encontrado');
+
+            $schedule->status = $data['confirmed'] ? JobInterviewInviteStatusEnum::ACCEPTED : JobInterviewInviteStatusEnum::DENIED;
+            $schedule->save();
+
+            $candidate = $jobInterview->job->candidates->where('id', $data['candidateId'])->first();
+
+            $candidate->pivot->status = $data['confirmed'] ? JobCandidateStatusEnum::INTERVIEWING : JobCandidateStatusEnum::INTERVIEW_REJECT_BY_USER;
+            $candidate->pivot->save();
+
+            DB::commit();
+            return $schedule;
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            report($th);
+            throw $th;
+        }
     }
 }

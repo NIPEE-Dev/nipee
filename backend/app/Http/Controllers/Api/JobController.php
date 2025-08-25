@@ -9,11 +9,13 @@ use App\Http\Requests\FilterRequest;
 use App\Http\Requests\Jobs\StoreJobsRequest;
 use App\Http\Requests\Jobs\UpdateJobsRequest;
 use App\Http\Requests\StoreInterviewInviteRequest;
+use App\Http\Requests\UpdateJobInterviewRequest;
 use App\Http\Requests\UpdateJobStatusRequest;
 use App\Http\Resources\InterviewInviteResource;
 use App\Http\Resources\JobHistoryResource;
 use App\Http\Resources\Jobs\JobResource;
 use App\Models\Candidate;
+use App\Models\JobInterviewInvite;
 use App\Models\Jobs\Job;
 use App\Models\Users\User;
 use App\Services\Jobs\JobService;
@@ -144,10 +146,24 @@ class JobController extends Controller
         $roleId = $user->roles[0]->id;
 
         if ($roleId !== RolesEnum::CANDIDATE->value) {
-            return response()->json(['message' => 'Só candidatos podem ver os convites para entrevistsa']);
+            return response()->json(['message' => 'Só candidatos podem ver os convites para entrevista']);
         }
         $invites = $this->jobService->getUserInterviewInvites($user->candidate->id);
 
         return response()->json(InterviewInviteResource::collection($invites));
+    }
+
+    public function updateJobInterview(UpdateJobInterviewRequest $request, JobInterviewInvite $jobInterview)
+    {
+        $data = $request->validated();
+        $user = Auth::user();
+        $roleId = $user->roles[0]->id;
+
+        if ($roleId !== RolesEnum::CANDIDATE->value) {
+            return response()->json(['message' => 'Só candidatos podem aceitar ou recusar convites para entrevista']);
+        }
+        $invite = $this->jobService->updateJobInterview([...$data, 'candidateId' => $user->candidate->id], $jobInterview);
+
+        return response()->json(new InterviewInviteResource($invite));
     }
 }

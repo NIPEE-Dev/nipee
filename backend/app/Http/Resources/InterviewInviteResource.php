@@ -17,6 +17,7 @@ class InterviewInviteResource extends JsonResource
         $scheduledInterview = $this->schedule->where('accepted', '!=', null)->first();
 
         return [
+            'id' => $this->id,
             'job' => $this->job->role,
             'company' => $this->job->company->corporate_name,
             'jobId' => $this->job_id,
