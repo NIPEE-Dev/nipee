@@ -76,6 +76,7 @@ Route::post('jobs/candidates/call', [JobController::class, 'callCandidates'])->m
 Route::put('jobs/candidates/update-status', [JobController::class, 'updateStatus'])->middleware('checkPermission:jobs.index');
 Route::apiResource('jobs', JobController::class)->middleware('checkPermission:jobs.index')->withTrashed(['destroy']);
 Route::post('jobs/{job}/apply', [JobController::class, 'apply'])->middleware('checkPermission:jobs.index');
+Route::post('jobs/{job}/invite/interview', [JobController::class, 'storeInvite'])->middleware('checkPermission:jobs.index');
 Route::patch('jobs/{job}/status', [JobController::class, 'updateJobStatus'])->middleware('checkPermission:jobs.index');
 
 Route::get('contracts/job/{job}/candidate/{candidate}', [ContractController::class, 'loadContractData'])->middleware('checkPermission:contracts.index');

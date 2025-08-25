@@ -24,8 +24,8 @@ class JobCandidateResource extends JsonResource
             'location' => $this->address->uf ?? '',
             'council' => $this->address->city ?? '',
             'phone' => $this->contact->phone ?? '',
-            'status' => CandidateStatusEnum::getLabel($this->pivot->status),
-            //'status' => 3,
+            'statusLabel' => CandidateStatusEnum::getLabel($this->pivot->status),
+            'status' => (int) $this->pivot->status->value,
             'resume' => $this->resume,
         ];
     }

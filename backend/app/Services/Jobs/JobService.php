@@ -9,16 +9,17 @@ use App\Enums\JobStatusEnum;
 use App\Enums\RolesEnum;
 use App\Jobs\SendMail;
 use App\Mail\CandidateCalledMail;
+use App\Mail\JobInterviewInviteMail;
 use App\Models\Candidate;
 use App\Models\Jobs\Job;
 use App\Models\Users\User;
 use App\Services\Documents\WordProcessor;
 use App\Traits\Common\Filterable;
-use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 
 class JobService
@@ -155,5 +156,31 @@ class JobService
         })->paginate(10);
 
         return $jobs;
+    }
+
+    public function createInvite($job, $data)
+    {
+        try {
+            DB::beginTransaction();
+            $invite = $job->invites()->create([
+                'candidate_id' => $data['candidateId'],
+                'message' => $data['message']
+            ]);
+
+            $invite->schedule()->createMany($data['schedules']);
+
+            $candidate = Candidate::where('id', $data['candidateId'])->first();
+            if (!isset($candidate)) throw new HttpException(400, 'Candidato não encontrado');
+
+            Mail::to($candidate->user->email)->send(new JobInterviewInviteMail());
+
+            DB::commit();
+
+            return $invite;
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            report($th);
+            throw $th;
+        }
     }
 }

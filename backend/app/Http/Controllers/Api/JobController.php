@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\FilterRequest;
 use App\Http\Requests\Jobs\StoreJobsRequest;
 use App\Http\Requests\Jobs\UpdateJobsRequest;
+use App\Http\Requests\StoreInterviewInviteRequest;
 use App\Http\Requests\UpdateJobStatusRequest;
 use App\Http\Resources\JobHistoryResource;
 use App\Http\Resources\Jobs\JobResource;
@@ -125,5 +126,13 @@ class JobController extends Controller
         $data = $request->validated();
         $updated = $this->jobService->updateJobStatus($job, $data['status']);
         return new JobResource($updated);
+    }
+
+    public function storeInvite(StoreInterviewInviteRequest $request, Job $job)
+    {
+        $data = $request->validated();
+        $invite = $this->jobService->createInvite($job, $data);
+
+        response()->json([$invite]);
     }
 }
