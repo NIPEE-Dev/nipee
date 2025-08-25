@@ -9,6 +9,7 @@ use App\Enums\PeriodEnum;
 use App\Models\Candidate;
 use App\Models\Company\Company;
 use App\Models\Contracts\Contract;
+use App\Models\JobInterviewInvite;
 use App\Models\Shared\BaseRecord;
 use App\Traits\Common\ActivityLogger;
 use App\Traits\Common\HasDocuments;
@@ -108,5 +109,10 @@ class Job extends Model
     public function contracts()
     {
         return $this->hasMany(Contract::class, 'job_id');
+    }
+
+    public function invites()
+    {
+        return $this->hasMany(JobInterviewInvite::class, 'job_id');
     }
 }

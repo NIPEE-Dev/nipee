@@ -1,0 +1,23 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+
+class JobInterviewInvite extends Model
+{
+    use HasFactory;
+
+    protected $fillable = [
+        'job_id',
+        'status',
+        'message',
+        'candidate_id',
+    ];
+
+    public function schedule()
+    {
+        return $this->hasMany(InviteSchedule::class);
+    }
+}
