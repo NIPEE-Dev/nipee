@@ -11,6 +11,7 @@ use App\Jobs\SendMail;
 use App\Mail\CandidateCalledMail;
 use App\Mail\JobInterviewInviteMail;
 use App\Models\Candidate;
+use App\Models\JobInterviewInvite;
 use App\Models\Jobs\Job;
 use App\Models\Users\User;
 use App\Services\Documents\WordProcessor;
@@ -182,5 +183,12 @@ class JobService
             report($th);
             throw $th;
         }
+    }
+
+    public function getUserInterviewInvites($candidateId)
+    {
+        $invites = JobInterviewInvite::query()->where('candidate_id', $candidateId)->with(['schedule', 'job'])->get();
+
+        return $invites;
     }
 }

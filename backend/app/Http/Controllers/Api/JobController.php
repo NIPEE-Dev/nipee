@@ -3,12 +3,14 @@
 namespace App\Http\Controllers\Api;
 
 use App\Enums\JobStatusEnum;
+use App\Enums\RolesEnum;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\FilterRequest;
 use App\Http\Requests\Jobs\StoreJobsRequest;
 use App\Http\Requests\Jobs\UpdateJobsRequest;
 use App\Http\Requests\StoreInterviewInviteRequest;
 use App\Http\Requests\UpdateJobStatusRequest;
+use App\Http\Resources\InterviewInviteResource;
 use App\Http\Resources\JobHistoryResource;
 use App\Http\Resources\Jobs\JobResource;
 use App\Models\Candidate;
@@ -134,5 +136,18 @@ class JobController extends Controller
         $invite = $this->jobService->createInvite($job, $data);
 
         response()->json([$invite]);
+    }
+
+    public function interviewInvites()
+    {
+        $user = Auth::user();
+        $roleId = $user->roles[0]->id;
+
+        if ($roleId !== RolesEnum::CANDIDATE->value) {
+            return response()->json(['message' => 'Só candidatos podem ver os convites para entrevistsa']);
+        }
+        $invites = $this->jobService->getUserInterviewInvites($user->candidate->id);
+
+        return response()->json(InterviewInviteResource::collection($invites));
     }
 }
