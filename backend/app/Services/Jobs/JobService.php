@@ -194,7 +194,7 @@ class JobService
 
     public function getUserInterviewInvites($candidateId)
     {
-        $invites = JobInterviewInvite::query()->where('candidate_id', $candidateId)->with(['schedule', 'job'])->get();
+        $invites = JobInterviewInvite::query()->where('candidate_id', $candidateId)->where('status', '!=', JobInterviewInviteStatusEnum::DENIED)->with(['schedule', 'job'])->get();
 
         return $invites;
     }
