@@ -9,6 +9,8 @@ use App\Http\Requests\FilterRequest;
 use App\Http\Requests\Jobs\StoreJobsRequest;
 use App\Http\Requests\Jobs\UpdateJobsRequest;
 use App\Http\Requests\StoreInterviewInviteRequest;
+use App\Http\Requests\UpdateJobInterviewEvaluationRequest;
+use Illuminate\Support\Str;
 use App\Http\Requests\UpdateJobInterviewRequest;
 use App\Http\Requests\UpdateJobStatusRequest;
 use App\Http\Resources\InterviewInviteResource;
@@ -163,6 +165,13 @@ class JobController extends Controller
             return response()->json(['message' => 'Só candidatos podem aceitar ou recusar convites para entrevista']);
         }
         $invite = $this->jobService->updateJobInterview([...$data, 'candidateId' => $user->candidate->id], $jobInterview);
+
+        return response()->json(new InterviewInviteResource($invite));
+    }
+
+    public function updateJobInterviewEvaluation(UpdateJobInterviewEvaluationRequest $request, Job $job, $candidateId)
+    {
+        $invite = $this->jobService->updateJobInterviewEvaluation($candidateId, $request->interviewEvaluation);
 
         return response()->json(new InterviewInviteResource($invite));
     }

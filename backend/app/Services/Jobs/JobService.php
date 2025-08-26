@@ -222,4 +222,23 @@ class JobService
             throw $th;
         }
     }
+
+    public function updateJobInterviewEvaluation($candidateId, $evaluation)
+    {
+        try {
+            DB::beginTransaction();
+            $interview = JobInterviewInvite::query()->where('candidate_id', $candidateId)->first();
+            $interview->update(['interview_evaluation' => $evaluation]);
+
+            $candidate = $interview->job->candidates->where('id', $candidateId)->first();
+            $candidate->pivot->status = JobCandidateStatusEnum::TESTING->value;
+            $candidate->pivot->save();
+            DB::commit();
+            return $interview;
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            report($th);
+            throw $th;
+        }
+    }
 }

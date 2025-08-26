@@ -10,6 +10,7 @@ enum JobCandidateStatusEnum: string
     case WAITING_RESPONSE = '4';
     case INTERVIEWING = '5';
     case INTERVIEW_REJECT_BY_USER = '6';
+    case TESTING = '7';
 
     public static function getLabel(self $status): string
     {
