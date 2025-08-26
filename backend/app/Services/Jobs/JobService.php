@@ -223,15 +223,15 @@ class JobService
         }
     }
 
-    public function updateJobInterviewEvaluation($candidateId, $evaluation)
+    public function updateJobInterviewEvaluation($data)
     {
         try {
             DB::beginTransaction();
-            $interview = JobInterviewInvite::query()->where('candidate_id', $candidateId)->first();
-            $interview->update(['interview_evaluation' => $evaluation]);
+            $interview = JobInterviewInvite::query()->where('candidate_id', $data['candidateId'])->first();
+            $interview->update(['interview_evaluation' => $data['interviewEvaluation']]);
 
-            $candidate = $interview->job->candidates->where('id', $candidateId)->first();
-            $candidate->pivot->status = JobCandidateStatusEnum::TESTING->value;
+            $candidate = $interview->job->candidates->where('id', $data['candidateId'])->first();
+            $candidate->pivot->status = $data['approved'] ? JobCandidateStatusEnum::TESTING : JobCandidateStatusEnum::DENIED;
             $candidate->pivot->save();
             DB::commit();
             return $interview;

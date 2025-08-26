@@ -24,7 +24,8 @@ class UpdateJobInterviewEvaluationRequest extends FormRequest
     public function rules()
     {
         return [
-            'interviewEvaluation' => ['required', 'string']
+            'interviewEvaluation' => ['required', 'string'],
+            'approved' => ['required', 'boolean']
         ];
     }
 }
