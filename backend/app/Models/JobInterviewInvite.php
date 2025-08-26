@@ -15,7 +15,8 @@ class JobInterviewInvite extends Model
         'status',
         'message',
         'candidate_id',
-        'interview_evaluation'
+        'interview_evaluation',
+        'testing_evaluation',
     ];
 
     public function schedule()

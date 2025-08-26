@@ -241,4 +241,23 @@ class JobService
             throw $th;
         }
     }
+
+    public function updateJobTestingEvaluation($data)
+    {
+        try {
+            DB::beginTransaction();
+            $interview = JobInterviewInvite::query()->where('candidate_id', $data['candidateId'])->first();
+            $interview->update(['testing_evaluation' => $data['testingEvaluation']]);
+
+            $candidate = $interview->job->candidates->where('id', $data['candidateId'])->first();
+            $candidate->pivot->status = $data['approved'] ? JobCandidateStatusEnum::APPROVED : JobCandidateStatusEnum::DENIED;
+            $candidate->pivot->save();
+            DB::commit();
+            return $interview;
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            report($th);
+            throw $th;
+        }
+    }
 }

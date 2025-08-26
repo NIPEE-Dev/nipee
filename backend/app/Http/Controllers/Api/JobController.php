@@ -12,6 +12,7 @@ use App\Http\Requests\StoreInterviewInviteRequest;
 use App\Http\Requests\UpdateJobInterviewEvaluationRequest;
 use Illuminate\Support\Str;
 use App\Http\Requests\UpdateJobInterviewRequest;
+use App\Http\Requests\UpdateJobInterviewTestingRequest;
 use App\Http\Requests\UpdateJobStatusRequest;
 use App\Http\Resources\InterviewInviteResource;
 use App\Http\Resources\JobHistoryResource;
@@ -173,6 +174,14 @@ class JobController extends Controller
     {
         $data = $request->validated();
         $invite = $this->jobService->updateJobInterviewEvaluation([...$data, 'candidateId' => $candidateId]);
+
+        return response()->json(new InterviewInviteResource($invite));
+    }
+
+    public function updateJobTestingEvaluation(UpdateJobInterviewTestingRequest $request, Job $job, $candidateId)
+    {
+        $data = $request->validated();
+        $invite = $this->jobService->updateJobTestingEvaluation([...$data, 'candidateId' => $candidateId]);
 
         return response()->json(new InterviewInviteResource($invite));
     }
