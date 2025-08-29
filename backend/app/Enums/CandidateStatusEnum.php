@@ -8,12 +8,12 @@ enum CandidateStatusEnum: string
     case APPROVED = '2';
     case DENIED = '3';
 
-    public static function getLabel(self $status): string
+    public static function getLabel($status): string
     {
         return match ($status) {
-            CandidateStatusEnum::PENDING => 'Pendente',
-            CandidateStatusEnum::APPROVED => 'Aprovado',
-            CandidateStatusEnum::DENIED => 'Reprovado',
+            CandidateStatusEnum::PENDING->value => 'Pendente',
+            CandidateStatusEnum::APPROVED->value => 'Aprovado',
+            CandidateStatusEnum::DENIED->value => 'Reprovado',
         };
     }
 }
