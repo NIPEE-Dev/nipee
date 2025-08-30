@@ -39,6 +39,26 @@ const ApplicationHistory = () => {
   const textColor = useColorModeValue('gray.800', 'whiteAlpha.900');
   const accentColor = 'purple.500';
 
+  const statusColorMap = {
+    1: 'yellow', // PENDING
+    4: 'purple', // WAITING_RESPONSE
+    5: 'blue',   // INTERVIEWING
+    7: 'orange', // TESTING
+    2: 'green',  // APPROVED
+    3: 'red',    // DENIED
+    6: 'red',    // INTERVIEW_REJECT_BY_USER
+  };
+
+  const statusLabelMap = {
+    1: 'Pendente',
+    4: 'Aguardando Resposta',
+    5: 'Em Entrevista',
+    7: 'Em Teste',
+    2: 'Aprovado',
+    3: 'Reprovado',
+    6: 'Entrevista Rejeitada',
+  };
+
   useEffect(() => {
     getHistory();
   }, [getHistory]);
@@ -58,29 +78,11 @@ const ApplicationHistory = () => {
   }, [errorMessage, clearMessages, toast]);
 
   const getStatusColor = (status) => {
-    switch (status) {
-      case '1':
-        return 'yellow';
-      case '2':
-        return 'green';
-      case '3':
-        return 'red';
-      default:
-        return 'gray';
-    }
+    return statusColorMap[status] || 'gray';
   };
 
   const getStatusLabel = (status) => {
-    switch (status) {
-      case '1':
-        return 'Pendente';
-      case '2':
-        return 'Aprovado';
-      case '3':
-        return 'Reprovado';
-      default:
-        return 'Desconhecido';
-    }
+    return statusLabelMap[status] || 'Desconhecido';
   };
 
   const formatDate = (dateString) => {
@@ -163,7 +165,7 @@ const ApplicationHistory = () => {
                   <Td color={textColor}>{formatDate(app.appliedAt)}</Td>
                   <Td>
                     <Badge colorScheme={getStatusColor(app.status)} px={2} py={1} borderRadius="full">
-                      {getStatusLabel(app.status) || 'Em Análise'}
+                      {getStatusLabel(app.status)}
                     </Badge>
                   </Td>
                   <Td>
@@ -176,7 +178,7 @@ const ApplicationHistory = () => {
                       Ver Detalhes
                     </Button>
 
-                    {app.status === '3' && (
+                    {app.status === 3 && (
                       <Button
                         size="sm"
                         colorScheme="red"
