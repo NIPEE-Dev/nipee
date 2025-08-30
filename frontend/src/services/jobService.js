@@ -19,3 +19,7 @@ export const getJobsHistory = async () => {
 export const closeJob = async (jobId, data) => {
   return await api.patch(`/jobs/${jobId}/status`, data);
 };
+
+export const createInvite = async (jobId, data) => {
+  return await api.post(`/jobs/${jobId}/invite/interview`, data);
+};

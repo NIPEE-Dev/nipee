@@ -4,7 +4,8 @@ import {
   getJobDetail as fetchJobDetailApi, 
   applyToJob as applyToJobApi,
   getJobsHistory as getHistoryApi,
-  closeJob as closeJobApi
+  closeJob as closeJobApi,
+  createInvite as createInviteApi 
 } from "../services/jobService";
 
 export const useJobs = () => {
@@ -111,6 +112,21 @@ export const useJobs = () => {
     }
   }, [clearMessages, jobDetail, fetchJobs]);
 
+  const createInvite = useCallback(async (jobId, inviteData) => {
+    setLoading(true);
+    clearMessages();
+    try {
+      const response = await createInviteApi(jobId, inviteData);
+      setSuccessMessage("Convite para entrevista enviado com sucesso!");
+    } catch (err) {
+      setErrorMessage(
+        err.response?.data?.message || "Erro ao enviar convite para entrevista."
+      );
+    } finally {
+      setLoading(false);
+    }
+  }, [clearMessages]);
+
   return {
     jobs,
     jobDetail,
@@ -123,6 +139,7 @@ export const useJobs = () => {
     applyForJob,
     getHistory,
     closeJob,
+    createInvite,
     clearMessages,
   };
 };

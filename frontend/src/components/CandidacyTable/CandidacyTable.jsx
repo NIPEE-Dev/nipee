@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Button,
   Table,
@@ -30,26 +30,22 @@ import { FaFilePdf } from 'react-icons/fa';
 import { getDistrictName } from '../../utils/district';
 import { useNavigate } from 'react-router-dom';
 import { CandidateJobStatusNew } from '../../utils/constants';
+import { useJobs } from "./../../hooks/useJobs";
 
 const statusColorMap = {
-  [CandidateJobStatusNew.PENDING]: 'yellow',
-  [CandidateJobStatusNew.CALLED]: 'purple',
-  [CandidateJobStatusNew.INTERVIEW]: 'blue',
-  [CandidateJobStatusNew.IN_TESTS]: 'orange',
-  [CandidateJobStatusNew.HIRED]: 'green',
+  1: 'yellow', // PENDING
+  4: 'purple', // WAITING_RESPONSE
+  5: 'blue',   // INTERVIEWING
+  7: 'orange', // TESTING
+  2: 'green',  // APPROVED
+  3: 'red',    // DENIED
+  6: 'red',    // INTERVIEW_REJECT_BY_USER
 };
 
-const statusLabelMap = {
-  [CandidateJobStatusNew.PENDING]: 'Pendente',
-  [CandidateJobStatusNew.CALLED]: 'Esperando resposta',
-  [CandidateJobStatusNew.INTERVIEW]: 'Em entrevista',
-  [CandidateJobStatusNew.IN_TESTS]: 'Em teste',
-  [CandidateJobStatusNew.HIRED]: 'Aprovado',
-};
-
-const CandidacyTable = ({ candidates }) => {
+const CandidacyTable = ({ candidates, jobId }) => {
   const toast = useToast();
   const navigate = useNavigate();
+  const { createInvite, loading, errorMessage, successMessage, clearMessages } = useJobs();
 
   const [visibleCandidates, setVisibleCandidates] = useState(candidates || []);
   const [selectedCandidate, setSelectedCandidate] = useState(null);
@@ -60,6 +56,31 @@ const CandidacyTable = ({ candidates }) => {
   const [evaluation, setEvaluation] = useState('');
 
   const handleViewProfile = (id) => navigate(`/candidates/view/${id}`);
+
+  useEffect(() => {
+    if (errorMessage) {
+      toast({
+        title: "Erro",
+        description: errorMessage,
+        status: "error",
+        duration: 3000,
+        isClosable: true,
+        position: "top",
+      });
+      clearMessages();
+    }
+    if (successMessage) {
+      toast({
+        title: "Sucesso!",
+        description: successMessage,
+        status: "success",
+        duration: 3000,
+        isClosable: true,
+        position: "top",
+      });
+      clearMessages();
+    }
+  }, [errorMessage, successMessage, clearMessages, toast]);
 
   const handleReject = (id) => {
     setVisibleCandidates((prev) => prev.filter((c) => c.id !== id));
@@ -91,7 +112,7 @@ const CandidacyTable = ({ candidates }) => {
     setSchedules(updated);
   };
 
-  const handleSendInvite = () => {
+  const handleSendInvite = async () => {
     if (!message.trim()) {
       toast({ title: 'Escreva uma mensagem para o candidato.', status: 'error', duration: 2000 });
       return;
@@ -102,37 +123,29 @@ const CandidacyTable = ({ candidates }) => {
       return;
     }
 
-    setVisibleCandidates((prev) =>
-      prev.map((c) =>
-        c.id === selectedCandidate.id
-          ? {
-              ...c,
-              status: CandidateJobStatusNew.CALLED,
-              confirmedSchedule: `${schedules[0].date} - ${schedules[0].time}`,
-            }
-          : c
-      )
-    );
-    toast({ title: 'Convite enviado!', status: 'success', duration: 2000 });
-    closeModal();
-  };
+    const invitePayload = {
+      candidateId: selectedCandidate.id,
+      message: message,
+      schedules: schedules.filter(s => s.date && s.time),
+    };
 
-  /* const handleConfirmInterview = () => {
-    if (!selectedSchedule) {
-      toast({ title: 'Selecione um horário para confirmar a entrevista.', status: 'error', duration: 2000 });
-      return;
+    try {
+      await createInvite(jobId, invitePayload);
+      setVisibleCandidates((prev) =>
+        prev.map((c) =>
+          c.id === selectedCandidate.id
+            ? {
+                ...c,
+                status: CandidateJobStatusNew.CALLED,
+              }
+            : c
+        )
+      );
+      closeModal();
+    } catch (error) {
+      console.error("Erro ao enviar convite: ", error);
     }
-
-    setVisibleCandidates((prev) =>
-      prev.map((c) =>
-        c.id === selectedCandidate.id
-          ? { ...c, status: CandidateJobStatusNew.INTERVIEW }
-          : c
-      )
-    );
-    toast({ title: 'Entrevista aceita!', status: 'success', duration: 2000 });
-    closeModal();
-  }; */
+  };
 
   const handleEvaluation = (approved) => {
     if (!evaluation.trim()) {
@@ -203,30 +216,33 @@ const CandidacyTable = ({ candidates }) => {
                 <Td>{c.council || 'N/A'}</Td>
                 <Td>{c.phone || 'N/A'}</Td>
                 <Td>
-                  <Badge colorScheme={statusColorMap[c.status]} px={2} py={1} borderRadius="full">
-                    {statusLabelMap[c.status]}
+                  <Badge 
+                    colorScheme={statusColorMap[c.status]} 
+                    px={2} 
+                    py={1} 
+                    borderRadius="full"
+                  >
+                    {c.statusLabel || 'Desconhecido'}
                   </Badge>
                 </Td>
-                <Td>
-                  <Flex gap={2}>
-                    <Button size="xs" colorScheme="blue" onClick={() => handleViewProfile(c.id)}>Ver Perfil</Button>
-                    {c.status === CandidateJobStatusNew.PENDING && (
-                      <>
-                        <Button size="xs" colorScheme="purple" onClick={() => openModal(c, 'INVITE')}>Marcar Entrevista</Button>
-                        <Button size="xs" colorScheme="red" onClick={() => handleReject(c.id)}>Rejeitar</Button>
-                      </>
-                    )}
-                    {c.status === CandidateJobStatusNew.CALLED && (
-                      <Button size="xs" colorScheme="blue">Aguardar resposta</Button>
-                    )}
-                    {c.status === CandidateJobStatusNew.INTERVIEW && (
-                      <Button size="xs" colorScheme="orange" onClick={() => openModal(c, 'INTERVIEW')}>Avaliar Entrevista</Button>
-                    )}
-                    {c.status === CandidateJobStatusNew.IN_TESTS && (
-                      <Button size="xs" colorScheme="teal" onClick={() => openModal(c, 'TEST')}>Avaliar Teste</Button>
-                    )}
-                  </Flex>
-                </Td>
+              <Td>
+                <Flex gap={2}>
+                  <Button size="xs" colorScheme="blue" onClick={() => handleViewProfile(c.id)}>Ver Perfil</Button>
+                  {c.status == 1 && (
+                    <>
+                      <Button size="xs" colorScheme="purple" onClick={() => openModal(c, 'INVITE')}>Marcar Entrevista</Button>
+                      <Button size="xs" colorScheme="red" onClick={() => handleReject(c.id)}>Rejeitar</Button>
+                    </>
+                  )}
+                  {c.status == 5 && (
+                    <Button size="xs" colorScheme="orange" onClick={() => openModal(c, 'INTERVIEW')}>Avaliar Entrevista</Button>
+                  )}
+                  {c.status == 7 && (
+                    <Button size="xs" colorScheme="teal" onClick={() => openModal(c, 'TEST')}>Avaliar Teste</Button>
+                  )}
+
+                </Flex>
+              </Td>
               </Tr>
             ))}
           </Tbody>
@@ -238,7 +254,6 @@ const CandidacyTable = ({ candidates }) => {
         <ModalContent>
           <ModalHeader>
             {modalType === 'INVITE' && 'Enviar Convite'}
-            {modalType === 'CONFIRM_INTERVIEW' && 'Confirmar Entrevista'}
             {modalType === 'INTERVIEW' && 'Avaliação da Entrevista'}
             {modalType === 'TEST' && 'Avaliação do Teste'}
           </ModalHeader>
@@ -272,21 +287,10 @@ const CandidacyTable = ({ candidates }) => {
                 />
               </>
             )}
-
-            {/* {modalType === 'CONFIRM_INTERVIEW' && (
-              <RadioGroup value={selectedSchedule} onChange={setSelectedSchedule}>
-                <Stack direction="column">
-                  <Radio value={selectedCandidate?.confirmedSchedule}>{selectedCandidate?.confirmedSchedule}</Radio>
-                </Stack>
-              </RadioGroup>
-            )} */}
           </ModalBody>
           <ModalFooter>
             {modalType === 'INVITE' && (
-              <Button colorScheme="purple" onClick={handleSendInvite}>Enviar</Button>
-            )}
-            {modalType === 'CONFIRM_INTERVIEW' && (
-              <Button colorScheme="blue" onClick={handleConfirmInterview}>Aceitar Entrevista</Button>
+              <Button colorScheme="purple" onClick={handleSendInvite} isLoading={loading} loadingText="Enviando...">Enviar</Button>
             )}
             {(modalType === 'INTERVIEW' || modalType === 'TEST') && (
               <>
