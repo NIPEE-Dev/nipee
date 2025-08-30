@@ -215,7 +215,7 @@ class JobService
             $candidate->pivot->save();
 
             DB::commit();
-            return $schedule;
+            return $jobInterview->fresh(['schedule', 'job.company']);
         } catch (\Throwable $th) {
             DB::rollBack();
             report($th);

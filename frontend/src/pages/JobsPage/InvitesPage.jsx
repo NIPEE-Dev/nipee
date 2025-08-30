@@ -26,13 +26,24 @@ import {
   Spinner,
   Alert,
   AlertIcon,
+  useToast,
 } from "@chakra-ui/react";
 import { useNavigate } from "react-router-dom";
 import { useJobs } from "./../../hooks/useJobs";
 
 const InvitesPage = () => {
-  const navigate = useNavigate()
-  const { myInvites, loading, errorMessage, getJobsInvite } = useJobs();
+  const navigate = useNavigate();
+  const toast = useToast();
+  const { 
+    myInvites, 
+    loading, 
+    errorMessage, 
+    successMessage,
+    getJobsInvite, 
+    updateJobInterview, 
+    clearMessages 
+  } = useJobs();
+  
   const [invites, setInvites] = useState([]);
   const [selectedInvite, setSelectedInvite] = useState(null);
   const [selectedSchedule, setSelectedSchedule] = useState("");
@@ -50,13 +61,13 @@ const InvitesPage = () => {
     if (myInvites) {
       const formattedInvites = myInvites.map(invite => {
         const confirmedSchedule = invite.interviewDate && invite.interviewTime
-          ? `${invite.interviewDate.replace(/-/g, '/')} - ${invite.interviewTime.substring(0, 5)}`
+          ? `${new Date(invite.interviewDate).toLocaleDateString('pt-BR')} - ${invite.interviewTime.substring(0, 5)}`
           : null;
         
         const schedules = invite.schedule.map(s => {
           const date = new Date(s.date).toLocaleDateString('pt-BR');
           const time = s.time.substring(0, 5);
-          return `${date} - ${time}`;
+          return { id: s.id, time: `${date} - ${time}` }; 
         });
 
         return {
@@ -73,22 +84,74 @@ const InvitesPage = () => {
     }
   }, [myInvites]);
 
+  useEffect(() => {
+    if (successMessage) {
+      toast({
+        title: "Sucesso!",
+        description: successMessage,
+        status: "success",
+        duration: 5000,
+        isClosable: true,
+      });
+      clearMessages();
+    }
+    if (errorMessage) {
+      toast({
+        title: "Erro!",
+        description: errorMessage,
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+      });
+      clearMessages();
+    }
+  }, [successMessage, errorMessage, toast, clearMessages]);
+
   const handleViewInvite = (invite) => {
     setSelectedInvite(invite);
     setSelectedSchedule(invite.confirmedSchedule || "");
     setIsModalOpen(true);
   };
 
-  const handleConfirm = () => {
+  const handleConfirm = async () => {
     if (selectedSchedule) {
-      setInvites((prev) =>
-        prev.map((inv) =>
-          inv.id === selectedInvite.id
-            ? { ...inv, confirmedSchedule: selectedSchedule }
-            : inv
-        )
-      );
+      try {
+        await updateJobInterview(selectedInvite.id, {
+          scheduleId: Number(selectedSchedule),
+          confirmed: true
+        });
+
+        setInvites((prev) =>
+          prev.map((inv) =>
+            inv.id === selectedInvite.id
+              ? {
+                  ...inv,
+                  confirmedSchedule: selectedInvite.schedules.find(
+                    (s) => s.id === Number(selectedSchedule)
+                  )?.time
+                }
+              : inv
+          )
+        );
+
+        setIsModalOpen(false);
+      } catch (error) {
+        console.error("Erro ao confirmar entrevista:", error);
+      }
+    }
+  };
+
+  const handleReject = async () => {
+    try {
+      const firstScheduleId = selectedInvite.schedules[0]?.id;
+      await updateJobInterview(selectedInvite.id, { 
+        scheduleId: firstScheduleId,
+        confirmed: false 
+      });
+      setInvites((prev) => prev.filter((inv) => inv.id !== selectedInvite.id));
       setIsModalOpen(false);
+    } catch (error) {
+      console.error("Erro ao rejeitar convite:", error);
     }
   };
 
@@ -100,7 +163,7 @@ const InvitesPage = () => {
     );
   }
 
-  if (errorMessage) {
+  if (errorMessage && !isModalOpen) {
     return (
       <Container centerContent>
         <Alert status="error" mt={10} maxW="md">
@@ -195,9 +258,9 @@ const InvitesPage = () => {
                 onChange={setSelectedSchedule}
               >
                 <Stack direction="column">
-                  {selectedInvite.schedules.map((time, i) => (
-                    <Radio key={i} value={time}>
-                      {time}
+                  {selectedInvite.schedules.map((s) => (
+                    <Radio key={s.id} value={s.id.toString()}>
+                      {s.time}
                     </Radio>
                   ))}
                 </Stack>
@@ -208,20 +271,16 @@ const InvitesPage = () => {
                 colorScheme="purple"
                 mr={3}
                 onClick={handleConfirm}
-                isDisabled={!selectedSchedule}
+                isDisabled={!selectedSchedule || loading}
               >
-                Confirmar
+                {loading ? "Confirmando..." : "Confirmar"}
               </Button>
               <Button
                 colorScheme="red"
-                onClick={() => {
-                  setInvites((prev) =>
-                    prev.filter((inv) => inv.id !== selectedInvite.id)
-                  );
-                  setIsModalOpen(false);
-                }}
+                onClick={handleReject}
+                isDisabled={loading}
               >
-                Rejeitar
+                {loading ? "Rejeitando..." : "Rejeitar"}
               </Button>
             </ModalFooter>
           </ModalContent>

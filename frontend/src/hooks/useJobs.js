@@ -7,6 +7,7 @@ import {
   closeJob as closeJobApi,
   createInvite as createInviteApi,
   getJobsInvite as getJobsInviteApi,
+  updateJobInterview as updateJobInterviewApi,
 } from "../services/jobService";
 
 export const useJobs = () => {
@@ -147,6 +148,23 @@ export const useJobs = () => {
       }
   }, [clearMessages]);
 
+    const updateJobInterview = useCallback(async (jobInterviewId, data) => {
+      setLoading(true);
+      clearMessages();
+      try {
+        const response = await updateJobInterviewApi(jobInterviewId, data);
+        setSuccessMessage("Status do convite atualizado com sucesso!");
+        return response;
+      } catch (err) {
+        setErrorMessage(
+          err.response?.data?.message || "Erro ao atualizar status do convite."
+        );
+        throw err;
+      } finally {
+        setLoading(false);
+      }
+    }, [clearMessages]);
+
   return {
     jobs,
     jobDetail,
@@ -162,6 +180,7 @@ export const useJobs = () => {
     closeJob,
     createInvite,
     getJobsInvite,
+    updateJobInterview,
     clearMessages,
   };
 };
