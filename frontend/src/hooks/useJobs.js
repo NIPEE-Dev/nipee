@@ -5,13 +5,15 @@ import {
   applyToJob as applyToJobApi,
   getJobsHistory as getHistoryApi,
   closeJob as closeJobApi,
-  createInvite as createInviteApi 
+  createInvite as createInviteApi,
+  getJobsInvite as getJobsInviteApi,
 } from "../services/jobService";
 
 export const useJobs = () => {
   const [jobs, setJobs] = useState([]);
   const [jobDetail, setJobDetail] = useState(null);
   const [myApplications, setMyApplications] = useState([]);
+  const [myInvites, setMyInvites] = useState([]);
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
@@ -127,10 +129,29 @@ export const useJobs = () => {
     }
   }, [clearMessages]);
 
+  const getJobsInvite = useCallback(async () => {
+      setLoading(true);
+      setMyInvites([]);
+      clearMessages();
+      try {
+        const response = await getJobsInviteApi();
+        console.log(response);
+
+        setMyInvites(response.data || []); 
+      } catch (err) {
+        setErrorMessage(
+          err.response?.data?.message || "Erro ao carregar convites."
+        );
+      } finally {
+        setLoading(false);
+      }
+  }, [clearMessages]);
+
   return {
     jobs,
     jobDetail,
     myApplications,
+    myInvites,
     loading,
     errorMessage,
     successMessage,
@@ -140,6 +161,7 @@ export const useJobs = () => {
     getHistory,
     closeJob,
     createInvite,
+    getJobsInvite,
     clearMessages,
   };
 };

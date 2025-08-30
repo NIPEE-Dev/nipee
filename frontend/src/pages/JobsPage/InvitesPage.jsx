@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Box,
   Container,
@@ -23,33 +23,17 @@ import {
   RadioGroup,
   Stack,
   Radio,
+  Spinner,
+  Alert,
+  AlertIcon,
 } from "@chakra-ui/react";
 import { useNavigate } from "react-router-dom";
-
-const mockInvitesInitial = [
-  {
-    id: 1,
-    role: "Desenvolvedor React",
-    company: "Tech Solutions",
-    message: "Gostaríamos de convidá-lo para uma entrevista.",
-    schedules: ["10/09 - 14h", "11/09 - 10h", "12/09 - 16h"],
-    confirmedSchedule: "10/09 - 14h",
-    jobId: 11,
-  },
-  {
-    id: 2,
-    role: "Analista de Dados",
-    company: "DataCorp",
-    message: "Temos interesse em seu perfil, escolha um horário para entrevista.",
-    schedules: ["15/09 - 09h", "15/09 - 15h"],
-    confirmedSchedule: null,
-    jobId: 12,
-  },
-];
+import { useJobs } from "./../../hooks/useJobs";
 
 const InvitesPage = () => {
-  const navigate = useNavigate();
-  const [invites, setInvites] = useState(mockInvitesInitial);
+  const navigate = useNavigate()
+  const { myInvites, loading, errorMessage, getJobsInvite } = useJobs();
+  const [invites, setInvites] = useState([]);
   const [selectedInvite, setSelectedInvite] = useState(null);
   const [selectedSchedule, setSelectedSchedule] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -57,6 +41,37 @@ const InvitesPage = () => {
   const headerBg = useColorModeValue("gray.100", "gray.600");
   const textColor = useColorModeValue("gray.800", "whiteAlpha.900");
   const accentColor = "purple.500";
+
+  useEffect(() => {
+    getJobsInvite();
+  }, [getJobsInvite]);
+
+  useEffect(() => {
+    if (myInvites) {
+      const formattedInvites = myInvites.map(invite => {
+        const confirmedSchedule = invite.interviewDate && invite.interviewTime
+          ? `${invite.interviewDate.replace(/-/g, '/')} - ${invite.interviewTime.substring(0, 5)}`
+          : null;
+        
+        const schedules = invite.schedule.map(s => {
+          const date = new Date(s.date).toLocaleDateString('pt-BR');
+          const time = s.time.substring(0, 5);
+          return `${date} - ${time}`;
+        });
+
+        return {
+          id: invite.id,
+          role: invite.job,
+          company: invite.company,
+          message: invite.message,
+          schedules: schedules,
+          confirmedSchedule: confirmedSchedule,
+          jobId: invite.jobId,
+        };
+      });
+      setInvites(formattedInvites);
+    }
+  }, [myInvites]);
 
   const handleViewInvite = (invite) => {
     setSelectedInvite(invite);
@@ -76,6 +91,25 @@ const InvitesPage = () => {
       setIsModalOpen(false);
     }
   };
+
+  if (loading) {
+    return (
+      <Container centerContent>
+        <Spinner size="xl" color={accentColor} mt={20} />
+      </Container>
+    );
+  }
+
+  if (errorMessage) {
+    return (
+      <Container centerContent>
+        <Alert status="error" mt={10} maxW="md">
+          <AlertIcon />
+          {errorMessage}
+        </Alert>
+      </Container>
+    );
+  }
 
   return (
     <Container maxW="container.xl" py={10}>
@@ -98,35 +132,43 @@ const InvitesPage = () => {
               </Tr>
             </Thead>
             <Tbody>
-              {invites.map((invite) => (
-                <Tr key={invite.id}>
-                  <Td color={textColor}>{invite.role}</Td>
-                  <Td color={textColor}>{invite.company}</Td>
-                  <Td color={textColor}>
-                    {invite.confirmedSchedule || "Ainda não marcada"}
-                  </Td>
-                  <Td>
-                    <Stack direction="row" spacing={2}>
-                      <Button
-                        size="sm"
-                        colorScheme="purple"
-                        onClick={() => handleViewInvite(invite)}
-                      >
-                        Ver Convite
-                      </Button>
-                      <Button
-                        size="sm"
-                        colorScheme="gray"
-                        onClick={() =>
-                          navigate(`/jobs-candidate/${invite.jobId}`)
-                        }
-                      >
-                        Ver Detalhes da Vaga
-                      </Button>
-                    </Stack>
+              {invites.length > 0 ? (
+                invites.map((invite) => (
+                  <Tr key={invite.id}>
+                    <Td color={textColor}>{invite.role}</Td>
+                    <Td color={textColor}>{invite.company}</Td>
+                    <Td color={textColor}>
+                      {invite.confirmedSchedule || "Ainda não marcada"}
+                    </Td>
+                    <Td>
+                      <Stack direction="row" spacing={2}>
+                        <Button
+                          size="sm"
+                          colorScheme="purple"
+                          onClick={() => handleViewInvite(invite)}
+                        >
+                          Ver Convite
+                        </Button>
+                        <Button
+                          size="sm"
+                          colorScheme="gray"
+                          onClick={() =>
+                            navigate(`/jobs-candidate/${invite.jobId}`)
+                          }
+                        >
+                          Ver Detalhes da Vaga
+                        </Button>
+                      </Stack>
+                    </Td>
+                  </Tr>
+                ))
+              ) : (
+                <Tr>
+                  <Td colSpan={4} textAlign="center" color={textColor}>
+                    Nenhum convite recebido.
                   </Td>
                 </Tr>
-              ))}
+              )}
             </Tbody>
           </Table>
         </Box>
@@ -162,26 +204,26 @@ const InvitesPage = () => {
               </RadioGroup>
             </ModalBody>
             <ModalFooter>
-                <Button
-                    colorScheme="purple"
-                    mr={3}
-                    onClick={handleConfirm}
-                    isDisabled={!selectedSchedule}
-                >
-                    Confirmar
-                </Button>
-                <Button
-                    colorScheme="red"
-                    onClick={() => {
-                    setInvites((prev) =>
-                        prev.filter((inv) => inv.id !== selectedInvite.id)
-                    );
-                    setIsModalOpen(false);
-                    }}
-                >
-                    Rejeitar
-                </Button>
-                </ModalFooter>
+              <Button
+                colorScheme="purple"
+                mr={3}
+                onClick={handleConfirm}
+                isDisabled={!selectedSchedule}
+              >
+                Confirmar
+              </Button>
+              <Button
+                colorScheme="red"
+                onClick={() => {
+                  setInvites((prev) =>
+                    prev.filter((inv) => inv.id !== selectedInvite.id)
+                  );
+                  setIsModalOpen(false);
+                }}
+              >
+                Rejeitar
+              </Button>
+            </ModalFooter>
           </ModalContent>
         </Modal>
       )}

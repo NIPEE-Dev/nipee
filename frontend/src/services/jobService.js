@@ -23,3 +23,7 @@ export const closeJob = async (jobId, data) => {
 export const createInvite = async (jobId, data) => {
   return await api.post(`/jobs/${jobId}/invite/interview`, data);
 };
+
+export const getJobsInvite = async () => {
+  return await api.get('/jobs/invites/interview');
+};
