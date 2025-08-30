@@ -13,6 +13,7 @@ class InviteSchedule extends Model
         'date',
         'time',
         'accepted',
+        'status',
         'invite_id'
     ];
 
