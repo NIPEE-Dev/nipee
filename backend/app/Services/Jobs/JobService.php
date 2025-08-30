@@ -180,7 +180,7 @@ class JobService
             $candidate = Candidate::where('id', $data['candidateId'])->first();
             if (!isset($candidate)) throw new HttpException(400, 'Candidato não encontrado');
 
-            Mail::to($candidate->user->email)->send(new JobInterviewInviteMail());
+            Mail::to($candidate->user->email)->send(new JobInterviewInviteMail($candidate, $invite));
 
             DB::commit();
 

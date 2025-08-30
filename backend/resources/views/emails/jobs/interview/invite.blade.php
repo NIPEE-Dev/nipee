@@ -66,6 +66,21 @@
 <body>
     <div class="email-container">
         <h1>Você foi convidado para uma entrevista</h1>
+
+        <p class="greeting">Olá, {{ $candidate->user->name }}!</p>
+
+        <p>{{ $invite->message }}</p>
+
+        <p>Confira abaixo os horários sugeridos:</p>
+        <ul>
+            @foreach ($invite->schedule as $schedule)
+                <li>{{ \Carbon\Carbon::parse($schedule->date)->format('d/m/Y H:i') }}</li>
+            @endforeach
+        </ul>
+
+        <div class="footer">
+            <p>Equipe NIPEE</p>
+        </div>
     </div>
 </body>
 </html>

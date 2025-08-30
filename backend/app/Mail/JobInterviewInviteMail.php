@@ -18,9 +18,14 @@ class JobInterviewInviteMail extends Mailable
      *
      * @return void
      */
-    public function __construct()
+
+    public $candidate;
+    public $invite;
+
+    public function __construct($candidate, $invite)
     {
-        //
+        $this->candidate = $candidate;
+        $this->invite = $invite;
     }
 
     /**
@@ -31,7 +36,7 @@ class JobInterviewInviteMail extends Mailable
     public function envelope()
     {
         return new Envelope(
-            subject: 'Job Invite Mail',
+            subject: 'Você foi convidado para uma entrevista - NIPEE',
         );
     }
 
@@ -44,6 +49,10 @@ class JobInterviewInviteMail extends Mailable
     {
         return new Content(
             view: 'emails.jobs.interview.invite',
+            with: [
+                'candidate' => $this->candidate,
+                'invite' => $this->invite,
+            ]
         );
     }
 
