@@ -18,6 +18,7 @@ class InterviewScheduleResource extends JsonResource
             'id' => $this->id,
             'date' => $this->date,
             'time' => $this->time,
+            'accepted' => $this->accepted
         ];
     }
 }

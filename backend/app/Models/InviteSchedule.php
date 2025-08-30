@@ -17,6 +17,10 @@ class InviteSchedule extends Model
         'invite_id'
     ];
 
+    protected $casts = [
+        'accepted' => 'boolean',
+    ];
+
     public function schedule()
     {
         return $this->belongsTo(JobInterviewInvite::class);

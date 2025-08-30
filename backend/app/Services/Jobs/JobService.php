@@ -207,6 +207,9 @@ class JobService
             if (!isset($schedule)) throw new HttpException(400, 'Horário não encontrado');
 
             $schedule->status = $data['confirmed'] ? JobInterviewInviteStatusEnum::ACCEPTED : JobInterviewInviteStatusEnum::DENIED;
+
+            if ($data['confirmed']) $schedule->accepted = true;
+
             $schedule->save();
 
             $candidate = $jobInterview->job->candidates->where('id', $data['candidateId'])->first();
