@@ -21,6 +21,7 @@ class InterviewInviteResource extends JsonResource
             'job' => $this->job->role,
             'company' => $this->job->company->corporate_name,
             'jobId' => $this->job_id,
+            'message' => $this->message,
             'interviewDate' => $scheduledInterview->date ?? null,
             'interviewTime' => $scheduledInterview->time ?? null,
             'schedule' => InterviewScheduleResource::collection($this->schedule),
