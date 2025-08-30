@@ -160,4 +160,9 @@ class Candidate extends Model
             ->where('status', '=', ActiveEnum::ACTIVE)
             ->exists();
     }
+
+    public function invites()
+    {
+        return $this->hasMany(JobInterviewInvite::class);
+    }
 }

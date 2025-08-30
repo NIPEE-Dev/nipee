@@ -35,11 +35,11 @@ import { useJobs } from "./../../hooks/useJobs";
 const statusColorMap = {
   1: 'yellow', // PENDING
   4: 'purple', // WAITING_RESPONSE
-  5: 'blue',   // INTERVIEWING
+  5: 'blue',   // INTERVIEWING
   7: 'orange', // TESTING
-  2: 'green',  // APPROVED
-  3: 'red',    // DENIED
-  6: 'red',    // INTERVIEW_REJECT_BY_USER
+  2: 'green',  // APPROVED
+  3: 'red',    // DENIED
+  6: 'red',    // INTERVIEW_REJECT_BY_USER
 };
 
 const CandidacyTable = ({ candidates, jobId }) => {
@@ -189,6 +189,7 @@ const CandidacyTable = ({ candidates, jobId }) => {
               <Th>Localidade</Th>
               <Th>Concelho</Th>
               <Th>Telemóvel</Th>
+              <Th>Entrevista Agendada</Th>
               <Th>Status</Th>
               <Th>Ações</Th>
             </Tr>
@@ -216,6 +217,15 @@ const CandidacyTable = ({ candidates, jobId }) => {
                 <Td>{c.council || 'N/A'}</Td>
                 <Td>{c.phone || 'N/A'}</Td>
                 <Td>
+                  {c.interviewSchedules && c.interviewSchedules.length > 0 ? (
+                    <Text>
+                      {c.interviewSchedules[0].date} às {c.interviewSchedules[0].time}
+                    </Text>
+                  ) : (
+                    <Text color="gray.500" fontSize="sm">Ainda não agendada</Text>
+                  )}
+                </Td>
+                <Td>
                   <Badge 
                     colorScheme={statusColorMap[c.status]} 
                     px={2} 
@@ -225,24 +235,23 @@ const CandidacyTable = ({ candidates, jobId }) => {
                     {c.statusLabel || 'Desconhecido'}
                   </Badge>
                 </Td>
-              <Td>
-                <Flex gap={2}>
-                  <Button size="xs" colorScheme="blue" onClick={() => handleViewProfile(c.id)}>Ver Perfil</Button>
-                  {c.status == 1 && (
-                    <>
-                      <Button size="xs" colorScheme="purple" onClick={() => openModal(c, 'INVITE')}>Marcar Entrevista</Button>
-                      <Button size="xs" colorScheme="red" onClick={() => handleReject(c.id)}>Rejeitar</Button>
-                    </>
-                  )}
-                  {c.status == 5 && (
-                    <Button size="xs" colorScheme="orange" onClick={() => openModal(c, 'INTERVIEW')}>Avaliar Entrevista</Button>
-                  )}
-                  {c.status == 7 && (
-                    <Button size="xs" colorScheme="teal" onClick={() => openModal(c, 'TEST')}>Avaliar Teste</Button>
-                  )}
-
-                </Flex>
-              </Td>
+                <Td>
+                  <Flex gap={2}>
+                    <Button size="xs" colorScheme="blue" onClick={() => handleViewProfile(c.id)}>Ver Perfil</Button>
+                    {c.status == 1 && (
+                      <>
+                        <Button size="xs" colorScheme="purple" onClick={() => openModal(c, 'INVITE')}>Marcar Entrevista</Button>
+                        <Button size="xs" colorScheme="red" onClick={() => handleReject(c.id)}>Rejeitar</Button>
+                      </>
+                    )}
+                    {c.status == 5 && (
+                      <Button size="xs" colorScheme="orange" onClick={() => openModal(c, 'INTERVIEW')}>Avaliar Entrevista</Button>
+                    )}
+                    {c.status == 7 && (
+                      <Button size="xs" colorScheme="teal" onClick={() => openModal(c, 'TEST')}>Avaliar Teste</Button>
+                    )}
+                  </Flex>
+                </Td>
               </Tr>
             ))}
           </Tbody>

@@ -27,6 +27,18 @@ class JobCandidateResource extends JsonResource
             'statusLabel' => JobCandidateStatusEnum::getLabel(''.$this->pivot->status),
             'status' => (int) $this->pivot->status,
             'resume' => $this->resume,
+            'interviewSchedules' => $this->invites
+                ->where('job_id', $this->pivot->job_id)
+                ->flatMap(function ($invite) {
+                    return $invite->schedule
+                        ->where('status', \App\Enums\JobInterviewInviteStatusEnum::ACCEPTED->value) 
+                        ->map(function ($schedule) {
+                            return [
+                                'date' => \Carbon\Carbon::parse($schedule->date)->format('d/m/Y'),
+                                'time' => \Carbon\Carbon::parse($schedule->time)->format('H:i'), 
+                            ];
+                        });
+                }),
         ];
     }
 }
