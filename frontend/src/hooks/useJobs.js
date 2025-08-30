@@ -136,8 +136,6 @@ export const useJobs = () => {
       clearMessages();
       try {
         const response = await getJobsInviteApi();
-        console.log(response);
-
         setMyInvites(response.data || []); 
       } catch (err) {
         setErrorMessage(

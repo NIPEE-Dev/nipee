@@ -205,19 +205,19 @@ const InvitesPage = () => {
                     </Td>
                     <Td>
                       <Stack direction="row" spacing={2}>
-                        <Button
-                          size="sm"
-                          colorScheme="purple"
-                          onClick={() => handleViewInvite(invite)}
-                        >
-                          Ver Convite
-                        </Button>
+                        {invite.schedule && !invite.schedule.some(s => s.accepted) && (
+                          <Button
+                            size="sm"
+                            colorScheme="purple"
+                            onClick={() => handleViewInvite(invite)}
+                          >
+                            Ver Convite
+                          </Button>
+                        )}
                         <Button
                           size="sm"
                           colorScheme="gray"
-                          onClick={() =>
-                            navigate(`/jobs-candidate/${invite.jobId}`)
-                          }
+                          onClick={() => navigate(`/jobs-candidate/${invite.jobId}`)}
                         >
                           Ver Detalhes da Vaga
                         </Button>
