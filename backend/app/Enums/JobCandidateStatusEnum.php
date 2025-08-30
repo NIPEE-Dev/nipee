@@ -12,12 +12,16 @@ enum JobCandidateStatusEnum: string
     case INTERVIEW_REJECT_BY_USER = '6';
     case TESTING = '7';
 
-    public static function getLabel(self $status): string
+    public static function getLabel($status): string
     {
         return match ($status) {
-            JobCandidateStatusEnum::PENDING => 'Pendente',
-            JobCandidateStatusEnum::APPROVED => 'Aprovado',
-            JobCandidateStatusEnum::DENIED => 'Reprovado',
+            JobCandidateStatusEnum::PENDING->value => 'Pendente',
+            JobCandidateStatusEnum::APPROVED->value => 'Aprovado',
+            JobCandidateStatusEnum::DENIED->value => 'Reprovado',
+            JobCandidateStatusEnum::WAITING_RESPONSE->value => 'Esperando resposta',
+            JobCandidateStatusEnum::INTERVIEWING->value => 'Em entrevista',
+            JobCandidateStatusEnum::INTERVIEW_REJECT_BY_USER->value => 'Entrevista rejeitadda',
+            JobCandidateStatusEnum::TESTING->value => 'Em teste',
         };
     }
 }
