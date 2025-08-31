@@ -102,8 +102,20 @@ const ApplicationHistory = () => {
     navigate(`/jobs-candidate/${jobId}`);
   };
 
-  const handleViewFeedback = (feedbackMessage) => {
-    setFeedback(feedbackMessage || "Nenhum feedback disponível.");
+  const handleViewFeedback = (interviews) => {
+    let feedbackMessage = "Nenhum feedback disponível.";
+
+    const testInterview = interviews.find(int => int.testing_evaluation);
+    if (testInterview) {
+      feedbackMessage = testInterview.testing_evaluation;
+    } else {
+      const interview = interviews.find(int => int.interview_evaluation);
+      if (interview) {
+        feedbackMessage = interview.interview_evaluation;
+      }
+    }
+    
+    setFeedback(feedbackMessage);
     setIsModalOpen(true);
   };
 
@@ -178,11 +190,11 @@ const ApplicationHistory = () => {
                       Ver Detalhes
                     </Button>
 
-                    {app.status === 3 && (
+                    {(app.status === 3 || app.status === 6) && (app.interviews && app.interviews.length > 0) && (
                       <Button
                         size="sm"
                         colorScheme="red"
-                        onClick={() => handleViewFeedback(app.feedback)}
+                        onClick={() => handleViewFeedback(app.interviews)}
                       >
                         Ver Feedback
                       </Button>

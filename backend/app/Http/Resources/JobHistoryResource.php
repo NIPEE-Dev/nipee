@@ -20,6 +20,7 @@ class JobHistoryResource extends JsonResource
             'company' => $this->company->corporate_name,
             'appliedAt' => $this->candidates[0]->pivot->created_at ?? null,
             'status' => $this->candidates[0]->pivot->status,
+            'interviews' => InterviewInviteResource::collection($this->invites),
         ];
     }
 }
