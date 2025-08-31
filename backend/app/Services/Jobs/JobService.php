@@ -10,6 +10,7 @@ use App\Enums\JobInterviewInviteStatusEnum;
 use App\Enums\JobStatusEnum;
 use App\Enums\RolesEnum;
 use App\Jobs\SendMail;
+use App\Mail\AcceptInterviewMail;
 use App\Mail\CandidateCalledMail;
 use App\Mail\JobInterviewInviteMail;
 use App\Models\Candidate;
@@ -19,6 +20,7 @@ use App\Models\Jobs\JobCandidate;
 use App\Models\Users\User;
 use App\Services\Documents\WordProcessor;
 use App\Traits\Common\Filterable;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
@@ -208,7 +210,13 @@ class JobService
 
             $schedule->status = $data['confirmed'] ? JobInterviewInviteStatusEnum::ACCEPTED : JobInterviewInviteStatusEnum::DENIED;
 
-            if ($data['confirmed']) $schedule->accepted = true;
+            if ($data['confirmed']) {
+                $schedule->accepted = true;
+                $interviewDatetime = new Carbon($schedule->date);
+                $interviewDatetime->setTimeFromTimeString($schedule->time);
+                $candidate = Candidate::query()->where('id', $data['candidateId'])->first();
+                Mail::to($candidate->user->email)->send(new AcceptInterviewMail($candidate->name, $interviewDatetime->format('d/m/Y H:i')));
+            }
 
             $schedule->save();
 
