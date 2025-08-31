@@ -45,7 +45,7 @@ const statusColorMap = {
 const CandidacyTable = ({ candidates, jobId }) => {
   const toast = useToast();
   const navigate = useNavigate();
-  const { createInvite, updateJobInterviewEvaluation, loading, errorMessage, successMessage, clearMessages } = useJobs();
+  const { createInvite, updateJobInterviewEvaluation, updateJobInterviewTesting, loading, errorMessage, successMessage, clearMessages } = useJobs();
 
   const [visibleCandidates, setVisibleCandidates] = useState(candidates || []);
   const [selectedCandidate, setSelectedCandidate] = useState(null);
@@ -153,32 +153,54 @@ const CandidacyTable = ({ candidates, jobId }) => {
       return;
     }
     
-    const evaluationPayload = {
-      interviewEvaluation: evaluation,
-      approved: approved,
-    };
+    let evaluationPayload = {};
+    let newStatus;
     
-    try {
-      await updateJobInterviewEvaluation(jobId, selectedCandidate.id, evaluationPayload);
-      
-      const newStatus = approved ? CandidateJobStatusNew.IN_TESTS : CandidateJobStatusNew.DENIED;
-      setVisibleCandidates((prev) =>
-        prev.map((c) =>
-          c.id === selectedCandidate.id
-            ? {
-                ...c,
-                status: newStatus,
-                statusLabel: approved ? CandidateJobStatusNew[CandidateJobStatusNew.IN_TESTS] : CandidateJobStatusNew[CandidateJobStatusNew.DENIED],
-                evaluation,
-              }
-            : c
-        )
-      );
-      
-      closeModal();
-    } catch (error) {
-      console.error("Erro ao atualizar avaliação: ", error);
+    if (modalType === 'INTERVIEW') {
+        evaluationPayload = {
+            interviewEvaluation: evaluation,
+            approved: approved,
+        };
+        newStatus = approved ? CandidateJobStatusNew.IN_TESTS : CandidateJobStatusNew.DENIED;
+
+        try {
+            await updateJobInterviewEvaluation(jobId, selectedCandidate.id, evaluationPayload);
+            updateLocalState(newStatus, evaluation);
+            closeModal();
+        } catch (error) {
+            console.error("Erro ao atualizar avaliação de entrevista: ", error);
+        }
+
+    } else if (modalType === 'TEST') {
+        evaluationPayload = {
+            testingEvaluation: evaluation,
+            approved: approved,
+        };
+        newStatus = approved ? CandidateJobStatusNew.HIRED : CandidateJobStatusNew.DENIED;
+
+        try {
+            await updateJobInterviewTesting(jobId, selectedCandidate.id, evaluationPayload);
+            updateLocalState(newStatus, evaluation);
+            closeModal();
+        } catch (error) {
+            console.error("Erro ao atualizar avaliação de teste: ", error);
+        }
     }
+  };
+
+  const updateLocalState = (newStatus, evaluation) => {
+    setVisibleCandidates((prev) =>
+      prev.map((c) =>
+        c.id === selectedCandidate.id
+          ? {
+              ...c,
+              status: newStatus,
+              statusLabel: CandidateJobStatusNew[newStatus],
+              evaluation,
+            }
+          : c
+      )
+    );
   };
 
   return (

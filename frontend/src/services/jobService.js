@@ -35,3 +35,7 @@ export const updateJobInterview = async (jobInterviewId, data) => {
 export const updateJobInterviewEvaluation = async (jobId, candidateId, data) => {
   return await api.put(`/jobs/${jobId}/invite/interview/${candidateId}/evaluation`, data);
 };
+
+export const updateJobInterviewTesting = async (jobId, candidateId, data) => {
+  return await api.put(`/jobs/${jobId}/invite/interview/${candidateId}/testing`, data);
+};

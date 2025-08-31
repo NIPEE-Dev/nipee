@@ -9,6 +9,7 @@ import {
   getJobsInvite as getJobsInviteApi,
   updateJobInterview as updateJobInterviewApi,
   updateJobInterviewEvaluation as updateJobInterviewEvaluationApi,
+  updateJobInterviewTesting as updateJobInterviewTestingApi,
 } from "../services/jobService";
 
 export const useJobs = () => {
@@ -181,6 +182,23 @@ export const useJobs = () => {
       }
     }, [clearMessages]);
 
+    const updateJobInterviewTesting = useCallback(async (jobId, candidateId, data) => {
+      setLoading(true);
+      clearMessages();
+      try {
+        const response = await updateJobInterviewTestingApi(jobId, candidateId, data);
+        setSuccessMessage("Avaliação do teste atualizada com sucesso!");
+        return response;
+      } catch (err) {
+        setErrorMessage(
+          err.response?.data?.message || "Erro ao atualizar avaliação do teste."
+        );
+        throw err;
+      } finally {
+        setLoading(false);
+      }
+    }, [clearMessages]);
+
   return {
     jobs,
     jobDetail,
@@ -198,6 +216,7 @@ export const useJobs = () => {
     getJobsInvite,
     updateJobInterview,
     updateJobInterviewEvaluation,
+    updateJobInterviewTesting,
     clearMessages,
   };
 };
