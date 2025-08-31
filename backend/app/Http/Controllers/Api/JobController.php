@@ -67,7 +67,7 @@ class JobController extends Controller
      */
     public function show(Job $job)
     {
-        return new JobResource($job->load(['workingDay', 'documents', 'candidates']));
+        return new JobResource($job->load(['workingDay', 'documents', 'candidates', 'courses']));
     }
 
     /**
