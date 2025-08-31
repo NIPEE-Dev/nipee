@@ -106,10 +106,10 @@
         <script src="{{ asset('js/vendor.min.js') }}"></script>
         <script src="{{ asset('libs/sweetalert2/sweetalert2.all.min.js') }}"></script>
         <script src="{{ asset('libs/parsleyjs/parsley.min.js') }}"></script>
-        <script src="{{ asset('libs/parsleyjs/i18n/pt-br.js') }}"></script>
+        <script src="{{ asset('libs/parsleyjs/i18n/pt-pt.js') }}"></script>
         <script src="{{ asset('libs/jquery-mask-plugin/jquery.mask.min.js') }}"></script>
         <script src="{{ asset('libs/moment/moment.js') }}"></script>
-        <script src="{{ asset('libs/moment/locale/pt-br.js') }}"></script>
+        <script src="{{ asset('libs/moment/locale/pt-pt.js') }}"></script>
         <script src="{{ asset('libs/bootstrap-select/js/bootstrap-select-custom.js') }}"></script>
         <script src="{{ asset('libs/bootstrap-select/js/i18n/defaults-pt_BR.js') }}"></script>
         <script src="{{ asset('libs/bootstrap-daterangepicker/daterangepicker.js') }}"></script>

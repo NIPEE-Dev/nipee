@@ -61,11 +61,11 @@ const InvitesPage = () => {
     if (myInvites) {
       const formattedInvites = myInvites.map(invite => {
         const confirmedSchedule = invite.interviewDate && invite.interviewTime
-          ? `${new Date(invite.interviewDate).toLocaleDateString('pt-BR')} - ${invite.interviewTime.substring(0, 5)}`
+          ? `${new Date(invite.interviewDate).toLocaleDateString('pt-PT')} - ${invite.interviewTime.substring(0, 5)}`
           : null;
         
         const schedules = invite.schedule.map(s => {
-          const date = new Date(s.date).toLocaleDateString('pt-BR');
+          const date = new Date(s.date).toLocaleDateString('pt-PT');
           const time = s.time.substring(0, 5);
           return { id: s.id, time: `${date} - ${time}` }; 
         });

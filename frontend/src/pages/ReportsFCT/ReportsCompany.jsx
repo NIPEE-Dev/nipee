@@ -624,7 +624,7 @@ const ReportsCompany = () => {
                                   Data:{" "}
                                   {new Date(
                                     date + "T00:00:00"
-                                  ).toLocaleDateString("pt-BR", {
+                                  ).toLocaleDateString("pt-PT", {
                                     weekday: "long",
                                     day: "2-digit",
                                     month: "long",
@@ -809,7 +809,7 @@ const ReportsCompany = () => {
                                 Data:{" "}
                                 {new Date(
                                   date + "T00:00:00"
-                                ).toLocaleDateString("pt-BR", {
+                                ).toLocaleDateString("pt-PT", {
                                   weekday: "long",
                                   day: "2-digit",
                                   month: "long",
@@ -858,7 +858,7 @@ const ReportsCompany = () => {
                                       <strong>Data da Atividade:</strong>{" "}
                                       {new Date(
                                         sub.activityDate + "T00:00:00"
-                                      ).toLocaleDateString("pt-BR")}
+                                      ).toLocaleDateString("pt-PT")}
                                     </Text>
                                     <Text fontSize="sm">
                                       <strong>Horas:</strong>{" "}
@@ -887,7 +887,7 @@ const ReportsCompany = () => {
                                       {sub.justificated_at
                                         ? new Date(
                                             sub.justificated_at
-                                          ).toLocaleString("pt-BR")
+                                          ).toLocaleString("pt-PT")
                                         : "N/A"}
                                     </Text>
                                   </Box>
