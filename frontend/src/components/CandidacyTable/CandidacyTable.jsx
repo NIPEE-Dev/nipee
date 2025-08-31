@@ -35,17 +35,17 @@ import { useJobs } from "./../../hooks/useJobs";
 const statusColorMap = {
   1: 'yellow', // PENDING
   4: 'purple', // WAITING_RESPONSE
-  5: 'blue',   // INTERVIEWING
+  5: 'blue',   // INTERVIEWING
   7: 'orange', // TESTING
-  2: 'green',  // APPROVED
-  3: 'red',    // DENIED
-  6: 'red',    // INTERVIEW_REJECT_BY_USER
+  2: 'green',  // APPROVED
+  3: 'red',    // DENIED
+  6: 'red',    // INTERVIEW_REJECT_BY_USER
 };
 
 const CandidacyTable = ({ candidates, jobId }) => {
   const toast = useToast();
   const navigate = useNavigate();
-  const { createInvite, loading, errorMessage, successMessage, clearMessages } = useJobs();
+  const { createInvite, updateJobInterviewEvaluation, loading, errorMessage, successMessage, clearMessages } = useJobs();
 
   const [visibleCandidates, setVisibleCandidates] = useState(candidates || []);
   const [selectedCandidate, setSelectedCandidate] = useState(null);
@@ -147,33 +147,38 @@ const CandidacyTable = ({ candidates, jobId }) => {
     }
   };
 
-  const handleEvaluation = (approved) => {
+  const handleEvaluation = async (approved) => {
     if (!evaluation.trim()) {
       toast({ title: 'Preencha a avaliação antes de continuar.', status: 'error', duration: 2000 });
       return;
     }
-
-    setVisibleCandidates((prev) =>
-      prev.map((c) =>
-        c.id === selectedCandidate.id
-          ? {
-              ...c,
-              status: approved
-                ? modalType === 'INTERVIEW'
-                  ? CandidateJobStatusNew.IN_TESTS
-                  : CandidateJobStatusNew.HIRED
-                : 6,
-              evaluation,
-            }
-          : c
-      )
-    );
-    toast({
-      title: approved ? 'Aprovado!' : 'Reprovado!',
-      status: approved ? 'success' : 'error',
-      duration: 2000,
-    });
-    closeModal();
+    
+    const evaluationPayload = {
+      interviewEvaluation: evaluation,
+      approved: approved,
+    };
+    
+    try {
+      await updateJobInterviewEvaluation(jobId, selectedCandidate.id, evaluationPayload);
+      
+      const newStatus = approved ? CandidateJobStatusNew.IN_TESTS : CandidateJobStatusNew.DENIED;
+      setVisibleCandidates((prev) =>
+        prev.map((c) =>
+          c.id === selectedCandidate.id
+            ? {
+                ...c,
+                status: newStatus,
+                statusLabel: approved ? CandidateJobStatusNew[CandidateJobStatusNew.IN_TESTS] : CandidateJobStatusNew[CandidateJobStatusNew.DENIED],
+                evaluation,
+              }
+            : c
+        )
+      );
+      
+      closeModal();
+    } catch (error) {
+      console.error("Erro ao atualizar avaliação: ", error);
+    }
   };
 
   return (

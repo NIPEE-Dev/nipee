@@ -205,7 +205,7 @@ const InvitesPage = () => {
                     </Td>
                     <Td>
                       <Stack direction="row" spacing={2}>
-                        {invite.schedule && !invite.schedule.some(s => s.accepted) && (
+                        {invite.confirmedSchedule === null && (
                           <Button
                             size="sm"
                             colorScheme="purple"
