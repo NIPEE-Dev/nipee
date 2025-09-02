@@ -24,9 +24,14 @@ class JobResource extends JsonResource
             $coursesIds = $this->courses->pluck('id');
             $candidatesIds = $this->candidates->pluck('id');
             $allowedGenders = $this->gender === GenderEnum::AMBOS->value ? [GenderEnum::FEMALE->value, GenderEnum::MALE->value] : [$this->gender];
-            $candidates = Candidate::query()->whereNotIn('id', $candidatesIds)->whereHas('contracts', function ($query) {
-                $query->where('status', ActiveEnum::NOT_ACTIVE->value);
-            })->whereIn('course', $coursesIds)->whereIn('gender', $allowedGenders)->get();
+            $candidates = Candidate::query()
+                ->whereNotIn('id', $candidatesIds)
+                ->where(function ($q) {
+                    $q->orWhereDoesntHave('contracts')->orWhereHas('contracts', function ($query) {
+                        $query->where('status', ActiveEnum::NOT_ACTIVE->value);
+                    });
+                })
+                ->whereIn('course', $coursesIds)->whereIn('gender', $allowedGenders)->get();
             $compatibleCandidates = $candidates;
         }
 
