@@ -271,4 +271,33 @@ class JobService
             throw $th;
         }
     }
+
+    public function inviteToJob(Job $job, $data)
+    {
+        try {
+            DB::beginTransaction();
+            $candidateId = $data['candidateId'];
+            $alreadyApplied = $job->candidates->where('id', $candidateId)->first();
+            if (isset($alreadyApplied)) throw new HttpException(400, 'Esse candidato já participa dessa vaga');
+
+            $candidate = Candidate::query()->where('id', $candidateId)->first();
+            $job->candidates()->attach($candidate, ['status' => JobCandidateStatusEnum::WAITING_RESPONSE]);
+
+            $invite = $job->invites()->create([
+                'candidate_id' => $candidateId,
+                'message' => $data['message']
+            ]);
+
+            $invite->schedule()->createMany($data['schedules']);
+
+            Mail::to($candidate->user->email)->send(new JobInterviewInviteMail($candidate, $invite));
+
+            DB::commit();
+        } catch (\Throwable $th) {
+            dd($th);
+            DB::rollBack();
+            report($th);
+            throw $th;
+        }
+    }
 }

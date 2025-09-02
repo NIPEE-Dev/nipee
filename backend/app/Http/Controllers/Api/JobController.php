@@ -6,6 +6,7 @@ use App\Enums\JobStatusEnum;
 use App\Enums\RolesEnum;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\FilterRequest;
+use App\Http\Requests\InviteToJobRequest;
 use App\Http\Requests\Jobs\StoreJobsRequest;
 use App\Http\Requests\Jobs\UpdateJobsRequest;
 use App\Http\Requests\StoreInterviewInviteRequest;
@@ -184,5 +185,13 @@ class JobController extends Controller
         $invite = $this->jobService->updateJobTestingEvaluation([...$data, 'candidateId' => $candidateId]);
 
         return response()->json(new InterviewInviteResource($invite));
+    }
+
+    public function inviteToJob(InviteToJobRequest $request, Job $job)
+    {
+        $data = $request->validated();
+        $this->jobService->inviteToJob($job, $data);
+
+        return response(null, 204);
     }
 }
