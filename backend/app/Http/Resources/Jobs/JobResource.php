@@ -32,7 +32,6 @@ class JobResource extends JsonResource
                     });
                 })
                 ->whereIn('course', $coursesIds)->whereIn('gender', $allowedGenders)->get();
-            dd($candidates);
             $compatibleCandidates = $candidates;
         }
 
