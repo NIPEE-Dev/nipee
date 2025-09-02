@@ -69,7 +69,7 @@
 
         <p>O candidato(a) {{$candidate}} aceitou o convite de entrevista no seguinte horário:</p>
         <ul>
-            <li>{{ \Carbon\Carbon::parse($schedule)->format('d/m/Y H:i') }}</li>
+            <li>{{ \Carbon\Carbon::createFromFormat('d/m/Y H:i', $schedule)->format('d/m/Y H:i') }}</li>
         </ul>
 
         <div class="footer">

@@ -602,7 +602,7 @@ export const JobsForm = ({ readOnly, typeForm, isLoading, ...props }) => {
                 typeForm={typeForm}
                 readOnly={readOnly}
                 jobId={props.initialValues.id}
-                candidates={props.initialValues.candidates}
+                candidates={props.initialValues.compatible_candidates}
               />
             </GroupContainer>
           )}
