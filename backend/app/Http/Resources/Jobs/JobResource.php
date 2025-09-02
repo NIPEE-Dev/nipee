@@ -23,7 +23,7 @@ class JobResource extends JsonResource
         if (isset($this->courses)) {
             $coursesIds = $this->courses->pluck('id');
             $candidatesIds = $this->candidates->pluck('id');
-            $allowedGenders = $this->gender === GenderEnum::AMBOS->value ? [GenderEnum::FEMALE->value, GenderEnum::MALE->value] : [$this->gender];
+            $allowedGenders = $this->gender === GenderEnum::AMBOS->value ? [GenderEnum::FEMALE, GenderEnum::MALE] : [$this->gender];
             $candidates = Candidate::query()
                 ->whereNotIn('id', $candidatesIds)
                 ->where(function ($q) {
