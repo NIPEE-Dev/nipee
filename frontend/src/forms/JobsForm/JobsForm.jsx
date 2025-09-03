@@ -240,6 +240,15 @@ export const JobsForm = ({ readOnly, typeForm, isLoading, ...props }) => {
                 required
               />
               <FastField
+                id='vacancy_available'
+                name='vacancy_available'
+                placeholder='Número de vagas disponíveis'
+                component={FormField}
+                type='number'
+                readOnly={readOnly}
+                required
+              />
+              <FastField
                 id='gender'
                 name='gender'
                 placeholder='Sexo'
