@@ -42,6 +42,7 @@ class StoreJobsRequest extends FormRequest
             'working_day.end_weekday' => 'required|between:0,6',
             'working_day.start_hour' => 'nullable',
             'working_day.end_hour' => 'nullable',
+            'max_approvals' => ['required', 'integer'],
         ];
     }
 }

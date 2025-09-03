@@ -53,6 +53,7 @@ class UpdateJobsRequest extends FormRequest
             'workingDay.day_off_end_hour' => 'sometimes',
             'workingDay.day_off' => 'sometimes|string|min:2|max:255',
             'workingDay.working_hours' => 'sometimes|numeric|between:1,168',
+            'max_approvals' => ['sometimes', 'integer'],
         ];
     }
 }

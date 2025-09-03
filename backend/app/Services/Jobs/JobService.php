@@ -25,6 +25,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 
@@ -126,6 +127,17 @@ class JobService
                     'disapproved' => '1'
                 ]
             );
+
+            if ($status === JobCandidateStatusEnum::APPROVED->value) {
+                $max = $job->max_approvals;
+                $approvedCandidates = $job->candidates->where(function ($q) {
+                    return $q->pivot->status === intval(JobCandidateStatusEnum::APPROVED->value);
+                });
+                if (count($approvedCandidates) === $max) {
+                    $job->status = JobStatusEnum::CLOSED;
+                    $job->save();
+                }
+            }
 
             return $job->history()->create([
                 'candidate_id' => $candidate->id,
@@ -294,7 +306,6 @@ class JobService
 
             DB::commit();
         } catch (\Throwable $th) {
-            dd($th);
             DB::rollBack();
             report($th);
             throw $th;
