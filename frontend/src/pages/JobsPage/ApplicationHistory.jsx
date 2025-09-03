@@ -190,10 +190,10 @@ const ApplicationHistory = () => {
                       Ver Detalhes
                     </Button>
 
-                    {(app.status === 3 || app.status === 6) && (app.interviews && app.interviews.length > 0) && (
+                    {(app.status === 3 || app.status === 6 || app.status === 2) && (app.interviews && app.interviews.length > 0) && (
                       <Button
                         size="sm"
-                        colorScheme="red"
+                        colorScheme="blue"
                         onClick={() => handleViewFeedback(app.interviews)}
                       >
                         Ver Feedback
