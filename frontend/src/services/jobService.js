@@ -24,6 +24,10 @@ export const createInvite = async (jobId, data) => {
   return await api.post(`/jobs/${jobId}/invite/interview`, data);
 };
 
+export const createInviteCompatible = async (jobId, data) => {
+  return await api.post(`/jobs/${jobId}/invite`, data);
+};
+
 export const getJobsInvite = async () => {
   return await api.get('/jobs/invites/interview');
 };
