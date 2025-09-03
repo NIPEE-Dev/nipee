@@ -51,6 +51,7 @@ class JobResource extends JsonResource
             'scholarship_value' => (float)$this->scholarship_value,
             'scholarship_nominal_value' => $this->scholarship_nominal_value,
             'available' => $this->available,
+            'max_approvals' => $this->max_approvals,
             'type' => $this->type,
             'show_web' => $this->show_web,
             'show_web_title' => BooleanEnum::getLabel($this->show_web),

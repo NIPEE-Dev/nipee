@@ -240,8 +240,8 @@ export const JobsForm = ({ readOnly, typeForm, isLoading, ...props }) => {
                 required
               />
               <FastField
-                id='vacancy_available'
-                name='vacancy_available'
+                id='max_approvals'
+                name='max_approvals'
                 placeholder='Número de vagas disponíveis'
                 component={FormField}
                 type='number'
