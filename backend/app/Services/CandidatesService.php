@@ -163,13 +163,17 @@ class CandidatesService
 
     public function getCandidateInInterview($schoolId)
     {
-        $candidates = User::query()->whereHas('candidate')->whereHas('school', function ($q) use ($schoolId) {
+        $users = User::query()->whereHas('candidate')->whereHas('school', function ($q) use ($schoolId) {
             $q->where('school_id', $schoolId);
         })
             ->whereHas('candidate.jobs', function ($query) {
                 $query->where('job_candidate.status', JobCandidateStatusEnum::INTERVIEWING);
             })
             ->get();
-        dd($candidates);
+
+        $candidates = $users->map(function ($item, $key) {
+            return $item->candidate;
+        });
+        return $candidates;
     }
 }
