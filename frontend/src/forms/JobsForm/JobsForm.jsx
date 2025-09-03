@@ -567,7 +567,9 @@ export const JobsForm = ({ readOnly, typeForm, isLoading, ...props }) => {
             {makeJourneyText(values)}
           </GroupContainer>
 
-          {['edit', 'view'].includes(typeForm) && (
+          {['edit', 'view'].includes(typeForm) &&
+            props.initialValues?.id &&
+            props.initialValues?.status === 1 && (
             <GroupContainer
               title='Documentos'
               subtitle='Todos anexos disponíveis para esta vaga'
@@ -588,7 +590,9 @@ export const JobsForm = ({ readOnly, typeForm, isLoading, ...props }) => {
             </GroupContainer>
           )}
 
-       {['edit', 'view'].includes(typeForm) && props.initialValues?.id && (
+          {['edit', 'view'].includes(typeForm) &&
+            props.initialValues?.id &&
+            props.initialValues?.status === 1 && (
             <GroupContainer
               title='Candidaturas'
               subtitle='Todas as candidaturas para esta vaga'
@@ -602,7 +606,9 @@ export const JobsForm = ({ readOnly, typeForm, isLoading, ...props }) => {
             </GroupContainer>
           )}
 
-          {['edit', 'view'].includes(typeForm) && props.initialValues?.id && (
+          {['edit', 'view'].includes(typeForm) &&
+            props.initialValues?.id &&
+            props.initialValues?.status === 1 && (
             <GroupContainer
               title='Candidatos compativeis'
               subtitle='Todos os candidatos compativeis para esta vaga'
