@@ -70,6 +70,9 @@ class JobResource extends JsonResource
             'start_at' => $this->start_at,
             'end_at' => $this->end_at,
             'status' => $this->status,
+            'courses' => $this->when(isset($this->courses), $this->courses ? $this->courses->pluck('id')->map(function ($item, $key) {
+                return '' . $item;
+            }) : null),
             'already_applied' => $this->when($roleId === RolesEnum::CANDIDATE->value, $this->candidates->where('id', $user->candidate->id ?? null)->first() !== null),
             'candidates' => $this->when($roleId === RolesEnum::COMPANY->value, JobCandidateResource::collection($this->candidates)),
             'compatible_candidates' => $this->when($roleId === RolesEnum::COMPANY->value && isset($this->courses), CompatibleCandidateResource::collection($compatibleCandidates)),
