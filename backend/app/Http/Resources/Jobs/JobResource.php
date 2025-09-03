@@ -8,6 +8,7 @@ use App\Enums\GenderEnum;
 use App\Enums\PeriodEnum;
 use App\Enums\RolesEnum;
 use App\Http\Resources\Companies\CompanyResource;
+use App\Http\Resources\CompatibleCandidateResource;
 use App\Http\Resources\JobCandidateResource;
 use App\Models\Candidate;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -71,7 +72,7 @@ class JobResource extends JsonResource
             'status' => $this->status,
             'already_applied' => $this->when($roleId === RolesEnum::CANDIDATE->value, $this->candidates->where('id', $user->candidate->id ?? null)->first() !== null),
             'candidates' => $this->when($roleId === RolesEnum::COMPANY->value, JobCandidateResource::collection($this->candidates)),
-            'compatible_candidates' => $this->when($roleId === RolesEnum::COMPANY->value && isset($this->courses), $compatibleCandidates),
+            'compatible_candidates' => $this->when($roleId === RolesEnum::COMPANY->value && isset($this->courses), CompatibleCandidateResource::collection($compatibleCandidates)),
         ];
     }
 }
