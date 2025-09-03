@@ -226,7 +226,7 @@ const JobsCandidate = () => {
                             borderRadius="full"
                             alignSelf="flex-start"
                           >
-                            {job.available_candidatures} vagas restantes
+                            {job.available_candidatures} candidaturas restantes
                           </Badge>
                         </Flex>
 
