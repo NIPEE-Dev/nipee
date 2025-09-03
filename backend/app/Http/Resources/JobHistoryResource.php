@@ -3,6 +3,7 @@
 namespace App\Http\Resources;
 
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Facades\Auth;
 
 class JobHistoryResource extends JsonResource
 {
@@ -14,12 +15,14 @@ class JobHistoryResource extends JsonResource
      */
     public function toArray($request)
     {
+        $user = Auth::user();
+        $currentCandidate = $this->candidates->where('id', $user->candidate->id ?? null)->first();
         return [
             'id' => $this->id,
             'role' => $this->role,
             'company' => $this->company->corporate_name,
-            'appliedAt' => $this->candidates[0]->pivot->created_at ?? null,
-            'status' => $this->candidates[0]->pivot->status,
+            'appliedAt' => $currentCandidate->pivot->created_at ?? null,
+            'status' => $currentCandidate->pivot->status ?? null,
             'interviews' => InterviewInviteResource::collection($this->invites),
         ];
     }
