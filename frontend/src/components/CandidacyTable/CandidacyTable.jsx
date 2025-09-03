@@ -85,7 +85,7 @@ const CandidacyTable = ({ candidates, jobId }) => {
   const handleReject = (id) => {
     setVisibleCandidates((prev) => prev.filter((c) => c.id !== id));
     toast({
-      title: 'Candidato rejeitado',
+      title: 'Candidato reprovado',
       status: 'info',
       duration: 2000,
     });
@@ -268,7 +268,7 @@ const CandidacyTable = ({ candidates, jobId }) => {
                     {c.status == 1 && (
                       <>
                         <Button size="xs" colorScheme="purple" onClick={() => openModal(c, 'INVITE')}>Marcar Entrevista</Button>
-                        <Button size="xs" colorScheme="red" onClick={() => handleReject(c.id)}>Rejeitar</Button>
+                        <Button size="xs" colorScheme="red" onClick={() => handleReject(c.id)}>Reprovar</Button>
                       </>
                     )}
                     {c.status == 5 && (

@@ -75,7 +75,7 @@ const CompatibleCandidacyTable = ({ candidates }) => {
   const handleReject = (id) => {
     setVisibleCandidates((prev) => prev.filter((c) => c.id !== id));
     toast({
-      title: 'Candidato rejeitado.',
+      title: 'Candidato reprovado.',
       description: 'Ele foi removido da lista desta vaga.',
       status: 'info',
       duration: 2000,
@@ -181,7 +181,7 @@ const CompatibleCandidacyTable = ({ candidates }) => {
                         colorScheme="red"
                         onClick={() => handleReject(candidate.id)}
                       >
-                        Rejeitar
+                        Reprovar
                       </Button>
                     </Flex>
                   </Td>

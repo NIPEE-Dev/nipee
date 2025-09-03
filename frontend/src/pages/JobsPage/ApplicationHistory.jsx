@@ -56,7 +56,7 @@ const ApplicationHistory = () => {
     7: 'Em Teste',
     2: 'Aprovado',
     3: 'Reprovado',
-    6: 'Entrevista Rejeitada',
+    6: 'Entrevista Reprovada',
   };
 
   useEffect(() => {

@@ -151,7 +151,7 @@ const InvitesPage = () => {
       setInvites((prev) => prev.filter((inv) => inv.id !== selectedInvite.id));
       setIsModalOpen(false);
     } catch (error) {
-      console.error("Erro ao rejeitar convite:", error);
+      console.error("Erro ao reprovar convite:", error);
     }
   };
 
@@ -280,7 +280,7 @@ const InvitesPage = () => {
                 onClick={handleReject}
                 isDisabled={loading}
               >
-                {loading ? "Rejeitando..." : "Rejeitar"}
+                {loading ? "Reprovando..." : "Reprovar"}
               </Button>
             </ModalFooter>
           </ModalContent>

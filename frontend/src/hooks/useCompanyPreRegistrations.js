@@ -67,11 +67,11 @@ const useCompanyPreRegistrations = () => {
   
       return {
         status: response.status,
-        message: response.data.message || 'Empresa rejeitada com sucesso.',
+        message: response.data.message || 'Empresa reprovada com sucesso.',
       };
     } catch (err) {
       const errorMessage =
-        err.response?.data?.message || 'Erro ao rejeitar a empresa. Tente novamente mais tarde.';
+        err.response?.data?.message || 'Erro ao reprovar a empresa. Tente novamente mais tarde.';
       setError(errorMessage);
   
       throw new Error(errorMessage);

@@ -84,7 +84,7 @@ const BannerConsentimento = () => {
             }}
             size="sm"
           >
-            Rejeitar
+            Reprovar
           </Button>
         </Flex>
       </Flex>
