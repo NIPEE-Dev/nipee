@@ -31,7 +31,7 @@ class JobCandidateResource extends JsonResource
                 ->where('job_id', $this->pivot->job_id)
                 ->flatMap(function ($invite) {
                     return $invite->schedule
-                        ->where('status', \App\Enums\JobInterviewInviteStatusEnum::ACCEPTED->value) 
+                        ->where('accepted', true)
                         ->map(function ($schedule) {
                             return [
                                 'date' => \Carbon\Carbon::parse($schedule->date)->format('d/m/Y'),
