@@ -74,7 +74,7 @@
         <p>Confira abaixo os horários sugeridos:</p>
         <ul>
             @foreach ($invite->schedule as $schedule)
-                <li>{{ \Carbon\Carbon::parse($schedule->date)->format('d/m/Y H:i') }}</li>
+                <li>{{ \Carbon\Carbon::createFromFormat('d/m/Y H:i', $schedule)->format('d/m/Y H:i') }}</li>
             @endforeach
         </ul>
 
