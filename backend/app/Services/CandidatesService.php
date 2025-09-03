@@ -167,7 +167,7 @@ class CandidatesService
             $q->where('school_id', $schoolId);
         })
             ->whereHas('candidate.jobs', function ($query) {
-                $query->where('job_candidate.status', JobCandidateStatusEnum::INTERVIEWING);
+                $query->where('job_candidate.status', '!=', JobCandidateStatusEnum::PENDING);
             })
             ->get();
 
