@@ -165,4 +165,11 @@ class Candidate extends Model
     {
         return $this->hasMany(JobInterviewInvite::class);
     }
+
+    public function interviews()
+    {
+        return $this->belongsToMany(Job::class, 'job_candidate')
+                    ->withPivot('status')
+                    ->withTimestamps();
+    }
 }

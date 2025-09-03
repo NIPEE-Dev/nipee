@@ -169,6 +169,7 @@ class CandidatesService
             ->whereHas('candidate.jobs', function ($query) {
                 $query->where('job_candidate.status', '!=', JobCandidateStatusEnum::PENDING);
             })
+            ->with(['candidate.address', 'candidate.contact'])
             ->get();
 
         $candidates = $users->map(function ($item, $key) {

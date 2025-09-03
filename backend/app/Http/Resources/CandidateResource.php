@@ -17,6 +17,7 @@ class CandidateResource extends JsonResource
             'interest_title' => InterestEnum::getLabel($this->interest),
             'school_id' => $this->user->school[0]->id ?? null,
             'course_title' => $this->userCourse->title ?? null,
+            'interviews' => JobCandidateResource::collection($this->interviews),
         ]);
     }
 }
