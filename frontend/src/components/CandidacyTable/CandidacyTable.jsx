@@ -32,6 +32,17 @@ import { useNavigate } from 'react-router-dom';
 import { CandidateJobStatusNew } from '../../utils/constants';
 import { useJobs } from "./../../hooks/useJobs";
 
+const JobCandidateStatusEnum = {
+  PENDING: '1',
+  APPROVED: '2',
+  DENIED: '3',
+  WAITING_RESPONSE: '4',
+  INTERVIEWING: '5',
+  INTERVIEW_REJECT_BY_USER: '6',
+  TESTING: '7',
+};
+
+
 const statusColorMap = {
   1: 'yellow', // PENDING
   4: 'purple', // WAITING_RESPONSE
@@ -40,6 +51,19 @@ const statusColorMap = {
   2: 'green',  // APPROVED
   3: 'red',    // DENIED
   6: 'red',    // INTERVIEW_REJECT_BY_USER
+};
+
+const getStatusLabel = (status) => {
+  const labels = {
+    '1': 'Pendente',
+    '2': 'Aprovado',
+    '3': 'Reprovado',
+    '4': 'Esperando resposta',
+    '5': 'Em entrevista',
+    '6': 'Entrevista rejeitada',
+    '7': 'Em teste',
+  };
+  return labels[status] || 'Desconhecido';
 };
 
 const CandidacyTable = ({ candidates, jobId }) => {
@@ -55,7 +79,10 @@ const CandidacyTable = ({ candidates, jobId }) => {
   const [selectedSchedule, setSelectedSchedule] = useState('');
   const [evaluation, setEvaluation] = useState('');
 
-  const handleViewProfile = (id) => navigate(`/candidates/view/${id}`);
+
+  useEffect(() => {
+    setVisibleCandidates(candidates || []);
+  }, [candidates]);
 
   useEffect(() => {
     if (errorMessage) {
@@ -81,6 +108,8 @@ const CandidacyTable = ({ candidates, jobId }) => {
       clearMessages();
     }
   }, [errorMessage, successMessage, clearMessages, toast]);
+
+  const handleViewProfile = (id) => navigate(`/candidates/view/${id}`);
 
   const handleReject = (id) => {
     setVisibleCandidates((prev) => prev.filter((c) => c.id !== id));
@@ -136,7 +165,8 @@ const CandidacyTable = ({ candidates, jobId }) => {
           c.id === selectedCandidate.id
             ? {
                 ...c,
-                status: CandidateJobStatusNew.CALLED,
+                status: JobCandidateStatusEnum.WAITING_RESPONSE,
+                statusLabel: getStatusLabel(JobCandidateStatusEnum.WAITING_RESPONSE),
               }
             : c
         )
@@ -161,7 +191,7 @@ const CandidacyTable = ({ candidates, jobId }) => {
             interviewEvaluation: evaluation,
             approved: approved,
         };
-        newStatus = approved ? CandidateJobStatusNew.IN_TESTS : CandidateJobStatusNew.DENIED;
+        newStatus = approved ? JobCandidateStatusEnum.TESTING : JobCandidateStatusEnum.DENIED;
 
         try {
             await updateJobInterviewEvaluation(jobId, selectedCandidate.id, evaluationPayload);
@@ -176,7 +206,7 @@ const CandidacyTable = ({ candidates, jobId }) => {
             testingEvaluation: evaluation,
             approved: approved,
         };
-        newStatus = approved ? CandidateJobStatusNew.HIRED : CandidateJobStatusNew.DENIED;
+        newStatus = approved ? JobCandidateStatusEnum.APPROVED : JobCandidateStatusEnum.DENIED;
 
         try {
             await updateJobInterviewTesting(jobId, selectedCandidate.id, evaluationPayload);
@@ -195,7 +225,7 @@ const CandidacyTable = ({ candidates, jobId }) => {
           ? {
               ...c,
               status: newStatus,
-              statusLabel: CandidateJobStatusNew[newStatus],
+              statusLabel: getStatusLabel(newStatus),
               evaluation,
             }
           : c
@@ -259,7 +289,7 @@ const CandidacyTable = ({ candidates, jobId }) => {
                     py={1} 
                     borderRadius="full"
                   >
-                    {c.statusLabel || 'Desconhecido'}
+                    {getStatusLabel(c.status) || 'Desconhecido'}
                   </Badge>
                 </Td>
                 <Td>
