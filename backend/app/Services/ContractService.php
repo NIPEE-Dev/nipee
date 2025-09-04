@@ -103,7 +103,7 @@ class ContractService
 
             if (isset($data['job_id']) || isset($data['job']['id'])) {
                 $jobID = $data['job_id'] ?? $data['job']['id'];
-                $job['role'] = Job::find($jobID)->role->title;
+                $job['role'] = Job::find($jobID)->role;
             } else {
                 $job['role'] = $job['role']['title'];
             }

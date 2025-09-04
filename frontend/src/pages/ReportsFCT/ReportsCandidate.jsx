@@ -122,7 +122,7 @@ const ReportsCandidate = () => {
 
   const dailyData = useMemo(() => {
     return activities.reduce((acc, activity) => {
-      const activityDate = new Date(`${activity.activityDate}T00:00:00`);
+      const activityDate = new Date(`${activity.activityDate}T00:00:00`);
       const dateKey = formatDateKey(activityDate);
       acc[dateKey] = activity;
       return acc;
@@ -476,20 +476,19 @@ const ReportsCandidate = () => {
   );
 
   const summaryEntries = useMemo(() => {
-    return activities
-      .map((activity) => {
-        const statusInfo = getDisplayStatusInfo(activity.status);
-        return {
-          ...activity,
-          date: new Date(`${activity.activityDate}T00:00:00`),
-          displayDate: new Date(
-            `${activity.activityDate}T00:00:00`
-          ).toLocaleDateString("pt-PT"),
-          displayStatus: statusInfo.text,
-          statusColor: statusInfo.color,
-        };
-      })
-      .sort((a, b) => a.date.getTime() - b.date.getTime());
+    return activities
+      .map((activity) => {
+        const statusInfo = getDisplayStatusInfo(activity.status);
+        const activityDate = new Date(`${activity.activityDate}T00:00:00`); 
+        return {
+          ...activity,
+          date: activityDate,
+          displayDate: activityDate.toLocaleDateString("pt-PT"),
+          displayStatus: statusInfo.text,
+          statusColor: statusInfo.color,
+        };
+      })
+     .sort((a, b) => a.date.getTime() - b.date.getTime());
   }, [activities, getDisplayStatusInfo]);
 
   const displaySelectedDate = () => {
