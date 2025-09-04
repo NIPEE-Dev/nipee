@@ -164,12 +164,19 @@ const CandidacyTable = ({ candidates, jobId }) => {
       schedules: schedules.filter(s => s.date && s.time),
     };
 
-    try {
-      await createInvite(jobId, invitePayload);
-      updateLocalState(JobCandidateStatusEnum.WAITING_RESPONSE);
-      closeModal();
+  try {
+        await createInvite(jobId, invitePayload);
+        const formattedSchedules = schedules.filter(s => s.date && s.time).map(s => ({
+            date: s.date,
+            time: s.time,
+        }));
+        
+        updateLocalState(JobCandidateStatusEnum.WAITING_RESPONSE, null, formattedSchedules);
+        window.location.reload(); 
+        
+        closeModal();
     } catch (error) {
-      console.error("Erro ao enviar convite: ", error);
+        console.error("Erro ao enviar convite: ", error);
     }
   };
 
@@ -216,23 +223,34 @@ const CandidacyTable = ({ candidates, jobId }) => {
       await apiCall();
       updateLocalState(newStatus, evaluation);
       closeModal();
+      window.location.reload(); 
     } catch (error) {
       console.error(`Erro ao atualizar avaliação: `, error);
     }
   };
 
-  const updateLocalState = (newStatus, evaluation) => {
+  const updateLocalState = (newStatus, evaluation = null, newSchedule = null) => {
     setVisibleCandidates((prev) =>
-      prev.map((c) =>
-        c.id === selectedCandidate.id
-          ? {
-              ...c,
-              status: newStatus,
-              statusLabel: getStatusLabel(newStatus),
-              evaluation,
-            }
-          : c
-      )
+      prev.map((c) => {
+        if (c.id === selectedCandidate.id) {
+          const updates = {
+            ...c,
+            status: newStatus,
+            statusLabel: getStatusLabel(newStatus),
+          };
+
+          if (evaluation !== null) {
+            updates.evaluation = evaluation;
+          }
+
+          if (newSchedule) {
+            updates.interviewSchedules = newSchedule;
+          }
+
+          return updates;
+        }
+        return c;
+      })
     );
   };
 

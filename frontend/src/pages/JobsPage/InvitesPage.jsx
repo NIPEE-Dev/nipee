@@ -60,9 +60,9 @@ const InvitesPage = () => {
   useEffect(() => {
     if (myInvites) {
       const formattedInvites = myInvites.map(invite => {
-        const confirmedSchedule = invite.interviewDate && invite.interviewTime
-          ? `${new Date(invite.interviewDate).toLocaleDateString('pt-PT')} - ${invite.interviewTime.substring(0, 5)}`
-          : null;
+      const confirmedSchedule = invite.interviewDate && invite.interviewTime
+        ? `${invite.interviewDate.split('-').reverse().join('/')} - ${invite.interviewTime.substring(0, 5)}`
+        : null;
         
         const schedules = invite.schedule.map(s => {
           const date = new Date(s.date).toLocaleDateString('pt-PT');
