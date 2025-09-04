@@ -15,6 +15,7 @@ use App\Services\Activities\ActivitiesService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 
 class ActivitiesController extends Controller
@@ -73,7 +74,7 @@ class ActivitiesController extends Controller
                 'contractStart' => $activeContract->start_contract_vigence->format('Y-m-d'),
                 'contractEnd' => $activeContract->end_contract_vigence->format('Y-m-d'),
                 'activities' => ActivityResource::collection($activities),
-                'totalHours' => $user->candidate->hours_fct ?? 0,
+                'totalHours' => $activeContract->originalJob?->fct_hours ?? 0,
                 'workedHours' => $workedHours,
             ]);
         }

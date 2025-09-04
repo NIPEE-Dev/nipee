@@ -116,7 +116,8 @@ class ContractService
                 'scholarship_nominal_value',
                 'transport_voucher',
                 'transport_voucher_value',
-                'transport_voucher_nominal_value'
+                'transport_voucher_nominal_value',
+                'fct_hours',
             ]));
 
             $contract->userAddress()->create([...$userAddress, ...['custom_type' => 'userAddress']]);
