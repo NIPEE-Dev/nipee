@@ -282,7 +282,7 @@ class JobService
                     return $q->pivot->status === intval(JobCandidateStatusEnum::APPROVED->value);
                 });
                 if ((count($approvedCandidates) + 1) === $max) {
-                    $job->status = JobStatusEnum::CLOSED;
+                    $job->status = JobStatusEnum::FULL;
                     $job->save();
                 }
             }
