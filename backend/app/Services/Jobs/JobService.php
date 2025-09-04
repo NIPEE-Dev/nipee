@@ -274,6 +274,19 @@ class JobService
 
             $candidate = $interview->job->candidates->where('id', $data['candidateId'])->first();
             $candidate->pivot->status = $data['approved'] ? JobCandidateStatusEnum::APPROVED : JobCandidateStatusEnum::DENIED;
+
+            if ($data['approved']) {
+                $job = $interview->job;
+                $max = $job->max_approvals;
+                $approvedCandidates = $job->candidates->where(function ($q) {
+                    return $q->pivot->status === intval(JobCandidateStatusEnum::APPROVED->value);
+                });
+                if (count($approvedCandidates) === $max) {
+                    $job->status = JobStatusEnum::CLOSED;
+                    $job->save();
+                }
+            }
+
             $candidate->pivot->save();
             DB::commit();
             return $interview;
