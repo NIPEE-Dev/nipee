@@ -24,7 +24,8 @@ import {
   Input,
   RadioGroup,
   Stack,
-  Radio
+  Radio,
+  Box,
 } from '@chakra-ui/react';
 import { FaFilePdf } from 'react-icons/fa';
 import { getDistrictName } from '../../utils/district';
@@ -71,7 +72,6 @@ const CandidacyTable = ({ candidates, jobId }) => {
   const navigate = useNavigate();
   const { createInvite, updateJobInterviewEvaluation, updateJobInterviewTesting, loading, errorMessage, successMessage, clearMessages } = useJobs();
 
-  const [visibleCandidates, setVisibleCandidates] = useState(candidates || []);
   const [selectedCandidate, setSelectedCandidate] = useState(null);
   const [modalType, setModalType] = useState('');
   const [message, setMessage] = useState('');
@@ -79,10 +79,14 @@ const CandidacyTable = ({ candidates, jobId }) => {
   const [selectedSchedule, setSelectedSchedule] = useState('');
   const [evaluation, setEvaluation] = useState('');
 
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
 
-  useEffect(() => {
-    setVisibleCandidates(candidates || []);
-  }, [candidates]);
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentCandidates = candidates?.slice(indexOfFirstItem, indexOfLastItem) || [];
+
+  const totalPages = Math.ceil((candidates?.length || 0) / itemsPerPage);
 
   useEffect(() => {
     if (errorMessage) {
@@ -112,7 +116,6 @@ const CandidacyTable = ({ candidates, jobId }) => {
   const handleViewProfile = (id) => navigate(`/candidates/view/${id}`);
 
   const handleReject = (id) => {
-    setVisibleCandidates((prev) => prev.filter((c) => c.id !== id));
     toast({
       title: 'Candidato reprovado',
       status: 'info',
@@ -160,17 +163,7 @@ const CandidacyTable = ({ candidates, jobId }) => {
 
     try {
       await createInvite(jobId, invitePayload);
-      setVisibleCandidates((prev) =>
-        prev.map((c) =>
-          c.id === selectedCandidate.id
-            ? {
-                ...c,
-                status: JobCandidateStatusEnum.WAITING_RESPONSE,
-                statusLabel: getStatusLabel(JobCandidateStatusEnum.WAITING_RESPONSE),
-              }
-            : c
-        )
-      );
+      updateLocalState(JobCandidateStatusEnum.WAITING_RESPONSE);
       closeModal();
     } catch (error) {
       console.error("Erro ao enviar convite: ", error);
@@ -239,9 +232,13 @@ const CandidacyTable = ({ candidates, jobId }) => {
       )
     );
   };
+  
+  const handlePageChange = (pageNumber) => {
+    setCurrentPage(pageNumber);
+  };
 
   return (
-    <div>
+    <Box>
       <TableContainer>
         <Table variant="simple" size="sm">
           <Thead>
@@ -259,7 +256,7 @@ const CandidacyTable = ({ candidates, jobId }) => {
             </Tr>
           </Thead>
           <Tbody>
-            {visibleCandidates.map((c) => (
+            {currentCandidates.map((c) => (
               <Tr key={c.id}>
                 <Td>{c.name}</Td>
                 <Td>
@@ -322,6 +319,24 @@ const CandidacyTable = ({ candidates, jobId }) => {
         </Table>
       </TableContainer>
 
+      <Flex mt={4} justify="center" align="center" gap={2}>
+        <Button
+          size="sm"
+          onClick={() => handlePageChange(currentPage - 1)}
+          isDisabled={currentPage === 1}
+        >
+          Anterior
+        </Button>
+        <Text>Página {currentPage} de {totalPages}</Text>
+        <Button
+          size="sm"
+          onClick={() => handlePageChange(currentPage + 1)}
+          isDisabled={currentPage === totalPages}
+        >
+          Próxima
+        </Button>
+      </Flex>
+
       <Modal isOpen={!!modalType} onClose={closeModal} size="lg">
         <ModalOverlay />
         <ModalContent>
@@ -382,7 +397,7 @@ const CandidacyTable = ({ candidates, jobId }) => {
                 <Button colorScheme="red" onClick={() => handleEvaluation(false)}>Reprovar</Button>
               </>
             )}
-             {modalType === 'REJECT' && (
+            {modalType === 'REJECT' && (
               <Button colorScheme="red" onClick={() => handleEvaluation(false, 'reject')} isLoading={loading}>
                 Confirmar Reprovação
               </Button>
@@ -391,7 +406,7 @@ const CandidacyTable = ({ candidates, jobId }) => {
           </ModalFooter>
         </ModalContent>
       </Modal>
-    </div>
+    </Box>
   );
 };
 

@@ -22,6 +22,7 @@ import {
   ModalCloseButton,
   Textarea,
   Input,
+  Box,
 } from '@chakra-ui/react';
 import { FaFilePdf } from 'react-icons/fa';
 import { getDistrictName } from '../../utils/district';
@@ -33,18 +34,21 @@ const CompatibleCandidacyTable = ({ candidates, jobId }) => {
   const navigate = useNavigate();
   const { createInviteCompatible, loading, errorMessage, successMessage, clearMessages } = useJobs();
 
-  const [visibleCandidates, setVisibleCandidates] = useState(candidates || []);
   const [selectedCandidate, setSelectedCandidate] = useState(null);
   const [modalType, setModalType] = useState('');
   const [message, setMessage] = useState('');
   const [schedules, setSchedules] = useState([{ date: '', time: '' }]);
   const [selectedSchedule, setSelectedSchedule] = useState('');
   const [evaluation, setEvaluation] = useState('');
-
-
-  useEffect(() => {
-    setVisibleCandidates(candidates || []);
-  }, [candidates]);
+  
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
+  
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentCandidates = candidates?.slice(indexOfFirstItem, indexOfLastItem) || [];
+  
+  const totalPages = Math.ceil((candidates?.length || 0) / itemsPerPage);
 
   useEffect(() => {
     if (errorMessage) {
@@ -119,9 +123,13 @@ const CompatibleCandidacyTable = ({ candidates, jobId }) => {
       console.error("Erro ao enviar convite: ", error);
     }
   };
+  
+  const handlePageChange = (pageNumber) => {
+    setCurrentPage(pageNumber);
+  };
 
   return (
-    <div>
+    <Box>
       <TableContainer>
         <Table variant="simple" size="sm">
           <Thead>
@@ -137,7 +145,7 @@ const CompatibleCandidacyTable = ({ candidates, jobId }) => {
             </Tr>
           </Thead>
           <Tbody>
-            {visibleCandidates.map((c) => (
+            {currentCandidates.map((c) => (
               <Tr key={c.id}>
                 <Td>{c.name}</Td>
                 <Td>
@@ -169,6 +177,24 @@ const CompatibleCandidacyTable = ({ candidates, jobId }) => {
           </Tbody>
         </Table>
       </TableContainer>
+      
+      <Flex mt={4} justify="center" align="center" gap={2}>
+        <Button
+          size="sm"
+          onClick={() => handlePageChange(currentPage - 1)}
+          isDisabled={currentPage === 1}
+        >
+          Anterior
+        </Button>
+        <Text>Página {currentPage} de {totalPages}</Text>
+        <Button
+          size="sm"
+          onClick={() => handlePageChange(currentPage + 1)}
+          isDisabled={currentPage === totalPages}
+        >
+          Próxima
+        </Button>
+      </Flex>
 
       <Modal isOpen={!!modalType} onClose={closeModal} size="lg">
         <ModalOverlay />
@@ -204,7 +230,7 @@ const CompatibleCandidacyTable = ({ candidates, jobId }) => {
           </ModalFooter>
         </ModalContent>
       </Modal>
-    </div>
+    </Box>
   );
 };
 
