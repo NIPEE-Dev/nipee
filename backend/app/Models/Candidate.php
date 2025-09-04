@@ -145,9 +145,7 @@ class Candidate extends Model
             17 => 'Incompleto',
             18 => 'Completo',
             19 => '9ª Ano fundamental (EJA)',
-            null => 'Sem série',
-            0 => 'Sem série',
-            default => 'Série desconhecida',
+            null => 'Sem série'
         };
     }
 
@@ -159,17 +157,5 @@ class Candidate extends Model
             #->where('end_contract_vigence', '>', now())
             ->where('status', '=', ActiveEnum::ACTIVE)
             ->exists();
-    }
-
-    public function invites()
-    {
-        return $this->hasMany(JobInterviewInvite::class);
-    }
-
-    public function interviews()
-    {
-        return $this->belongsToMany(Job::class, 'job_candidate')
-                    ->withPivot('status')
-                    ->withTimestamps();
     }
 }

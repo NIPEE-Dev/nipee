@@ -3,7 +3,6 @@
 namespace App\Models\Shared;
 
 use App\Enums\BaseRecordsEnum;
-use App\Models\Jobs\Job;
 use Illuminate\Database\Eloquent\Model;
 
 class BaseRecord extends Model
@@ -29,16 +28,6 @@ class BaseRecord extends Model
             'courses_schools',
             'course_id',
             'school_id'
-        );
-    }
-
-    public function jobs()
-    {
-        return $this->belongsToMany(
-            Job::class,
-            'job_courses',
-            'base_record_id',
-            'job_id'
         );
     }
 }

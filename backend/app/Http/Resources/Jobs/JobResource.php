@@ -2,40 +2,16 @@
 
 namespace App\Http\Resources\Jobs;
 
-use App\Enums\ActiveEnum;
 use App\Enums\BooleanEnum;
 use App\Enums\GenderEnum;
 use App\Enums\PeriodEnum;
-use App\Enums\RolesEnum;
 use App\Http\Resources\Companies\CompanyResource;
-use App\Http\Resources\CompatibleCandidateResource;
-use App\Http\Resources\JobCandidateResource;
-use App\Models\Candidate;
 use Illuminate\Http\Resources\Json\JsonResource;
-use Illuminate\Support\Facades\Auth;
 
 class JobResource extends JsonResource
 {
     public function toArray($request)
     {
-        $user = Auth::user();
-        $roleId = $user->roles[0]->id;
-        $compatibleCandidates = [];
-        if (isset($this->courses)) {
-            $coursesIds = $this->courses->pluck('id');
-            $candidatesIds = $this->candidates->pluck('id');
-            $allowedGenders = $this->gender === GenderEnum::AMBOS ? [GenderEnum::FEMALE, GenderEnum::MALE] : [$this->gender];
-            $candidates = Candidate::query()
-                ->whereNotIn('id', $candidatesIds)
-                ->where(function ($q) {
-                    $q->orWhereDoesntHave('contracts')->orWhereHas('contracts', function ($query) {
-                        $query->where('status', ActiveEnum::NOT_ACTIVE->value);
-                    });
-                })
-                ->whereIn('course', $coursesIds)->whereIn('gender', $allowedGenders)->get();
-            $compatibleCandidates = $candidates;
-        }
-
         return [
             'id' => $this->id,
             'company_id' => $this->company_id,
@@ -51,7 +27,6 @@ class JobResource extends JsonResource
             'scholarship_value' => (float)$this->scholarship_value,
             'scholarship_nominal_value' => $this->scholarship_nominal_value,
             'available' => $this->available,
-            'max_approvals' => $this->max_approvals,
             'type' => $this->type,
             'show_web' => $this->show_web,
             'show_web_title' => BooleanEnum::getLabel($this->show_web),
@@ -59,24 +34,9 @@ class JobResource extends JsonResource
             'created_at' => $this->created_at,
             'description' => $this->description,
             'company' => new CompanyResource($this->whenLoaded('company')),
-            'corporate_name' => $this->company->corporate_name,
-            'fantasy_name' => $this->company->fantasy_name,
             'working_day' => new JobWorkingDayResource($this->whenLoaded('workingDay')),
-            'role' => $this->role,
+            'role' => new JobWorkingDayResource($this->whenLoaded('role')),
             'documents' => $this->whenLoaded('documents'),
-            'available_candidatures' => $this->when($roleId === RolesEnum::CANDIDATE->value, $this->available - count($this->candidates)),
-            'competences' => $this->competences,
-            'location' => $this->location,
-            'fct_hours' => $this->fct_hours,
-            'start_at' => $this->start_at,
-            'end_at' => $this->end_at,
-            'status' => $this->status,
-            'courses' => $this->when(isset($this->courses), $this->courses ? $this->courses->pluck('id')->map(function ($item, $key) {
-                return '' . $item;
-            }) : null),
-            'already_applied' => $this->when($roleId === RolesEnum::CANDIDATE->value, $this->candidates->where('id', $user->candidate->id ?? null)->first() !== null),
-            'candidates' => $this->when($roleId === RolesEnum::COMPANY->value, JobCandidateResource::collection($this->candidates)),
-            'compatible_candidates' => $this->when($roleId === RolesEnum::COMPANY->value && isset($this->courses), CompatibleCandidateResource::collection($compatibleCandidates)),
         ];
     }
 }

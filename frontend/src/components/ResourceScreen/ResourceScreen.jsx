@@ -157,35 +157,24 @@ function ViewEditContainer({ resource, title, Form, Details, onlyDiff, routeBase
               </HStack>
 
               {isEditing ? (
-         <Form
-  initialValues={detailedRecord}
-  initialErrors={{}}
-  onSubmit={async (values) => {
-    try {
-      const result = await update(id, onlyDiff ? diff(detailedRecord, values) : values);
-      setIsEditing(false);
-      navigate('..');
-      toast({
-        title: 'Sucesso!',
-        description: 'Dados atualizados com sucesso!',
-        status: 'success',
-        isClosable: true,
-        position: 'top-right',
-        variant: 'left-accent',
-      });
-    } catch (error) {
-      toast({
-        title: 'Erro!',
-        description: error?.message || 'Ocorreu um erro inesperado.',
-        status: 'error',
-        isClosable: true,
-        position: 'top-right',
-        variant: 'left-accent',
-      });
-    }
-  }}
-  isLoading={isSaving}
->
+          <Form
+            initialValues={detailedRecord}
+            initialErrors={{}}
+            onSubmit={async (values) => {
+              const result = await update(id, onlyDiff ? diff(detailedRecord, values) : values);
+              setIsEditing(false);
+              navigate('..');
+              toast({
+                title: 'Sucesso!',
+                description: 'Dados atualizados com sucesso!',
+                status: 'success',
+                isClosable: true,
+                position: 'top-right',
+                variant: 'left-accent',
+              });
+            }}
+            isLoading={isSaving}
+          >
             <Box py={3} textAlign='right'>
               <Button mt='3' colorScheme='blue' type='submit' isLoading={isLoading}>
                 Salvar

@@ -1,6 +1,5 @@
 export const districtName = {
     av: "Aveiro",
-    ac: "Açores",
     be: "Beja",
     br: "Braga",
     bg: "Bragança",

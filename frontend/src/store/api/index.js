@@ -6,7 +6,6 @@ export { default as Candidates } from './Candidates';
 export { default as Jobs } from './Jobs';
 export { default as BaseRecords } from './BaseRecords';
 export { default as ChooseCandidates } from './ChooseCandidates';
-export { default as Interviewing } from './Interviewing';
 export { default as Contracts } from './Contracts';
 export { default as FinancialClose } from './FinancialClose';
 export { default as FinancialCompany } from './FinancialCompany';

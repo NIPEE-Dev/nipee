@@ -11,7 +11,7 @@ import theme from './theme';
 const initialState = {};
 const store = configureStore(initialState);
 
-moment.locale('pt');
+moment.locale('pt-br');
 
 ReactDOM.render(
   <React.StrictMode>

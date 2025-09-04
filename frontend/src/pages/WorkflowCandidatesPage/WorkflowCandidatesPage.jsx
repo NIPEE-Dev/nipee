@@ -66,7 +66,7 @@ const WorkflowCandidatesPage = () => {
       window.location.reload()
     } catch (error) {
       toast({
-        title: 'Erro ao reprovar o candidato.',
+        title: 'Erro ao rejeitar o candidato.',
         description: error.response?.data?.message || error.message,
         status: 'error',
         duration: 5000,
@@ -118,14 +118,14 @@ const WorkflowCandidatesPage = () => {
                     isLoading={loading}
                     mt={4}
                   >
-                    Reprovar
+                    Rejeitar
                   </Button>
                 </FormControl>
               );
             }}
           >
             {({ toggleModal }) => (
-              <Tooltip label="Reprovar Candidato" hasArrow>
+              <Tooltip label="Rejeitar Candidato" hasArrow>
                 <Button
                   size="xs"
                   colorScheme="red"

@@ -30,7 +30,6 @@ import useStudentPreRegistrations from "../../hooks/useStudentPreRegistrations";
 import { nifValidator, phoneValidator } from "../../utils/formValidators";
 import ReactInputMask from "react-input-mask";
 import api from "../../api";
-import { districtMap, districtsAndCities } from "../../utils/constants";
 
 const FormularioRegistro = () => {
   const { addCompanyPreRegistration } = useCompanyPreRegistrations();
@@ -40,25 +39,15 @@ const FormularioRegistro = () => {
   const [formType, setFormType] = useState("aluno");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [schools, setSchools] = useState([]);
-  const [districts] = useState(
-    Object.keys(districtsAndCities).map((element) => ({
-      value: element,
-      label: element,
-    }))
-  );
-  const [schoolLocation, setSchoolLocation] = useState({
-    district: null,
-    city: null,
-  });
   const [records, setCourses] = useState([]);
   const [errors, setErrors] = useState({ empresa: {}, aluno: {} });
   const [recaptchaToken, setRecaptchaToken] = useState(null);
 
-  const schoolOptions = schools.map((s) => ({
+  const schoolOptions = schools.map(s => ({
     value: s.id,
     label: s.fantasy_name,
   }));
-
+  
   const [formData, setFormData] = useState({
     empresa: {
       company_name: "",
@@ -87,9 +76,7 @@ const FormularioRegistro = () => {
   const today = new Date();
   const minus_100_years = new Date();
   minus_100_years.setFullYear(today.getFullYear() - 100);
-  const minus_100_years_from_today = minus_100_years
-    .toISOString()
-    .split("T")[0];
+  const minus_100_years_from_today = minus_100_years.toISOString().split("T")[0];
   const minus_12_years = new Date();
   minus_12_years.setFullYear(today.getFullYear() - 12);
   const minus_12_years_from_today = minus_12_years.toISOString().split("T")[0];
@@ -99,7 +86,7 @@ const FormularioRegistro = () => {
   };
 
   const handleSchoolChange = (e) => {
-    setCourses([]);
+    setCourses([])
     const selectedSchoolId = e.target.value;
     setFormData((prev) => ({
       ...prev,
@@ -111,51 +98,28 @@ const FormularioRegistro = () => {
     }));
   };
 
-  const citiesOptions =
-    schoolLocation.district === null
-      ? []
-      : districtsAndCities[schoolLocation.district].map((element) => ({
-          label: element,
-          value: element,
-        }));
-  const selectedCity = citiesOptions.find(
-    (element) => element.value === schoolLocation.city
-  );
-
-  const fetchAllSchools = async () => {
-    let allSchools = [];
-    let currentPage = 1;
-    let lastPage = 1;
-
-    try {
-      do {
-        const res = await api.get(`/schools`, {
-          params: {
-            currentPage,
-            district: schoolLocation.district
-              ? districtMap[schoolLocation.district]
-              : null,
-            city: schoolLocation.city,
-          },
-        });
-        allSchools = [...allSchools, ...res.data.data];
-        lastPage = res.data.meta.last_page;
-        currentPage++;
-      } while (currentPage <= lastPage);
-
-      setSchools(allSchools);
-    } catch (error) {
-      console.error("Erro ao buscar as escolas:", error);
-    }
-  };
-
   useEffect(() => {
+    const fetchAllSchools = async () => {
+      let allSchools = [];
+      let currentPage = 1;
+      let lastPage = 1;
+
+      try {
+        do {
+          const res = await api.get(`/schools?page=${currentPage}`);
+          allSchools = [...allSchools, ...res.data.data];
+          lastPage = res.data.meta.last_page;
+          currentPage++;
+        } while (currentPage <= lastPage);
+
+        setSchools(allSchools);
+      } catch (error) {
+        console.error("Erro ao buscar as escolas:", error);
+      }
+    };
+
     fetchAllSchools();
   }, []);
-
-  useEffect(() => {
-    fetchAllSchools();
-  }, [schoolLocation]);
 
   useEffect(() => {
     const fetchCourses = async () => {
@@ -169,10 +133,10 @@ const FormularioRegistro = () => {
       let lastPage = 1;
 
       try {
-        const res = await api.get(
-          `/schools/${formData.aluno.school_id}/courses`
-        );
-        allCourses = res.data.data;
+          const res = await api.get(
+            `/schools/${formData.aluno.school_id}/courses`
+          );
+          allCourses = res.data.data;
 
         setCourses(allCourses);
       } catch (error) {
@@ -378,9 +342,7 @@ const FormularioRegistro = () => {
                   />
                 </FormControl>
                 <FormControl isRequired isInvalid={!!currentErrors.nif}>
-                  <FormLabel>
-                    NIPC (Número de Identificação de Pessoa Coletiva)
-                  </FormLabel>
+                  <FormLabel>NIPC (Número de Identificação de Pessoa Coletiva)</FormLabel>
                   <Input
                     name="nif"
                     type="text"
@@ -558,120 +520,55 @@ const FormularioRegistro = () => {
                   )}
                 </FormControl>
               </Stack>
-
               <Stack spacing={4} direction={{ base: "column", md: "row" }}>
-                <FormControl isRequired>
-                  <FormLabel>Distrito da Escola</FormLabel>
-                  <ReactSelect
-                    name="district"
-                    options={districts}
-                    value={districts[schoolLocation.district]}
-                    onChange={(option) => {
-                      if (option && option.value)
-                        setSchoolLocation((prev) => ({
-                          ...prev,
-                          district: option.value,
-                          city: null,
-                        }));
-                    }}
-                    placeholder="Selecione ou escreva uma opção"
-                    chakraStyles={{
-                      control: (provided) => ({
-                        ...provided,
-                        background: "gray.50",
-                      }),
-                      dropdownIndicator: (provided) => ({
-                        ...provided,
-                        background: "gray.50",
-                      }),
-                    }}
-                    isClearable
-                  />
-                </FormControl>
-                <FormControl isRequired>
-                  <FormLabel>Concelho da Escola</FormLabel>
-                  <ReactSelect
-                    name="city"
-                    isDisabled={schoolLocation.district === null}
-                    options={citiesOptions}
-                    value={selectedCity ?? null}
-                    onChange={(option) => {
-                      if (option && option.value)
-                        setSchoolLocation((prev) => ({
-                          ...prev,
-                          city: option.value,
-                        }));
-                    }}
-                    placeholder="Selecione ou escreva uma opção"
-                    chakraStyles={{
-                      control: (provided) => ({
-                        ...provided,
-                        background: "gray.50",
-                      }),
-                      dropdownIndicator: (provided) => ({
-                        ...provided,
-                        background: "gray.50",
-                      }),
-                    }}
-                    isClearable
-                  />
-                </FormControl>
-              </Stack>
-              <Stack spacing={4} direction={{ base: "column", md: "row" }}>
-                <FormControl isRequired>
-                  <FormLabel>Escola</FormLabel>
-                  <ReactSelect
-                    name="school_id"
-                    options={schoolOptions}
-                    value={
-                      schoolOptions.find(
-                        (o) => o.value === currentFormData.school_id
-                      ) || null
-                    }
-                    onChange={(option) => {
-                      const selectedId = option?.value || "";
-                      setFormData((prev) => ({
-                        ...prev,
-                        aluno: {
-                          ...prev.aluno,
-                          school_id: selectedId,
-                          course: "",
-                        },
-                      }));
-                    }}
-                    placeholder="Selecione ou escreva uma opção"
-                    chakraStyles={{
-                      control: (provided) => ({
-                        ...provided,
-                        background: "gray.50",
-                      }),
-                      dropdownIndicator: (provided) => ({
-                        ...provided,
-                        background: "gray.50",
-                      }),
-                    }}
-                    isClearable
-                  />
-                </FormControl>
-                <FormControl isRequired>
-                  <FormLabel>Curso</FormLabel>
-                  <Select
-                    name="course"
-                    value={currentFormData.course}
-                    onChange={(e) => handleInputChange(e, "aluno")}
-                    placeholder="Selecione uma opção"
-                    isDisabled={
-                      !currentFormData.school_id || records.length === 0
-                    }
-                    bg="gray.50"
-                  >
-                    {records.map((record) => (
-                      <option key={record.id} value={record.id}>
-                        {record.title}
-                      </option>
-                    ))}
-                  </Select>
-                </FormControl>
+              <FormControl isRequired>
+                <FormLabel>Escola</FormLabel>
+                <ReactSelect
+                  name="school_id"
+                  options={schoolOptions}
+                  value={schoolOptions.find(o => o.value === currentFormData.school_id) || null}
+                  onChange={(option) => {
+                  const selectedId = option?.value || "";
+                    setFormData(prev => ({
+                      ...prev,
+                      aluno: {
+                        ...prev.aluno,
+                        school_id: selectedId,
+                        course: "",
+                      },
+                    }));
+                  }}
+                  placeholder="Selecione ou escreva uma opção"
+                  chakraStyles={{
+                    control: (provided) => ({
+                      ...provided,
+                      background: "gray.50"
+                    }),
+                    dropdownIndicator: (provided) => ({
+                      ...provided,
+                      background: "gray.50"
+                    }),
+                  }}
+                  isClearable
+                />
+              </FormControl>
+              <FormControl isRequired>
+                   <FormLabel>Curso</FormLabel>
+                   <Select
+                     name="course"
+                     value={currentFormData.course}
+                     onChange={(e) => handleInputChange(e, "aluno")}
+                     placeholder="Selecione uma opção"
+                     isDisabled={!currentFormData.school_id || records.length === 0}
+                     bg="gray.50"
+                   >
+                     {records.map((record) => (
+                       <option key={record.id} value={record.id}>
+                         {record.title}
+                       </option>
+                     ))}
+                   </Select>
+                 </FormControl>
               </Stack>
               <FormControl>
                 <FormLabel>

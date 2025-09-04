@@ -36,10 +36,10 @@ const FinancialClosePage = () => (
           return types[originalRow.status];
         },
       },
-      /* {
+      {
         Header: 'ID',
         accessor: 'id',
-      }, */
+      },
       {
         Header: 'Valor total',
         accessor: (originalRow) => moneyFormatter(originalRow.total),

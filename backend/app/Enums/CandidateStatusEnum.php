@@ -4,16 +4,10 @@ namespace App\Enums;
 
 enum CandidateStatusEnum: string
 {
-    case PENDING = '1';
-    case APPROVED = '2';
-    case DENIED = '3';
-
-    public static function getLabel($status): string
-    {
-        return match ($status) {
-            CandidateStatusEnum::PENDING->value => 'Pendente',
-            CandidateStatusEnum::APPROVED->value => 'Aprovado',
-            CandidateStatusEnum::DENIED->value => 'Reprovado',
-        };
-    }
+    case CALLED = '1';
+    case FORWARDED = '2';
+    case IN_TESTS = '3';
+    case INTERN = '4';
+    case WORKER = '5';
+    case HIRED = '6';
 }

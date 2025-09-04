@@ -60,7 +60,7 @@ const WorkflowCompaniesPage = () => {
       window.location.reload()
     } catch (error) {
       toast({
-        title: 'Erro ao reprovar a empresa.',
+        title: 'Erro ao rejeitar a empresa.',
         description: error.response?.data?.message || error.message,
         status: 'error',
         duration: 5000,
@@ -112,14 +112,14 @@ const WorkflowCompaniesPage = () => {
                     isLoading={loading}
                     mt={4}
                   >
-                    Reprovar
+                    Rejeitar
                   </Button>
                 </FormControl>
               );
             }}
           >
             {({ toggleModal }) => (
-              <Tooltip label="Reprovar Empresa" hasArrow>
+              <Tooltip label="Rejeitar Empresa" hasArrow>
                 <Button
                   size="xs"
                   colorScheme="red"

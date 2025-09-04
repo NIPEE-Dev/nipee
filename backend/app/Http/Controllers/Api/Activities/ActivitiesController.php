@@ -15,8 +15,6 @@ use App\Services\Activities\ActivitiesService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Validator;
 
 class ActivitiesController extends Controller
 {
@@ -51,10 +49,6 @@ class ActivitiesController extends Controller
         $user = Auth::user();
         $roleId = $user->roles[0]->id;
         $activities = [];
-        $filters = Validator::make(request()->all(), [
-            'startDate' => 'date|date_format:Y-m-d',
-            'endDate' => 'date|date_format:Y-m-d',
-        ])->validate();
 
         if ($roleId === RolesEnum::CANDIDATE->value) {
             $activities = $this->activitiesService->getByUserId($user->id);
@@ -71,23 +65,21 @@ class ActivitiesController extends Controller
 
             return response()->json([
                 'activeContract' => true,
-                'contractStart' => $activeContract->start_contract_vigence->format('Y-m-d'),
-                'contractEnd' => $activeContract->end_contract_vigence->format('Y-m-d'),
                 'activities' => ActivityResource::collection($activities),
-                'totalHours' => $activeContract->originalJob?->fct_hours ?? 0,
+                'totalHours' => $user->candidate->hours_fct ?? 0,
                 'workedHours' => $workedHours,
             ]);
         }
 
         if ($roleId === RolesEnum::SCHOOL->value) {
-            $activities = $this->activitiesService->getBySchoolId($user->id, $filters);
+            $activities = $this->activitiesService->getBySchoolId($user->id);
 
             return ActivityResource::collection($activities);
         }
 
         if ($roleId === RolesEnum::COMPANY->value) {
             $companyId = $user->company->id;
-            $activities = $this->activitiesService->getByCompanyId($companyId, $filters);
+            $activities = $this->activitiesService->getByCompanyId($companyId);
 
             return ActivityResource::collection($activities);
         }

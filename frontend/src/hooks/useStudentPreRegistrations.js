@@ -68,11 +68,11 @@ const useStudentPreRegistrations = () => {
     
         return {
           status: response.status,
-          message: response.data.message || 'Candidato reprovado com sucesso.',
+          message: response.data.message || 'Candidato rejeitado com sucesso.',
         };
       } catch (err) {
         const errorMessage =
-          err.response?.data?.message || 'Erro ao reprovar o candidato. Tente novamente mais tarde.';
+          err.response?.data?.message || 'Erro ao rejeitar o candidato. Tente novamente mais tarde.';
         setError(errorMessage);
     
         throw new Error(errorMessage);

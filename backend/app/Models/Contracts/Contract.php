@@ -46,8 +46,6 @@ class Contract extends Model
         'retroative_billing',
         'recolocation',
         'insurance_date',
-        'has_insurance',
-        'insurance_number',
         'status',
         'end_contract_reason_id',
         'pay_current_month',

@@ -113,8 +113,8 @@ const AddressFields = ({
             name={`${relation}.uf`}
             placeholder="Distrito"
             component={FormField.Select}
-            disabled={false}
-            readOnly={false}
+            disabled={true}
+            readOnly={true}
             required={required}
             width="100%"
             validate={(value) => {
@@ -143,7 +143,7 @@ const AddressFields = ({
             name={`${relation}.city`}
             placeholder="Localidade"
             component={FormField}
-            readOnly={false}
+            readOnly={true}
             required={required}
             width="100%"
           />
@@ -154,7 +154,7 @@ const AddressFields = ({
             name={`${relation}.district`}
             placeholder="Concelho"
             component={FormField}
-            readOnly={false}
+            readOnly={true}
             required={required}
             width="100%"
           />
@@ -168,7 +168,7 @@ const AddressFields = ({
             name={`${relation}.address`}
             placeholder="Morada"
             component={FormField}
-            readOnly={false}
+            readOnly={true}
             required={required}
             width="100%"
           />

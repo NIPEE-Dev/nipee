@@ -173,7 +173,7 @@ class CompanyPreRegistrationController extends Controller
 
             $company->contact()->save(new Contact([ 'name' => $preRegistration->company_name, 'phone' => $preRegistration->phone, 'email' => $preRegistration->corporate_email]));
 
-            $company->responsible()->save(new Responsible([ 'name' => $preRegistration->representative_name, 'phone' => $preRegistration->phone, 'email' => $preRegistration->corporate_email, 'document' => $preRegistration->nif]));
+            $company->responsible()->save(new Responsible([ 'name' => $preRegistration->company_name, 'phone' => $preRegistration->phone, 'email' => $preRegistration->corporate_email]));
 
             $frontendUrl = config('app.frontend_url');
             $passwordResetLink = $frontendUrl . '/redefinir-senha?email=' . urlencode($user->email);

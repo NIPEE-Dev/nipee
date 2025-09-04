@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Enums\RolesEnum;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreCandidateRequest;
 use App\Http\Requests\UpdateCandidateRequest;
@@ -13,12 +12,12 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
-use Illuminate\Support\Facades\Auth;
-use Symfony\Component\HttpKernel\Exception\HttpException;
 
 class CandidateController extends Controller
 {
-    public function __construct(public CandidatesService $candidatesService) {}
+    public function __construct(public CandidatesService $candidatesService)
+    {
+    }
 
     /**
      * Display a listing of the resource.
@@ -61,7 +60,7 @@ class CandidateController extends Controller
             'user',
             'user.school',
             'jobs' => [
-                'history' => fn(HasMany $builder) => $builder->where('candidate_id', '=', $candidate->id),
+                'history' => fn (HasMany $builder) => $builder->where('candidate_id', '=', $candidate->id),
                 'company',
                 'role'
             ]
@@ -90,18 +89,5 @@ class CandidateController extends Controller
     public function destroy(Candidate $candidate)
     {
         return new JsonResponse(['deleted' => $candidate->delete()]);
-    }
-
-    public function schoolCandidates(Request $request)
-    {
-        $user = Auth::user();
-        $roleId = $user->roles[0]->id;
-
-        if ($roleId !== RolesEnum::SCHOOL->value) throw new HttpException(400, 'Deve ser uma escola para usar esse recurso');
-
-        $schoolId = $user->school->first()->id;
-        $candidates = $this->candidatesService->getCandidateInInterview($schoolId);
-
-        return CandidateResource::collection($candidates);
     }
 }

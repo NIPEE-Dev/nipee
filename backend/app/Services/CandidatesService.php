@@ -17,8 +17,6 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Illuminate\Support\Facades\Log;
-use App\Enums\BaseRecordsEnum;
-use App\Enums\JobCandidateStatusEnum;
 
 class CandidatesService
 {
@@ -32,15 +30,6 @@ class CandidatesService
                 0 => $builder->whereRaw("MONTH(birth_day) = " . date("n")),
                 1 => $builder->whereRaw("MONTH(birth_day) = " . date("n", strtotime("+1 month")))
             };
-        });
-
-        $this->addSpecialField('course', function (Builder $builder, Filter $filter) {
-            $val = $filter->getValue();
-
-            $builder->whereHas('userCourse', function (Builder $q) use ($val) {
-                $q->where('type', BaseRecordsEnum::COURSES->value)
-                    ->where('title', 'LIKE', "%{$val}%");
-            });
         });
 
         $shouldOrderByName = isset($criteria['perPage']) && $criteria['perPage'] == '99999';
@@ -79,12 +68,12 @@ class CandidatesService
         // listagem para poder chamar candidatos que não estão com contrato ativo e nem em testes
         if ($type) {
             return $builder
-                ->whereDoesntHave('contracts', fn(Builder $builder) => $builder
+                ->whereDoesntHave('contracts', fn (Builder $builder) => $builder
                     ->where('status', '=', ActiveEnum::ACTIVE))
                 ->whereDoesntHave(
                     'jobs',
-                    fn(Builder $builder) => $builder
-                        ->where('status', '=', CandidateStatusEnum::IN_TESTS)
+                    fn (Builder $builder) => $builder
+                    ->where('status', '=', CandidateStatusEnum::IN_TESTS)
                 );
         }
 
@@ -95,20 +84,20 @@ class CandidatesService
         // listagem de cada workflow da vaga, impedindo que quem esteja com contrato ativo/em testes possa passar
         // para outra fase que não do job atual
         return $builder
-            ->whereDoesntHave('contracts', fn(Builder $builder) => $builder
+            ->whereDoesntHave('contracts', fn (Builder $builder) => $builder
                 ->where('status', '=', ActiveEnum::ACTIVE))
             ->whereHas(
                 'jobs',
-                fn(Builder $builder) => $builder
-                    ->whereRaw('`jobs`.`id` = ?', [$job])
-                    ->where('disapproved', '=', DisapprovedEnum::NOT_DISAPPROVED)
-                    ->where('status', '=', $status)
+                fn (Builder $builder) => $builder
+                ->whereRaw('`jobs`.`id` = ?', [$job])
+                ->where('disapproved', '=', DisapprovedEnum::NOT_DISAPPROVED)
+                ->where('status', '=', $status)
             )->whereDoesntHave(
                 'jobs',
-                fn(Builder $builder) => $builder
-                    ->where('status', '=', CandidateStatusEnum::IN_TESTS)
-                    ->whereRaw('`jobs`.`id` != ?', [$job])
-                    ->where('disapproved', '=', DisapprovedEnum::NOT_DISAPPROVED)
+                fn (Builder $builder) => $builder
+                ->where('status', '=', CandidateStatusEnum::IN_TESTS)
+                ->whereRaw('`jobs`.`id` != ?', [$job])
+                ->where('disapproved', '=', DisapprovedEnum::NOT_DISAPPROVED)
             );
     }
 
@@ -124,7 +113,7 @@ class CandidatesService
                         'user_id' => $candidate->user_id,
                         'school_id' => $data['school_id']
                     ]);
-                }
+                }                
             }
             $candidate->address()->create(Arr::get($data, 'address'));
             $candidate->contact()->create(Arr::get($data, 'contact'));
@@ -134,7 +123,7 @@ class CandidatesService
     public function update(Candidate $candidate, $data)
     {
         $user = Auth::user();
-
+    
         if ($this->isAdmin() || $candidate->user_id === $user->id) {
             if (!empty($data['resume'])) {
                 $resumeData = base64_decode($data['resume']);
@@ -142,39 +131,22 @@ class CandidatesService
                 Storage::disk('public')->put('resumes/' . $fileName, $resumeData);
                 $data['resume'] = 'resumes/' . $fileName;
             }
-
+    
             $candidate->update($data);
-
+    
             if (isset($data['school_id'])) {
                 SchoolMember::updateOrCreate(
                     ['user_id' => $candidate->user_id],
                     ['user_id' => $candidate->user_id, 'school_id' => $data['school_id']]
                 );
             }
-
+    
             $candidate->address()->updateOrCreate(['addressable_id' => $candidate->id], Arr::get($data, 'address', []));
             $candidate->contact()->updateOrCreate(['contactable_id' => $candidate->id], Arr::get($data, 'contact', []));
-
+    
             return;
         }
-
+    
         throw new HttpException(403, 'Sem permissão para editar esse candidato');
-    }
-
-    public function getCandidateInInterview($schoolId)
-    {
-        $users = User::query()->whereHas('candidate')->whereHas('school', function ($q) use ($schoolId) {
-            $q->where('school_id', $schoolId);
-        })
-            ->whereHas('candidate.jobs', function ($query) {
-                $query->where('job_candidate.status', '!=', JobCandidateStatusEnum::PENDING);
-            })
-            ->with(['candidate.address', 'candidate.contact'])
-            ->get();
-
-        $candidates = $users->map(function ($item, $key) {
-            return $item->candidate;
-        });
-        return $candidates;
-    }
+    }    
 }

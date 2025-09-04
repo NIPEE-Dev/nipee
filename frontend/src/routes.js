@@ -27,7 +27,6 @@ export default {
   baseRecords: createResourceRoute('base-records'),
   contracts: createResourceRoute('contracts'),
   documents: createResourceRoute('documents'),
-  interviewing: createResourceRoute('candidates/interviewing'),
   reports: {
     candidates: {
       list: "reports/candidates",

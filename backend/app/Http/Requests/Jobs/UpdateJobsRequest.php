@@ -15,20 +15,8 @@ class UpdateJobsRequest extends FormRequest
     public function rules()
     {
         return [
-
             'company_id' => 'sometimes|exists:companies,id',
-
-            'fct_hours' => ['required_if:type,EF', 'integer'],
-            'draft' => ['boolean'],
-            'role' => ['sometimes', 'string'],
-            'courses' => ['sometimes', 'array', 'min:1'],
-            'courses.*' => ['sometimes', 'integer'],
-            'competences' => ['sometimes', 'string', 'max:1000'],
-            'start_at' => ['sometimes', 'date', 'date_format:Y-m-d'],
-            'end_at' => ['sometimes', 'date', 'date_format:Y-m-d'],
-            'location' => ['sometimes', 'string'],
-
-            // 'role_id' => 'sometimes|numeric',
+            'role_id' => 'sometimes|numeric',
             'period' => 'sometimes|in:N,T,M,MN',
             'gender' => 'sometimes|in:F,M,FM',
 
@@ -53,7 +41,6 @@ class UpdateJobsRequest extends FormRequest
             'workingDay.day_off_end_hour' => 'sometimes',
             'workingDay.day_off' => 'sometimes|string|min:2|max:255',
             'workingDay.working_hours' => 'sometimes|numeric|between:1,168',
-            'max_approvals' => ['sometimes', 'integer'],
         ];
     }
 }
