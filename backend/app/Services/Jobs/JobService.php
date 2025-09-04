@@ -250,7 +250,7 @@ class JobService
     {
         try {
             DB::beginTransaction();
-            $interview = JobInterviewInvite::query()->where('candidate_id', $data['candidateId'])->first();
+            $interview = JobInterviewInvite::query()->where('candidate_id', $data['candidateId'])->where('job_id', $data['jobId'])->first();
             $interview->update(['interview_evaluation' => $data['interviewEvaluation']]);
 
             $candidate = $interview->job->candidates->where('id', $data['candidateId'])->first();
@@ -269,7 +269,7 @@ class JobService
     {
         try {
             DB::beginTransaction();
-            $interview = JobInterviewInvite::query()->where('candidate_id', $data['candidateId'])->first();
+            $interview = JobInterviewInvite::query()->where('candidate_id', $data['candidateId'])->where('job_id', $data['jobId'])->first();
             $interview->update(['testing_evaluation' => $data['testingEvaluation']]);
 
             $candidate = $interview->job->candidates->where('id', $data['candidateId'])->first();
