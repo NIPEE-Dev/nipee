@@ -24,8 +24,7 @@ import {
   Input,
   RadioGroup,
   Stack,
-  Radio,
-  Box,
+  Radio
 } from '@chakra-ui/react';
 import { FaFilePdf } from 'react-icons/fa';
 import { getDistrictName } from '../../utils/district';
@@ -72,21 +71,21 @@ const CandidacyTable = ({ candidates, jobId }) => {
   const navigate = useNavigate();
   const { createInvite, updateJobInterviewEvaluation, updateJobInterviewTesting, loading, errorMessage, successMessage, clearMessages } = useJobs();
 
+  const [currentPage, setCurrentPage] = useState(1);
+  const candidatesPerPage = 10;
   const [selectedCandidate, setSelectedCandidate] = useState(null);
+  const [visibleCandidates, setVisibleCandidates] = useState(candidates || []);
   const [modalType, setModalType] = useState('');
   const [message, setMessage] = useState('');
   const [schedules, setSchedules] = useState([{ date: '', time: '' }]);
   const [selectedSchedule, setSelectedSchedule] = useState('');
   const [evaluation, setEvaluation] = useState('');
 
-  const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 10;
 
-  const indexOfLastItem = currentPage * itemsPerPage;
-  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentCandidates = candidates?.slice(indexOfFirstItem, indexOfLastItem) || [];
-
-  const totalPages = Math.ceil((candidates?.length || 0) / itemsPerPage);
+  useEffect(() => {
+    setVisibleCandidates(candidates || []);
+    setCurrentPage(1);
+  }, [candidates]);
 
   useEffect(() => {
     if (errorMessage) {
@@ -113,15 +112,19 @@ const CandidacyTable = ({ candidates, jobId }) => {
     }
   }, [errorMessage, successMessage, clearMessages, toast]);
 
+  const indexOfLastCandidate = currentPage * candidatesPerPage;
+  const indexOfFirstCandidate = indexOfLastCandidate - candidatesPerPage;
+  const currentCandidates = candidates ? candidates.slice(indexOfFirstCandidate, indexOfLastCandidate) : [];
+
+  const pageNumbers = [];
+  if (candidates) {
+    for (let i = 1; i <= Math.ceil(candidates.length / candidatesPerPage); i++) {
+      pageNumbers.push(i);
+    }
+  }
+
   const handleViewProfile = (id) => navigate(`/candidates/view/${id}`);
 
-  const handleReject = (id) => {
-    toast({
-      title: 'Candidato reprovado',
-      status: 'info',
-      duration: 2000,
-    });
-  };
 
   const openModal = (candidate, type) => {
     setSelectedCandidate(candidate);
@@ -175,8 +178,8 @@ const CandidacyTable = ({ candidates, jobId }) => {
       toast({ title: 'Preencha o motivo da reprovação.', status: 'error', duration: 2000 });
       return;
     }
-  
-    if ( (modalType === 'INTERVIEW' || modalType === 'TEST') && !evaluation.trim()) {
+
+    if ((modalType === 'INTERVIEW' || modalType === 'TEST') && !evaluation.trim()) {
       toast({ title: 'Preencha a avaliação antes de continuar.', status: 'error', duration: 2000 });
       return;
     }
@@ -232,13 +235,9 @@ const CandidacyTable = ({ candidates, jobId }) => {
       )
     );
   };
-  
-  const handlePageChange = (pageNumber) => {
-    setCurrentPage(pageNumber);
-  };
 
   return (
-    <Box>
+    <div>
       <TableContainer>
         <Table variant="simple" size="sm">
           <Thead>
@@ -287,10 +286,10 @@ const CandidacyTable = ({ candidates, jobId }) => {
                   )}
                 </Td>
                 <Td>
-                  <Badge 
-                    colorScheme={statusColorMap[c.status]} 
-                    px={2} 
-                    py={1} 
+                  <Badge
+                    colorScheme={statusColorMap[c.status]}
+                    px={2}
+                    py={1}
                     borderRadius="full"
                   >
                     {getStatusLabel(c.status) || 'Desconhecido'}
@@ -319,23 +318,34 @@ const CandidacyTable = ({ candidates, jobId }) => {
         </Table>
       </TableContainer>
 
-      <Flex mt={4} justify="center" align="center" gap={2}>
-        <Button
-          size="sm"
-          onClick={() => handlePageChange(currentPage - 1)}
-          isDisabled={currentPage === 1}
-        >
-          Anterior
-        </Button>
-        <Text>Página {currentPage} de {totalPages}</Text>
-        <Button
-          size="sm"
-          onClick={() => handlePageChange(currentPage + 1)}
-          isDisabled={currentPage === totalPages}
-        >
-          Próxima
-        </Button>
-      </Flex>
+      {candidates && candidates.length > candidatesPerPage && (
+        <Flex justifyContent="center" mt={4} mb={4} gap={2}>
+          <Button
+            size="sm"
+            onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+            isDisabled={currentPage === 1}
+          >
+            Anterior
+          </Button>
+          {pageNumbers.map(number => (
+            <Button
+              key={number}
+              size="sm"
+              onClick={() => setCurrentPage(number)}
+              colorScheme={currentPage === number ? 'blue' : 'gray'}
+            >
+              {number}
+            </Button>
+          ))}
+          <Button
+            size="sm"
+            onClick={() => setCurrentPage(prev => Math.min(Math.ceil(candidates.length / candidatesPerPage), prev + 1))}
+            isDisabled={currentPage === Math.ceil(candidates.length / candidatesPerPage)}
+          >
+            Próxima
+          </Button>
+        </Flex>
+      )}
 
       <Modal isOpen={!!modalType} onClose={closeModal} size="lg">
         <ModalOverlay />
@@ -406,7 +416,7 @@ const CandidacyTable = ({ candidates, jobId }) => {
           </ModalFooter>
         </ModalContent>
       </Modal>
-    </Box>
+    </div>
   );
 };
 

@@ -22,7 +22,6 @@ import {
   ModalCloseButton,
   Textarea,
   Input,
-  Box,
 } from '@chakra-ui/react';
 import { FaFilePdf } from 'react-icons/fa';
 import { getDistrictName } from '../../utils/district';
@@ -34,21 +33,17 @@ const CompatibleCandidacyTable = ({ candidates, jobId }) => {
   const navigate = useNavigate();
   const { createInviteCompatible, loading, errorMessage, successMessage, clearMessages } = useJobs();
 
+  const [currentPage, setCurrentPage] = useState(1);
+  const candidatesPerPage = 10;
+  
   const [selectedCandidate, setSelectedCandidate] = useState(null);
   const [modalType, setModalType] = useState('');
   const [message, setMessage] = useState('');
   const [schedules, setSchedules] = useState([{ date: '', time: '' }]);
-  const [selectedSchedule, setSelectedSchedule] = useState('');
-  const [evaluation, setEvaluation] = useState('');
-  
-  const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 10;
-  
-  const indexOfLastItem = currentPage * itemsPerPage;
-  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentCandidates = candidates?.slice(indexOfFirstItem, indexOfLastItem) || [];
-  
-  const totalPages = Math.ceil((candidates?.length || 0) / itemsPerPage);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [candidates]);
 
   useEffect(() => {
     if (errorMessage) {
@@ -74,6 +69,17 @@ const CompatibleCandidacyTable = ({ candidates, jobId }) => {
       clearMessages();
     }
   }, [errorMessage, successMessage, clearMessages, toast]);
+
+  const indexOfLastCandidate = currentPage * candidatesPerPage;
+  const indexOfFirstCandidate = indexOfLastCandidate - candidatesPerPage;
+  const currentCandidates = candidates ? candidates.slice(indexOfFirstCandidate, indexOfLastCandidate) : [];
+
+  const pageNumbers = [];
+  if (candidates) {
+    for (let i = 1; i <= Math.ceil(candidates.length / candidatesPerPage); i++) {
+      pageNumbers.push(i);
+    }
+  }
 
   const handleViewProfile = (id) => navigate(`/candidates/view/${id}`);
 
@@ -123,13 +129,9 @@ const CompatibleCandidacyTable = ({ candidates, jobId }) => {
       console.error("Erro ao enviar convite: ", error);
     }
   };
-  
-  const handlePageChange = (pageNumber) => {
-    setCurrentPage(pageNumber);
-  };
 
   return (
-    <Box>
+    <div>
       <TableContainer>
         <Table variant="simple" size="sm">
           <Thead>
@@ -177,24 +179,35 @@ const CompatibleCandidacyTable = ({ candidates, jobId }) => {
           </Tbody>
         </Table>
       </TableContainer>
-      
-      <Flex mt={4} justify="center" align="center" gap={2}>
-        <Button
-          size="sm"
-          onClick={() => handlePageChange(currentPage - 1)}
-          isDisabled={currentPage === 1}
-        >
-          Anterior
-        </Button>
-        <Text>Página {currentPage} de {totalPages}</Text>
-        <Button
-          size="sm"
-          onClick={() => handlePageChange(currentPage + 1)}
-          isDisabled={currentPage === totalPages}
-        >
-          Próxima
-        </Button>
-      </Flex>
+
+      {candidates && candidates.length > candidatesPerPage && (
+        <Flex justifyContent="center" mt={4} mb={4} gap={2}>
+          <Button
+            size="sm"
+            onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+            isDisabled={currentPage === 1}
+          >
+            Anterior
+          </Button>
+          {pageNumbers.map(number => (
+            <Button
+              key={number}
+              size="sm"
+              onClick={() => setCurrentPage(number)}
+              colorScheme={currentPage === number ? 'blue' : 'gray'}
+            >
+              {number}
+            </Button>
+          ))}
+          <Button
+            size="sm"
+            onClick={() => setCurrentPage(prev => Math.min(Math.ceil(candidates.length / candidatesPerPage), prev + 1))}
+            isDisabled={currentPage === Math.ceil(candidates.length / candidatesPerPage)}
+          >
+            Próxima
+          </Button>
+        </Flex>
+      )}
 
       <Modal isOpen={!!modalType} onClose={closeModal} size="lg">
         <ModalOverlay />
@@ -230,7 +243,7 @@ const CompatibleCandidacyTable = ({ candidates, jobId }) => {
           </ModalFooter>
         </ModalContent>
       </Modal>
-    </Box>
+    </div>
   );
 };
 

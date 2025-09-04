@@ -190,7 +190,7 @@ const ApplicationHistory = () => {
                       Ver Detalhes
                     </Button>
 
-                    {(app.status !== 1 ) && (app.interviews && app.interviews.length > 0) && (
+                    {(app.status === 2 || app.status === 3 || app.status === 5 || app.status === 7) && (app.interviews && app.interviews.length > 0) && (
                       <Button
                         size="sm"
                         colorScheme="blue"
