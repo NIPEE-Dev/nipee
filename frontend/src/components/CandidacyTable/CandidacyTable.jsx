@@ -177,44 +177,51 @@ const CandidacyTable = ({ candidates, jobId }) => {
     }
   };
 
-  const handleEvaluation = async (approved) => {
-    if (!evaluation.trim()) {
+  const handleEvaluation = async (approved, actionType) => {
+    if (actionType === 'reject' && !evaluation.trim()) {
+      toast({ title: 'Preencha o motivo da reprovação.', status: 'error', duration: 2000 });
+      return;
+    }
+  
+    if ( (modalType === 'INTERVIEW' || modalType === 'TEST') && !evaluation.trim()) {
       toast({ title: 'Preencha a avaliação antes de continuar.', status: 'error', duration: 2000 });
       return;
     }
-    
+
     let evaluationPayload = {};
     let newStatus;
-    
-    if (modalType === 'INTERVIEW') {
-        evaluationPayload = {
-            interviewEvaluation: evaluation,
-            approved: approved,
-        };
-        newStatus = approved ? JobCandidateStatusEnum.TESTING : JobCandidateStatusEnum.DENIED;
+    let apiCall;
+    let candidateIdToUpdate = selectedCandidate.id;
 
-        try {
-            await updateJobInterviewEvaluation(jobId, selectedCandidate.id, evaluationPayload);
-            updateLocalState(newStatus, evaluation);
-            closeModal();
-        } catch (error) {
-            console.error("Erro ao atualizar avaliação de entrevista: ", error);
-        }
-
+    if (modalType === 'REJECT' || actionType === 'reject') {
+      evaluationPayload = {
+        interviewEvaluation: evaluation,
+        approved: false,
+      };
+      newStatus = JobCandidateStatusEnum.DENIED;
+      apiCall = () => updateJobInterviewEvaluation(jobId, candidateIdToUpdate, evaluationPayload);
+    } else if (modalType === 'INTERVIEW') {
+      evaluationPayload = {
+        interviewEvaluation: evaluation,
+        approved: approved,
+      };
+      newStatus = approved ? JobCandidateStatusEnum.TESTING : JobCandidateStatusEnum.DENIED;
+      apiCall = () => updateJobInterviewEvaluation(jobId, candidateIdToUpdate, evaluationPayload);
     } else if (modalType === 'TEST') {
-        evaluationPayload = {
-            testingEvaluation: evaluation,
-            approved: approved,
-        };
-        newStatus = approved ? JobCandidateStatusEnum.APPROVED : JobCandidateStatusEnum.DENIED;
+      evaluationPayload = {
+        testingEvaluation: evaluation,
+        approved: approved,
+      };
+      newStatus = approved ? JobCandidateStatusEnum.APPROVED : JobCandidateStatusEnum.DENIED;
+      apiCall = () => updateJobInterviewTesting(jobId, candidateIdToUpdate, evaluationPayload);
+    }
 
-        try {
-            await updateJobInterviewTesting(jobId, selectedCandidate.id, evaluationPayload);
-            updateLocalState(newStatus, evaluation);
-            closeModal();
-        } catch (error) {
-            console.error("Erro ao atualizar avaliação de teste: ", error);
-        }
+    try {
+      await apiCall();
+      updateLocalState(newStatus, evaluation);
+      closeModal();
+    } catch (error) {
+      console.error(`Erro ao atualizar avaliação: `, error);
     }
   };
 
@@ -298,7 +305,7 @@ const CandidacyTable = ({ candidates, jobId }) => {
                     {c.status == 1 && (
                       <>
                         <Button size="xs" colorScheme="purple" onClick={() => openModal(c, 'INVITE')}>Marcar Entrevista</Button>
-                        <Button size="xs" colorScheme="red" onClick={() => handleReject(c.id)}>Reprovar</Button>
+                        <Button size="xs" colorScheme="red" onClick={() => openModal(c, 'REJECT')}>Reprovar</Button>
                       </>
                     )}
                     {c.status == 5 && (
@@ -322,6 +329,7 @@ const CandidacyTable = ({ candidates, jobId }) => {
             {modalType === 'INVITE' && 'Enviar Convite'}
             {modalType === 'INTERVIEW' && 'Avaliação da Entrevista'}
             {modalType === 'TEST' && 'Avaliação do Teste'}
+            {modalType === 'REJECT' && 'Reprovar Candidato'}
           </ModalHeader>
           <ModalCloseButton />
           <ModalBody>
@@ -353,6 +361,16 @@ const CandidacyTable = ({ candidates, jobId }) => {
                 />
               </>
             )}
+            {modalType === 'REJECT' && (
+              <>
+                <Text mb={2}>Por favor, insira o motivo da reprovação:</Text>
+                <Textarea
+                  placeholder="Motivo da reprovação..."
+                  value={evaluation}
+                  onChange={(e) => setEvaluation(e.target.value)}
+                />
+              </>
+            )}
           </ModalBody>
           <ModalFooter>
             {modalType === 'INVITE' && (
@@ -363,6 +381,11 @@ const CandidacyTable = ({ candidates, jobId }) => {
                 <Button colorScheme="green" mr={3} onClick={() => handleEvaluation(true)}>Aprovar</Button>
                 <Button colorScheme="red" onClick={() => handleEvaluation(false)}>Reprovar</Button>
               </>
+            )}
+             {modalType === 'REJECT' && (
+              <Button colorScheme="red" onClick={() => handleEvaluation(false, 'reject')} isLoading={loading}>
+                Confirmar Reprovação
+              </Button>
             )}
             <Button variant="ghost" onClick={closeModal}>Cancelar</Button>
           </ModalFooter>
