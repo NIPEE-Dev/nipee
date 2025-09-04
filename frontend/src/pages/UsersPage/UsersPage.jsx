@@ -23,10 +23,10 @@ const UsersPage = () => (
       wrapped: true,
     }}
     columns={[
-      {
+      /* {
         Header: 'ID',
         accessor: 'id', 
-      },
+      }, */
       {
         Header: 'Nome de usuário',
         accessor: 'name',

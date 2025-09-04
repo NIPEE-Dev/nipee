@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Auth;
 
 class ReportsService
 {
-    public function generateSystemActivityReport() 
+    public function generateSystemActivityReport()
     {
         $users = User::count();
         $jobs = Job::count();
@@ -25,7 +25,7 @@ class ReportsService
     public function generateCandidatesReport()
     {
         $request = request();
-        $data = Candidate::with(['userCourse', 'user.school', 'jobs', 'jobs.company', 'jobs.documents', 'contracts', 'contracts.documents'])->has('contracts', '>=', 1)->has('contracts.documents', '>=', 1)->has('jobs', '>=', 1);
+        $data = Candidate::with(['userCourse', 'user.school', 'jobs', 'jobs.company', 'jobs.documents', 'contracts', 'contracts.documents'])->has('contracts', '>=', 1)->has('contracts.documents', '>=', 1);
         $user = Auth::user();
         $hasFilter = $request->has('filterFields');
         $filterArray = $request->input('filterFields');
@@ -44,7 +44,7 @@ class ReportsService
 
         $roleId = $user->roles[0]->id;
         if ($roleId === 14) {
-            $data->whereHas('jobs', function ($query) use ($user) {
+            $data->whereHas('contracts', function ($query) use ($user) {
                 $query->where('company_id', $user->company->id ?? 0);
             });
         }

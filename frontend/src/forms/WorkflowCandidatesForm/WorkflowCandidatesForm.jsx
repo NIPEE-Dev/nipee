@@ -21,7 +21,6 @@ export const WorkflowCandidatesForm = ({
       initialErrors={props.initialErrors}
       initialValues={props.initialValues}
       onSubmit={(values) => {
-        console.log("Form submitted with values:", values);
         props.onSubmit(values);
       }}
     >

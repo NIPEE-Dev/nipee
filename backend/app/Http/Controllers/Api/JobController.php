@@ -2,23 +2,35 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Enums\JobStatusEnum;
+use App\Enums\RolesEnum;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\FilterRequest;
+use App\Http\Requests\InviteToJobRequest;
 use App\Http\Requests\Jobs\StoreJobsRequest;
 use App\Http\Requests\Jobs\UpdateJobsRequest;
+use App\Http\Requests\StoreInterviewInviteRequest;
+use App\Http\Requests\UpdateJobInterviewEvaluationRequest;
+use Illuminate\Support\Str;
+use App\Http\Requests\UpdateJobInterviewRequest;
+use App\Http\Requests\UpdateJobInterviewTestingRequest;
+use App\Http\Requests\UpdateJobStatusRequest;
+use App\Http\Resources\InterviewInviteResource;
+use App\Http\Resources\JobHistoryResource;
 use App\Http\Resources\Jobs\JobResource;
 use App\Models\Candidate;
+use App\Models\JobInterviewInvite;
 use App\Models\Jobs\Job;
+use App\Models\Users\User;
 use App\Services\Jobs\JobService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Support\Facades\Auth;
 
 class JobController extends Controller
 {
-    public function __construct(public JobService $jobService)
-    {
-    }
+    public function __construct(public JobService $jobService) {}
 
     /**
      * Display a listing of the resource.
@@ -28,6 +40,13 @@ class JobController extends Controller
     public function index(FilterRequest $request)
     {
         return JobResource::collection($this->jobService->index($request->all()));
+    }
+
+    public function jobsHistory(Request $request)
+    {
+        $user = Auth::user();
+
+        return JobHistoryResource::collection($this->jobService->getHistory($user->candidate->id ?? null));
     }
 
     /**
@@ -49,7 +68,7 @@ class JobController extends Controller
      */
     public function show(Job $job)
     {
-        return new JobResource($job->load(['workingDay', 'documents']));
+        return new JobResource($job->load(['workingDay', 'documents', 'candidates', 'courses']));
     }
 
     /**
@@ -61,7 +80,11 @@ class JobController extends Controller
      */
     public function update(UpdateJobsRequest $request, Job $job)
     {
-        $updated = $this->jobService->update($job, $request->all());
+        $data = $request->all();
+        $updated = $this->jobService->update($job, [
+            ...$data,
+            'status' => isset($data['draft']) && $data['draft'] === true ? JobStatusEnum::DRAFT : JobStatusEnum::OPEN,
+        ]);
         return new JobResource($updated);
     }
 
@@ -85,6 +108,15 @@ class JobController extends Controller
         $this->jobService->callCandidates($jobs, $candidates);
     }
 
+    public function apply(Request $request, Job $job)
+    {
+        /** @var User */
+        $user = Auth::user();
+        $this->jobService->apply($job, $user);
+
+        return response()->json(['message' => 'Candidatura enviada com sucesso'], 201);
+    }
+
     public function updateStatus(Request $request)
     {
         $job = Job::find($request->get('job'));
@@ -95,5 +127,71 @@ class JobController extends Controller
         $interviewHour = $request->get('hour');
 
         return response()->json(['updated' => $this->jobService->updateStatus($job, $candidate, $status, $interviewDate, $interviewHour)]);
+    }
+
+    public function updateJobStatus(UpdateJobStatusRequest $request, Job $job)
+    {
+        $data = $request->validated();
+        $updated = $this->jobService->updateJobStatus($job, $data['status']);
+        return new JobResource($updated);
+    }
+
+    public function storeInvite(StoreInterviewInviteRequest $request, Job $job)
+    {
+        $data = $request->validated();
+        $invite = $this->jobService->createInvite($job, $data);
+
+        response()->json([$invite]);
+    }
+
+    public function interviewInvites()
+    {
+        $user = Auth::user();
+        $roleId = $user->roles[0]->id;
+
+        if ($roleId !== RolesEnum::CANDIDATE->value) {
+            return response()->json(['message' => 'Só candidatos podem ver os convites para entrevista']);
+        }
+        $invites = $this->jobService->getUserInterviewInvites($user->candidate->id);
+
+        return response()->json(InterviewInviteResource::collection($invites));
+    }
+
+    public function updateJobInterview(UpdateJobInterviewRequest $request, JobInterviewInvite $jobInterview)
+    {
+        $data = $request->validated();
+        $user = Auth::user();
+        $roleId = $user->roles[0]->id;
+
+        if ($roleId !== RolesEnum::CANDIDATE->value) {
+            return response()->json(['message' => 'Só candidatos podem aceitar ou recusar convites para entrevista']);
+        }
+        $invite = $this->jobService->updateJobInterview([...$data, 'candidateId' => $user->candidate->id], $jobInterview);
+
+        return response()->json(new InterviewInviteResource($invite));
+    }
+
+    public function updateJobInterviewEvaluation(UpdateJobInterviewEvaluationRequest $request, Job $job, $candidateId)
+    {
+        $data = $request->validated();
+        $invite = $this->jobService->updateJobInterviewEvaluation([...$data, 'candidateId' => $candidateId, 'jobId' => $job->id]);
+
+        return response()->json(new InterviewInviteResource($invite));
+    }
+
+    public function updateJobTestingEvaluation(UpdateJobInterviewTestingRequest $request, Job $job, $candidateId)
+    {
+        $data = $request->validated();
+        $invite = $this->jobService->updateJobTestingEvaluation([...$data, 'candidateId' => $candidateId, 'jobId' => $job->id]);
+
+        return response()->json(new InterviewInviteResource($invite));
+    }
+
+    public function inviteToJob(InviteToJobRequest $request, Job $job)
+    {
+        $data = $request->validated();
+        $this->jobService->inviteToJob($job, $data);
+
+        return response(null, 204);
     }
 }

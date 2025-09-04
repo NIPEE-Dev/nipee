@@ -11,6 +11,7 @@ import {
   FaTrash,
   FaEdit,
   FaPaperPlane,
+  FaEye,
 } from "react-icons/fa";
 import {
   Box,
@@ -47,6 +48,10 @@ import {
   Spinner,
   Switch,
   Center,
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
+  PopoverBody,
 } from "@chakra-ui/react";
 import { useActivities } from "../../hooks/useActivities";
 
@@ -57,6 +62,7 @@ const formatDateForApi = (date) => date.toISOString().split("T")[0];
 
 const ReportsCandidate = () => {
   const [selectedDate, setSelectedDate] = useState(new Date());
+  const [filterSelectedDate, setFilterSelectedDate] = useState(null);
   const [isRangeMode, setIsRangeMode] = useState(false);
   const [currentTitle, setCurrentTitle] = useState("");
   const [currentNote, setCurrentNote] = useState("");
@@ -79,20 +85,29 @@ const ReportsCandidate = () => {
   } = useActivities();
 
   useEffect(() => {
-    fetchActivities();
-  }, [fetchActivities]);
+    const params = {};
+    if (
+      filterSelectedDate &&
+      Array.isArray(filterSelectedDate) &&
+      filterSelectedDate.length === 2
+    ) {
+      params.startDate = `${filterSelectedDate[0].getFullYear()}-${String(
+        filterSelectedDate[0].getMonth() + 1
+      ).padStart(2, "0")}-${String(filterSelectedDate[0].getDate()).padStart(
+        2,
+        "0"
+      )}`;
+      params.endDate = `${filterSelectedDate[1].getFullYear()}-${String(
+        filterSelectedDate[1].getMonth() + 1
+      ).padStart(2, "0")}-${String(filterSelectedDate[1].getDate()).padStart(
+        2,
+        "0"
+      )}`;
+    }
+    fetchActivities(params);
+  }, [fetchActivities, filterSelectedDate]);
 
   useEffect(() => {
-    if (successMessage) {
-      toast({
-        title: "Sucesso!",
-        description: successMessage,
-        status: "success",
-        duration: 4000,
-        isClosable: true,
-      });
-      clearMessages();
-    }
     if (errorMessage) {
       toast({
         title: "Ocorreu um erro",
@@ -103,11 +118,11 @@ const ReportsCandidate = () => {
       });
       clearMessages();
     }
-  }, [successMessage, errorMessage, toast, clearMessages]);
+  }, [errorMessage, toast, clearMessages]);
 
   const dailyData = useMemo(() => {
     return activities.reduce((acc, activity) => {
-      const activityDate = new Date(`${activity.activityDate}T00:00:00`);
+      const activityDate = new Date(`${activity.activityDate}T00:00:00`);
       const dateKey = formatDateKey(activityDate);
       acc[dateKey] = activity;
       return acc;
@@ -132,23 +147,19 @@ const ReportsCandidate = () => {
       startDate = endDate = selectedDate;
     }
 
-    if (
-      !activityForSelectedDate &&
-      allHoursUsed &&
-      !Array.isArray(selectedDate)
-    ) {
+    const hoursToSave = parseFloat(currentHours.replace(",", ".")) || 0;
+
+    if (!isDraft && hoursToSave <= 0) {
       toast({
-        title: "Horas Finalizadas",
+        title: "Horas Inválidas",
         description:
-          "Não é possível registrar novas atividades pois as horas do protocolo foram finalizadas.",
-        status: "error",
+          "Não é possível submeter uma atividade com 0 ou menos horas. Salve como rascunho se desejar.",
+        status: "warning",
         duration: 5000,
         isClosable: true,
       });
       return;
     }
-
-    const hoursToSave = parseFloat(currentHours.replace(",", ".")) || 0;
 
     if (!currentTitle && !currentNote && hoursToSave === 0) {
       toast({
@@ -162,53 +173,158 @@ const ReportsCandidate = () => {
     }
 
     const promises = [];
-    let currentDate = new Date(startDate);
+    const datesProcessed = [];
+    const datesExceedingLimit = [];
+    const datesBlockedBecauseSubmitted = [];
+    let currentWorkedHoursSum = workedHours;
 
+    let currentDate = new Date(startDate);
     while (currentDate <= endDate) {
       const dateKey = formatDateKey(currentDate);
       const existingActivity = dailyData[dateKey];
       const canEdit =
         !existingActivity || existingActivity.status === "Rascunho";
 
-      if (canEdit) {
-        const payload = {
-          title: currentTitle,
-          description: currentNote,
-          estimatedTime: hoursToSave,
-          activityDate: formatDateForApi(currentDate),
-          draft: isDraft,
-        };
-
-        if (existingActivity) {
-          promises.push(updateActivity(existingActivity.id, payload));
-        } else {
-          if (allHoursUsed) continue;
-          promises.push(createNewActivity(payload));
-        }
+      if (!canEdit) {
+        datesBlockedBecauseSubmitted.push(
+          currentDate.toLocaleDateString("pt-PT")
+        );
+        currentDate.setDate(currentDate.getDate() + 1);
+        continue;
       }
+
+      let hoursForThisDate = hoursToSave;
+
+      let hoursToSubtractFromWorked = 0;
+      if (existingActivity) {
+        hoursToSubtractFromWorked = existingActivity.estimatedTime || 0;
+      }
+      const potentialNewWorkedHours =
+        currentWorkedHoursSum - hoursToSubtractFromWorked + hoursForThisDate;
+
+      if (!isDraft && potentialNewWorkedHours > totalHours) {
+        datesExceedingLimit.push(currentDate.toLocaleDateString("pt-PT"));
+        currentDate.setDate(currentDate.getDate() + 1);
+        continue;
+      } else {
+        currentWorkedHoursSum = potentialNewWorkedHours;
+      }
+
+      const payload = {
+        title: currentTitle,
+        description: currentNote,
+        estimatedTime: hoursForThisDate,
+        activityDate: formatDateForApi(currentDate),
+        draft: isDraft,
+      };
+
+      if (existingActivity) {
+        promises.push(updateActivity(existingActivity.id, payload));
+      } else {
+        promises.push(createNewActivity(payload));
+      }
+      datesProcessed.push(new Date(currentDate));
+
       currentDate.setDate(currentDate.getDate() + 1);
     }
 
     try {
       await Promise.all(promises);
-      if (
-        promises.length === 0 &&
-        (Array.isArray(selectedDate) ||
-          activityForSelectedDate?.status !== "Rascunho")
-      ) {
+      if (promises.length > 0) {
+        const actionType = isDraft ? "salvas" : "submetidas";
+        let successDescription = "";
+
+        if (datesProcessed.length === 1) {
+          successDescription = `Atividade para ${datesProcessed[0].toLocaleDateString(
+            "pt-PT"
+          )} ${actionType} com sucesso!`;
+        } else if (datesProcessed.length > 1) {
+          successDescription = `Atividades para o período selecionado (${datesProcessed.length} registros) ${actionType} com sucesso!`;
+        } else if (
+          datesProcessed.length === 0 &&
+          (datesExceedingLimit.length > 0 ||
+            datesBlockedBecauseSubmitted.length > 0)
+        ) {
+        } else {
+          toast({
+            title: "Nenhuma atividade foi alterada",
+            description:
+              "Nenhum registro foi modificado ou criado dentro do período selecionado.",
+            status: "info",
+            duration: 4000,
+            isClosable: true,
+          });
+        }
+
+        if (successDescription) {
+          toast({
+            title: "Sucesso!",
+            description: successDescription,
+            status: "success",
+            duration: 4000,
+            isClosable: true,
+          });
+          const params = {};
+          if (
+            filterSelectedDate &&
+            Array.isArray(filterSelectedDate) &&
+            filterSelectedDate.length === 2
+          ) {
+            params.startDate = `${filterSelectedDate[0].getFullYear()}-${String(
+              filterSelectedDate[0].getMonth() + 1
+            ).padStart(2, "0")}-${String(filterSelectedDate[0].getDate()).padStart(
+              2,
+              "0"
+            )}`;
+            params.endDate = `${filterSelectedDate[1].getFullYear()}-${String(
+              filterSelectedDate[1].getMonth() + 1
+            ).padStart(2, "0")}-${String(filterSelectedDate[1].getDate()).padStart(
+              2,
+              "0"
+            )}`;
+          }
+          fetchActivities(params);
+        }
+      }
+
+      if (datesExceedingLimit.length > 0) {
         toast({
-          title: "Nenhuma atividade foi alterada",
-          description:
-            "Atividades já submetidas ou com horas finalizadas não podem ser editadas.",
+          title: "Limite de Horas Atingido",
+          description: `Não foi possível registrar atividades para ${datesExceedingLimit.join(
+            ", "
+          )} pois o limite total de horas do protocolo seria excedido.`,
+          status: "error",
+          duration: 7000,
+          isClosable: true,
+        });
+      }
+
+      if (datesBlockedBecauseSubmitted.length > 0) {
+        toast({
+          title: "Atenção: Atividades Já Submetidas",
+          description: `As atividades para ${datesBlockedBecauseSubmitted.join(
+            ", "
+          )} não foram alteradas pois já foram submetidas para validação ou aprovadas.`,
           status: "info",
-          duration: 4000,
+          duration: 7000,
           isClosable: true,
         });
       }
     } catch (error) {
+      console.error("Erro ao salvar/submeter atividades:", error);
+      toast({
+        title: "Erro inesperado",
+        description: "Ocorreu um erro ao processar as atividades.",
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+      });
     } finally {
       setSelectedDate(endDate);
       setIsRangeMode(false);
+      setCurrentTitle("");
+      setCurrentNote("");
+      setCurrentHours("");
     }
   };
 
@@ -228,6 +344,10 @@ const ReportsCandidate = () => {
     setSelectedDate(newDate);
   };
 
+  const handleFilterDateChange = (newDate) => {
+    setFilterSelectedDate(newDate);
+  };
+
   const handleRangeModeToggle = (event) => {
     const isChecked = event.target.checked;
     setIsRangeMode(isChecked);
@@ -245,18 +365,32 @@ const ReportsCandidate = () => {
     saveOrSubmitEntry(true);
   };
 
-  const handleDeleteDraft = async () => {
-    if (
-      activityForSelectedDate &&
-      activityForSelectedDate.id &&
-      activityForSelectedDate.status === "Rascunho"
-    ) {
+  const handleDeleteActivity = async (activityId, activityStatus) => {
+    if (activityStatus === "Rascunho") {
       try {
-        await deleteActivity(activityForSelectedDate.id);
-        setCurrentTitle("");
-        setCurrentNote("");
-        setCurrentHours("");
-      } catch (error) {}
+        await deleteActivity(activityId);
+        if (activityForSelectedDate?.id === activityId) {
+          setCurrentTitle("");
+          setCurrentNote("");
+          setCurrentHours("");
+        }
+        toast({
+          title: "Rascunho excluído",
+          description: "O rascunho foi excluído com sucesso.",
+          status: "success",
+          duration: 3000,
+          isClosable: true,
+        });
+      } catch (error) {
+        console.error("Erro ao excluir rascunho:", error);
+        toast({
+          title: "Erro",
+          description: "Não foi possível excluir o rascunho.",
+          status: "error",
+          duration: 3000,
+          isClosable: true,
+        });
+      }
     } else {
       toast({
         title: "Ação não permitida",
@@ -266,6 +400,14 @@ const ReportsCandidate = () => {
         isClosable: true,
       });
     }
+  };
+
+  const handleEditDraft = (activity) => {
+    setSelectedDate(new Date(`${activity.activityDate}T00:00:00`));
+    setIsRangeMode(false);
+    setCurrentTitle(activity.title || "");
+    setCurrentNote(activity.description || "");
+    setCurrentHours(activity.estimatedTime?.toString() || "");
   };
 
   const getDisplayStatusInfo = useCallback((statusString) => {
@@ -334,29 +476,28 @@ const ReportsCandidate = () => {
   );
 
   const summaryEntries = useMemo(() => {
-    return activities
-      .map((activity) => {
-        const statusInfo = getDisplayStatusInfo(activity.status);
-        return {
-          ...activity,
-          date: new Date(`${activity.activityDate}T00:00:00`),
-          displayDate: new Date(
-            `${activity.activityDate}T00:00:00`
-          ).toLocaleDateString("pt-BR"),
-          displayStatus: statusInfo.text,
-          statusColor: statusInfo.color,
-        };
-      })
-      .sort((a, b) => a.date.getTime() - b.date.getTime());
+    return activities
+      .map((activity) => {
+        const statusInfo = getDisplayStatusInfo(activity.status);
+        const activityDate = new Date(`${activity.activityDate}T00:00:00`); 
+        return {
+          ...activity,
+          date: activityDate,
+          displayDate: activityDate.toLocaleDateString("pt-PT"),
+          displayStatus: statusInfo.text,
+          statusColor: statusInfo.color,
+        };
+      })
+     .sort((a, b) => a.date.getTime() - b.date.getTime());
   }, [activities, getDisplayStatusInfo]);
 
   const displaySelectedDate = () => {
     if (Array.isArray(selectedDate)) {
-      const startDate = selectedDate[0].toLocaleDateString("pt-BR");
-      const endDate = selectedDate[1]?.toLocaleDateString("pt-BR") || startDate;
+      const startDate = selectedDate[0].toLocaleDateString("pt-PT");
+      const endDate = selectedDate[1]?.toLocaleDateString("pt-PT") || startDate;
       return startDate === endDate ? startDate : `${startDate} - ${endDate}`;
     }
-    return selectedDate.toLocaleDateString("pt-BR");
+    return selectedDate.toLocaleDateString("pt-PT");
   };
 
   const isFormDisabled = useMemo(() => {
@@ -367,7 +508,7 @@ const ReportsCandidate = () => {
     return false;
   }, [loading, activityForSelectedDate]);
 
-  if (loading) {
+  if (loading && !activities.length) {
     return (
       <Center h="80vh">
         {" "}
@@ -399,7 +540,7 @@ const ReportsCandidate = () => {
 
   return (
     <Box p={5}>
-      {loading && (
+      {loading && activities.length > 0 && (
         <Spinner
           thickness="4px"
           speed="0.65s"
@@ -457,7 +598,7 @@ const ReportsCandidate = () => {
               value={selectedDate}
               selectRange={isRangeMode}
               tileContent={tileContent}
-              locale="pt-BR"
+              locale="pt-PT"
               prevLabel={
                 <IconButton
                   aria-label="Mês anterior"
@@ -491,7 +632,7 @@ const ReportsCandidate = () => {
                 />
               }
               navigationLabel={({ date, view }) => {
-                let currentLabel = date.toLocaleDateString("pt-BR", {
+                let currentLabel = date.toLocaleDateString("pt-PT", {
                   month: "long",
                   year: "numeric",
                 });
@@ -505,7 +646,7 @@ const ReportsCandidate = () => {
                 if (view === "century") {
                   const startYear =
                     date.getFullYear() - (date.getFullYear() % 100);
-                  currentLabel = `${startYear} - ${startYear + 99}`;
+                  currentLabel = `${startYear} - ${startYear % 100}`;
                 }
                 return (
                   <Button
@@ -536,6 +677,106 @@ const ReportsCandidate = () => {
               boxShadow="sm"
               overflowX="auto"
             >
+              <Box textAlign="center" mt={4} mb={2}>
+                <Popover autoFocus={false}>
+                  <PopoverTrigger>
+                    <Button
+                      variant={"outline"}
+                      color={"#5931E9"}
+                      bg={"transparent"}
+                      borderColor="linear(to-r, #7289FF, #5931E9)"
+                      fontWeight="bold"
+                      _hover={{
+                        bgGradient: "linear(to-r, #7289FF, #5931E9)",
+                        color: "white",
+                      }}
+                    >
+                      Selecionar periodo
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent
+                    boxShadow="none"
+                    outline="none"
+                    bg="transparent"
+                    borderColor="transparent"
+                  >
+                    <PopoverBody
+                      boxShadow="none"
+                      outline="none"
+                      borderColor="transparent"
+                    >
+                      <Calendar
+                        onChange={handleFilterDateChange}
+                        value={filterSelectedDate}
+                        selectRange={true}
+                        tileContent={tileContent}
+                        locale="pt-PT"
+                        prevLabel={
+                          <IconButton
+                            aria-label="Mês anterior"
+                            icon={<FaChevronLeft />}
+                            size="sm"
+                            variant="ghost"
+                          />
+                        }
+                        nextLabel={
+                          <IconButton
+                            aria-label="Próximo mês"
+                            icon={<FaChevronRight />}
+                            size="sm"
+                            variant="ghost"
+                          />
+                        }
+                        prev2Label={
+                          <IconButton
+                            aria-label="Ano anterior"
+                            icon={<FaAngleDoubleLeft />}
+                            size="sm"
+                            variant="ghost"
+                          />
+                        }
+                        next2Label={
+                          <IconButton
+                            aria-label="Próximo ano"
+                            icon={<FaAngleDoubleRight />}
+                            size="sm"
+                            variant="ghost"
+                          />
+                        }
+                        navigationLabel={({ date, view }) => {
+                          let currentLabel = date.toLocaleDateString("pt-PT", {
+                            month: "long",
+                            year: "numeric",
+                          });
+                          if (view === "year")
+                            currentLabel = date.getFullYear().toString();
+                          if (view === "decade") {
+                            const startYear =
+                              date.getFullYear() - (date.getFullYear() % 10);
+                            currentLabel = `${startYear} - ${startYear + 9}`;
+                          }
+                          if (view === "century") {
+                            const startYear =
+                              date.getFullYear() - (date.getFullYear() % 100);
+                            currentLabel = `${startYear} - ${startYear % 100}`;
+                          }
+                          return (
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              color="purple.700"
+                              _hover={{ bg: "purple.50" }}
+                              textTransform="capitalize"
+                            >
+                              {currentLabel}
+                            </Button>
+                          );
+                        }}
+                      />
+                    </PopoverBody>
+                  </PopoverContent>
+                </Popover>
+              </Box>
               <Heading size="md" textAlign="center" mt={4} mb={2}>
                 Resumo de Atividades
               </Heading>
@@ -547,6 +788,7 @@ const ReportsCandidate = () => {
                       <Th>Título</Th>
                       <Th isNumeric>Horas</Th>
                       <Th>Status</Th>
+                      <Th>Ações</Th>
                     </Tr>
                   </Thead>
                   <Tbody>
@@ -562,7 +804,7 @@ const ReportsCandidate = () => {
                           {entry.title || "(Sem título)"}
                         </Td>
                         <Td isNumeric>
-                          {(entry.estimatedTime || 0).toLocaleString("pt-BR")}
+                          {(entry.estimatedTime || 0).toLocaleString("pt-PT")}
                         </Td>
                         <Td>
                           <Text
@@ -572,6 +814,45 @@ const ReportsCandidate = () => {
                           >
                             {entry.displayStatus}
                           </Text>
+                        </Td>
+                        <Td>
+                          {entry.status !== "Rascunho" && (
+                            <HStack spacing={1}>
+                              <IconButton
+                                aria-label="Ver atividade"
+                                icon={<FaEye />}
+                                size="sm"
+                                variant="ghost"
+                                colorScheme="blue"
+                                onClick={() => handleEditDraft(entry)}
+                                title="Ver atividade"
+                              />
+                            </HStack>
+                          )}
+                          {entry.status === "Rascunho" && (
+                            <HStack spacing={1}>
+                              <IconButton
+                                aria-label="Editar rascunho"
+                                icon={<FaEdit />}
+                                size="sm"
+                                variant="ghost"
+                                colorScheme="blue"
+                                onClick={() => handleEditDraft(entry)}
+                                title="Editar Rascunho"
+                              />
+                              <IconButton
+                                aria-label="Apagar rascunho"
+                                icon={<FaTrash />}
+                                size="sm"
+                                variant="ghost"
+                                colorScheme="red"
+                                onClick={() =>
+                                  handleDeleteActivity(entry.id, entry.status)
+                                }
+                                title="Apagar Rascunho"
+                              />
+                            </HStack>
+                          )}
                         </Td>
                       </Tr>
                     ))}
@@ -591,7 +872,7 @@ const ReportsCandidate = () => {
           mt={{ base: 6, md: 0 }}
         >
           <Heading size="lg" mb={6}>
-            Registar para {displaySelectedDate()}
+            Registrar para {displaySelectedDate()}
           </Heading>
           <VStack spacing={5} align="stretch">
             <FormControl isDisabled={isFormDisabled}>
@@ -600,7 +881,7 @@ const ReportsCandidate = () => {
               </FormLabel>
               <Input
                 id="titulo"
-                placeholder="Título da atividade/registo"
+                placeholder="Título da atividade/registro"
                 value={currentTitle}
                 onChange={(e) => setCurrentTitle(e.target.value)}
                 focusBorderColor="purple.500"
@@ -633,7 +914,7 @@ const ReportsCandidate = () => {
                 precision={1}
                 focusBorderColor="purple.500"
               >
-                <NumberInputField placeholder="Ex: 8 ou 4,5" />
+                <NumberInputField placeholder="Ex: 8 ou 4" />
                 <NumberInputStepper>
                   <NumberIncrementStepper />
                   <NumberDecrementStepper />
@@ -642,7 +923,7 @@ const ReportsCandidate = () => {
             </FormControl>
 
             {(() => {
-              if (allHoursUsed && !activityForSelectedDate) {
+              if (allHoursUsed && !activityForSelectedDate && !isRangeMode) {
                 return (
                   <Box
                     textAlign="center"
@@ -655,7 +936,7 @@ const ReportsCandidate = () => {
                   >
                     <Text color="red.600" fontWeight="bold">
                       As horas do protocolo foram finalizadas. Não é possível
-                      criar novos registos.
+                      criar novos registros.
                     </Text>
                   </Box>
                 );
@@ -722,7 +1003,12 @@ const ReportsCandidate = () => {
                       <Button
                         colorScheme="red"
                         variant="ghost"
-                        onClick={handleDeleteDraft}
+                        onClick={() =>
+                          handleDeleteActivity(
+                            activityForSelectedDate.id,
+                            activityForSelectedDate.status
+                          )
+                        }
                         mt={3}
                         width="full"
                         leftIcon={<Icon as={FaTrash} />}
@@ -751,7 +1037,7 @@ const ReportsCandidate = () => {
               <Stat>
                 <StatLabel textAlign="center">Horas Totais</StatLabel>
                 <StatNumber textAlign="center">
-                  {totalHours.toLocaleString("pt-BR")}
+                  {totalHours.toLocaleString("pt-PT")}
                 </StatNumber>
               </Stat>
               <Stat>
@@ -760,7 +1046,7 @@ const ReportsCandidate = () => {
                   textAlign="center"
                   color={workedHours > totalHours ? "orange.500" : "green.500"}
                 >
-                  {workedHours.toLocaleString("pt-BR")}
+                  {workedHours.toLocaleString("pt-PT")}
                 </StatNumber>
               </Stat>
               <Stat>
@@ -769,7 +1055,7 @@ const ReportsCandidate = () => {
                   textAlign="center"
                   color={remainingHours < 0 ? "red.500" : "inherit"}
                 >
-                  {remainingHours.toLocaleString("pt-BR")}
+                  {remainingHours.toLocaleString("pt-PT")}
                 </StatNumber>
               </Stat>
             </StatGroup>

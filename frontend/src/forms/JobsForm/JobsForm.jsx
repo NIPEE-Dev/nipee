@@ -1,5 +1,5 @@
-import React from 'react';
-import { Stack, Box, Button, Text, chakra, Textarea } from '@chakra-ui/react';
+import React, { useEffect, useState } from 'react';
+import { Stack, Box, Button, Text, chakra, Textarea, Spinner } from '@chakra-ui/react';
 import { Formik, Form, Field, FastField } from 'formik';
 import FormField from '../../components/FormField/FormField';
 import GroupContainer from '../GroupContainer';
@@ -8,24 +8,107 @@ import { makeJourneyText, weekDays } from '../../utils/formHelpers';
 import AddressFields from '../Shared/AddressFields';
 import DocumentsTable from '../../components/DocumentsTable/DocumentsTable';
 import FileUpload from '../../components/FileUpload/FileUpload';
+import { Select } from 'chakra-react-select';
+import api from "../../api";
+import CandidacyTable from '../../components/CandidacyTable/CandidacyTable';
+import { useJobs } from './../../hooks/useJobs';
+import CompatibleCandidacyTable from '../../components/CandidacyTable/CompatibleCandidacyTable';
+
+const CourseSelect = ({ value = [], onChange, readOnly }) => {
+  const [courses, setCourses] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchCourses = async () => {
+      setLoading(true);
+      try {
+        let res = await api.get('/base-records?type=6');
+        setCourses(res.data.data);
+        setLoading(false);
+      } catch (err) {
+        console.error('Erro ao carregar cursos:', err);
+        setLoading(false);
+      }
+    };
+    fetchCourses();
+  }, []);
+
+  const handleChange = (selectedOptions) => {
+    const selectedValues = selectedOptions ? selectedOptions.map(option => option.value) : [];
+    onChange(selectedValues);
+  };
+
+  const selectedChakraOptions = courses.filter(course => value.includes(String(course.id))).map(course => ({ value: String(course.id), label: course.title || 'Unknown' }));
+  const allChakraOptions = courses.map(course => ({ value: String(course.id), label: course.title || 'Unknown' }));
+
+  if (loading) {
+    return (
+      <Box textAlign="center" py={4} w="100%">
+        <Spinner size="sm" />
+        <Text mt={2} fontSize="sm" color="gray.500">Carregando cursos...</Text>
+      </Box>
+    );
+  }
+
+  return (
+    <Select
+      isMulti
+      isSearchable
+      chakraStyles={{
+        control: (provided) => ({
+          ...provided,
+          background: "gray.50"
+        }),
+        dropdownIndicator: (provided) => ({
+          ...provided,
+          background: "gray.50"
+        }),
+      }}
+      value={selectedChakraOptions}
+      onChange={handleChange}
+      isDisabled={readOnly}
+      placeholder="Selecione os cursos"
+      options={allChakraOptions}
+    />
+  );
+};
 
 export const JobsForm = ({ readOnly, typeForm, isLoading, ...props }) => {
+  const { closeJob } = useJobs();
   const userProfile = JSON.parse(localStorage.getItem('profile'));
   const userRole = userProfile?.role || '';
   const canEdit = userRole === "Administrador Geral" || userRole === 'Empresa';
-  
+
   return (
     <Formik
       enableReinitialize
       initialErrors={props.initialErrors}
-      initialValues={props.initialValues}
+       initialValues={{
+    ...props.initialValues,
+    has_scholarship: props.initialValues?.has_scholarship ?? '1'
+  }}
       onSubmit={(values) => props.onSubmit(values)}
     >
-      {({ values, isSubmitting }) => (
+      {({ values, isSubmitting, setFieldValue }) => (
         <Form>
+          {['edit', 'view'].includes(typeForm) &&
+            props.initialValues?.id &&
+            props.initialValues?.status === 1 && (
+              <Box py={3} textAlign='right'>
+                <Button
+                  mt='3'
+                  colorScheme='red'
+                  type='button'
+                  onClick={() => closeJob(props.initialValues.id)}
+                  isLoading={isLoading || isSubmitting}
+                >
+                  Encerrar vaga
+                </Button>
+              </Box>
+            )}
           <GroupContainer
             title='Dados da vaga'
-            subtitle='Informações pertinentes a empresa e a vaga'
+            subtitle='Informações pertinentes à empresa e à vaga'
           >
             <Stack direction={['column', 'row']} spacing='24px'>
               <Resource
@@ -53,34 +136,19 @@ export const JobsForm = ({ readOnly, typeForm, isLoading, ...props }) => {
                 )}
               </Resource>
             </Stack>
+
             <Stack direction={['column', 'row']} spacing='24px'>
-              <Resource
-                resource='BaseRecords'
-                autoFetch
-                resourceParams={{ type: 1, perPage: 9999 }}
-              >
-                {({ records, isLoading }) => (
-                  <Field
-                    id='role_id'
-                    name='role_id'
-                    disabled={canEdit === false}
-                    placeholder='Função'
-                    component={FormField.Select}
-                    readOnly={readOnly}
-                    isLoading={isLoading}
-                    required
-                  >
-                    {records.map((record) => (
-                      <option key={record.id} value={record.id}>
-                        {record.title}
-                      </option>
-                    ))}
-                  </Field>
-                )}
-              </Resource>
+              <FastField
+                id='role'
+                name='role'
+                disabled={canEdit === false}
+                placeholder='Função'
+                component={FormField}
+                readOnly={readOnly}
+                required
+              />
               <FastField
                 id='period'
-                disabled={canEdit === false}
                 name='period'
                 placeholder='Período'
                 component={FormField.Select}
@@ -93,10 +161,95 @@ export const JobsForm = ({ readOnly, typeForm, isLoading, ...props }) => {
                 <option value='MN'>Integral</option>
               </FastField>
             </Stack>
+
+            <Stack direction={['column', 'row']} spacing='24px'>
+              <Field name="courses">
+                {({ field, form }) => (
+                  <Stack w="100%">
+                    <Text fontWeight="semibold">Cursos</Text>
+                    <CourseSelect
+                      value={field.value}
+                      onChange={(val) => form.setFieldValue('courses', val)}
+                      readOnly={readOnly}
+                      isDisabled={readOnly || !canEdit}
+                    />
+                  </Stack>
+                )}
+              </Field>
+            </Stack>
+
             <Stack direction={['column', 'row']} spacing='24px'>
               <FastField
-                id='gender'
+                id='competences'
+                name='competences'
+                placeholder='Competências requeridas'
+                as={Textarea}
+                component={FormField.Textarea}
+                readOnly={readOnly}
                 disabled={canEdit === false}
+                onInput={(e) => {
+                  e.target.style.height = "auto";
+                  e.target.style.height = `${e.target.scrollHeight}px`;
+                }}
+                style={{ overflow: "hidden" }}
+                maxLength={2000}
+                required
+              />
+              <FastField
+                id='location'
+                name='location'
+                placeholder='Local de realização'
+                component={FormField}
+                disabled={canEdit === false}
+                readOnly={readOnly}
+                required
+              />
+            </Stack>
+
+            <Stack direction={['column', 'row']} spacing='24px'>
+              <FastField
+                id='start_at'
+                name='start_at'
+                placeholder='Data de Início'
+                component={FormField}
+                type='date'
+                disabled={canEdit === false}
+                readOnly={readOnly}
+                required
+              />
+              <FastField
+                id='end_at'
+                name='end_at'
+                placeholder='Data de Fim'
+                component={FormField}
+                type='date'
+                disabled={canEdit === false}
+                readOnly={readOnly}
+                required
+              />
+            </Stack>
+
+            <Stack direction={['column', 'row']} spacing='24px'>
+              <FastField
+                id='available'
+                name='available'
+                placeholder='Número máximo de candidaturas permitidas'
+                component={FormField}
+                type='number'
+                readOnly={readOnly}
+                required
+              />
+              <FastField
+                id='max_approvals'
+                name='max_approvals'
+                placeholder='Número de vagas disponíveis'
+                component={FormField}
+                type='number'
+                readOnly={readOnly}
+                required
+              />
+              <FastField
+                id='gender'
                 name='gender'
                 placeholder='Sexo'
                 component={FormField.Select}
@@ -107,11 +260,13 @@ export const JobsForm = ({ readOnly, typeForm, isLoading, ...props }) => {
                 <option value='M'>Masculino</option>
                 <option value='FM'>Ambos</option>
               </FastField>
+            </Stack>
+
+            <Stack direction={['column', 'row']} spacing='24px'>
               <FastField
                 id='transport_voucher'
                 name='transport_voucher'
                 placeholder='Vale transporte'
-                disabled={canEdit === false}
                 component={FormField.Select}
                 readOnly={readOnly}
                 required
@@ -119,66 +274,81 @@ export const JobsForm = ({ readOnly, typeForm, isLoading, ...props }) => {
                 <option value='0'>Não</option>
                 <option value='1'>Sim</option>
               </FastField>
+              {values.transport_voucher === '1' && (
+                <>
+                  <FastField
+                    id='transport_voucher_value'
+                    name='transport_voucher_value'
+                    placeholder='Valor do vale transporte (€)'
+                    component={FormField.InputMoney}
+                    readOnly={readOnly}
+                    required
+                  />
+                  <FastField
+                    id='transport_voucher_nominal_value'
+                    name='transport_voucher_nominal_value'
+                    placeholder='Valor nominal do vale transporte'
+                    component={FormField}
+                    readOnly={readOnly}
+                    required
+                  />
+                </>
+              )}
             </Stack>
-            {values.transport_voucher === '1' && (
-              <Stack direction={['column', 'row']} spacing='24px'>
-                <FastField
-                  id='transport_voucher_value'
-                  name='transport_voucher_value'
-                  disabled={canEdit === false}
-                  placeholder='Valor do vale transporte (€)'
-                  component={FormField.InputMoney}
-                  readOnly={readOnly}
-                />
-                <FastField
-                  id='transport_voucher_nominal_value'
-                  name='transport_voucher_nominal_value'
-                  disabled={canEdit === false}
-                  placeholder='Valor nominal do vale transporte'
-                  component={FormField}
-                  readOnly={readOnly}
-                />
-              </Stack>
-            )}
+
             <Stack direction={['column', 'row']} spacing='24px'>
               <FastField
-                id='scholarship_value'
-                name='scholarship_value'
-                placeholder='Bolsa (€)'
-                disabled={canEdit === false}
-                component={FormField.InputMoney}
+                id='has_scholarship'
+                name='has_scholarship'
+                placeholder='Bolsa'
+                component={FormField.Select}
                 readOnly={readOnly}
                 required
-              />
-              <FastField
-                id='scholarship_nominal_value'
-                name='scholarship_nominal_value'
-                placeholder='Vale nominal da bolsa'
-                disabled={canEdit === false}
-                component={FormField}
-                readOnly={readOnly}
-                required
-              />
+              >
+                <option value='0'>Não</option>
+                <option value='1'>Sim</option>
+              </FastField>
+              {values.has_scholarship === '1' && (
+                <>
+                  <FastField
+                    id='scholarship_value'
+                    name='scholarship_value'
+                    placeholder='Valor da Bolsa (€)'
+                    component={FormField.InputMoney}
+                    readOnly={readOnly}
+                    required={values.has_scholarship === '1'}
+                  />
+                  <FastField
+                    id='scholarship_nominal_value'
+                    name='scholarship_nominal_value'
+                    placeholder='Valor nominal da bolsa'
+                    component={FormField}
+                    readOnly={readOnly}
+                    required={values.has_scholarship === '1'}
+                  />
+                </>
+              )}
             </Stack>
+
             <Stack direction={['column', 'row']} spacing='24px'>
               <FastField
                 id='meal_voucher'
                 name='meal_voucher'
                 placeholder='Vale refeição (€)'
-                disabled={canEdit === false}
                 component={FormField.InputMoney}
                 readOnly={readOnly}
                 required
               />
-              <FastField
+              {/* <FastField
                 id='available'
                 name='available'
                 disabled={canEdit === false}
                 placeholder='Quantidade de vagas'
                 component={FormField}
+                type='number'
                 readOnly={readOnly}
                 required
-              />
+              /> */}
             </Stack>
             <Stack direction={['column', 'row']} spacing='24px'>
               <FastField
@@ -193,6 +363,18 @@ export const JobsForm = ({ readOnly, typeForm, isLoading, ...props }) => {
                 <option value='ES'>Estágio</option>
                 <option value='EF'>FCT</option>
               </FastField>
+              {values.type === 'EF' && (
+                <FastField
+                  id='fct_hours'
+                  name='fct_hours'
+                  placeholder='Horas FCT'
+                  component={FormField}
+                  type='number'
+                  readOnly={readOnly}
+                  disabled={canEdit === false}
+                  required={values.type === 'EF'}
+                />
+              )}
               <FastField
                 id='show_web'
                 name='show_web'
@@ -221,12 +403,14 @@ export const JobsForm = ({ readOnly, typeForm, isLoading, ...props }) => {
                 }}
                 style={{ overflow: "hidden" }}
                 maxLength={2000}
+                required
               />
             </Stack>
           </GroupContainer>
+
           <GroupContainer
             title='Dados da jornada'
-            subtitle='Informações pertinentes a carga horária do estagiário'
+            subtitle='Informações pertinentes à carga horária do estagiário'
           >
             <Stack direction={['column', 'row']} spacing='24px'>
               <FastField
@@ -234,7 +418,6 @@ export const JobsForm = ({ readOnly, typeForm, isLoading, ...props }) => {
                 name='working_day.start_weekday'
                 placeholder='De'
                 component={FormField.Select}
-                disabled={canEdit === false}
                 readOnly={readOnly}
                 required
               >
@@ -245,7 +428,7 @@ export const JobsForm = ({ readOnly, typeForm, isLoading, ...props }) => {
               <FastField
                 id='working_day.end_weekday'
                 name='working_day.end_weekday'
-                placeholder='Á'
+                placeholder='À'
                 disabled={canEdit === false}
                 component={FormField.Select}
                 readOnly={readOnly}
@@ -269,7 +452,7 @@ export const JobsForm = ({ readOnly, typeForm, isLoading, ...props }) => {
               <FastField
                 id='working_day.end_hour'
                 name='working_day.end_hour'
-                placeholder='As'
+                placeholder='Às'
                 disabled={canEdit === false}
                 component={FormField}
                 type='time'
@@ -300,7 +483,7 @@ export const JobsForm = ({ readOnly, typeForm, isLoading, ...props }) => {
                 color='gray.500'
                 width='140px'
               >
-                Excessão
+                Exceção
               </chakra.div>
             </Text>
             <Stack direction={['column', 'row']} spacing='24px'>
@@ -326,10 +509,9 @@ export const JobsForm = ({ readOnly, typeForm, isLoading, ...props }) => {
                 readOnly={readOnly}
               />
               <FastField
-                disabled={canEdit === false}
                 id='working_day.day_off_end_hour'
                 name='working_day.day_off_end_hour'
-                placeholder='As'
+                placeholder='Às'
                 component={FormField}
                 type='time'
                 readOnly={readOnly}
@@ -374,7 +556,6 @@ export const JobsForm = ({ readOnly, typeForm, isLoading, ...props }) => {
               />
               <FastField
                 id='working_day.working_hours'
-                disabled={canEdit === false}
                 name='working_day.working_hours'
                 placeholder='Horas semanais'
                 component={FormField}
@@ -385,7 +566,10 @@ export const JobsForm = ({ readOnly, typeForm, isLoading, ...props }) => {
             </Stack>
             {makeJourneyText(values)}
           </GroupContainer>
-          {['edit', 'view'].includes(typeForm) && (
+
+          {['edit', 'view'].includes(typeForm) &&
+            props.initialValues?.id &&
+            props.initialValues?.status === 1 && (
             <GroupContainer
               title='Documentos'
               subtitle='Todos anexos disponíveis para esta vaga'
@@ -405,6 +589,39 @@ export const JobsForm = ({ readOnly, typeForm, isLoading, ...props }) => {
               />
             </GroupContainer>
           )}
+
+          {['edit', 'view'].includes(typeForm) &&
+            props.initialValues?.id &&
+            props.initialValues?.status === 1 && (
+            <GroupContainer
+              title='Candidaturas'
+              subtitle='Todas as candidaturas para esta vaga'
+            >
+              <CandidacyTable
+                typeForm={typeForm}
+                readOnly={readOnly}
+                jobId={props.initialValues.id}
+                candidates={props.initialValues.candidates}
+              />
+            </GroupContainer>
+          )}
+
+          {['edit', 'view'].includes(typeForm) &&
+            props.initialValues?.id &&
+            props.initialValues?.status === 1 && (
+            <GroupContainer
+              title='Candidatos compativeis'
+              subtitle='Todos os candidatos compativeis para esta vaga'
+            >
+              <CompatibleCandidacyTable
+                typeForm={typeForm}
+                readOnly={readOnly}
+                jobId={props.initialValues.id}
+                candidates={props.initialValues.compatible_candidates}
+              />
+            </GroupContainer>
+          )}
+
           {readOnly !== true && (
             <Box py={3} textAlign='right'>
               <Button
@@ -415,12 +632,21 @@ export const JobsForm = ({ readOnly, typeForm, isLoading, ...props }) => {
               >
                 Salvar
               </Button>
+              <Button
+                mt='3'
+                ml={3}
+                colorScheme='orange'
+                type='submit'
+                isLoading={isLoading || isSubmitting}
+              >
+                Salvar como Rascunho
+              </Button>
             </Box>
           )}
         </Form>
       )}
     </Formik>
   );
-}
+};
 
 export default JobsForm;

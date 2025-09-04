@@ -16,7 +16,7 @@ class JobCandidate extends Pivot
     ];
 
     public $casts = [
-        'status' => CandidateStatusEnum::class,
+        // 'status' => CandidateStatusEnum::class,
         'disapproved' => DisapprovedEnum::class
     ];
 }

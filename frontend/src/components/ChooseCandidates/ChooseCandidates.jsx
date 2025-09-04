@@ -170,10 +170,10 @@ const ChooseCandidates = ({ handleCallCandidates }) => {
 
               <Table
                 columns={[
-                  {
+                  /* {
                     Header: 'ID',
                     accessor: 'id'
-                  },
+                  } */,
                   {
                     Header: 'Data de Registo',
                     accessor: (originalData) =>

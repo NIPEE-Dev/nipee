@@ -103,7 +103,7 @@ class ContractService
 
             if (isset($data['job_id']) || isset($data['job']['id'])) {
                 $jobID = $data['job_id'] ?? $data['job']['id'];
-                $job['role'] = Job::find($jobID)->role->title;
+                $job['role'] = Job::find($jobID)->role;
             } else {
                 $job['role'] = $job['role']['title'];
             }
@@ -116,7 +116,8 @@ class ContractService
                 'scholarship_nominal_value',
                 'transport_voucher',
                 'transport_voucher_value',
-                'transport_voucher_nominal_value'
+                'transport_voucher_nominal_value',
+                'fct_hours',
             ]));
 
             $contract->userAddress()->create([...$userAddress, ...['custom_type' => 'userAddress']]);
@@ -137,6 +138,18 @@ class ContractService
             $candidate = $contract->candidate()->create($candidate);
             $candidate->contact()->create(Arr::get($data, 'candidate.contact'));
             $contract->load(['candidate', 'company.address', 'school.address', 'job']);
+
+            if (! $contract->school || ! $contract->school->address) {
+        throw new \RuntimeException(
+            "A escola necessita de uma morada válida para realizar o protocolo."
+        );
+    }
+
+    if (! $contract->company || ! $contract->company->address) {
+        throw new \RuntimeException(
+            "A empresa necessita de uma morada válida para realizar o protocolo."
+        );
+    }
 
             $anoAtual = date('Y');
             $anoLetivo = $anoAtual . '/' . ($anoAtual + 1);

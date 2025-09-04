@@ -29,7 +29,7 @@ class CreateActivityRequest extends FormRequest
             'draft' => ['required', 'boolean'],
             'title' => ['required', 'string'],
             'description' => ['required', 'string'],
-            'estimatedTime' => ['required', 'integer'],
+            'estimatedTime' => ['required', 'integer', 'gt:0'],
             'activityDate' => ['required', 'date_format:Y-m-d'],
         ];
     }
@@ -45,6 +45,7 @@ class CreateActivityRequest extends FormRequest
             'type' => 'Tipo é obrigatório',
             'estimatedTime.required' => 'Duração estimada é obrigatório',
             'estimatedTime.integer' => 'Duração estimada deve ser um número inteiro',
+            'estimatedTime.gt' => 'Duração estimada deve ser maior que 0',
             'activityDate.required' => 'Data da atividade é obrigatório',
             'activityDate.date_format' => 'Data da atividade deve ser no seguinte formato: YYYY-MM-DD',
             'observation.string' => 'Observação deve ser um textos'
