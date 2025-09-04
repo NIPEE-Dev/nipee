@@ -20,7 +20,7 @@ class CandidateResource extends JsonResource
             $current = $this->jobs[$i];
             $jobCandidate = $current->candidates->where('id', $candidateId)->first();
             $statusName = JobCandidateStatusEnum::getLabel($jobCandidate->pivot->status . '');
-            $situations[$statusName] = ['company' => $current->company->corporate_name, 'jobId' => $current->id, 'role' => $current->role];
+            $situations[$statusName][] = ['company' => $current->company->corporate_name, 'jobId' => $current->id, 'role' => $current->role];
         }
 
         return array_merge(parent::toArray($request), [
