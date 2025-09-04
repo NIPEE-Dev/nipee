@@ -281,7 +281,7 @@ class JobService
                 $approvedCandidates = $job->candidates->where(function ($q) {
                     return $q->pivot->status === intval(JobCandidateStatusEnum::APPROVED->value);
                 });
-                if (count($approvedCandidates) === $max) {
+                if ((count($approvedCandidates) + 1) === $max) {
                     $job->status = JobStatusEnum::CLOSED;
                     $job->save();
                 }
