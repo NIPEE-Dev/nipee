@@ -24,9 +24,7 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class ContractController extends Controller
 {
-    public function __construct(public ContractService $contractService)
-    {
-    }
+    public function __construct(public ContractService $contractService) {}
 
     public function index(FilterRequest $request): AnonymousResourceCollection
     {

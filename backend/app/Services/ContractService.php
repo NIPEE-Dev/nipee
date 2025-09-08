@@ -24,6 +24,7 @@ use App\Enums\PeriodEnum;
 use App\Traits\Common\IsAdmin;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 
 class ContractService
 {
@@ -140,16 +141,16 @@ class ContractService
             $contract->load(['candidate', 'company.address', 'school.address', 'job']);
 
             if (! $contract->school || ! $contract->school->address) {
-        throw new \RuntimeException(
-            "A escola necessita de uma morada válida para realizar o protocolo."
-        );
-    }
+                throw new \RuntimeException(
+                    "A escola necessita de uma morada válida para realizar o protocolo."
+                );
+            }
 
-    if (! $contract->company || ! $contract->company->address) {
-        throw new \RuntimeException(
-            "A empresa necessita de uma morada válida para realizar o protocolo."
-        );
-    }
+            if (! $contract->company || ! $contract->company->address) {
+                throw new \RuntimeException(
+                    "A empresa necessita de uma morada válida para realizar o protocolo."
+                );
+            }
 
             $anoAtual = date('Y');
             $anoLetivo = $anoAtual . '/' . ($anoAtual + 1);
@@ -214,6 +215,9 @@ class ContractService
                 'razaoSocialEscola2' => $contract->school->corporate_name,
                 'nomeCandidato2' => $candidate->name,
                 'data' => $contract->start_contract_vigence->translatedFormat("d \\d\\e F \\d\\e Y"),
+
+                'manual_contract_upload' => $data['manual_contract_upload'],
+                'manual_contract_file' => $data['manual_contract_file'],
             ];
 
             if ($contract->job->transport_voucher == '1') {
@@ -259,36 +263,57 @@ class ContractService
                 $deleteOtherAddressBlock = false;
             }
 
-            $generatedDocument = $this->wordProcessor->make(
-                $contract->company->type === TypeEnum::PJ
-                    ? DocumentTypeTemplateEnum::CONTRACT_INTERNSHIP
-                    : DocumentTypeTemplateEnum::CONTRACT_INTERNSHIP_CPF,
-                $data,
-                function (TemplateProcessor $templateProcessor) use ($deleteOtherAddressBlock, $jobAddress) {
-                    if ($deleteOtherAddressBlock) {
-                        $templateProcessor->cloneBlock('blockOtherAddress', 0, true, true);
-                    } else {
-                        $templateProcessor->cloneBlock('blockOtherAddress', 1, true, false, [
-                            [
-                                'other_enderecoEmpresa' => $jobAddress->address,
-                                'other_numeroEmpresa' => $jobAddress->number,
-                                'other_bairroEmpresa' => $jobAddress->district,
-                                'other_cidadeEmpresa' => $jobAddress->city,
-                                'other_estadoEmpresa' => strtoupper($jobAddress->uf),
-                                'other_cepEmpresa' => $jobAddress->cep,
-                            ]
-                        ]);
-                    }
-                }
-            );
 
-            $contract->documents()->create([
-                'filename' => $generatedDocument['randomName'],
-                'original_filename' => $generatedDocument['filename'],
-                'file_extension' => 'docx',
-                'filesize' => $generatedDocument['filesize'],
-                'type' => 'Protocolo',
-            ]);
+            if ((isset($data['manual_contract_upload']) && $data['manual_contract_upload'] === true) && isset($data['manual_contract_file'])) {
+                $contractFile = $data['manual_contract_file'];
+                $fileData = substr($contractFile, strpos($contractFile, ',') + 1);
+                $fileMimeType = explode(';', explode(':', $contractFile)[1])[0];
+
+                $fileContents = base64_decode($fileData);
+                $fileExtension = $fileMimeType == 'application/pdf' ? 'pdf' : 'docx';
+                $fileName = uniqid();
+
+                $path = Storage::disk('local')->put('generated_documents/' . config('app.system_identifier') . '/' . $fileName . '.' . $fileExtension, $fileContents);
+
+                $contract->documents()->create([
+                    'filename' => $fileName,
+                    'original_filename' => $fileName,
+                    'file_extension' => $fileExtension,
+                    'filesize' => Storage::disk('local')->size('generated_documents/' . config('app.system_identifier') . '/' . $fileName . '.' . $fileExtension),
+                    'type' => 'Protocolo',
+                ]);
+            } else {
+                $generatedDocument = $this->wordProcessor->make(
+                    $contract->company->type === TypeEnum::PJ
+                        ? DocumentTypeTemplateEnum::CONTRACT_INTERNSHIP
+                        : DocumentTypeTemplateEnum::CONTRACT_INTERNSHIP_CPF,
+                    $data,
+                    function (TemplateProcessor $templateProcessor) use ($deleteOtherAddressBlock, $jobAddress) {
+                        if ($deleteOtherAddressBlock) {
+                            $templateProcessor->cloneBlock('blockOtherAddress', 0, true, true);
+                        } else {
+                            $templateProcessor->cloneBlock('blockOtherAddress', 1, true, false, [
+                                [
+                                    'other_enderecoEmpresa' => $jobAddress->address,
+                                    'other_numeroEmpresa' => $jobAddress->number,
+                                    'other_bairroEmpresa' => $jobAddress->district,
+                                    'other_cidadeEmpresa' => $jobAddress->city,
+                                    'other_estadoEmpresa' => strtoupper($jobAddress->uf),
+                                    'other_cepEmpresa' => $jobAddress->cep,
+                                ]
+                            ]);
+                        }
+                    }
+                );
+
+                $contract->documents()->create([
+                    'filename' => $generatedDocument['randomName'],
+                    'original_filename' => $generatedDocument['filename'],
+                    'file_extension' => 'docx',
+                    'filesize' => $generatedDocument['filesize'],
+                    'type' => 'Protocolo',
+                ]);
+            }
 
             return $contract->load(['originalJob', 'job', 'workingDay', 'company.address', 'candidate.contact', 'documents', 'userAddress', 'jobOtherAddress']);
         }));

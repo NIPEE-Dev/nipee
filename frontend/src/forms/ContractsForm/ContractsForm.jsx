@@ -863,10 +863,15 @@ export const ContractsForm = ({
                   id="manual_contract_file"
                   name="manual_contract_file"
                   onChange={(event) => {
-                    formProps.setFieldValue(
-                      'manual_contract_file',
-                      event.currentTarget.files[0]
-                    );
+                    const reader = new FileReader();
+                    reader.onloadend = () => {
+                      const base64String = reader.result;
+                      formProps.setFieldValue(
+                        'manual_contract_file',
+                        base64String
+                      );
+                    };
+                    reader.readAsDataURL(event.currentTarget.files[0]);
                   }}
                   disabled={readOnly}
                 />
