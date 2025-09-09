@@ -299,10 +299,18 @@ export const ContractsForm = ({
                     const selectedSchoolId = typeForm === 'edit'
                       ? formProps.values.school_id
                       : formProps.values?.school?.id;
-                      const approvedCandidatesIds = formProps.values.job ? formProps.values.job.candidates.filter((element) => element.statusLabel === 'Aprovado').map((element) => element.id) : []
+                      const approvedCandidatesIds = formProps.values.job?.candidates
+                        ? formProps.values.job.candidates
+                            .filter((element) => element.statusLabel === "Aprovado")
+                            .map((element) => element.id)
+                        : [];
 
-                      const candidatesFromSchool = records.filter(record => 
-                        record.user?.school?.some(school => String(school.id) === String(selectedSchoolId)) && approvedCandidatesIds.includes(record.id));                   
+                      const candidatesFromSchool = (records || []).filter(
+                        (record) =>
+                          record.user?.school?.some(
+                            (school) => String(school.id) === String(selectedSchoolId)
+                          ) && approvedCandidatesIds.includes(record.id)
+                      );    ;                   
 
                     return (
                       <Field
