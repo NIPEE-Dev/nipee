@@ -37,10 +37,9 @@ class Document extends Model
         parent::boot();
 
         static::creating(function ($document) {
-            if ($document->type === 'Protocolo') {
-                $document->status = DocumentStatusEnum::PENDING_COMPANY_SIGNATURE;
-            }
+            // if ($document->type === 'Protocolo') {
+            //     $document->status = DocumentStatusEnum::PENDING_COMPANY_SIGNATURE;
+            // }
         });
     }
-
 }
