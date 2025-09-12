@@ -2,16 +2,40 @@
 
 namespace App\Http\Resources\Jobs;
 
+use App\Enums\ActiveEnum;
 use App\Enums\BooleanEnum;
 use App\Enums\GenderEnum;
 use App\Enums\PeriodEnum;
+use App\Enums\RolesEnum;
 use App\Http\Resources\Companies\CompanyResource;
+use App\Http\Resources\CompatibleCandidateResource;
+use App\Http\Resources\JobCandidateResource;
+use App\Models\Candidate;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Facades\Auth;
 
 class JobResource extends JsonResource
 {
     public function toArray($request)
     {
+        $user = Auth::user();
+        $roleId = $user->roles[0]->id;
+        $compatibleCandidates = [];
+        if (isset($this->courses)) {
+            $coursesIds = $this->courses->pluck('id');
+            $candidatesIds = $this->candidates->pluck('id');
+            $allowedGenders = $this->gender === GenderEnum::AMBOS ? [GenderEnum::FEMALE, GenderEnum::MALE] : [$this->gender];
+            $candidates = Candidate::query()
+                ->whereNotIn('id', $candidatesIds)
+                ->where(function ($q) {
+                    $q->orWhereDoesntHave('contracts')->orWhereHas('contracts', function ($query) {
+                        $query->where('status', ActiveEnum::NOT_ACTIVE->value);
+                    });
+                })
+                ->whereIn('course', $coursesIds)->whereIn('gender', $allowedGenders)->get();
+            $compatibleCandidates = $candidates;
+        }
+
         return [
             'id' => $this->id,
             'status' => $this->status,
@@ -28,6 +52,7 @@ class JobResource extends JsonResource
             'scholarship_value' => (float)$this->scholarship_value,
             'scholarship_nominal_value' => $this->scholarship_nominal_value,
             'available' => $this->available,
+            'max_approvals' => $this->max_approvals,
             'type' => $this->type,
             'show_web' => $this->show_web,
             'show_web_title' => BooleanEnum::getLabel($this->show_web),
@@ -35,8 +60,10 @@ class JobResource extends JsonResource
             'created_at' => $this->created_at,
             'description' => $this->description,
             'company' => new CompanyResource($this->whenLoaded('company')),
+            'corporate_name' => $this->company->corporate_name,
+            'fantasy_name' => $this->company->fantasy_name,
             'working_day' => new JobWorkingDayResource($this->whenLoaded('workingDay')),
-            'role' => new JobWorkingDayResource($this->whenLoaded('role')),
+            'role' => $this->role,
             'documents' => $this->whenLoaded('documents'),
             'available_candidatures' => $this->when($roleId === RolesEnum::CANDIDATE->value, $this->available - count($this->candidates)),
             'competences' => $this->competences,
