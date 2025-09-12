@@ -74,10 +74,28 @@ export const CandidatesForm = ({ readOnly, isLoading, typeForm, ...props }) => {
       enableReinitialize
       initialErrors={props.initialErrors}
       initialValues={props.initialValues}
-      onSubmit={(values) => {
-        console.log('Form submitted with values:', values);
-        props.onSubmit(values);
-      }}
+      onSubmit={async (values, { setSubmitting, setFieldError }) => {
+    try {
+      await props.onSubmit(values);
+    } catch (error) {
+      if (error.response?.data?.errors) {
+        Object.keys(error.response.data.errors).forEach(field => {
+          setFieldError(field, error.response.data.errors[field][0]);
+        });
+      }
+      toast({
+        title: "Erro!",
+        description: error.response?.data?.message || error.message || "Ocorreu um erro desconhecido.",
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+        position: 'top-right',
+        variant: 'left-accent',
+      });
+    } finally {
+      setSubmitting(false);
+    }
+  }}
     >
       {({ values, setFieldValue, isSubmitting }) => (
         <Form>
@@ -166,7 +184,7 @@ export const CandidatesForm = ({ readOnly, isLoading, typeForm, ...props }) => {
             </Stack>
 
             <Stack direction={['column', 'row']} spacing='24px'>
-                <FastField
+                {/* <FastField
                   id='serie'
                   name='serie'
                   placeholder='Ano'
@@ -180,7 +198,7 @@ export const CandidatesForm = ({ readOnly, isLoading, typeForm, ...props }) => {
                     <option value={13}>3° Ano</option>
                   </optgroup>
 
-                  {/* <optgroup label='Outros'>
+                  <optgroup label='Outros'>
                     <option value={14}>1° Ano Supletivo</option>
                     <option value={15}>2° Ano Supletivo</option>
                     <option value={16}>3° Ano Supletivo</option>
@@ -188,8 +206,8 @@ export const CandidatesForm = ({ readOnly, isLoading, typeForm, ...props }) => {
 
                   <option value={17}>Incompleto</option>
                   <option value={18}>Completo</option>
-                  <option value={19}>9ª ano fundamental (eja)</option> */}
-                </FastField>
+                  <option value={19}>9ª ano fundamental (eja)</option>
+                </FastField> */}
                 <>
                    <Resource
                     resource='BaseRecords'
@@ -222,7 +240,7 @@ export const CandidatesForm = ({ readOnly, isLoading, typeForm, ...props }) => {
                     component={FormField.Select}
                     readOnly={readOnly}
                   >
-                    {[...Array(2).keys()].map((v) => (
+                    {[...Array(3).keys()].map((v) => (
                       <option key={v} value={v}>
                         {++v}° Ano
                       </option>
@@ -528,7 +546,7 @@ export const CandidatesForm = ({ readOnly, isLoading, typeForm, ...props }) => {
                     <h2>
                       <AccordionButton>
                         <Box flex='1' textAlign='left'>
-                          {job.company.corporate_name} - {job.role.title}
+                          {job.company?.corporate_name || 'Empresa não informada'} - {job.role || 'Vaga não informada'}
                         </Box>
                         <AccordionIcon />
                       </AccordionButton>

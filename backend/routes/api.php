@@ -62,6 +62,7 @@ Route::controller(SchoolController::class)->prefix('schools')->group(function ()
     Route::delete('/{school}', 'destroy')->withTrashed()->middleware('checkPermission:schools.index');
 });
 
+Route::get('candidates/interviewing', [CandidateController::class, 'schoolCandidates'])->middleware('checkPermission:candidates.index');
 Route::apiResource('candidates', CandidateController::class)->middleware('checkPermission:candidates.index');
 Route::prefix('base-records')->group(function () {
     Route::get('/', [BaseRecordsController::class, 'index'])->withoutMiddleware('auth:api');
@@ -71,9 +72,18 @@ Route::prefix('base-records')->group(function () {
     Route::delete('/{baseRecord}', [BaseRecordsController::class, 'destroy'])->middleware('checkPermission:base-records.index');
 });
 
+Route::get('jobs/history', [JobController::class, 'jobsHistory'])->middleware('checkPermission:jobs.index');
+Route::get('jobs/invites/interview', [JobController::class, 'interviewInvites'])->middleware('checkPermission:jobs.index');
+Route::put('jobs/invites/interview/{jobInterview}', [JobController::class, 'updateJobInterview'])->middleware('checkPermission:jobs.index');
 Route::post('jobs/candidates/call', [JobController::class, 'callCandidates'])->middleware('checkPermission:jobs.index');
 Route::put('jobs/candidates/update-status', [JobController::class, 'updateStatus'])->middleware('checkPermission:jobs.index');
 Route::apiResource('jobs', JobController::class)->middleware('checkPermission:jobs.index')->withTrashed(['destroy']);
+Route::post('jobs/{job}/apply', [JobController::class, 'apply'])->middleware('checkPermission:jobs.index');
+Route::post('jobs/{job}/invite', [JobController::class, 'inviteToJob'])->middleware('checkPermission:jobs.index');
+Route::post('jobs/{job}/invite/interview', [JobController::class, 'storeInvite'])->middleware('checkPermission:jobs.index');
+Route::put('jobs/{job}/invite/interview/{candidateId}/evaluation', [JobController::class, 'updateJobInterviewEvaluation'])->middleware('checkPermission:jobs.index');
+Route::put('jobs/{job}/invite/interview/{candidateId}/testing', [JobController::class, 'updateJobTestingEvaluation'])->middleware('checkPermission:jobs.index');
+Route::patch('jobs/{job}/status', [JobController::class, 'updateJobStatus'])->middleware('checkPermission:jobs.index');
 
 Route::get('contracts/job/{job}/candidate/{candidate}', [ContractController::class, 'loadContractData'])->middleware('checkPermission:contracts.index');
 Route::delete('contracts/{contract}', [ContractController::class, 'destroy'])->middleware('checkPermission:contracts.end')->withTrashed();
@@ -99,7 +109,7 @@ Route::get('sellers', static function () {
     return UserResource::collection(User::query()->whereHas('roles', function (Builder $builder) {
         $builder->where('title', 'LIKE', '%Vendedor%');
     })->get());
-})->middleware('checkPermission:users.index');
+})->withoutMiddleware('auth:api');
 
 Route::resource('roles', RolesController::class)->middleware('checkPermission:roles.index');
 
@@ -113,4 +123,4 @@ Route::post('students-pre-registrations/{id}/reject', [StudentsPreRegistrationCo
 
 //! rotas para criação da assinatura
 Route::post('/contracts/{contractId}/upload-signature-company', [SignatureController::class, 'uploadSignatureCompany'])->name('contracts.upload-signature-company')->middleware('checkPermission:contracts.reactive');
-Route::post('/contracts/{contractId}/upload-signature-school', [SignatureController::class, 'uploadSignatureSchool'])->middleware('checkPermission:contracts.reactive');
+Route::post('/contracts/{contractId}/upload-signature-school', [SignatureController::class, 'uploadSignatureSchool'])->middleware('checkPermission:documents.index');

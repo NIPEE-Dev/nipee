@@ -9,6 +9,7 @@ use App\Enums\PeriodEnum;
 use App\Models\Candidate;
 use App\Models\Company\Company;
 use App\Models\Contracts\Contract;
+use App\Models\JobInterviewInvite;
 use App\Models\Shared\BaseRecord;
 use App\Traits\Common\ActivityLogger;
 use App\Traits\Common\HasDocuments;
@@ -36,7 +37,15 @@ class Job extends Model
         'available',
         'type',
         'show_web',
-        'description'
+        'description',
+        'status',
+        'role',
+        'competences',
+        'location',
+        'fct_hours',
+        'start_at',
+        'end_at',
+        'max_approvals'
     ];
 
     public $casts = [
@@ -78,6 +87,16 @@ class Job extends Model
             ->withTrashed();
     }
 
+    public function courses()
+    {
+        return $this->belongsToMany(
+            BaseRecord::class,
+            'job_courses',
+            'job_id',
+            'base_record_id'
+        )->withTimestamps();
+    }
+
     public function role()
     {
         return $this->hasOne(BaseRecord::class, 'id', 'role_id')->where('type', '=', BaseRecordsEnum::ROLES->value);
@@ -91,5 +110,10 @@ class Job extends Model
     public function contracts()
     {
         return $this->hasMany(Contract::class, 'job_id');
+    }
+
+    public function invites()
+    {
+        return $this->hasMany(JobInterviewInvite::class, 'job_id');
     }
 }

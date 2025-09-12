@@ -9,6 +9,7 @@ import {
   Spinner,
   Stack,
   Text,
+  useToast,
   Tooltip,
   Checkbox,
   useControllableState,
@@ -126,7 +127,36 @@ export const ContractsForm = ({
         manual_contract_upload: false,
         manual_contract_file: null,
       }}
-      onSubmit={(values) => props.onSubmit(values)}
+       onSubmit={async (values, { setSubmitting, setFieldError }) => {
+    try {
+      await props.onSubmit(values);
+      toast({
+        title: "Sucesso",
+        description: "Protocolo salvo com sucesso!",
+        status: "success",
+        duration: 5000,
+        isClosable: true,
+      });
+    } catch (error) {
+      if (error.response?.data?.errors) {
+        Object.keys(error.response.data.errors).forEach(field => {
+          setFieldError(field, error.response.data.errors[field][0]);
+        });
+      }
+      
+      toast({
+        title: "Erro!",
+        description: error.response?.data?.message || error.message || "Ocorreu um erro desconhecido.",
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+        position: 'top-right',
+        variant: 'left-accent',
+      });
+    } finally {
+      setSubmitting(false);
+    }
+  }}
     >
       {(formProps) => (
         <Form>
@@ -198,7 +228,7 @@ export const ContractsForm = ({
                   >
                     {records.map((record) => (
                       <option key={record.id} value={record.id}>
-                        {record.fantasy_name}
+                      {record.corporate_name}              
                       </option>
                     ))}
                   </Field>
@@ -239,7 +269,7 @@ export const ContractsForm = ({
                 >
                   {records.map((record) => (
                     <option key={record.id} value={record.id}>
-                      {record.role?.title}
+                      {record.role}
                     </option>
                   ))}
                   {records.length === 0 && (
@@ -363,14 +393,14 @@ export const ContractsForm = ({
               <FastField
                 id='candidate.studying_level'
                 name='candidate.studying_level'
-                placeholder='Tipo de ensino'
+                placeholder='Nível de Ensino'
                 component={FormField.Select}
                 readOnly={readOnly}
                 required
               >
-                <option value='M'>Técnico</option>
-                <option value='E'>Ensino Secundário</option>
-                <option value='TS'>Superior</option>
+                <option value='E'>Cursos Profissionais nível 4 / Ensino Secundário</option>
+                <option value='CP5'>Cursos Profissionais CET nível 5</option>
+                <option value='TS'>Ensino Superior TESP - Nível 5</option>
               </FastField>
 
               {formProps.values?.candidate?.studying_level === 'TS' && (
@@ -389,7 +419,7 @@ export const ContractsForm = ({
             </Stack>
 
             <Stack direction={['column', 'row']} spacing='24px'>
-              {formProps.values?.candidate?.studying_level === 'E' ? (
+              {formProps.values?.candidate?.studying_level === '-' ? (
                 <FastField
                   id='candidate.serie'
                   name='candidate.serie'
@@ -414,18 +444,9 @@ export const ContractsForm = ({
                 <>
                   <Resource
                     resource='BaseRecords'
-                    autoFetch={typeForm === 'edit'
-                      ? !!formProps.values.school_id
-                      : !!formProps.values.candidate?.school?.id}
-                    resourceParams={{
-                      type: 6,
-                      school_id: typeForm === 'edit'
-                        ? formProps.values.school_id
-                        : formProps.values.candidate?.school?.id,
-                      perPage: 9999,
-                      ...(typeForm === 'add' && { withoutTrashed: true })
-                    }}
-                  >
+                    autoFetch
+                    resourceParams={{ type: 6, perPage: 9999 }}
+                   >
                     {({ records, isLoading }) => (
                       <Field
                         id='candidate.course'
@@ -434,16 +455,15 @@ export const ContractsForm = ({
                         component={FormField.Select}
                         readOnly={readOnly}
                         isLoading={isLoading}
-                        isDisabled={!formProps.values.school_id || records.length === 0}
                         required
                       >
-                        {records.map((record) => (
-                          <option key={record.id} value={record.id}>
-                            {record.title}
-                          </option>
-                        ))}
+                      {records.map((record) => (
+                        <option key={record.id} value={record.id}>
+                          {record.title}
+                        </option>
+                      ))}
                       </Field>
-                    )}
+                     )}
                   </Resource>
                   <FastField
                     id='candidate.semester'
@@ -452,7 +472,7 @@ export const ContractsForm = ({
                     component={FormField.Select}
                     readOnly={readOnly}
                   >
-                    {[...Array(2).keys()].map((v) => (
+                     {[...Array(3).keys()].map((v) => (
                       <option key={v} value={v}>
                         {++v}° Ano
                       </option>
@@ -884,17 +904,49 @@ export const ContractsForm = ({
           </GroupContainer>
 
           <GroupContainer title='Dados do seguro' subtitle='Dados pertinentes ao seguro'>
-            <Stack direction={['column', 'row']} spacing='24px'>
-              <FastField
-                id='insurance_date'
-                name='insurance_date'
-                placeholder='Data do seguro'
-                component={FormField}
-                type='date'
-                readOnly={readOnly}
-                required
-              />
+            <Stack direction={['column', 'row']} spacing='24px' alignItems="center">
+              <Field name="has_insurance">
+                {({ field, form }) => (
+                  <Checkbox
+                    {...field}
+                    id="has_insurance"
+                    isChecked={field.value}
+                    onChange={(e) => {
+                      form.setFieldValue('has_insurance', e.target.checked);
+                      if (!e.target.checked) {
+                        form.setFieldValue('insurance_number', '');
+                        form.setFieldValue('insurance_date', '');
+                      }
+                    }}
+                    isReadOnly={readOnly}
+                  >
+                    Possuí seguro?
+                  </Checkbox>
+                )}
+              </Field>
             </Stack>
+
+            {formProps.values.has_insurance && (
+              <Stack direction={['column', 'row']} spacing='24px' mt={4}>
+                <FastField
+                  id='insurance_number'
+                  name='insurance_number'
+                  placeholder='Número do seguro'
+                  component={FormField}
+                  readOnly={readOnly}
+                  required={formProps.values.has_insurance}
+                />
+                <FastField
+                  id='insurance_date'
+                  name='insurance_date'
+                  placeholder='Data início do seguro'
+                  component={FormField}
+                  type='date'
+                  readOnly={readOnly}
+                  required={formProps.values.has_insurance}
+                />
+              </Stack>
+            )}
           </GroupContainer>
 
           {['edit', 'view'].includes(typeForm) && (

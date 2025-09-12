@@ -44,6 +44,8 @@ class ActivitiesService
                     return [
                         'date' => $item->created_at->format('d/m/Y'),
                         'hours' => $item->estimated_time,
+                        'title' => $item->title,
+                        'description' => $item->description,
                         'justification' => $item->justification ?? '',
                     ];
                 });
@@ -57,7 +59,7 @@ class ActivitiesService
                     'studentPhone' => $activity->user->candidate->contact->phone ?? '',
                     'jobName' => $contract->job->role ?? '',
                     'hoursDuration' => "$availableTotalHours",
-                    'monthsDuration' => "" . $contract->start_contract_vigence->diffInMonths($contract->end_contract_vigence),
+                    'monthsDuration' => $contract->start_contract_vigence->format('d/m/Y') . ' - ' . $contract->end_contract_vigence->format('d/m/Y'),
                     'activitiesBlock' => $activities->all(),
                 ];
 
@@ -96,27 +98,69 @@ class ActivitiesService
 
     public function getByUserId($userId)
     {
-        $activities = Activity::query()->where('user_id', $userId)->get();
+        $activities = Activity::query()->where('user_id', $userId);
 
-        return $activities;
+        if (isset($filters['startDate'])) {
+            $startDate = new Carbon($filters['startDate']);
+            $activities->whereDate('activity_date', '>=', $startDate->startOfDay());
+        }
+
+        if (isset($filters['endDate'])) {
+            $endDate = new Carbon($filters['endDate']);
+            $activities->whereDate('activity_date', '<=', $endDate->endOfDay());
+        }
+
+        if (!isset($filters['startDate']) && !isset($filters['endDate'])) {
+            $activities->whereMonth('activity_date', Carbon::now()->month);
+        }
+
+        return $activities->get();
     }
 
-    public function getByCompanyId($companyId)
+    public function getByCompanyId($companyId, $filters)
     {
         $activities = Activity::query()->where('status', '!=', ActivityStatusEnum::DRAFT->value)->whereHas('user.candidate.contracts', function ($query) use ($companyId) {
             $query->where('company_id', $companyId);
-        })->get();
+        });
 
-        return $activities;
+        if (isset($filters['startDate'])) {
+            $startDate = new Carbon($filters['startDate']);
+            $activities->whereDate('activity_date', '>=', $startDate->startOfDay());
+        }
+
+        if (isset($filters['endDate'])) {
+            $endDate = new Carbon($filters['endDate']);
+            $activities->whereDate('activity_date', '<=', $endDate->endOfDay());
+        }
+
+        if (!isset($filters['startDate']) && !isset($filters['endDate'])) {
+            $activities->whereMonth('activity_date', Carbon::now()->month);
+        }
+
+        return $activities->get();
     }
 
-    public function getBySchoolId($schoolId)
+    public function getBySchoolId($schoolId, $filters)
     {
         $activities = Activity::query()->where('status', '!=', ActivityStatusEnum::DRAFT->value)->whereHas('user.candidate.contracts', function ($query) use ($schoolId) {
             $query->where('school_id', $schoolId);
-        })->get();
+        });
 
-        return $activities;
+        if (isset($filters['startDate'])) {
+            $startDate = new Carbon($filters['startDate']);
+            $activities->whereDate('activity_date', '>=', $startDate->startOfDay());
+        }
+
+        if (isset($filters['endDate'])) {
+            $endDate = new Carbon($filters['endDate']);
+            $activities->whereDate('activity_date', '<=', $endDate->endOfDay());
+        }
+
+        if (!isset($filters['startDate']) && !isset($filters['endDate'])) {
+            $activities->whereMonth('activity_date', Carbon::now()->month);
+        }
+
+        return $activities->get();
     }
 
     public function getReportsBySchoolId($schoolId)
@@ -146,7 +190,15 @@ class ActivitiesService
                 continue;
             }
         }
-        $name = Str::uuid() . '.docx';
+        $formattedStudentName = $data['studentName'];
+
+        if (isset($formattedStudentName) && $formattedStudentName !== '') {
+            $formattedStudentName = str_replace(' ', '_', Str::lower($formattedStudentName)) . '_' . Str::random(5);
+        } else {
+            $formattedStudentName = Str::random(5);
+        }
+
+        $name = 'Report_' . $formattedStudentName . '.docx';
         $path = storage_path('app/public/docs/' . $name);
         $template->saveAs($path);
 

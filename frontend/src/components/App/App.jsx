@@ -27,7 +27,7 @@ import Termos from '../../pages/Termos/Termos.jsx';
 import DashboardSchools from '../../pages/DashboardSchools/DashboardSchools.jsx';
 import ActivityReport from '../../pages/ActivityReport/ActivityReport.jsx';
 import ReportsFCT from '../../pages/ReportsFCT/ReportsFCT.jsx';
-
+import JobDetails from '../../pages/JobsPage/JobDetails.jsx';
 function App() {
   return (
     <Routes>
@@ -136,20 +136,28 @@ function App() {
             </PermissionRoute>
           }
         />
+        <Route
+          path='jobs-candidate/:jobId'
+          element={
+            <PermissionRoute permission='jobs.index'>
+              <JobDetails />
+            </PermissionRoute>
+          }
+        />
         <Route path='jobs/*'>
-          <Route
-            path='*'
-            element={
-              <PermissionRoute permission='jobs.index'>
-                <JobsPage />
-              </PermissionRoute>
-            }
-          />
           <Route
             path='choose-candidate/*'
             element={
               <PermissionRoute permission='jobs.index'>
                 <ChooseCandidates />
+              </PermissionRoute>
+            }
+          />
+          <Route
+            path='*'
+            element={
+              <PermissionRoute permission='jobs.index'>
+                <JobsPage />
               </PermissionRoute>
             }
           />
@@ -194,10 +202,6 @@ function App() {
             </PermissionRoute>
           }
         />
-       <Route 
-       // routa para botam acandidaturas
-       
-       /> 
         <Route path='*' element={<EmptyResult />} />
       </Route>
     </Routes>
