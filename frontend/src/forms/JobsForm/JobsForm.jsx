@@ -627,22 +627,32 @@ export const JobsForm = ({ readOnly, typeForm, isLoading, ...props }) => {
               <Button
                 mt='3'
                 colorScheme='blue'
-                type='submit'
                 isLoading={isLoading || isSubmitting}
+                onClick={() => {
+                  setFieldValue("status", 1);
+                  submitForm();
+                }}
               >
                 Salvar
               </Button>
-              <Button
-                mt='3'
-                ml={3}
-                colorScheme='orange'
-                type='submit'
-                isLoading={isLoading || isSubmitting}
-              >
-                Salvar como Rascunho
-              </Button>
+
+              {values.status === 0 && (
+                <Button
+                  mt='3'
+                  ml={3}
+                  colorScheme='orange'
+                  isLoading={isLoading || isSubmitting}
+                  onClick={() => {
+                    setFieldValue("status", 0);
+                    submitForm();
+                  }}
+                >
+                  Salvar como Rascunho
+                </Button>
+              )}
             </Box>
           )}
+
         </Form>
       )}
     </Formik>

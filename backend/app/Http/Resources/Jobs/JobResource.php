@@ -38,6 +38,7 @@ class JobResource extends JsonResource
 
         return [
             'id' => $this->id,
+            'status' => $this->status,
             'company_id' => $this->company_id,
             'role_id' => $this->role_id,
             'period' => $this->period,
@@ -70,7 +71,6 @@ class JobResource extends JsonResource
             'fct_hours' => $this->fct_hours,
             'start_at' => $this->start_at,
             'end_at' => $this->end_at,
-            'status' => $this->status,
             'courses' => $this->when(isset($this->courses), $this->courses ? $this->courses->pluck('id')->map(function ($item, $key) {
                 return '' . $item;
             }) : null),
