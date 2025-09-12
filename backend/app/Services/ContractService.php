@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Enums\ActiveEnum;
 use App\Enums\Candidate\StudyingLevelEnum;
 use App\Enums\Company\TypeEnum;
+use App\Enums\Document\DocumentStatusEnum;
 use App\Enums\Document\DocumentTypeTemplateEnum;
 use App\Enums\Financial\Company\TaxEnum;
 use App\Exceptions\ApplicationException;
@@ -281,6 +282,7 @@ class ContractService
                     'file_extension' => $fileExtension,
                     'filesize' => Storage::disk('local')->size('generated_documents/' . config('app.system_identifier') . '/' . $fileName . '.' . $fileExtension),
                     'type' => 'Protocolo',
+                    'status' => DocumentStatusEnum::SENT,
                 ]);
             } else {
                 $generatedDocument = $this->wordProcessor->make(
@@ -312,6 +314,7 @@ class ContractService
                     'file_extension' => 'docx',
                     'filesize' => $generatedDocument['filesize'],
                     'type' => 'Protocolo',
+                    'status' => DocumentStatusEnum::PENDING_COMPANY_SIGNATURE,
                 ]);
             }
 
