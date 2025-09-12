@@ -114,10 +114,17 @@ function ViewEditContainer({ resource, title, Form, Details, onlyDiff, routeBase
           </HStack>
           <HStack spacing={2}>
             {canEdit && (
-              <Button py={4} colorScheme="blue"
-                onClick={() => setIsEditing(e => !e)}>
-                {isEditing ? 'Visualizar' : 'Editar'}
-              </Button>
+              resource === "Jobs"
+                ? [0].includes(detailedRecord.status) && (
+                    <Button py={4} colorScheme="blue" onClick={() => setIsEditing(e => !e)}>
+                      {isEditing ? 'Visualizar' : 'Editar'}
+                    </Button>
+                  )
+                : (
+                    <Button py={4} colorScheme="blue" onClick={() => setIsEditing(e => !e)}>
+                      {isEditing ? 'Visualizar' : 'Editar'}
+                    </Button>
+                  )
             )}
             {canRemove && (
               <Tooltip hasArrow label='Excluir'>

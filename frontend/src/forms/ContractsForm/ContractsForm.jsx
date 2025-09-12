@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Alert,
   AlertIcon,
@@ -11,6 +11,7 @@ import {
   Text,
   Tooltip,
   Checkbox,
+  useControllableState,
 } from '@chakra-ui/react';
 import _isEmpty from 'lodash/isEmpty';
 import { FastField, Field, Form, Formik } from 'formik';
@@ -56,7 +57,8 @@ export const ContractsForm = ({
   const { state } = useLocation();
   const location = useLocation();
   const navigate = useNavigate();
-
+  const toast = useToast();
+  const [jobsArr, setJobsArr] = useState(undefined);
 
 
   useEffect(() => {
@@ -76,12 +78,13 @@ export const ContractsForm = ({
     selectedCandidate
   ) => {
     const candidate = candidates.find((c) => c.id === +selectedCandidate);
+    console.log('candidado:', candidate, candidates, selectedCandidate);
     if (candidate) {
 
       setFieldValue('candidate', {
         id: candidate.id,
         ...candidate
-      }, false);;
+      }, false);
       setFieldValue('userAddress', candidate.address, false);
 
       setTimeout(() => {
@@ -111,6 +114,8 @@ export const ContractsForm = ({
       initialErrors={props.initialErrors}
       initialValues={{
         ...(_isEmpty(props.initialValues) ? {} : props.initialValues),
+        company_id: props.initialValues?.company_id || '0',
+        has_insurance: props.initialValues?.has_insurance || false,
         retroative_billing: props.initialValues?.retroative_billing || '0',
         working_day: {
           ...props.initialValues?.working_day,
@@ -209,7 +214,12 @@ export const ContractsForm = ({
               }}
               autoFetch={formProps.values.company_id}
             >
-              {({ records, isLoading }) => (
+              {({ records, isLoading }) => {
+                if (jobsArr === undefined) {
+                  setJobsArr(records);
+                }
+                
+                return (
                 <Field
                   id='job.id'
                   name='job.id'
@@ -238,7 +248,7 @@ export const ContractsForm = ({
                     </option>
                   )}
                 </Field>
-              )}
+              )}}
             </Resource>
           </GroupContainer>
 
@@ -260,31 +270,43 @@ export const ContractsForm = ({
                   resource='Candidates'
                   autoFetch={formProps.values.school && formProps.values.school.id}
                   resourceParams={{
-                    ...(typeForm === 'add' && { withoutTrashed: true }), id: formProps.values.candidate?.id
+                    ...(typeForm === 'add' && { withoutTrashed: true })
                   }}
                 >
                   {({ records, isLoading }) => {
                     const selectedSchoolId = typeForm === 'edit'
                       ? formProps.values.school_id
                       : formProps.values?.school?.id;
+                      let jobs;
+                      if (formProps.values.job && formProps.values.job.candidates && formProps.values.job.candidates.length > 0) {
+                        jobs = formProps.values.job.candidates;
+                      } else {
+                        const selected = jobsArr ? jobsArr.find((element) => element.id === formProps.values.job_id) : undefined
+                        jobs = selected ? selected.candidates : [];
+                      }
+                      const approvedCandidatesIds = jobs.filter((element) => element.statusLabel === 'Aprovado').map((element) => element.id)
 
-                    const candidatesFromSchool = records.filter(record =>
-                      record.user?.school?.some(school => String(school.id) === String(selectedSchoolId)));
+                      const candidatesFromSchool = (records || []).filter(
+                        (record) =>
+                          record.user?.school?.some(
+                            (school) => String(school.id) === String(selectedSchoolId)
+                          ) && approvedCandidatesIds.includes(record.id)
+                      );    ;                   
 
                     return (
                       <Field
-                        id="candidate.name"
-                        name="candidate.name"
+                        id="candidate.id"
+                        name="candidate.id"
                         placeholder="Nome do candidato"
                         component={FormField.Select}
                         isLoading={isLoading}
                         readOnly={readOnly}
-                        onChangeCallback={(e) =>
+                        onChangeCallback={(e) =>{
                           handleCandidateChange(
                             formProps.setFieldValue,
                             records,
                             e.target.value
-                          )
+                          ); console.log(formProps.values)}
                         }
                         required
                       >
@@ -840,10 +862,15 @@ export const ContractsForm = ({
                   id="manual_contract_file"
                   name="manual_contract_file"
                   onChange={(event) => {
-                    formProps.setFieldValue(
-                      'manual_contract_file',
-                      event.currentTarget.files[0]
-                    );
+                    const reader = new FileReader();
+                    reader.onloadend = () => {
+                      const base64String = reader.result;
+                      formProps.setFieldValue(
+                        'manual_contract_file',
+                        base64String
+                      );
+                    };
+                    reader.readAsDataURL(event.currentTarget.files[0]);
                   }}
                   disabled={readOnly}
                 />

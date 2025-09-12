@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\Contracts;
 
 use App\Enums\ActiveEnum;
 use App\Enums\AlertTypeEnum;
+use App\Enums\RolesEnum;
 use App\Exceptions\ApplicationException;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\FilterRequest;
@@ -18,15 +19,14 @@ use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class ContractController extends Controller
 {
-    public function __construct(public ContractService $contractService)
-    {
-    }
+    public function __construct(public ContractService $contractService) {}
 
     public function index(FilterRequest $request): AnonymousResourceCollection
     {

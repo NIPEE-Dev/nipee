@@ -29,7 +29,7 @@ export default function configureStore(initialState = {}) {
           promiseMiddleware,
           authenticatedMiddleware,
           feedbackMiddleware,
-          logger,
+          // logger,
           routerMiddleware,
         ];
 

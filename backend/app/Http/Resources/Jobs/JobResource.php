@@ -14,6 +14,7 @@ class JobResource extends JsonResource
     {
         return [
             'id' => $this->id,
+            'status' => $this->status,
             'company_id' => $this->company_id,
             'role_id' => $this->role_id,
             'period' => $this->period,
@@ -37,6 +38,18 @@ class JobResource extends JsonResource
             'working_day' => new JobWorkingDayResource($this->whenLoaded('workingDay')),
             'role' => new JobWorkingDayResource($this->whenLoaded('role')),
             'documents' => $this->whenLoaded('documents'),
+            'available_candidatures' => $this->when($roleId === RolesEnum::CANDIDATE->value, $this->available - count($this->candidates)),
+            'competences' => $this->competences,
+            'location' => $this->location,
+            'fct_hours' => $this->fct_hours,
+            'start_at' => $this->start_at,
+            'end_at' => $this->end_at,
+            'courses' => $this->when(isset($this->courses), $this->courses ? $this->courses->pluck('id')->map(function ($item, $key) {
+                return '' . $item;
+            }) : null),
+            'already_applied' => $this->when($roleId === RolesEnum::CANDIDATE->value, $this->candidates->where('id', $user->candidate->id ?? null)->first() !== null),
+            'candidates' => $this->when($roleId === RolesEnum::COMPANY->value, JobCandidateResource::collection($this->candidates)),
+            'compatible_candidates' => $this->when($roleId === RolesEnum::COMPANY->value && isset($this->courses), CompatibleCandidateResource::collection($compatibleCandidates)),
         ];
     }
 }
