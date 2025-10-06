@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Relatório</title>
+    <title>Convite para Entrevista</title>
     <style>
         body {
             font-family: 'Arial', sans-serif;
@@ -65,21 +65,26 @@
 </head>
 <body>
     <div class="email-container">
-        <h1>Você foi convidado para uma entrevista</h1>
+        {{-- <h1>Você foi convidado para uma entrevista</h1> --}}
 
         <p class="greeting">Olá, {{ $candidate->user->name }}!</p>
 
+        <p>Foi convidado para uma entrevista.</p>
+
         <p>{{ $invite->message }}</p>
 
-        <p>Confira abaixo os horários sugeridos:</p>
+        <p>Consulte abaixo os horários sugeridos:</p>
         <ul>
             @foreach ($invite->schedule as $schedule)
                 <li>{{ \Carbon\Carbon::parse($schedule->date . ' ' . $schedule->time)->format('d/m/Y H:i') }}</li>
             @endforeach
         </ul>
 
+        <p>Para confirmar a sua participação, <span class="greeting">acesse o site</span>, vá à secção <span class="greeting">“Vagas / Convites”</span> e <span class="greeting">selecione um dos horários propostos.</span></p>
+
         <div class="footer">
-            <p>Equipe NIPEE</p>
+            <p>Com os melhores cumprimentos,</p>
+            <p class="greeting">Equipe NIPEE</p>
         </div>
     </div>
 </body>

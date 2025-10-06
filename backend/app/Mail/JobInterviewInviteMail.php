@@ -36,7 +36,7 @@ class JobInterviewInviteMail extends Mailable
     public function envelope()
     {
         return new Envelope(
-            subject: 'Você foi convidado para uma entrevista - NIPEE',
+            subject: 'Convite para Entrevista',
         );
     }
 
