@@ -17,7 +17,6 @@ import CompatibleCandidacyTable from '../../components/CandidacyTable/Compatible
 const CourseSelect = ({ value = [], onChange, readOnly }) => {
   const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(true);
-
   useEffect(() => {
     const fetchCourses = async () => {
       setLoading(true);
@@ -78,6 +77,7 @@ export const JobsForm = ({ readOnly, typeForm, isLoading, ...props }) => {
   const userProfile = JSON.parse(localStorage.getItem('profile'));
   const userRole = userProfile?.role || '';
   const canEdit = userRole === "Administrador Geral" || userRole === 'Empresa';
+  const [submissionStatus, setSubmissionStatus] = useState(1);
 
   return (
     <Formik
@@ -87,7 +87,10 @@ export const JobsForm = ({ readOnly, typeForm, isLoading, ...props }) => {
     ...props.initialValues,
     has_scholarship: props.initialValues?.has_scholarship ?? '1'
   }}
-      onSubmit={(values) => props.onSubmit(values)}
+      onSubmit={(values) => {
+        const finalValues = { ...values, status: submissionStatus };
+        props.onSubmit(finalValues);
+      }}
     >
       {({ values, isSubmitting, setFieldValue }) => (
         <Form>
@@ -627,29 +630,22 @@ export const JobsForm = ({ readOnly, typeForm, isLoading, ...props }) => {
               <Button
                 mt='3'
                 colorScheme='blue'
+                type='submit'
                 isLoading={isLoading || isSubmitting}
-                onClick={() => {
-                  setFieldValue("status", 1);
-                  submitForm();
-                }}
+                onClick={() => setSubmissionStatus(1)}
               >
                 Salvar
               </Button>
-
-              {values.status === 0 && (
-                <Button
-                  mt='3'
-                  ml={3}
-                  colorScheme='orange'
-                  isLoading={isLoading || isSubmitting}
-                  onClick={() => {
-                    setFieldValue("status", 0);
-                    submitForm();
-                  }}
-                >
-                  Salvar como Rascunho
-                </Button>
-              )}
+              <Button
+                mt='3'
+                ml={3}
+                colorScheme='orange'
+                type='submit'
+                isLoading={isLoading || isSubmitting}
+                onClick={() => setSubmissionStatus(0)}
+              >
+                Salvar como Rascunho
+              </Button>
             </Box>
           )}
 
