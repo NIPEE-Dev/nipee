@@ -325,6 +325,7 @@ export const JobsForm = ({ readOnly, typeForm, isLoading, ...props }) => {
                     id='scholarship_nominal_value'
                     name='scholarship_nominal_value'
                     placeholder='Valor nominal da bolsa'
+                    type='text'
                     component={FormField}
                     readOnly={readOnly}
                     required={values.has_scholarship === '1'}
