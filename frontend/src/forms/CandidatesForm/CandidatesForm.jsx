@@ -69,8 +69,21 @@ export const CandidatesForm = ({ readOnly, isLoading, typeForm, ...props }) => {
   };
   const [showHoursField, setShowHoursField] = useState(false);
 
+  const handleGoBack = () => {
+    window.history.back();
+  };
+
   return (
-    <Formik 
+    <>
+      <Flex justifyContent='flex-end' mb={4}>
+        <Button
+          colorScheme='blue'
+          onClick={handleGoBack} 
+        >
+          Voltar
+        </Button>
+      </Flex>
+      <Formik 
       enableReinitialize
       initialErrors={props.initialErrors}
       initialValues={props.initialValues}
@@ -635,5 +648,6 @@ export const CandidatesForm = ({ readOnly, isLoading, typeForm, ...props }) => {
         </Form>
       )}
     </Formik>
+    </>
   );
 };
