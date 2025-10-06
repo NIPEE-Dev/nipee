@@ -75,14 +75,16 @@ export const CandidatesForm = ({ readOnly, isLoading, typeForm, ...props }) => {
 
   return (
     <>
-      <Flex justifyContent='flex-end' mb={4}>
-        <Button
-          colorScheme='blue'
-          onClick={handleGoBack} 
-        >
-          Voltar
-        </Button>
-      </Flex>
+      {isEmpresa && (
+        <Flex justifyContent='flex-end' mb={4}> 
+          <Button
+            colorScheme='blue'
+            onClick={handleGoBack}
+          >
+            Voltar
+          </Button>
+        </Flex>
+      )}
       <Formik 
       enableReinitialize
       initialErrors={props.initialErrors}
