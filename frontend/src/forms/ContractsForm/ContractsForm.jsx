@@ -300,6 +300,7 @@ export const ContractsForm = ({
                   resource='Candidates'
                   autoFetch={formProps.values.school && formProps.values.school.id}
                   resourceParams={{
+                    perPage: 9999,
                     ...(typeForm === 'add' && { withoutTrashed: true })
                   }}
                 >
