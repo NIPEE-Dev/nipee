@@ -460,6 +460,7 @@ const ReportsCompany = () => {
                 outline="none"
                 bg="transparent"
                 borderColor="transparent"
+                width="350px"
               >
                 <PopoverBody
                   boxShadow="none"

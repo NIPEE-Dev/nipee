@@ -14,14 +14,13 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class UserController extends Controller
 {
     public function __construct(
         private UsersServices $usersServices
-    )
-    {
-    }
+    ) {}
 
     /**
      * Display a listing of the resource.
@@ -90,26 +89,41 @@ class UserController extends Controller
     }
 
     public function getNIF(Request $request)
-{
-    $user = Auth::user() ?? null;
-    $role = $user->role_id ?? null;
-    // Escola
-    if ($role == 10) {
-        $nif = $user->school?->responsible?->document;
-    }
-    // Empresa
-    else if ($role == 14) {
-        $nif = $user->company?->responsible?->document;
-    }
-    // Candidato
-    else if ($role == 13) {
-        $nif = $user->candidate?->cpf;
-    }
-    // Admin
-    else {
-        $nif = "[NIF não configurado]";
-    }
+    {
+        $user = Auth::user() ?? null;
 
-    return response()->json(['nif' => $nif]);
-}
+        // 1. Loga o ID e a Role do usuário autenticado
+
+        $role = $user->role_id ?? null;
+        $nif = null;
+
+        // Escola
+        if ($role == 10) {
+
+            $school = $user->school;
+
+            if ($school instanceof \Illuminate\Support\Collection) {
+                $school = $school->first();
+            }
+
+            if ($school) {
+                $responsible = $school->responsible ?? null;
+
+                if ($responsible) {
+                    $nif = $responsible->document ?? null;
+                }
+            }
+        }
+        else if ($role == 14) {
+            $nif = $user->company?->responsible?->document;
+        } else if ($role == 13) {
+            $nif = $user->candidate?->cpf;
+        }
+
+        if (is_null($nif) || $nif === '') {
+            $nif = "[NIF não configurado]";
+        }
+
+        return response()->json(['nif' => $nif]);
+    }
 }
