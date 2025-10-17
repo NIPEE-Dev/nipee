@@ -26,15 +26,23 @@ class UsersServices
         $password = $data['password'] ?? Str::random(6);
         $data['password'] = Hash::make($password);
         $data['commission'] ??= 0;
+
+        if (isset($data['school_id'])) {
+            $data['role_id'] = 10; 
+        }
+
         return tap(
-            User::create($data),
+            User::create($data), 
             function (User $user) use ($data, $password) {
+                
                 if (isset($data['school_id'])) {
                     SchoolMember::create([ 'user_id' => $user->id, 'school_id' => $data['school_id'] ]);
                 }
+                
                 if (isset($data['role'])) {
-                    $user->roles()->attach($data['role']);
+                    $user->roles()->attach($data['role']); 
                 }
+                
                 SendMail::dispatch(new MailTask($user->email, new NewUserMail("Bem vindo!", $password)));
             }
         );
