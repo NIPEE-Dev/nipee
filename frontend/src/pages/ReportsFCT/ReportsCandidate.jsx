@@ -122,7 +122,8 @@ const ReportsCandidate = () => {
 
   const dailyData = useMemo(() => {
     return activities.reduce((acc, activity) => {
-      const activityDate = new Date(activity.activityDate);
+      const [year, month, day] = activity.activityDate.split("-").map(Number);
+      const activityDate = new Date(year, month - 1, day);
 
       const dateKey = formatDateKey(activityDate);
       acc[dateKey] = activity;
@@ -402,7 +403,9 @@ const ReportsCandidate = () => {
   };
 
   const handleEditDraft = (activity) => {
-    setSelectedDate(new Date(activity.activityDate));
+    const [year, month, day] = activity.activityDate.split("-").map(Number);
+    const localDate = new Date(year, month - 1, day);
+    setSelectedDate(localDate);
     setIsRangeMode(false);
     setCurrentTitle(activity.title || "");
     setCurrentNote(activity.description || "");
@@ -478,7 +481,8 @@ const ReportsCandidate = () => {
     return activities
       .map((activity) => {
         const statusInfo = getDisplayStatusInfo(activity.status);
-        const activityDate = new Date(`${activity.activityDate}T00:00:00`);
+        const [year, month, day] = activity.activityDate.split("-").map(Number);
+        const activityDate = new Date(year, month - 1, day);
         return {
           ...activity,
           date: activityDate,
