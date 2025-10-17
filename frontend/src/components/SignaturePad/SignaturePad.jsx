@@ -87,8 +87,7 @@ function SignaturePad({ documentId, onSuccess }) {
 
       if (onSuccess) {
         onSuccess();
-      }
-      e;
+      };
       setTimeout(() => {
         window.location.reload();
       }, 500);

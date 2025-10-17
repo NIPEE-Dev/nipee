@@ -556,9 +556,10 @@ export const ContractsForm = ({
               <FastField
                 id='job.scholarship_nominal_value'
                 name='job.scholarship_nominal_value'
-                placeholder='Vale nominal da bolsa'
+                placeholder='Valor nominal da bolsa'
                 component={FormField}
                 readOnly={readOnly}
+                type='text'
                 required
               />
             </Stack>

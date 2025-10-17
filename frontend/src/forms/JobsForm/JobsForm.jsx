@@ -635,7 +635,7 @@ export const JobsForm = ({ readOnly, typeForm, isLoading, ...props }) => {
                 isLoading={isLoading || isSubmitting}
                 onClick={() => setSubmissionStatus(1)}
               >
-                Salvar
+                Publicar
               </Button>
               <Button
                 mt='3'
