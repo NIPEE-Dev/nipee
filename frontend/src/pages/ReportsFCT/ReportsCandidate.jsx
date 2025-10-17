@@ -122,7 +122,8 @@ const ReportsCandidate = () => {
 
   const dailyData = useMemo(() => {
     return activities.reduce((acc, activity) => {
-      const activityDate = new Date(`${activity.activityDate}T00:00:00`);
+      const activityDate = new Date(activity.activityDate);
+
       const dateKey = formatDateKey(activityDate);
       acc[dateKey] = activity;
       return acc;
@@ -272,16 +273,14 @@ const ReportsCandidate = () => {
           ) {
             params.startDate = `${filterSelectedDate[0].getFullYear()}-${String(
               filterSelectedDate[0].getMonth() + 1
-            ).padStart(2, "0")}-${String(filterSelectedDate[0].getDate()).padStart(
-              2,
-              "0"
-            )}`;
+            ).padStart(2, "0")}-${String(
+              filterSelectedDate[0].getDate()
+            ).padStart(2, "0")}`;
             params.endDate = `${filterSelectedDate[1].getFullYear()}-${String(
               filterSelectedDate[1].getMonth() + 1
-            ).padStart(2, "0")}-${String(filterSelectedDate[1].getDate()).padStart(
-              2,
-              "0"
-            )}`;
+            ).padStart(2, "0")}-${String(
+              filterSelectedDate[1].getDate()
+            ).padStart(2, "0")}`;
           }
           fetchActivities(params);
         }
@@ -403,7 +402,7 @@ const ReportsCandidate = () => {
   };
 
   const handleEditDraft = (activity) => {
-    setSelectedDate(new Date(`${activity.activityDate}T00:00:00`));
+    setSelectedDate(new Date(activity.activityDate));
     setIsRangeMode(false);
     setCurrentTitle(activity.title || "");
     setCurrentNote(activity.description || "");
@@ -476,19 +475,19 @@ const ReportsCandidate = () => {
   );
 
   const summaryEntries = useMemo(() => {
-    return activities
-      .map((activity) => {
-        const statusInfo = getDisplayStatusInfo(activity.status);
-        const activityDate = new Date(`${activity.activityDate}T00:00:00`); 
-        return {
-          ...activity,
-          date: activityDate,
-          displayDate: activityDate.toLocaleDateString("pt-PT"),
-          displayStatus: statusInfo.text,
-          statusColor: statusInfo.color,
-        };
-      })
-     .sort((a, b) => a.date.getTime() - b.date.getTime());
+    return activities
+      .map((activity) => {
+        const statusInfo = getDisplayStatusInfo(activity.status);
+        const activityDate = new Date(`${activity.activityDate}T00:00:00`);
+        return {
+          ...activity,
+          date: activityDate,
+          displayDate: activityDate.toLocaleDateString("pt-PT"),
+          displayStatus: statusInfo.text,
+          statusColor: statusInfo.color,
+        };
+      })
+      .sort((a, b) => a.date.getTime() - b.date.getTime());
   }, [activities, getDisplayStatusInfo]);
 
   const displaySelectedDate = () => {
