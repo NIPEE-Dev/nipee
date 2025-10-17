@@ -703,6 +703,7 @@ const ReportsCandidate = () => {
                       boxShadow="none"
                       outline="none"
                       borderColor="transparent"
+                      width="350px"
                     >
                       <Calendar
                         onChange={handleFilterDateChange}
