@@ -231,6 +231,7 @@ class JobService
                 $interviewDatetime->setTimeFromTimeString($schedule->time);
                 $candidate = Candidate::query()->where('id', $data['candidateId'])->first();
                 Mail::to($candidate->user->email)->send(new AcceptInterviewMail($candidate->name, $interviewDatetime->format('d/m/Y H:i')));
+                Mail::to($jobInterview->job->company->user->email)->send(new AcceptInterviewMail($candidate->name, $interviewDatetime->format('d/m/Y H:i')));
             }
 
             $schedule->save();
