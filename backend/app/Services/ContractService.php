@@ -282,7 +282,7 @@ class ContractService
                     'file_extension' => $fileExtension,
                     'filesize' => Storage::disk('local')->size('generated_documents/' . config('app.system_identifier') . '/' . $fileName . '.' . $fileExtension),
                     'type' => 'Protocolo',
-                    'status' => DocumentStatusEnum::SENT,
+                    'status' => DocumentStatusEnum::PENDING_SCHOOL_SIGNATURE,
                 ]);
             } else {
                 $generatedDocument = $this->wordProcessor->make(
