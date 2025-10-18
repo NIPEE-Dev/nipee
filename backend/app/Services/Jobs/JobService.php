@@ -12,6 +12,8 @@ use App\Enums\RolesEnum;
 use App\Jobs\SendMail;
 use App\Mail\AcceptInterviewMail;
 use App\Mail\CandidateCalledMail;
+use App\Mail\JobApproved;
+use App\Mail\JobDenied;
 use App\Mail\JobInterviewInviteMail;
 use App\Mail\NotifyJobApply;
 use App\Models\Candidate;
@@ -260,6 +262,7 @@ class JobService
             $candidate = $interview->job->candidates->where('id', $data['candidateId'])->first();
             $candidate->pivot->status = $data['approved'] ? JobCandidateStatusEnum::APPROVED : JobCandidateStatusEnum::DENIED;
             if ($data['approved']) {
+                Mail::to($candidate->user->email)->send(new JobApproved($candidate->name, $interview->job->role));
                 $job = $interview->job;
                 $max = $job->max_approvals;
                 $approvedCandidates = $job->candidates->where(function ($q) {
@@ -269,6 +272,8 @@ class JobService
                     $job->status = JobStatusEnum::FULL;
                     $job->save();
                 }
+            } else {
+                Mail::to($candidate->user->email)->send(new JobDenied($candidate->name, $interview->job->role));
             }
             $candidate->pivot->save();
             DB::commit();
