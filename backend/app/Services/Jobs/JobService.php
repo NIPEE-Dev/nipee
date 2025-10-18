@@ -13,6 +13,7 @@ use App\Jobs\SendMail;
 use App\Mail\AcceptInterviewMail;
 use App\Mail\CandidateCalledMail;
 use App\Mail\JobInterviewInviteMail;
+use App\Mail\NotifyJobApply;
 use App\Models\Candidate;
 use App\Models\JobInterviewInvite;
 use App\Models\Jobs\Job;
@@ -155,6 +156,8 @@ class JobService
 
         $alreadyApplied = $job->candidates->where('id', $user->candidate->id)->first();
         if ($alreadyApplied) throw new HttpException(400, 'Você já se candidatou nessa vaga');
+
+        Mail::to($job->company->user->email)->send(new NotifyJobApply($user->candidate->name, $job->company->user->company->corporate_name, $job->role));
 
         $job->candidates()->attach($user->candidate);
     }
