@@ -281,7 +281,7 @@ class ContractService
                     'original_filename' => $fileName,
                     'file_extension' => $fileExtension,
                     'filesize' => Storage::disk('local')->size('generated_documents/' . config('app.system_identifier') . '/' . $fileName . '.' . $fileExtension),
-                    'type' => 'Protocolo',
+                    'type' => 'Protocolo Manual',
                     'status' => DocumentStatusEnum::PENDING_SCHOOL_SIGNATURE,
                 ]);
             } else {
