@@ -12,7 +12,10 @@ use App\Enums\RolesEnum;
 use App\Jobs\SendMail;
 use App\Mail\AcceptInterviewMail;
 use App\Mail\CandidateCalledMail;
+use App\Mail\JobApproved;
+use App\Mail\JobDenied;
 use App\Mail\JobInterviewInviteMail;
+use App\Mail\NotifyJobApply;
 use App\Models\Candidate;
 use App\Models\JobInterviewInvite;
 use App\Models\Jobs\Job;
@@ -156,6 +159,8 @@ class JobService
         $alreadyApplied = $job->candidates->where('id', $user->candidate->id)->first();
         if ($alreadyApplied) throw new HttpException(400, 'Você já se candidatou nessa vaga');
 
+        Mail::to($job->company->user->email)->send(new NotifyJobApply($user->candidate->name, $job->company->user->company->corporate_name, $job->role));
+
         $job->candidates()->attach($user->candidate);
     }
 
@@ -228,6 +233,7 @@ class JobService
                 $interviewDatetime->setTimeFromTimeString($schedule->time);
                 $candidate = Candidate::query()->where('id', $data['candidateId'])->first();
                 Mail::to($candidate->user->email)->send(new AcceptInterviewMail($candidate->name, $interviewDatetime->format('d/m/Y H:i')));
+                Mail::to($jobInterview->job->company->user->email)->send(new AcceptInterviewMail($candidate->name, $interviewDatetime->format('d/m/Y H:i')));
             }
 
             $schedule->save();
@@ -254,7 +260,21 @@ class JobService
             $interview->update(['interview_evaluation' => $data['interviewEvaluation']]);
 
             $candidate = $interview->job->candidates->where('id', $data['candidateId'])->first();
-            $candidate->pivot->status = $data['approved'] ? JobCandidateStatusEnum::TESTING : JobCandidateStatusEnum::DENIED;
+            $candidate->pivot->status = $data['approved'] ? JobCandidateStatusEnum::APPROVED : JobCandidateStatusEnum::DENIED;
+            if ($data['approved']) {
+                Mail::to($candidate->user->email)->send(new JobApproved($candidate->name, $interview->job->role));
+                $job = $interview->job;
+                $max = $job->max_approvals;
+                $approvedCandidates = $job->candidates->where(function ($q) {
+                    return $q->pivot->status === intval(JobCandidateStatusEnum::APPROVED->value);
+                });
+                if ((count($approvedCandidates) + 1) === $max) {
+                    $job->status = JobStatusEnum::FULL;
+                    $job->save();
+                }
+            } else {
+                Mail::to($candidate->user->email)->send(new JobDenied($candidate->name, $interview->job->role));
+            }
             $candidate->pivot->save();
             DB::commit();
             return $interview;
