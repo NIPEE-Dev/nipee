@@ -7,6 +7,7 @@ import {
   TagLeftIcon,
   Button,
   useToast,
+  Tooltip,
 } from "@chakra-ui/react";
 import {
   MdUploadFile,
@@ -21,7 +22,6 @@ import { dateFormatter } from "../../utils/visualization";
 import getRoute from "../../utils/getRoute";
 import WithModal from "../../components/WithModal/WithModal";
 import SignaturePad from "../../components/SignaturePad/SignaturePad";
-import { Tooltip } from "@chakra-ui/react";
 import api from "../../api";
 
 const UploadDocumentModal = ({ documentId, toggleModal, refreshData }) => {
@@ -65,6 +65,9 @@ const UploadDocumentModal = ({ documentId, toggleModal, refreshData }) => {
       });
       refreshData();
       toggleModal();
+      setTimeout(() => {
+        window.location.reload();
+      }, 500);
     } catch (error) {
       console.error("Erro ao enviar documento:", error);
       toast({
@@ -169,6 +172,8 @@ const DocumentsPage = () => {
                   if (status === "5") return null;
 
                   if (type === "Protocolo Manual" && isEscola) {
+                    if (status === "1") return null;
+
                     return (
                       <WithModal
                         title="Anexar Protocolo Manual"
@@ -246,10 +251,6 @@ const DocumentsPage = () => {
               },
             ]
           : []),
-        /* {
-          Header: 'ID',
-          accessor: 'id'
-        }, */
         {
           Header: "Tipo",
           accessor: (originalData) => {
