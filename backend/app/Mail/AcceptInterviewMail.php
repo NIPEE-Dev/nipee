@@ -35,7 +35,7 @@ class AcceptInterviewMail extends Mailable
     public function envelope()
     {
         return new Envelope(
-            subject: 'Convite de entrevista aceito - NIPEE',
+            subject: 'Convite de entrevista aceito',
         );
     }
 

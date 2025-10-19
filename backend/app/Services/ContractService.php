@@ -217,8 +217,8 @@ class ContractService
                 'nomeCandidato2' => $candidate->name,
                 'data' => $contract->start_contract_vigence->translatedFormat("d \\d\\e F \\d\\e Y"),
 
-                'manual_contract_upload' => $data['manual_contract_upload'],
-                'manual_contract_file' => $data['manual_contract_file'],
+                'manual_contract_upload' => Arr::get($data, 'manual_contract_upload', false),
+                'manual_contract_file' => Arr::get($data, 'manual_contract_file', null),
             ];
 
             if ($contract->job->transport_voucher == '1') {

@@ -76,7 +76,7 @@
     <div class="email-container">
         <p class="greeting">Olá, {{ $candidate }}</p>
 
-        <p>Você foi aprovado para a vaga {{ $jobName }}, parabéns</p>
+        <p>Você foi aprovado para a vaga {{ $jobName }}, parabéns! A empresa irá entrar em contato com você em breve!</p>
 
 
         <div class="footer">
