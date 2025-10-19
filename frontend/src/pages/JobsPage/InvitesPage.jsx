@@ -65,7 +65,8 @@ const InvitesPage = () => {
         : null;
         
         const schedules = invite.schedule.map(s => {
-          const date = new Date(s.date).toLocaleDateString('pt-PT');
+          const [year, month, day] = s.date.split('-');
+          const date = `${day}/${month}/${year}`;
           const time = s.time.substring(0, 5);
           return { id: s.id, time: `${date} - ${time}` }; 
         });

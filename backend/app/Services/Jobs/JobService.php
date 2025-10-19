@@ -222,29 +222,39 @@ class JobService
     {
         try {
             DB::beginTransaction();
+
             $schedule = $jobInterview->schedule->where('id', $data['scheduleId'])->first();
             if (!isset($schedule)) throw new HttpException(400, 'Horário não encontrado');
 
             $schedule->status = $data['confirmed'] ? JobInterviewInviteStatusEnum::ACCEPTED : JobInterviewInviteStatusEnum::DENIED;
-
+            
             if ($data['confirmed']) {
                 $schedule->accepted = true;
-                $interviewDatetime = new Carbon($schedule->date);
-                $interviewDatetime->setTimeFromTimeString($schedule->time);
-                $candidate = Candidate::query()->where('id', $data['candidateId'])->first();
-                Mail::to($candidate->user->email)->send(new AcceptInterviewMail($candidate->name, $interviewDatetime->format('d/m/Y H:i')));
-                Mail::to($jobInterview->job->company->user->email)->send(new AcceptInterviewMail($candidate->name, $interviewDatetime->format('d/m/Y H:i')));
             }
 
             $schedule->save();
-
+            
             $candidate = $jobInterview->job->candidates->where('id', $data['candidateId'])->first();
-
             $candidate->pivot->status = $data['confirmed'] ? JobCandidateStatusEnum::INTERVIEWING : JobCandidateStatusEnum::INTERVIEW_REJECT_BY_USER;
             $candidate->pivot->save();
 
+            if ($data['confirmed']) {
+                try {
+                    $interviewDatetime = new Carbon($schedule->date);
+                    $interviewDatetime->setTimeFromTimeString($schedule->time);
+                    $candidateModel = Candidate::query()->where('id', $data['candidateId'])->first();
+
+                    Mail::to($candidateModel->user->email)->send(new AcceptInterviewMail($candidateModel->name, $interviewDatetime->format('d/m/Y H:i')));
+                    Mail::to($jobInterview->job->company->user->email)->send(new AcceptInterviewMail($candidateModel->name, $interviewDatetime->format('d/m/Y H:i')));
+                    
+                } catch (\Exception $mailTh) {
+                    report($mailTh); 
+                }
+            }
+
             DB::commit();
             return $jobInterview->fresh(['schedule', 'job.company']);
+            
         } catch (\Throwable $th) {
             DB::rollBack();
             report($th);
