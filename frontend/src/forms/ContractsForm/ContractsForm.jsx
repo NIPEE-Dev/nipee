@@ -12,6 +12,7 @@ import {
   useToast,
   Tooltip,
   Checkbox,
+  useControllableState,
 } from '@chakra-ui/react';
 import _isEmpty from 'lodash/isEmpty';
 import { FastField, Field, Form, Formik } from 'formik';
@@ -35,13 +36,15 @@ import Resource from '../../components/Resource/Resource';
 import { ModalConfirm } from '../../components/WithModal/ModalConfirm';
 import { WithModal } from '../../components/WithModal';
 import DocumentsTable from '../../components/DocumentsTable/DocumentsTable';
+import FileUpload from '../../components/FileUpload/FileUpload';
 import {
   birthDayValidator,
   cpfValidator,
   nifValidator,
   phoneValidator
 } from '../../utils/formValidators';
-import api from '../../api';
+import { Select as ReactSelect } from "chakra-react-select";
+
 
 export const ContractsForm = ({
   readOnly,
@@ -106,36 +109,6 @@ export const ContractsForm = ({
     }
   };
 
-  const saveContract = async (dataToSubmit) => {
-      const url = dataToSubmit.id 
-          ? `/contracts/${dataToSubmit.id}` 
-          : '/contracts';
-      const method = dataToSubmit.id ? 'put' : 'post';
-
-      const response = await api[method](url, dataToSubmit);
-      return response.data;
-  };
-  const handleManualContractUpload = async (documentId, file) => {
-    
-    const formData = new FormData();
-    formData.append('file', file); 
-
-    try {
-        const response = await api.post(`/documents/${documentId}/signed-contract`, formData, {
-            headers: {
-  
-                'Content-Type': 'multipart/form-data', 
-            },
-        });
-        
-        return response.data;
-    } catch (error) {
-        console.error("LOG UPLOAD 3: ERRO de Requisição ao anexar protocolo manual. Resposta:", error.response || error);
-        throw error;
-    }
-  };
-
-
   return (
     <Formik
       enableReinitialize
@@ -154,65 +127,36 @@ export const ContractsForm = ({
         manual_contract_upload: false,
         manual_contract_file: null,
       }}
-      onSubmit={async (values, { setSubmitting, setFieldError }) => {
-        try {
-            const dataToSubmit = { ...values }; 
-            const manualFile = dataToSubmit.manual_contract_file;
-            const manualUploadChecked = dataToSubmit.manual_contract_upload;
-
-            delete dataToSubmit.manual_contract_file;
-            delete dataToSubmit.manual_contract_upload;
-        
-            const contractResponse = await saveContract(dataToSubmit); 
-            
-            console.log("LOG SUBMIT 3: Resposta do Contrato Principal:", contractResponse);
-
-            const documentId = contractResponse?.id || contractResponse?.data?.id; 
-            if (manualUploadChecked && manualFile) {
-                
-                if (!documentId) {
-                    throw new Error("Falha Crítica: ID do Protocolo não encontrado após salvar. O Contrato não pode ser concluído.");
-                }
-
-                await handleManualContractUpload(documentId, manualFile);
-            } else if (!documentId) {
-                throw new Error("Erro na criação do Contrato: ID não retornado pelo servidor.");
-            }
-
-            toast({
-                title: "Sucesso",
-                description: "Protocolo salvo com sucesso!",
-                status: "success",
-                duration: 5000,
-                isClosable: true,
-            });
-            navigate('/contracts');
-        } catch (error) {
-            const isCriticalIdError = error.message.includes("ID do Protocolo não encontrado") || error.message.includes("Erro na criação do Contrato");
-            
-            const errorMessage = isCriticalIdError 
-                ? error.message 
-                : error.response?.data?.message || error.message || "Ocorreu um erro desconhecido.";
-            
-            if (error.response?.data?.errors) {
-                Object.keys(error.response.data.errors).forEach(field => {
-                    setFieldError(field, error.response.data.errors[field][0]);
-                });
-            }
-            
-            toast({
-                title: "Erro!",
-                description: errorMessage,
-                status: "error",
-                duration: 5000,
-                isClosable: true,
-                position: 'top-right',
-                variant: 'left-accent',
-            });
-        } finally {
-            setSubmitting(false);
-        }
-      }}
+       onSubmit={async (values, { setSubmitting, setFieldError }) => {
+    try {
+      await props.onSubmit(values);
+      toast({
+        title: "Sucesso",
+        description: "Protocolo salvo com sucesso!",
+        status: "success",
+        duration: 5000,
+        isClosable: true,
+      });
+    } catch (error) {
+      if (error.response?.data?.errors) {
+        Object.keys(error.response.data.errors).forEach(field => {
+          setFieldError(field, error.response.data.errors[field][0]);
+        });
+      }
+      
+      toast({
+        title: "Erro!",
+        description: error.response?.data?.message || error.message || "Ocorreu um erro desconhecido.",
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+        position: 'top-right',
+        variant: 'left-accent',
+      });
+    } finally {
+      setSubmitting(false);
+    }
+  }}
     >
       {(formProps) => (
         <Form>
@@ -284,7 +228,7 @@ export const ContractsForm = ({
                   >
                     {records.map((record) => (
                       <option key={record.id} value={record.id}>
-                      {record.corporate_name}              
+                      {record.corporate_name}              
                       </option>
                     ))}
                   </Field>
@@ -378,7 +322,7 @@ export const ContractsForm = ({
                           record.user?.school?.some(
                             (school) => String(school.id) === String(selectedSchoolId)
                           ) && approvedCandidatesIds.includes(record.id)
-                      );    ;                   
+                      );    ;                   
 
                     return (
                       <Field
@@ -529,7 +473,7 @@ export const ContractsForm = ({
                     component={FormField.Select}
                     readOnly={readOnly}
                   >
-                    {[...Array(3).keys()].map((v) => (
+                     {[...Array(3).keys()].map((v) => (
                       <option key={v} value={v}>
                         {++v}° Ano
                       </option>
@@ -934,17 +878,21 @@ export const ContractsForm = ({
 
             {formProps.values.manual_contract_upload && (
               <Box mt={4}>
-                <Text color="red.500" fontSize="sm">
-                  Por favor, anexe o protocolo manual já assinado pela empresa.
-                </Text>
                 <Text mb={2}>Anexar protocolo manual:</Text>
                 <input
                   type="file"
                   id="manual_contract_file"
                   name="manual_contract_file"
                   onChange={(event) => {
-                    const file = event.currentTarget.files[0];
-                    formProps.setFieldValue('manual_contract_file', file);
+                    const reader = new FileReader();
+                    reader.onloadend = () => {
+                      const base64String = reader.result;
+                      formProps.setFieldValue(
+                        'manual_contract_file',
+                        base64String
+                      );
+                    };
+                    reader.readAsDataURL(event.currentTarget.files[0]);
                   }}
                   disabled={readOnly}
                 />
@@ -1098,8 +1046,8 @@ export const ContractsForm = ({
                       isLoading={isLoading || formProps.isSubmitting}
                       onClick={() => toggleModal()}
                       disabled={
-                        // !formProps.values.adendo_number ||
-                        // !formProps.values.adendo_description ||
+                       // !formProps.values.adendo_number ||
+                        //!formProps.values.adendo_description ||
                         (formProps.initialValues &&
                           formProps.initialValues.status === 0)
                       }
