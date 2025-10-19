@@ -125,4 +125,4 @@ Route::post('students-pre-registrations/{id}/reject', [StudentsPreRegistrationCo
 Route::post('/contracts/{contractId}/upload-signature-company', [SignatureController::class, 'uploadSignatureCompany'])->name('contracts.upload-signature-company')->middleware('checkPermission:contracts.reactive');
 Route::post('/contracts/{contractId}/upload-signature-school', [SignatureController::class, 'uploadSignatureSchool'])->middleware('checkPermission:documents.index');
 
-Route::post('/documents/{documentId}/signed-contract', [DocumentsController::class, 'updateSignedContract'])->middleware('checkPermission:documents.index');
+Route::post('/documents/{document}/signed-contract', [DocumentsController::class, 'updateSignedContract'])->middleware('checkPermission:documents.index');
