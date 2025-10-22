@@ -76,7 +76,7 @@
     <div class="email-container">
         <p class="greeting">Olá, {{ $companyName }}!</p>
 
-        <h1>O candidato {{ $candidateName }} se candidatou para a vaga {{ $jobName }}</h1>
+        <p>O candidato {{ $candidateName }} se candidatou para a vaga {{ $jobName }}</p>
 
         <div class="footer">
             <p>Equipe NIPEE</p>
