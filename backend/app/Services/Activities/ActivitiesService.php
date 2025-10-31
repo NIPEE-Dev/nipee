@@ -8,6 +8,7 @@ use App\Mail\FctReportMail;
 use App\Models\Activities\Activity;
 use App\Models\FctReport;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use PhpOffice\PhpWord\TemplateProcessor;
@@ -28,58 +29,64 @@ class ActivitiesService
         try {
             DB::beginTransaction();
 
-            $activity = Activity::query()->where('id', $id)->first();
-            if (!isset($activity)) {
-                throw new HttpException(400, 'Atividade não encontrada');
-            }
-            $activity->update($data);
+            $activity = Cache::lock('update-activity', 20)
+                ->block(60, function () use ($id, $data) {
+                    $activity = Activity::query()->where('id', $id)->first();
+                    if (!isset($activity)) {
+                        throw new HttpException(400, 'Atividade não encontrada');
+                    }
+                    $activity->update($data);
 
-            $availableTotalHours = $activity->user->candidate->hours_fct ?? 0;
-            $currentTotalHours = $activity->user->activities->where('status', '!=', ActivityStatusEnum::PENDING->value)->sum('estimated_time');
-            if ($availableTotalHours !== 0 && $currentTotalHours >= $availableTotalHours) {
-                $contract = $activity->user->candidate->contracts->where('status', ActiveEnum::ACTIVE)->first();
-                $school = $contract->school;
-                $company = $contract->company;
-                $activities = $activity->user->activities->map(function ($item, $key) {
-                    return [
-                        'date' => $item->created_at->format('d/m/Y'),
-                        'hours' => $item->estimated_time,
-                        'title' => $item->title,
-                        'description' => $item->description,
-                        'justification' => $item->justification ?? '',
-                    ];
+                    $availableTotalHours = 44;
+                    $currentTotalHours = $activity->user->activities->where('status', '!=', ActivityStatusEnum::PENDING->value)->sum('estimated_time');
+                    if ($availableTotalHours !== 0 && $currentTotalHours >= $availableTotalHours) {
+                        $contract = $activity->user->candidate->contracts->where('status', ActiveEnum::ACTIVE)->first();
+                        $school = $contract->school;
+                        $company = $contract->company;
+                        $activities = $activity->user->activities->map(function ($item, $key) {
+                            return [
+                                'date' => $item->created_at->format('d/m/Y'),
+                                'hours' => $item->estimated_time,
+                                'title' => $item->title,
+                                'description' => $item->description,
+                                'justification' => $item->justification ?? '',
+                            ];
+                        });
+
+                        $data = [
+                            'schoolName' => $school->corporate_name ?? '',
+                            'designation' => 'Designação',
+                            'companyName' => $company->corporate_name ?? '',
+                            'companyPhone' => $company->contact->phone ?? '',
+                            'studentName' => $activity->user->candidate->name ?? '',
+                            'studentPhone' => $activity->user->candidate->contact->phone ?? '',
+                            'jobName' => $contract->job->role ?? '',
+                            'hoursDuration' => "$availableTotalHours",
+                            'monthsDuration' => $contract->start_contract_vigence->format('d/m/Y') . ' - ' . $contract->end_contract_vigence->format('d/m/Y'),
+                            'activitiesBlock' => $activities->all(),
+                        ];
+
+                        $docPath = $this->generateReportDoc($data);
+
+                        FctReport::create([
+                            'candidate_name' => $data['studentName'],
+                            'company_name' => $data['companyName'],
+                            'total_hours' => $data['hoursDuration'],
+                            'report' => '/docs/' . $docPath['name'],
+                            'candidate_id' => $activity->user->candidate->id,
+                            'school_id' => $school->id,
+                            'company_id' => $company->id,
+                            'sent_date' => Carbon::now(),
+                        ]);
+
+                        foreach ([$school->contact->email, $company->contact->email] as $recipient) {
+                            Mail::to($recipient)->send(new FctReportMail($docPath['path']));
+                        }
+                    }
+
+                    return $activity;
                 });
 
-                $data = [
-                    'schoolName' => $school->corporate_name ?? '',
-                    'designation' => 'Designação',
-                    'companyName' => $company->corporate_name ?? '',
-                    'companyPhone' => $company->contact->phone ?? '',
-                    'studentName' => $activity->user->candidate->name ?? '',
-                    'studentPhone' => $activity->user->candidate->contact->phone ?? '',
-                    'jobName' => $contract->job->role ?? '',
-                    'hoursDuration' => "$availableTotalHours",
-                    'monthsDuration' => $contract->start_contract_vigence->format('d/m/Y') . ' - ' . $contract->end_contract_vigence->format('d/m/Y'),
-                    'activitiesBlock' => $activities->all(),
-                ];
-
-                $docPath = $this->generateReportDoc($data);
-
-                FctReport::create([
-                    'candidate_name' => $data['studentName'],
-                    'company_name' => $data['companyName'],
-                    'total_hours' => $data['hoursDuration'],
-                    'report' => '/docs/' . $docPath['name'],
-                    'candidate_id' => $activity->user->candidate->id,
-                    'school_id' => $school->id,
-                    'company_id' => $company->id,
-                    'sent_date' => Carbon::now(),
-                ]);
-
-                foreach ([$school->contact->email, $company->contact->email] as $recipient) {
-                    Mail::to($recipient)->send(new FctReportMail($docPath['path']));
-                }
-            }
             DB::commit();
 
             return $activity;
@@ -100,19 +107,19 @@ class ActivitiesService
     {
         $activities = Activity::query()->where('user_id', $userId);
 
-        if (isset($filters['startDate'])) {
-            $startDate = new Carbon($filters['startDate']);
-            $activities->whereDate('activity_date', '>=', $startDate->startOfDay());
-        }
+        // if (isset($filters['startDate'])) {
+        //     $startDate = new Carbon($filters['startDate']);
+        //     $activities->whereDate('activity_date', '>=', $startDate->startOfDay());
+        // }
 
-        if (isset($filters['endDate'])) {
-            $endDate = new Carbon($filters['endDate']);
-            $activities->whereDate('activity_date', '<=', $endDate->endOfDay());
-        }
+        // if (isset($filters['endDate'])) {
+        //     $endDate = new Carbon($filters['endDate']);
+        //     $activities->whereDate('activity_date', '<=', $endDate->endOfDay());
+        // }
 
-        if (!isset($filters['startDate']) && !isset($filters['endDate'])) {
-            $activities->whereMonth('activity_date', Carbon::now()->month);
-        }
+        // if (!isset($filters['startDate']) && !isset($filters['endDate'])) {
+        //     $activities->whereMonth('activity_date', Carbon::now()->month);
+        // }
 
         return $activities->get();
     }
