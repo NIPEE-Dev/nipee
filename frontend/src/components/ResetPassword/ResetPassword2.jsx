@@ -1,77 +1,120 @@
-import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import {
-  Box, Stack, Heading, Text, Container, Input, Button, Alert, AlertIcon, FormControl, FormLabel
-} from '@chakra-ui/react';
+  Box,
+  Stack,
+  Heading,
+  Text,
+  Container,
+  Input,
+  Button,
+  Alert,
+  AlertIcon,
+  FormControl,
+  FormLabel,
+} from "@chakra-ui/react";
 import ReCAPTCHA from "react-google-recaptcha";
-import useChangePassword from '../../hooks/useChangePassword';
+import useChangePassword from "../../hooks/useChangePassword";
 
 const ResetPassword2 = () => {
-  const [step, setStep] = useState(1); 
-  const [email, setEmail] = useState('');
-  const [verificationCode, setVerificationCode] = useState('');
-  const [newPassword, setNewPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
+  const [step, setStep] = useState(1);
+  const [email, setEmail] = useState("");
+  const [verificationCode, setVerificationCode] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [recaptchaToken, setRecaptchaToken] = useState(null);
-  const [errorMessage, setErrorMessage] = useState('');
-  const [successMessage, setSuccessMessage] = useState('');
+  const [errorMessage, setErrorMessage] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
   const navigate = useNavigate();
 
-  const { sendVerification, changeUserPassword, loading, successMessage: hookSuccessMessage } = useChangePassword();
+  const {
+    sendVerification,
+    changeUserPassword,
+    loading,
+    successMessage: hookSuccessMessage,
+  } = useChangePassword();
 
   const handleRecaptchaChange = (token) => setRecaptchaToken(token);
 
   const handleSubmit = async () => {
-    setErrorMessage('');
-    setSuccessMessage('');
+    setErrorMessage("");
+    setSuccessMessage("");
 
     try {
       if (step === 1) {
-        if (!email) return setErrorMessage('Digite o e-mail.');
-        if (!recaptchaToken) return setErrorMessage('Complete o reCAPTCHA.');
+        if (!email) return setErrorMessage("Digite o e-mail.");
+        if (!recaptchaToken) return setErrorMessage("Complete o reCAPTCHA.");
 
-        await sendVerification(email); 
+        await sendVerification(email);
         setStep(2);
       } else if (step === 2) {
-        if (!verificationCode) return setErrorMessage('Digite o código de verificação.');
+        if (!verificationCode)
+          return setErrorMessage("Digite o código de verificação.");
         setStep(3);
       } else if (step === 3) {
-        if (!newPassword || !confirmPassword) return setErrorMessage('Preencha todos os campos.');
-        if (newPassword !== confirmPassword) return setErrorMessage('As senhas não coincidem.');
+        if (!newPassword || !confirmPassword)
+          return setErrorMessage("Preencha todos os campos.");
+        if (newPassword !== confirmPassword)
+          return setErrorMessage("As senhas não coincidem.");
+        if (newPassword.length < 6)
+          return setErrorMessage("A senha deve conter no mínimo 6 digitos");
 
-        const response = await changeUserPassword(email, verificationCode, newPassword, confirmPassword);
+        const response = await changeUserPassword(
+          email,
+          verificationCode,
+          newPassword,
+          confirmPassword
+        );
         if (response.status === 200) {
-          setSuccessMessage(hookSuccessMessage || 'Senha redefinida com sucesso!');
+          setSuccessMessage(
+            hookSuccessMessage || "Senha redefinida com sucesso!"
+          );
         }
       }
     } catch (err) {
-      setErrorMessage(err.message || 'Ocorreu um erro.');
+      setErrorMessage(err.message || "Ocorreu um erro.");
     }
   };
 
   useEffect(() => {
     if (successMessage) {
-      setTimeout(() => navigate('/login'), 2000);
+      setTimeout(() => navigate("/login"), 2000);
     }
   }, [successMessage, navigate]);
 
   return (
-    <Box position="relative" bg="gray.50" minH="100vh" display="flex" alignItems="center">
+    <Box
+      position="relative"
+      bg="gray.50"
+      minH="100vh"
+      display="flex"
+      alignItems="center"
+    >
       <Container bg="white" rounded="xl" p={8} boxShadow="xl" maxW="lg">
         <Stack spacing={4}>
           <Heading color="gray.800" fontSize="2xl" textAlign="center">
-            {step === 1 && 'Verifique seu e-mail'}
-            {step === 2 && 'Insira o código enviado'}
-            {step === 3 && 'Crie uma nova senha'}
+            {step === 1 && "Verifique seu e-mail"}
+            {step === 2 && "Insira o código enviado"}
+            {step === 3 && "Crie uma nova senha"}
           </Heading>
           <Text color="gray.600" fontSize="sm" textAlign="center">
-            {step === 1 && 'Digite o e-mail associado à sua conta.'}
-            {step === 2 && 'Digite o código que você recebeu no e-mail.'}
-            {step === 3 && 'Escolha uma nova senha segura.'}
+            {step === 1 && "Digite o e-mail associado à sua conta."}
+            {step === 2 && "Digite o código que você recebeu no e-mail."}
+            {step === 3 && "Escolha uma nova senha segura."}
           </Text>
 
-          {successMessage && <Alert status="success"><AlertIcon />{successMessage}</Alert>}
-          {errorMessage && <Alert status="error"><AlertIcon />{errorMessage}</Alert>}
+          {successMessage && (
+            <Alert status="success">
+              <AlertIcon />
+              {successMessage}
+            </Alert>
+          )}
+          {errorMessage && (
+            <Alert status="error">
+              <AlertIcon />
+              {errorMessage}
+            </Alert>
+          )}
 
           <Box as="form">
             <Stack spacing={4}>
@@ -136,14 +179,17 @@ const ResetPassword2 = () => {
               w="full"
               bgGradient="linear(to-r, #5931E9, #7289FF)"
               color="white"
-              _hover={{ bgGradient: 'linear(to-r, #7289FF, #5931E9)', boxShadow: 'xl' }}
+              _hover={{
+                bgGradient: "linear(to-r, #7289FF, #5931E9)",
+                boxShadow: "xl",
+              }}
               isDisabled={!recaptchaToken}
               isLoading={loading}
               onClick={handleSubmit}
             >
-              {step === 1 && 'Enviar código'}
-              {step === 2 && 'Validar código'}
-              {step === 3 && 'Redefinir senha'}
+              {step === 1 && "Enviar código"}
+              {step === 2 && "Validar código"}
+              {step === 3 && "Redefinir senha"}
             </Button>
 
             <ReCAPTCHA

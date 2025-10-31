@@ -1,25 +1,42 @@
-import { useState, useEffect } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
-import { Box, Stack, Heading, Text, Container, Input, Button, Alert, AlertIcon, FormControl, FormLabel } from '@chakra-ui/react';
-import useChangePassword from '../../hooks/useChangePassword';
+import { useState, useEffect } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+import {
+  Box,
+  Stack,
+  Heading,
+  Text,
+  Container,
+  Input,
+  Button,
+  Alert,
+  AlertIcon,
+  FormControl,
+  FormLabel,
+} from "@chakra-ui/react";
+import useChangePassword from "../../hooks/useChangePassword";
 import ReCAPTCHA from "react-google-recaptcha";
 
 const ResetPassword = () => {
-  const [step, setStep] = useState(1); 
-  const [email, setEmail] = useState('');
-  const [verificationCode, setVerificationCode] = useState('');
-  const [newPassword, setNewPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
+  const [step, setStep] = useState(1);
+  const [email, setEmail] = useState("");
+  const [verificationCode, setVerificationCode] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [recaptchaToken, setRecaptchaToken] = useState(null);
-  const [errorMessage, setErrorMessage] = useState('');
-  const [successMessage, setSuccessMessage] = useState('');
-  
+  const [errorMessage, setErrorMessage] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
+
   const location = useLocation();
   const params = new URLSearchParams(location.search);
-  const emailFromUrl = params.get('email'); 
-  const navigate = useNavigate(); 
+  const emailFromUrl = params.get("email");
+  const navigate = useNavigate();
 
-  const { sendVerification, changeUserPassword, loading, successMessage: hookSuccessMessage } = useChangePassword();
+  const {
+    sendVerification,
+    changeUserPassword,
+    loading,
+    successMessage: hookSuccessMessage,
+  } = useChangePassword();
 
   const handleRecaptchaChange = (token) => {
     setRecaptchaToken(token);
@@ -27,68 +44,90 @@ const ResetPassword = () => {
 
   useEffect(() => {
     if (emailFromUrl) {
-      setEmail(emailFromUrl); 
+      setEmail(emailFromUrl);
     }
   }, [emailFromUrl]);
 
   const handleSubmit = async () => {
-    setErrorMessage('');
-    setSuccessMessage('');
+    setErrorMessage("");
+    setSuccessMessage("");
 
     try {
       if (step === 1) {
-        if (!email) return setErrorMessage('Digite o e-mail.');
-        if (!recaptchaToken) return setErrorMessage('Complete o reCAPTCHA.');
+        if (!email) return setErrorMessage("Digite o e-mail.");
+        if (!recaptchaToken) return setErrorMessage("Complete o reCAPTCHA.");
 
-        await sendVerification(email); 
+        await sendVerification(email);
         setStep(2);
       } else if (step === 2) {
-        if (!verificationCode) return setErrorMessage('Digite o código de verificação.');
+        if (!verificationCode)
+          return setErrorMessage("Digite o código de verificação.");
         setStep(3);
       } else if (step === 3) {
-        if (!newPassword || !confirmPassword) return setErrorMessage('Preencha todos os campos.');
-        if (newPassword !== confirmPassword) return setErrorMessage('As senhas não coincidem.');
+        if (!newPassword || !confirmPassword)
+          return setErrorMessage("Preencha todos os campos.");
+        if (newPassword !== confirmPassword)
+          return setErrorMessage("As senhas não coincidem.");
+        if (newPassword.length < 6)
+          return setErrorMessage("A senha deve conter no mínimo 6 digitos");
 
-        const response = await changeUserPassword(email, verificationCode, newPassword, confirmPassword);
+        const response = await changeUserPassword(
+          email,
+          verificationCode,
+          newPassword,
+          confirmPassword
+        );
         if (response.status === 200) {
-          setSuccessMessage(hookSuccessMessage || 'Senha redefinida com sucesso!');
+          setSuccessMessage(
+            hookSuccessMessage || "Senha redefinida com sucesso!"
+          );
         }
       }
     } catch (err) {
-      setErrorMessage(err.message || 'Ocorreu um erro.');
+      setErrorMessage(err.message || "Ocorreu um erro.");
     }
   };
 
   useEffect(() => {
     if (successMessage) {
-      setTimeout(() => navigate('/login'), 2000);
+      setTimeout(() => navigate("/login"), 2000);
     }
   }, [successMessage, navigate]);
 
   return (
-    <Box position="relative" bg="gray.50" minH="100vh" display="flex" alignItems="center">
+    <Box
+      position="relative"
+      bg="gray.50"
+      minH="100vh"
+      display="flex"
+      alignItems="center"
+    >
       <Container
         bg="white"
         rounded="xl"
         p={{ base: 6, sm: 8 }}
         boxShadow="xl"
-        maxW={{ base: 'md', lg: 'lg' }}
+        maxW={{ base: "md", lg: "lg" }}
       >
         <Stack spacing={4}>
           <Heading
             color="gray.800"
             lineHeight={1.1}
-            fontSize={{ base: '2xl', sm: '3xl' }}
+            fontSize={{ base: "2xl", sm: "3xl" }}
             textAlign="center"
           >
-            {step === 1 && 'Verifique seu e-mail'}
-            {step === 2 && 'Insira o código enviado'}
-            {step === 3 && 'Crie uma nova senha'}
+            {step === 1 && "Verifique seu e-mail"}
+            {step === 2 && "Insira o código enviado"}
+            {step === 3 && "Crie uma nova senha"}
           </Heading>
-          <Text color="gray.600" fontSize={{ base: 'sm', sm: 'md' }} textAlign="center">
-            {step === 1 && 'Digite o e-mail associado à sua conta.'}
-            {step === 2 && 'Digite o código que você recebeu no e-mail.'}
-            {step === 3 && 'Escolha uma nova senha segura.'}
+          <Text
+            color="gray.600"
+            fontSize={{ base: "sm", sm: "md" }}
+            textAlign="center"
+          >
+            {step === 1 && "Digite o e-mail associado à sua conta."}
+            {step === 2 && "Digite o código que você recebeu no e-mail."}
+            {step === 3 && "Escolha uma nova senha segura."}
           </Text>
 
           {successMessage && (
@@ -170,16 +209,16 @@ const ResetPassword = () => {
               bgGradient="linear(to-r, #5931E9, #7289FF)"
               color="white"
               _hover={{
-                bgGradient: 'linear(to-r, #7289FF, #5931E9)',
-                boxShadow: 'xl',
+                bgGradient: "linear(to-r, #7289FF, #5931E9)",
+                boxShadow: "xl",
               }}
               isDisabled={!recaptchaToken}
               onClick={handleSubmit}
               isLoading={loading}
             >
-              {step === 1 && 'Enviar código'}
-              {step === 2 && 'Validar código'}
-              {step === 3 && 'Redefinir senha'}
+              {step === 1 && "Enviar código"}
+              {step === 2 && "Validar código"}
+              {step === 3 && "Redefinir senha"}
             </Button>
             <ReCAPTCHA
               sitekey={import.meta.env.VITE_RECAPTCHA_SITE_KEY}
