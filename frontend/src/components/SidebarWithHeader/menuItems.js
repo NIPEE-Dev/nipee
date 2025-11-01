@@ -1,173 +1,173 @@
 import {
-  MdNotificationsNone,              
-  MdOutlineAddBusiness,             // 🏢 Usado em: Registos, Registo
-  MdOutlineDashboard,               // 📊 Usado em: Relatórios Empresa, Relatórios Escola
-  MdOutlineDocumentScanner,         // 📄 Usado em: Dados do seguro
-  MdOutlineFilePresent,             // 📁 Usado em: Documentos
-  MdOutlineFolderShared,            // 🗂️ Usado em: Protocolos
-  MdOutlineMonetizationOn,          // 💰 Comentado: Fechamento
-  MdOutlinePersonSearch,            // 👤 Usado em: Vagas
-  MdOutlineSettings,                // ⚙️ Usado em: Gestão
-  MdOutlineTextSnippet,             // 📝 Usado em: Registos Base
-  MdAssignmentInd,                  // ✅ Usado em: Aprovação
-  MdMenu                            // 📋 Usado em: container do menu principal
-} from 'react-icons/md';
-import { FaSchool  } from "react-icons/fa"; // icon para escola
-import routes from '../../routes';
+  MdNotificationsNone,
+  MdOutlineAddBusiness, // 🏢 Usado em: Registos, Registo
+  MdOutlineDashboard, // 📊 Usado em: Relatórios Empresa, Relatórios Escola
+  MdOutlineDocumentScanner, // 📄 Usado em: Dados do seguro
+  MdOutlineFilePresent, // 📁 Usado em: Documentos
+  MdOutlineFolderShared, // 🗂️ Usado em: Protocolos
+  MdOutlineMonetizationOn, // 💰 Comentado: Fechamento
+  MdOutlinePersonSearch, // 👤 Usado em: Vagas
+  MdOutlineSettings, // ⚙️ Usado em: Gestão
+  MdOutlineTextSnippet, // 📝 Usado em: Registos Base
+  MdAssignmentInd, // ✅ Usado em: Aprovação
+  MdMenu, // 📋 Usado em: container do menu principal
+} from "react-icons/md";
+import { FaSchool } from "react-icons/fa"; // icon para escola
+import routes from "../../routes";
 
-const userProfile = JSON.parse(localStorage.getItem('profile'));
-const userRole = userProfile?.role || '';
+const userProfile = JSON.parse(localStorage.getItem("profile"));
+const userRole = userProfile?.role || "";
 const isAdm = userRole === "Administrador Geral";
 const isEmpresa = userRole === "Empresa";
 const isEscola = userRole === "Escola";
 const isCandidato = userRole === "Candidato";
 
 export const baseMenuItems = [
-  { 
-    name: 'Relatórios Empresa', 
-    icon: MdOutlineDashboard, 
-    to: '/dashboard-companies',
-    permission: 'companies.index'
-  },
-  { 
-    name: 'Relatórios Escola', 
-    icon: FaSchool, 
-    to: '/dashboard-schools',
-    permission: 'schools.index'
-  },
-   { 
-    name: 'Relatórios FCT', 
-    icon: MdOutlineDashboard, 
-    to: '/reports-fct' ,
-    permission: 'reportsCandidates.index'
+  {
+    name: "Relatórios Empresa",
+    icon: MdOutlineDashboard,
+    to: "/dashboard-companies",
+    permission: "companies.index",
   },
   {
-    name: 'Dados do seguro',
+    name: "Relatórios Escola",
+    icon: FaSchool,
+    to: "/dashboard-schools",
+    permission: "schools.index",
+  },
+  {
+    name: "Relatórios FCT/Estágio",
+    icon: MdOutlineDashboard,
+    to: "/reports-fct",
+    permission: "reportsCandidates.index",
+  },
+  {
+    name: "Dados do seguro",
     icon: MdOutlineDocumentScanner,
     to: routes.insuranceSettings.list,
-    permission: 'insurance-settings.index'
+    permission: "insurance-settings.index",
   },
 
-  isAdm 
+  isAdm
     ? {
-        name: 'Registos',
+        name: "Registos",
         icon: MdOutlineAddBusiness,
         children: [
           {
-            name: 'Empresas',
+            name: "Empresas",
             to: routes.companies.list,
-            permission: 'companies.index'
+            permission: "companies.index",
           },
           {
-            name: 'Escolas',
+            name: "Escolas",
             to: routes.schools.list,
-            permission: 'schools.index'
+            permission: "schools.index",
           },
           {
-            name: 'Candidatos',
+            name: "Candidatos",
             to: routes.candidates.list,
-            permission: 'candidates.index'
-          }
-        ]
+            permission: "candidates.index",
+          },
+        ],
       }
     : isEmpresa
     ? {
-        name: 'Registo',
+        name: "Registo",
         icon: MdOutlineAddBusiness,
         children: [
           {
-            name: 'Meu Registo',
-                        icon: MdOutlinePersonSearch,
+            name: "Meu Registo",
+            icon: MdOutlinePersonSearch,
             to: routes.companies.list,
-            permission: 'companies.index'
+            permission: "companies.index",
           },
           {
-            name: 'Candidatos',
-                        icon: MdOutlinePersonSearch,
+            name: "Candidatos",
+            icon: MdOutlinePersonSearch,
             to: routes.candidates.list,
-            permission: 'candidates.index'
-          }
-        ]
+            permission: "candidates.index",
+          },
+        ],
       }
     : isEscola
     ? {
-        name: 'Registo',
+        name: "Registo",
         icon: MdOutlineAddBusiness,
         children: [
           {
-            name: 'Meu Registo',
-                        icon: MdOutlineAddBusiness,
+            name: "Meu Registo",
+            icon: MdOutlineAddBusiness,
 
             to: routes.schools.list,
-            permission: 'schools.index'
+            permission: "schools.index",
           },
           {
-            name: 'Candidatos',
+            name: "Candidatos",
             to: routes.candidates.list,
-                        icon: MdOutlinePersonSearch,
+            icon: MdOutlinePersonSearch,
 
-            permission: 'candidates.index'
-          }
-        ]
+            permission: "candidates.index",
+          },
+        ],
       }
     : isCandidato
     ? {
-        name: 'Registo',
+        name: "Registo",
         icon: MdOutlineAddBusiness,
         children: [
           {
-            name: 'Meu Registo',
+            name: "Meu Registo",
             to: routes.candidates.self,
-            permission: 'candidates.index'
-          }
-        ]
+            permission: "candidates.index",
+          },
+        ],
       }
     : {
-        name: 'Registos',
+        name: "Registos",
         icon: MdOutlineAddBusiness,
         children: [
           {
-            name: 'Empresas',
+            name: "Empresas",
             to: routes.companies.list,
-            permission: 'companies.index'
+            permission: "companies.index",
           },
           {
-            name: 'Escolas',
+            name: "Escolas",
             to: routes.schools.list,
-            permission: 'schools.index'
+            permission: "schools.index",
           },
           {
-            name: 'Candidatos',
+            name: "Candidatos",
             to: routes.candidates.list,
-            permission: 'candidates.index'
-          }
-        ]
+            permission: "candidates.index",
+          },
+        ],
       },
   {
-    name: 'Vagas',
+    name: "Vagas",
     icon: MdOutlinePersonSearch,
     to: routes.jobs.list,
-    permission: 'jobs.index'
+    permission: "jobs.index",
   },
   {
-    name: 'Protocolos',
+    name: "Protocolos",
     icon: MdOutlineFolderShared,
     to: routes.contracts.list,
-    permission: 'contracts.index'
+    permission: "contracts.index",
   },
   {
-    name: 'Documentos',
+    name: "Documentos",
     icon: MdOutlineFilePresent,
     to: routes.documents.list,
-    permission: 'documents.index'
+    permission: "documents.index",
   },
   {
-    name: 'Registos Base',
+    name: "Registos Base",
     icon: MdOutlineTextSnippet,
     to: routes.baseRecords.list,
-    permission: 'base-records.index'
+    permission: "base-records.index",
   },
-   // Descomente se tiver suporte a arrays em permission
+  // Descomente se tiver suporte a arrays em permission
   // {
   //   name: 'Fechamento',
   //   icon: MdOutlineMonetizationOn,
@@ -178,54 +178,58 @@ export const baseMenuItems = [
   //     'financial-close.commission-me'
   //   ]
   // },
-  ...((isAdm) ? [
-    {
-      name: 'Gestão',
-      icon: MdOutlineSettings,
-      children: [
+  ...(isAdm
+    ? [
         {
-          name: 'Utilizadores',
-          to: routes.config.users.list,
-          permission: 'users.index'
+          name: "Gestão",
+          icon: MdOutlineSettings,
+          children: [
+            {
+              name: "Utilizadores",
+              to: routes.config.users.list,
+              permission: "users.index",
+            },
+            {
+              name: "Configuração de perfis",
+              to: routes.config.roles.list,
+              permission: "roles.index",
+            },
+            {
+              name: "Relatório de Atividade",
+              to: routes.config.report.list,
+              permission: "roles.index",
+            },
+          ],
         },
-        {
-          name: 'Configuração de perfis',
-          to: routes.config.roles.list,
-          permission: 'roles.index'
-        },
-        {
-          name: 'Relatório de Atividade',
-          to: routes.config.report.list,
-          permission: 'roles.index'
-        }
       ]
-    }
-  ] : []),
+    : []),
 
-  ...((isAdm || isEscola) ? [
-    {
-      name: 'Aprovação',
-      icon: MdAssignmentInd,
-      children: [
+  ...(isAdm || isEscola
+    ? [
         {
-          name: 'Candidatos',
-          to: routes.workflow.candidatos.list,
-          permission: 'workflowCandidatos.index'
+          name: "Aprovação",
+          icon: MdAssignmentInd,
+          children: [
+            {
+              name: "Candidatos",
+              to: routes.workflow.candidatos.list,
+              permission: "workflowCandidatos.index",
+            },
+            {
+              name: "Empresas",
+              to: routes.workflow.empresas.list,
+              permission: "workflowEmpresas.index",
+            },
+          ],
         },
-        {
-          name: 'Empresas',
-          to: routes.workflow.empresas.list,
-          permission: 'workflowEmpresas.index'
-        }
       ]
-    }
-  ] : []),
+    : []),
 ];
 
 export const menuItems = [
   {
-    name: 'Menu',
+    name: "Menu",
     icon: MdMenu,
-    children: baseMenuItems
-  }
+    children: baseMenuItems,
+  },
 ];
