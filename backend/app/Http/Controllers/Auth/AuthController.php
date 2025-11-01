@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use App\Mail\PasswordChangeSuccess;
 use App\Mail\SendResetCodeMail;
+use App\Models\StudentsPreRegistration;
 use Illuminate\Support\Facades\Mail;
 
 class AuthController extends Controller
@@ -32,6 +33,10 @@ class AuthController extends Controller
         if (!$this->loginTimeAllowed()) {
             auth()->logout();
             return response()->json(['error' => 'Horário de acesso não permitido'], 401);
+        }
+        $preRegistration = StudentsPreRegistration::query()->where('email', $credentials['email'])->first();
+        if (isset($preRegistration) && $preRegistration->status === 'Rejeitado') {
+            return response()->json(['error' => 'Pré-Registos rejeitado'], 401);
         }
 
         return $this->respondWithToken($token);
@@ -84,8 +89,8 @@ class AuthController extends Controller
             'candidate_id' => $user?->candidate?->toArray()['id']
         ];
         if (is_null($response['candidate_id'])) {
-        unset($response['candidate_id']);
-    }
+            unset($response['candidate_id']);
+        }
         return response()->json($response)->withCookie(cookie('brilho-auth-token', $token, 9999999999999999));
     }
 
@@ -99,7 +104,7 @@ class AuthController extends Controller
             return response()->json(['message' => 'Usuário não encontrado.'], 404);
         }
 
-        $code = rand(100000, 999999); 
+        $code = rand(100000, 999999);
 
         $user->password_reset_code = $code;
         $user->password_reset_expires_at = now()->addMinutes(10);
@@ -133,7 +138,7 @@ class AuthController extends Controller
         }
 
         $user->password = Hash::make($validated['password']);
-        $user->password_reset_code = null; 
+        $user->password_reset_code = null;
         $user->password_reset_expires_at = null;
         $user->save();
 
