@@ -115,7 +115,7 @@ const DocumentsPage = () => {
 
   return (
     <ResourceScreen
-      ref={resourceScreenRef} 
+      ref={resourceScreenRef}
       title="Documentos"
       permissions={[""]}
       resource="Documents"
@@ -152,7 +152,7 @@ const DocumentsPage = () => {
         ...(isEscola || isEmpresa
           ? [
               {
-                Header: "Ação", 
+                Header: "Ação",
                 accessor: "sign_or_upload",
                 Cell: ({ row }) => {
                   const tiposComAcao = [
@@ -288,16 +288,7 @@ const DocumentsPage = () => {
             };
 
             const matchType = availableNames[originalData.name];
-            return (
-              <Link href={matchType.url} isExternal>
-                <HStack>
-                  <span>
-                    {matchType.name} - {originalData.type}
-                  </span>
-                  <MdOutlineOpenInNew mx="2px" />
-                </HStack>
-              </Link>
-            );
+            return matchType.name;
           },
         },
         {

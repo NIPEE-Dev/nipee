@@ -36,7 +36,7 @@ export const baseMenuItems = [
     permission: "schools.index",
   },
   {
-    name: "Relatórios FCT/Estágio",
+    name: "Relatórios FCT",
     icon: MdOutlineDashboard,
     to: "/reports-fct",
     permission: "reportsCandidates.index",
