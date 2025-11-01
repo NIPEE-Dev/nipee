@@ -8,6 +8,7 @@ use App\Enums\RolesEnum;
 use App\Exceptions\ApplicationException;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\FilterRequest;
+use App\Http\Requests\StoreContractRequest;
 use App\Http\Resources\Contracts\ContractDataResource;
 use App\Http\Resources\Contracts\ContractResource;
 use App\Models\Candidate;
@@ -38,7 +39,7 @@ class ContractController extends Controller
         return new ContractResource($contract->load(['userAddress', 'jobOtherAddress', 'candidate.contact', 'school', 'documents']));
     }
 
-    public function store(Request $request): ContractResource
+    public function store(StoreContractRequest $request): ContractResource
     {
         return new ContractResource($this->contractService->store($request->all()));
     }
