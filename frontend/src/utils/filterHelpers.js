@@ -1,98 +1,116 @@
 export const citiesFilters = [
   {
-    header: 'Morada',
+    header: "Morada",
     children: [
       {
-        field: 'cep',
-        header: 'CEP',
-        relation: 'address'
+        field: "cep",
+        header: "CEP",
+        relation: "address",
       },
       {
-        field: 'address',
-        header: 'Morada',
-        relation: 'address'
+        field: "address",
+        header: "Morada",
+        relation: "address",
       },
       {
-        field: 'district',
-        header: 'Bairro',
-        relation: 'address'
+        field: "district",
+        header: "Bairro",
+        relation: "address",
       },
       {
-        field: 'number',
-        header: 'Número',
-        relation: 'address'
+        field: "number",
+        header: "Número",
+        relation: "address",
       },
       {
-        field: 'complement',
-        header: 'Complemento',
-        relation: 'address'
-      }
-    ]
-  }
+        field: "complement",
+        header: "Complemento",
+        relation: "address",
+      },
+    ],
+  },
+];
+
+export const candidatesCitiesFilters = [
+  {
+    header: "Morada",
+    children: [
+      {
+        field: "city",
+        header: "Distrito",
+        relation: "address",
+      },
+      {
+        field: "district",
+        header: "Conselho",
+        relation: "address",
+      },
+    ],
+  },
 ];
 
 export const responsiblesFilters = [
   {
-    header: 'Responsável',
+    header: "Responsável",
     children: [
       {
-        field: 'name',
-        header: 'Nome',
-        relation: 'responsible'
+        field: "name",
+        header: "Nome",
+        relation: "responsible",
       },
       {
-        field: 'phone',
-        header: 'Telemóvel',
-        relation: 'responsible'
+        field: "phone",
+        header: "Telemóvel",
+        relation: "responsible",
       },
       {
-        field: 'email',
-        header: 'Email',
-        relation: 'responsible'
+        field: "email",
+        header: "Email",
+        relation: "responsible",
       },
       {
-        field: 'role',
-        header: 'Função',
-        relation: 'responsible'
+        field: "role",
+        header: "Função",
+        relation: "responsible",
       },
       {
-        field: 'document',
-        header: 'Documento',
-        relation: 'responsible'
-      }
-    ]
-  }
+        field: "document",
+        header: "Documento",
+        relation: "responsible",
+      },
+    ],
+  },
 ];
 
 export const contactFilters = [
   {
-    header: 'Contacto',
+    header: "Contacto",
     children: [
       {
-        field: 'name',
-        header: 'Nome',
-        relation: 'contact'
+        field: "name",
+        header: "Nome",
+        relation: "contact",
       },
       {
-        field: 'phone',
-        header: 'Telemóvel',
-        relation: 'contact'
+        field: "phone",
+        header: "Telemóvel",
+        relation: "contact",
       },
       {
-        field: 'email',
-        header: 'Email',
-        relation: 'contact'
+        field: "email",
+        header: "Email",
+        relation: "contact",
       },
       {
-        field: 'role',
-        header: 'Função',
-        relation: 'contact'
+        field: "role",
+        header: "Função",
+        relation: "contact",
       },
       {
-        field: 'talk_to',
-        header: 'Falar com',
-        relation: 'contact'
-      }
-    ]
-  }
+        field: "talk_to",
+        header: "Falar com",
+        relation: "contact",
+      },
+    ],
+  },
 ];
