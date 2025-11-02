@@ -123,14 +123,9 @@ export const JobsForm = ({ readOnly, typeForm, isLoading, ...props }) => {
       onSubmit={(values, { setSubmitting }) => {
         const finalValues = { ...values, status: submissionStatus };
         if (finalValues.start_at && finalValues.end_at) {
-          const weeks = getWeeksFromPeriod(
-            finalValues.start_at,
-            finalValues.end_at
-          );
-          const totalHoursWeek = finalValues.working_day.working_hours * weeks;
           if (
             finalValues.type === "EF" &&
-            finalValues.fct_hours > totalHoursWeek
+            finalValues.fct_hours > finalValues.working_day.working_hours
           ) {
             toast({
               title: "Erro",
