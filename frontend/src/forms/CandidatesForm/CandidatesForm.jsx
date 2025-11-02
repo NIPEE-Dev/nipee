@@ -690,7 +690,7 @@ export const CandidatesForm = ({ readOnly, isLoading, typeForm, ...props }) => {
             </GroupContainer>
           )} */}
 
-            {["edit", "view"].includes(typeForm) && (
+            {["edit", "view", undefined].includes(typeForm) && (
               <GroupContainer
                 title="Documentos"
                 subtitle="Todos anexos disponíveis para este protocolo"
