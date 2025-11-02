@@ -121,25 +121,25 @@ export const JobsForm = ({ readOnly, typeForm, isLoading, ...props }) => {
         has_scholarship: props.initialValues?.has_scholarship ?? "1",
       }}
       onSubmit={(values, { setSubmitting }) => {
-        const finalValues = { ...values, status: submissionStatus };
-        if (finalValues.start_at && finalValues.end_at) {
-          if (
-            finalValues.type === "EF" &&
-            finalValues.fct_hours > finalValues.working_day.working_hours
-          ) {
-            toast({
-              title: "Erro",
-              description:
-                "As horas do fct devem ser menores que as horas de trabalho do período selecionado",
-              status: "error",
-              duration: 9000,
-              isClosable: true,
-              position: "top",
-            });
-            setSubmitting(false);
-            return;
-          }
-        }
+        // const finalValues = { ...values, status: submissionStatus };
+        // if (finalValues.start_at && finalValues.end_at) {
+        //   if (
+        //     finalValues.type === "EF" &&
+        //     finalValues.fct_hours > finalValues.working_day.working_hours
+        //   ) {
+        //     toast({
+        //       title: "Erro",
+        //       description:
+        //         "As horas do fct devem ser menores que as horas de trabalho do período selecionado",
+        //       status: "error",
+        //       duration: 9000,
+        //       isClosable: true,
+        //       position: "top",
+        //     });
+        //     setSubmitting(false);
+        //     return;
+        //   }
+        // }
 
         props.onSubmit(finalValues);
       }}
