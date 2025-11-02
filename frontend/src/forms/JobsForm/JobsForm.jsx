@@ -128,7 +128,10 @@ export const JobsForm = ({ readOnly, typeForm, isLoading, ...props }) => {
             finalValues.end_at
           );
           const totalHoursWeek = finalValues.working_day.working_hours * weeks;
-          if (finalValues.fct_hours > totalHoursWeek) {
+          if (
+            finalValues.type === "EF" &&
+            finalValues.fct_hours > totalHoursWeek
+          ) {
             toast({
               title: "Erro",
               description:
