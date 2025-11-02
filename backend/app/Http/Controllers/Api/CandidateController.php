@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Enums\RolesEnum;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\StoreCandidateDocumentsRequest;
 use App\Http\Requests\StoreCandidateRequest;
 use App\Http\Requests\UpdateCandidateRequest;
 use App\Http\Resources\CandidateResource;
@@ -14,6 +15,8 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 
 class CandidateController extends Controller
@@ -103,5 +106,26 @@ class CandidateController extends Controller
         $candidates = $this->candidatesService->getCandidateInInterview($schoolId);
 
         return CandidateResource::collection($candidates);
+    }
+
+    public function storeDocuments(StoreCandidateDocumentsRequest $request, Candidate $candidate)
+    {
+        $data = $request->validated();
+
+        $file = $data['file'];
+        $type = $data['type'];
+        $name = (string) Str::uuid();
+
+        Storage::disk('local')->put('/generated_documents/guarulhos/' . $name . '.' . $file->getClientOriginalExtension(), file_get_contents($file));
+        $fileData = [
+            'filename' => $name,
+            'original_filename' => $type,
+            'file_extension' => $file->getClientOriginalExtension(),
+            'filesize' => $file->getSize(),
+            'type' => $type,
+        ];
+
+        $document = $candidate->documents()->create($fileData);
+        return response()->json($document, 201);
     }
 }

@@ -64,6 +64,7 @@ Route::controller(SchoolController::class)->prefix('schools')->group(function ()
 
 Route::get('candidates/interviewing', [CandidateController::class, 'schoolCandidates'])->middleware('checkPermission:candidates.index');
 Route::apiResource('candidates', CandidateController::class)->middleware('checkPermission:candidates.index');
+Route::post('candidates/{candidate}/document', [CandidateController::class, 'storeDocuments'])->middleware('checkPermission:candidates.index');
 Route::prefix('base-records')->group(function () {
     Route::get('/', [BaseRecordsController::class, 'index'])->withoutMiddleware('auth:api');
     Route::post('/', [BaseRecordsController::class, 'store'])->middleware('checkPermission:base-records.index');

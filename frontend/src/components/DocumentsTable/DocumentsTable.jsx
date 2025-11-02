@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { Field } from 'formik';
+import React, { useEffect, useState } from "react";
+import { Field } from "formik";
 import {
   Button,
   Center,
@@ -12,37 +12,49 @@ import {
   Th,
   Thead,
   Tr,
-  useToast
-} from '@chakra-ui/react';
-import { MdDelete } from 'react-icons/md';
-import ImageIcon from '../ImageIcon/ImageIcon';
-import { dateFormatter } from '../../utils/visualization';
-import Resource from '../Resource/Resource';
-import FormField from '../FormField/FormField';
-import { ModalConfirm } from '../WithModal/ModalConfirm';
-import { WithModal } from '../WithModal';
-import { DeleteDocumentModal } from './DeleteDocumentModal';
+  useToast,
+} from "@chakra-ui/react";
+import { MdDelete } from "react-icons/md";
+import ImageIcon from "../ImageIcon/ImageIcon";
+import { dateFormatter } from "../../utils/visualization";
+import Resource from "../Resource/Resource";
+import FormField from "../FormField/FormField";
+import { ModalConfirm } from "../WithModal/ModalConfirm";
+import { WithModal } from "../WithModal";
+import { DeleteDocumentModal } from "./DeleteDocumentModal";
+import { useLocation } from "react-router-dom";
 
 const DocumentsTable = ({
   typeForm,
   readOnly = false,
   documents: documentsList,
-  thContent
+  thContent,
 }) => {
   const [documents, setDocuments] = useState([]);
   const toast = useToast();
   useEffect(() => {
     setDocuments(documentsList);
-  }, [documentsList]); 
+  }, [documentsList]);
 
-  const statuses = ['Gerado', 'Enviado', 'Devolvido', 'Aguardando assinatura Empresa', 'Aguardando assinatura Escola', 'Assinado'];
+  const location = useLocation();
+  const userProfile = JSON.parse(localStorage.getItem("profile"));
+  const userRole = userProfile?.role || "";
+  const isCandidato = userRole === "Candidato";
+  const statuses = [
+    "Gerado",
+    "Enviado",
+    "Devolvido",
+    "Aguardando assinatura Empresa",
+    "Aguardando assinatura Escola",
+    "Assinado",
+  ];
 
   return (
     <TableContainer>
-      <Table variant='simple'>
+      <Table variant="simple">
         <Thead>
           <Tr>
-            <Th width='1px'>{thContent}</Th>
+            <Th width="1px">{thContent}</Th>
             <Th>Criado em</Th>
             <Th>Tipo</Th>
             <Th>Nome</Th>
@@ -53,27 +65,27 @@ const DocumentsTable = ({
         <Tbody>
           {documents.length === 0 && (
             <Tr>
-              <Th bg='blackAlpha.50' colSpan='100%'>
+              <Th bg="blackAlpha.50" colSpan="100%">
                 <Center>Nenhum registo encontrado</Center>
               </Th>
             </Tr>
           )}
           {documents.map((file, fileIndex) => (
             <Tr key={file.id}>
-              <Td width='1px'>
+              <Td width="1px">
                 <ImageIcon fileExtension={file.file_extension} />
               </Td>
               <Td>
                 {dateFormatter(
                   file.created_at,
-                  'DD/MM/YYYY HH:mm',
-                  'YYYY-MM-DD HH:mm:ss'
+                  "DD/MM/YYYY HH:mm",
+                  "YYYY-MM-DD HH:mm:ss"
                 )}
               </Td>
               <Td>{file.type}</Td>
               <Td>
                 <Link
-                  target='_blank'
+                  target="_blank"
                   href={`${import.meta.env.VITE_BACKEND_BASE_URL}/documents/${
                     file.filename
                   }.${file.file_extension}/download`}
@@ -81,7 +93,7 @@ const DocumentsTable = ({
                   {file.original_filename}.{file.file_extension}
                 </Link>
               </Td>
-              <Resource resource='Documents' autoFetch={false}>
+              <Resource resource="Documents" autoFetch={false}>
                 {({ update, savingRecords, remove, removingRecords }) => (
                   <>
                     {/* <Td>
@@ -110,7 +122,9 @@ const DocumentsTable = ({
                       )}
                     </Td> */}
                     <Td>
-                      {typeForm === 'edit' && !readOnly && (
+                      {((typeForm === "edit" && !readOnly) ||
+                        (isCandidato &&
+                          location.pathname.includes("/candidates/view"))) && (
                         <WithModal
                           modal={({ closeModal }) => (
                             <DeleteDocumentModal
@@ -124,13 +138,13 @@ const DocumentsTable = ({
                                   );
                                   closeModal();
                                   toast({
-                                    title: 'Sucesso!',
+                                    title: "Sucesso!",
                                     description: `Arquivo apagado com sucesso!`,
-                                    variant: 'left-accent',
+                                    variant: "left-accent",
                                     duration: 9000,
                                     isClosable: true,
-                                    position: 'top',
-                                    status: 'success'
+                                    position: "top",
+                                    status: "success",
                                   });
                                 });
                               }}
@@ -141,8 +155,8 @@ const DocumentsTable = ({
                           {({ toggleModal }) => (
                             <Button
                               isLoading={removingRecords.includes(file.id)}
-                              variant='outline'
-                              colorScheme='red'
+                              variant="outline"
+                              colorScheme="red"
                               onClick={toggleModal}
                             >
                               <MdDelete />
