@@ -34,6 +34,35 @@ class ContractService
 
     public function __construct(public WordProcessor $wordProcessor) {}
 
+    private function getUf($uf)
+    {
+        $districtName = [
+            'av' => 'Aveiro',
+            'ac' => 'Açores',
+            'be' => 'Beja',
+            'br' => 'Braga',
+            'bg' => 'Bragança',
+            'cb' => 'Castelo Branco',
+            'co' => 'Coimbra',
+            'ev' => 'Évora',
+            'fa' => 'Faro',
+            'gu' => 'Guarda',
+            'le' => 'Leiria',
+            'li' => 'Lisboa',
+            'po' => 'Portalegre',
+            'pr' => 'Porto',
+            'sa' => 'Santarém',
+            'se' => 'Setúbal',
+            'vc' => 'Viana do Castelo',
+            'vr' => 'Vila Real',
+            'vi' => 'Viseu',
+            'az' => 'Açores',
+            'ma' => 'Madeira',
+        ];
+
+        return $districtName[$uf] ?? $uf;
+    }
+
     public function index($criteria)
     {
         $user = Auth::user();
@@ -182,6 +211,7 @@ class ContractService
                 'bairroEmpresa' => $jobAddress->district,
                 'cidadeEmpresa' => $jobAddress->city,
                 'estadoEmpresa' => strtoupper($jobAddress->uf),
+                'ufEmpresa' => $this->getUf($jobAddress->uf),
                 'cepEmpresa' => $jobAddress->cep,
 
                 'anos' => "${anoLetivo}",
