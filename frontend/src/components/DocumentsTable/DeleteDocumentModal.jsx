@@ -24,7 +24,7 @@ export const DeleteDocumentModal = ({ onConfirm, isLoading }) => {
 
         <Divider my={5} />
 
-        <Center fontWeight='semibold'>Senha para exclusão</Center>
+        <Center fontWeight='semibold'>Digite sua senha para continuar</Center>
         <HStack>
           <PinInput onChange={(e) => setPin(e)}>
             <PinInputField />
