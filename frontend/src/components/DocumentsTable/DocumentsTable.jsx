@@ -125,44 +125,29 @@ const DocumentsTable = ({
                       {((typeForm === "edit" && !readOnly) ||
                         (isCandidato &&
                           location.pathname.includes("/candidates/view"))) && (
-                        <WithModal
-                          modal={({ closeModal }) => (
-                            <DeleteDocumentModal
-                              isLoading={removingRecords.includes(file.id)}
-                              onConfirm={(pin) => {
-                                remove(file.id, { pin }).then(() => {
-                                  setDocuments((currentDocuments) =>
-                                    currentDocuments.filter(
-                                      (d) => d.id !== file.id
-                                    )
-                                  );
-                                  closeModal();
-                                  toast({
-                                    title: "Sucesso!",
-                                    description: `Arquivo apagado com sucesso!`,
-                                    variant: "left-accent",
-                                    duration: 9000,
-                                    isClosable: true,
-                                    position: "top",
-                                    status: "success",
-                                  });
-                                });
-                              }}
-                              onCancel={closeModal}
-                            />
-                          )}
+                        <Button
+                          isLoading={removingRecords.includes(file.id)}
+                          variant="outline"
+                          colorScheme="red"
+                          onClick={() => {
+                            remove(file.id).then(() => {
+                              setDocuments((currentDocuments) =>
+                                currentDocuments.filter((d) => d.id !== file.id)
+                              );
+                              toast({
+                                title: "Sucesso!",
+                                description: `Arquivo apagado com sucesso!`,
+                                variant: "left-accent",
+                                duration: 9000,
+                                isClosable: true,
+                                position: "top",
+                                status: "success",
+                              });
+                            });
+                          }}
                         >
-                          {({ toggleModal }) => (
-                            <Button
-                              isLoading={removingRecords.includes(file.id)}
-                              variant="outline"
-                              colorScheme="red"
-                              onClick={toggleModal}
-                            >
-                              <MdDelete />
-                            </Button>
-                          )}
-                        </WithModal>
+                          <MdDelete />
+                        </Button>
                       )}
                     </Td>
                   </>
