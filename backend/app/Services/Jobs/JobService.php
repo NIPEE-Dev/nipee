@@ -227,13 +227,13 @@ class JobService
             if (!isset($schedule)) throw new HttpException(400, 'Horário não encontrado');
 
             $schedule->status = $data['confirmed'] ? JobInterviewInviteStatusEnum::ACCEPTED : JobInterviewInviteStatusEnum::DENIED;
-            
+
             if ($data['confirmed']) {
                 $schedule->accepted = true;
             }
 
             $schedule->save();
-            
+
             $candidate = $jobInterview->job->candidates->where('id', $data['candidateId'])->first();
             $candidate->pivot->status = $data['confirmed'] ? JobCandidateStatusEnum::INTERVIEWING : JobCandidateStatusEnum::INTERVIEW_REJECT_BY_USER;
             $candidate->pivot->save();
@@ -246,15 +246,13 @@ class JobService
 
                     //Mail::to($candidateModel->user->email)->send(new AcceptInterviewMail($candidateModel->name, $interviewDatetime->format('d/m/Y H:i')));
                     Mail::to($jobInterview->job->company->user->email)->send(new AcceptInterviewMail($candidateModel->name, $interviewDatetime->format('d/m/Y H:i')));
-                    
                 } catch (\Exception $mailTh) {
-                    report($mailTh); 
+                    report($mailTh);
                 }
             }
 
             DB::commit();
             return $jobInterview->fresh(['schedule', 'job.company']);
-            
         } catch (\Throwable $th) {
             DB::rollBack();
             report($th);
@@ -267,13 +265,13 @@ class JobService
         try {
             DB::beginTransaction();
             $interview = JobInterviewInvite::query()->where('candidate_id', $data['candidateId'])->where('job_id', $data['jobId'])->first();
-            $interview->update(['interview_evaluation' => $data['interviewEvaluation']]);
+            if (isset($interview)) $interview->update(['interview_evaluation' => $data['interviewEvaluation']]);
+            $job = Job::query()->where('id', $data['jobId'])->first();
 
-            $candidate = $interview->job->candidates->where('id', $data['candidateId'])->first();
+            $candidate = $job->candidates->where('id', $data['candidateId'])->first();
             $candidate->pivot->status = $data['approved'] ? JobCandidateStatusEnum::APPROVED : JobCandidateStatusEnum::DENIED;
             if ($data['approved']) {
                 Mail::to($candidate->user->email)->send(new JobApproved($candidate->name, $interview->job->role));
-                $job = $interview->job;
                 $max = $job->max_approvals;
                 $approvedCandidates = $job->candidates->where(function ($q) {
                     return $q->pivot->status === intval(JobCandidateStatusEnum::APPROVED->value);
@@ -283,11 +281,11 @@ class JobService
                     $job->save();
                 }
             } else {
-                Mail::to($candidate->user->email)->send(new JobDenied($candidate->name, $interview->job->role));
+                Mail::to($candidate->user->email)->send(new JobDenied($candidate->name, $job->role));
             }
             $candidate->pivot->save();
             DB::commit();
-            return $interview;
+            return $job;
         } catch (\Throwable $th) {
             DB::rollBack();
             report($th);

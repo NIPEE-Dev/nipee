@@ -174,9 +174,9 @@ class JobController extends Controller
     public function updateJobInterviewEvaluation(UpdateJobInterviewEvaluationRequest $request, Job $job, $candidateId)
     {
         $data = $request->validated();
-        $invite = $this->jobService->updateJobInterviewEvaluation([...$data, 'candidateId' => $candidateId, 'jobId' => $job->id]);
+        $job = $this->jobService->updateJobInterviewEvaluation([...$data, 'candidateId' => $candidateId, 'jobId' => $job->id]);
 
-        return response()->json(new InterviewInviteResource($invite));
+        return response(null, 204);
     }
 
     public function updateJobTestingEvaluation(UpdateJobInterviewTestingRequest $request, Job $job, $candidateId)
