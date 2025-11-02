@@ -23,10 +23,13 @@ class School extends Model
         'fantasy_name',
         'corporate_name',
         'cnpj',
+        'cae',
     ];
 
     public $with = [
-        'contact', 'address', 'responsible'
+        'contact',
+        'address',
+        'responsible'
     ];
 
     public function responsible(): MorphOne
@@ -46,7 +49,7 @@ class School extends Model
     {
         return $this->belongsToMany(User::class, 'school_members', 'school_id', 'user_id')->withTrashed();
     }
- 
+
     public function address(): MorphOne
     {
         return $this->morphOne(Address::class, 'addressable');
