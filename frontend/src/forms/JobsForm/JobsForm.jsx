@@ -121,7 +121,7 @@ export const JobsForm = ({ readOnly, typeForm, isLoading, ...props }) => {
         has_scholarship: props.initialValues?.has_scholarship ?? "1",
       }}
       onSubmit={(values, { setSubmitting }) => {
-        // const finalValues = { ...values, status: submissionStatus };
+        const finalValues = { ...values, status: submissionStatus };
         // if (finalValues.start_at && finalValues.end_at) {
         //   if (
         //     finalValues.type === "EF" &&
@@ -139,7 +139,7 @@ export const JobsForm = ({ readOnly, typeForm, isLoading, ...props }) => {
         //     setSubmitting(false);
         //     return;
         //   }
-        // }
+        // } 
 
         props.onSubmit(finalValues);
       }}
