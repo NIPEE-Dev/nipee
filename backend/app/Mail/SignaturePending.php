@@ -13,6 +13,10 @@ class SignaturePending extends Mailable
 {
     use Queueable, SerializesModels;
 
+    public $studentName;
+    public $companyName;
+    public $representativeName;
+
     /**
      * Create a new message instance.
      *
@@ -25,19 +29,27 @@ class SignaturePending extends Mailable
         $this->representativeName = $representativeName;
     }
 
+    public function envelope(): Envelope
+    {
+        return new Envelope(
+            subject: 'Assinatura Pendente - Protocolo de ' . $this->studentName,
+        );
+    }
+
     /**
      * Get the message content definition.
      *
      * @return \Illuminate\Mail\Mailables\Content
      */
-    public function build()
+    public function content(): Content
     {
-        return $this->subject('Assinatura Pendente - Protocolo de ' . $this->studentName)
-            ->view('emails.signature_pending')
-            ->with([
-                'studentName' => $this->studentName,
-                'companyName' => $this->companyName,
-                'representativeName' => $this->representativeName,
-            ]);
+        return new Content(
+            view: 'emails.signature_pending',
+        );
+    }
+
+    public function attachments(): array
+    {
+        return [];
     }
 }

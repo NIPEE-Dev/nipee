@@ -52,16 +52,31 @@
             text-decoration: none;
             font-weight: bold;
         }
+        .button {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #5A34EA;
+            color: #ffffff !important;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: bold;
+            text-align: center;
+        }
     </style>
 </head>
 <body>
 
     <div class="email-container">
-    <h1>${{ $companyName }}: Assinatura do Protocolo de {{ $studentName }}</h1>
+        <h1>{{ $companyName }}: Assinatura do Protocolo de {{ $studentName }}</h1> 
         <p class="greeting">Exmo(a). Sr(a) {{ $representativeName }},</p>
         <div class="content">
-             <p>O protocolo do(a) aluno(a) <strong>{{ $studentName }}</strong> com a empresa {{ $companyName}} aguarda a sua assinatura. </p>
-            <p>Para avançar com o processo, aceda ao nosso <a href="https://nipee.org">website</a>, faça login com as suas credenciais e assine o respetivo documento digitalmente via plataforma.</p>
+            <p>O protocolo do(a) aluno(a) <strong>{{ $studentName }}</strong> com a empresa {{ $companyName}} aguarda a sua assinatura. </p>
+            <p>Para avançar com o processo, aceda à plataforma através do link abaixo:</p>
+            
+            <p style="text-align: center; margin: 30px 0;">
+                <a href="https://nipee.org" class="button" target="_blank">Aceder à Plataforma e Assinar</a>
+            </p>
+
             <p>Se tiver dificuldades técnicas ou dúvidas, contacte a nossa <a href="mailto:contacto@nipee.org">equipa de suporte</a>.</p>
         </div>
         <div class="footer">
