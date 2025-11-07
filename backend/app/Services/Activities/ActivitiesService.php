@@ -37,7 +37,7 @@ class ActivitiesService
                     }
                     $activity->update($data);
 
-                    $availableTotalHours = 44;
+                    $availableTotalHours = $activity->user->candidate->hours_fct ?? 0;
                     $currentTotalHours = $activity->user->activities->where('status', '!=', ActivityStatusEnum::PENDING->value)->sum('estimated_time');
                     if ($availableTotalHours !== 0 && $currentTotalHours >= $availableTotalHours) {
                         $contract = $activity->user->candidate->contracts->where('status', ActiveEnum::ACTIVE)->first();
