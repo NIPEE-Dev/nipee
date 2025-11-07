@@ -302,7 +302,7 @@ export const CandidatesForm = ({ readOnly, isLoading, typeForm, ...props }) => {
                         isLoading={isLoading}
                         required
                       >
-                        {records.map((record) => (
+                        {(records || []).map((record) => (
                           <option key={record.id} value={record.id}>
                             {record.title}
                           </option>
@@ -365,7 +365,7 @@ export const CandidatesForm = ({ readOnly, isLoading, typeForm, ...props }) => {
                       required
                     >
                       <option value="">Selecione</option>
-                      {records.map((record) => (
+                      {(records || []).map((record) => (
                         <option key={record.id} value={record.id}>
                           {record.corporate_name}
                         </option>
@@ -636,7 +636,7 @@ export const CandidatesForm = ({ readOnly, isLoading, typeForm, ...props }) => {
                       </h2>
                       <AccordionPanel pb={4}>
                         <Flex direction="column">
-                          {job.history.map((row, index, arr) => {
+                          {(job.history || []).map((row, index, arr) => {
                             const data = getHistoricIconAndLabelByStatus(
                               row.status,
                               row.created_at

@@ -90,17 +90,17 @@
 <body>
 <div class="email-wrapper">
     <div class="email-container">
-        <h1>Bem-vindo(a)!</h1>
+        <h1 class="color-[#4a29b2]">Bem-vindo(a)!</h1>
         
         <div class="content">
-            <p>É com satisfação que informamos que sua conta foi criada e está pronta para uso em nossa plataforma!</p>
+            <p>É com satisfação que informamos que a sua conta foi criada e já está pronta para utilização na nossa plataforma!</p>
 
             <div class="password-box">
-                Sua senha temporária de acesso é:<br>
+                A sua palavra-passe temporária de acesso é:<br>
                 <strong>{{ $password }}</strong>
             </div>
 
-            <p>Aah, lembre-se de acessar a plataforma e alterar sua senha imediatamente por questões de segurança.</p>
+            <p>Ah! Não se esqueça de aceder à plataforma e alterar a sua palavra-passe de imediato, por motivos de segurança.</p>
         </div>
 
         <div class="button-wrapper">

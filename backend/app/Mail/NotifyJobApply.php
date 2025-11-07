@@ -37,7 +37,7 @@ class NotifyJobApply extends Mailable
     public function envelope()
     {
         return new Envelope(
-            subject: 'Alguém se candidatou na sua vaga',
+            subject: 'Alguém candidatou-se à sua vaga',
         );
     }
 

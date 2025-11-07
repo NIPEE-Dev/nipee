@@ -66,9 +66,9 @@
     <div class="email-container">
         <h1>Código de Verificação</h1>
         <p class="greeting">Olá, {{ $name }}!</p>
-        <p>Recebemos uma solicitação para alterar a sua senha. Use o código abaixo para prosseguir com a redefinição:</p>
+        <p>Recebemos um pedido para alterar a sua palavra-passe. Utilize o código abaixo para proceder à redefinição:</p>
         <p class="code-box">{{ $code }}</p>
-        <p>Este código é válido por 10 minutos. Se não solicitou esta alteração, ignore este e-mail.</p>
+        <p>Este código é válido por 10 minutos. Caso não tenha solicitado esta alteração, ignore este e-mail.</p>
         <div class="footer">
             <p>Atenciosamente,<br>A equipa da <strong>NIPEE</strong></p>
             <p>© {{ date('Y') }} NIPEE. Todos os direitos reservados.</p>

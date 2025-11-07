@@ -68,10 +68,10 @@
     <div class="email-container">
         <h1>Aprovação do Registo na Plataforma - Acesso Ativado</h1>
         <p class="greeting">Exmo(a). Sr(a) {{ $representativeName }},</p>
-        <p>É com satisfação que informamos que o vosso cadastro na nossa plataforma foi aprovado com sucesso.</p>
-        <p>Para aceder à plataforma, utilize o link abaixo para definir a vossa senha:</p>
+        <p>É com satisfação que informamos que o seu registo na nossa plataforma foi aprovado com sucesso.</p>
+        <p>Para aceder à plataforma, utilize o link abaixo para definir a sua palavra-passe</p>
         <a href="{{ $passwordResetLink }}" class="link-button">Definir Senha</a>
-        <p><strong>Nota:</strong> Este link será válido por 30 dias. Caso tenha alguma dificuldade ou dúvida, não hesite em contactar o nosso suporte.</p>
+        <p><strong>Nota:</strong>Este link será válido por 30 dias. Caso tenha alguma dificuldade ou dúvida, não hesite em contactar o nosso suporte.</p>
         <div class="footer">
             <p>Cumprimentos,<br>A equipa da <strong>NIPEE</strong></p>
             <p>© {{ date('Y') }} NIPEE. Todos os direitos reservados.</p>

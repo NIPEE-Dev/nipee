@@ -5,7 +5,7 @@ import { Link } from "@chakra-ui/react";
 import routes from "../../routes";
 
 const ReportsSchool = () => {
-  const title = "Relatórios dos Alunos";
+  const title = "Relatórios FCT";
 
   return (
     <ResourceScreen

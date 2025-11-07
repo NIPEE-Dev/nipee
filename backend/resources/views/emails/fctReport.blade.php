@@ -66,9 +66,9 @@
 <body>
 
     <div class="email-container">
-        <h1>Segue em anexo Relatório FCT</h1>
+        <h1>Segue em anexo o relatório de FCT.</h1>
         <div class="footer">
-            <p>Cumprimentos,<br>A equipa da <strong>NIPEE</strong></p>
+            <p>Com os melhores cumprimentos,<br>A equipa da <strong>NIPEE</strong></p>
             <p>© {{ date('Y') }} NIPEE. Todos os direitos reservados.</p>
         </div>
     </div>

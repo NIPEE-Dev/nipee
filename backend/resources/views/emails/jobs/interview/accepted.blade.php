@@ -67,7 +67,7 @@
     <div class="email-container">
         <p class="greeting">Olá!</p>
 
-        <p>O candidato(a) {{$candidate}} aceitou o convite de entrevista no seguinte horário:</p>
+        <p>O(a) candidato(a) {{$candidate}} aceitou o convite para entrevista no seguinte horário:</p>
         <ul>
             <li>{{ \Carbon\Carbon::createFromFormat('d/m/Y H:i', $schedule)->format('d/m/Y H:i') }}</li>
         </ul>

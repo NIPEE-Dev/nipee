@@ -73,7 +73,7 @@ const JobsSchool = () => {
   return (
     <>
       <ResourceScreen
-        title="Processos dos alunos"
+        title="Vagas"
         permissions={['']}
         resource="Interviewing"
         routeBase={routes.interviewing}

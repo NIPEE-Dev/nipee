@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Relatório</title>
+    <title>Alguém candidatou-se à sua vaga</title>
     <style>
         body {
             font-family: 'Arial', sans-serif;
@@ -76,7 +76,7 @@
     <div class="email-container">
         <p class="greeting">Olá, {{ $companyName }}!</p>
 
-        <p>O candidato {{ $candidateName }} se candidatou para a vaga {{ $jobName }}</p>
+        <p>O candidato {{ $candidateName }} candidatou-se à vaga {{ $jobName }}</p>
 
         <div class="footer">
             <p>Equipe NIPEE</p>

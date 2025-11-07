@@ -69,7 +69,7 @@
 
         <p class="greeting">Olá, {{ $candidate->user->name }}!</p>
 
-        <p>Foi convidado para uma entrevista.</p>
+        <p>Foste convidado para uma entrevista.</p>
 
         <p>{{ $invite->message }}</p>
 
@@ -80,7 +80,7 @@
             @endforeach
         </ul>
 
-        <p>Para confirmar a sua participação, <span class="greeting">acesse o site</span>, vá à secção <span class="greeting">“Vagas / Convites”</span> e <span class="greeting">selecione um dos horários propostos.</span></p>
+        <p>Para confirmar a sua participação, <span class="greeting">aceda o site</span>, vá à secção <span class="greeting">“Vagas / Convites”</span> e <span class="greeting">selecione um dos horários propostos.</span></p>
 
         <div class="footer">
             <p>Com os melhores cumprimentos,</p>

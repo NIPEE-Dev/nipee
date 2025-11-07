@@ -74,8 +74,8 @@
         <h1>Pré-Registo Enviado com Sucesso</h1>
         <p class="greeting">Exmo(a). Sr(a) {{ $representativeName }},</p>
         <div class="content">
-            <p>É com grande satisfação que informamos que o seu registo na nossa plataforma foi enviado para aprovação com sucesso. Logo retornaremos com a situação do seu pré-registo.</p>
-            <p>Agradecemos pelo interesse e confiança em nossa plataforma. Caso tenha alguma dúvida ou deseje mais informações, não hesite em nos contatar.</p>
+            <p>É com grande satisfação que informamos que o seu registo na nossa plataforma foi submetido para aprovação com sucesso. Em breve entraremos em contacto para informar o estado do seu pré-registo.</p>
+            <p>Agradecemos o interesse e a confiança na nossa plataforma. Caso tenha alguma dúvida ou pretenda obter mais informações, não hesite em contactar-nos.</p>
         </div>
         <div class="footer">
             <p>Cumprimentos,<br>A equipa da <strong>NIPEE</strong></p>

@@ -68,8 +68,8 @@
     <div class="email-container">
         <h1>Alteração de Senha com Sucesso</h1>
         <p class="greeting">Exmo(a). Sr(a) {{ $userName }},</p>
-        <p>Informamos que a sua senha foi alterada com sucesso na nossa plataforma.</p>
-        <p>Agora, para completar o seu cadastro e acessar todas as funcionalidades, por favor, acesse a plataforma e complete o seu perfil.</p>
+        <p>Informamos que a sua palavra-passe foi alterada com sucesso na nossa plataforma.</p>
+        <p>Para concluir o seu registo e aceder a todas as funcionalidades, por favor aceda à plataforma e complete o seu perfil.</p>
         <div class="footer">
             <p>Cumprimentos,<br>A equipa da <strong>NIPEE</strong></p>
             <p>© {{ date('Y') }} NIPEE. Todos os direitos reservados.</p>

@@ -195,7 +195,7 @@ export const ContractsForm = ({
                   >
                     {records.map((record) => (
                       <option key={record.id} value={record.id}>
-                        {record.corporate_name} --------- {record.fantasy_name}{' '}
+                        {record.corporate_name}
                       </option>
                     ))}
                   </Field>
