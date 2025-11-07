@@ -236,7 +236,7 @@ class ContractService
 
                 // checar da onde vem o estagio obrigatorio e dps substituir aqui
                 'estagio' => 'Estágio',
-                'fctHours' => $contract->job->fct_hours ?? 0,
+                'fctHours' => $job['fct_hours'] ?? 0,
                 'funcao' => $contract->job->role,
                 'dataInicial' => $contract->start_contract_vigence->format("d/m/Y"),
                 'dataFinal' => $contract->end_contract_vigence->format("d/m/Y"),
