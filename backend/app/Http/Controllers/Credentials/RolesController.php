@@ -25,9 +25,7 @@ class RolesController extends Controller
     /**
      * UsersController constructor.
      */
-    public function __construct(private readonly RolesService $rolesService)
-    {
-    }
+    public function __construct(private readonly RolesService $rolesService) {}
 
     /**
      * @return RolesCollection|JsonResource
@@ -78,7 +76,7 @@ class RolesController extends Controller
      * @param RoleRequest $request
      * @return RoleResource
      */
-    public function update(Role $role, RoleRequest $request)
+    public function update(Role $role, Request $request)
     {
         return new RoleResource($this->rolesService->update($role, $request->all()));
     }

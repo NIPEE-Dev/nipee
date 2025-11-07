@@ -55,16 +55,10 @@ class RolesService
         $role->save();
         $role->permissions()->sync(collect($data['permissions'])->filter(fn($permission) => is_numeric($permission) && (int)$permission > 0));
 
-        $role->tree = $data['tree'];
-        $role->enabledPermissions = $data['permissions'];
-
         DB::commit();
 
         return $role;
     }
 
-    public function sync(Collection $menus)
-    {
-
-    }
+    public function sync(Collection $menus) {}
 }
