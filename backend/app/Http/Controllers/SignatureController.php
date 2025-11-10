@@ -69,17 +69,18 @@ class SignatureController extends Controller
         if ($type == "empresa") {
             $school = $contract->school;
             Mail::to($school->email)->send(new SignaturePending(
-            $contract->candidate->name,
-            $contract->company->corporate_name,
-            $contract->company->responsible->name));
-    }
+                $contract->candidate->name,
+                $contract->company->corporate_name,
+                $contract->company->responsible->name
+            ));
+        }
     }
 
     private function insertSignatureIntoContract($contractId, $type)
     {
         try {
             $contract = Contract::find($contractId);
-            $document = Document::where('attachable_id', $contractId)->first();
+            $document = Document::where('attachable_id', $contractId)->where('attachable_type', Contract::class)->first();
             if (!$document) {
                 return response()->json(['error' => 'Documento não encontrado.'], 404);
             }
@@ -106,7 +107,7 @@ class SignatureController extends Controller
                     'width' => 100,
                     'height' => 50,
                 ]);
-                $document->status = 4;  
+                $document->status = 4;
             } elseif ($type == 'escola' && file_exists($assinaturaEscola)) {
                 $word = new TemplateProcessor($originalPath);
                 $word->setImageValue('assinaturaEscola', [
@@ -114,7 +115,7 @@ class SignatureController extends Controller
                     'width' => 200,
                     'height' => 100,
                 ]);
-                $document->status = 5;  
+                $document->status = 5;
             } else {
                 return response()->json(['error' => 'Assinatura não encontrada.'], 400);
             }
