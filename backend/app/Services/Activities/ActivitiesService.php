@@ -36,8 +36,7 @@ class ActivitiesService
                         throw new HttpException(400, 'Atividade não encontrada');
                     }
                     $activity->update($data);
-
-                    $availableTotalHours = $activity->user->candidate->hours_fct ?? 0;
+                    $availableTotalHours = $activity->user->candidate->contracts->where('status', ActiveEnum::ACTIVE)->first()->originalJob?->fct_hours ?? 0;
                     $currentTotalHours = $activity->user->activities->where('status', '!=', ActivityStatusEnum::PENDING->value)->sum('estimated_time');
                     if ($availableTotalHours !== 0 && $currentTotalHours >= $availableTotalHours) {
                         $contract = $activity->user->candidate->contracts->where('status', ActiveEnum::ACTIVE)->first();
@@ -91,6 +90,7 @@ class ActivitiesService
 
             return $activity;
         } catch (\Throwable $th) {
+            report($th);
             DB::rollBack();
             throw $th;
         }
