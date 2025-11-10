@@ -33,7 +33,7 @@ const CandidatesPage = () => {
       resource="Candidates"
       routeBase={routes.config.candidates}
       Form={Form}
-      canAdd={!(isEmpresa || isCandidato)}
+      canAdd={!(isEmpresa || isCandidato || isEscola)}
       canRemove={!(isEmpresa || isCandidato || isEscola)}
       canEdit={!(isEmpresa || isEscola)}
       resourceListProps={{
