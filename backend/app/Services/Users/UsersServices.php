@@ -33,7 +33,7 @@ class UsersServices
 
         return tap(
             User::create($data), 
-            function (User $user) use ($data, $password) {
+            function (User $user) use ($data) { 
                 
                 if (isset($data['school_id'])) {
                     SchoolMember::create([ 'user_id' => $user->id, 'school_id' => $data['school_id'] ]);
@@ -43,7 +43,9 @@ class UsersServices
                     $user->roles()->attach($data['role']); 
                 }
                 
-                SendMail::dispatch(new MailTask($user->email, new NewUserMail("Bem vindo!", $password)));
+                $frontendUrl = config('app.frontend_url');
+                $passwordResetLink = $frontendUrl . '/redefinir-senha?email=' . urlencode($user->email);
+                SendMail::dispatch(new MailTask($user->email, new NewUserMail("Bem vindo! Acesse para definir sua senha", $passwordResetLink)));
             }
         );
     }

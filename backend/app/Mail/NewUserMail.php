@@ -19,7 +19,7 @@ class NewUserMail extends Mailable
      */
     public function __construct(
         public $subject,
-        public $password,
+        public $resetLink, 
     )
     {
     }
@@ -34,7 +34,7 @@ class NewUserMail extends Mailable
         try {
             return $this
                 ->subject($this->subject)
-                ->markdown('emails.newuser', ['password' => $this->password]);
+                ->markdown('emails.newuser', ['resetLink' => $this->resetLink]);
         } catch (Exception $e) {
             report($e);
         }

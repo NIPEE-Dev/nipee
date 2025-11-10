@@ -40,21 +40,7 @@
             border-top: 1px solid #eee;
             padding-top: 25px;
         }
-        .password-box {
-            background-color: #f0f4ff;
-            border: 1px solid #5A34EA;
-            padding: 15px;
-            border-radius: 8px;
-            text-align: center;
-            margin: 20px 0;
-            font-size: 18px;
-        }
-        .password-box strong {
-            color: #5A34EA;
-            font-size: 24px;
-            display: block;
-            margin-top: 5px;
-        }
+        
         .footer {
             text-align: center;
             margin-top: 40px;
@@ -94,21 +80,21 @@
         
         <div class="content">
             <p>É com satisfação que informamos que a sua conta foi criada e já está pronta para utilização na nossa plataforma!</p>
-
-            <div class="password-box">
-                A sua palavra-passe temporária de acesso é:<br>
-                <strong>{{ $password }}</strong>
-            </div>
-
-            <p>Ah! Não se esqueça de aceder à plataforma e alterar a sua palavra-passe de imediato, por motivos de segurança.</p>
+            
+            <p>Por questões de segurança, para o seu primeiro acesso, solicitamos que defina a sua palavra-passe clicando no botão abaixo.</p>
         </div>
 
         <div class="button-wrapper">
-            <a href="{{ config('app.asset_url') }}" class="button">
-                Acessar Nipee
+            <a href="{{ $resetLink }}" class="button">
+                Definir Minha Senha
             </a>
         </div>
         
+        <p style="text-align: center; font-size: 12px; color: #777;">
+            Caso não consiga clicar no botão, copie e cole o seguinte link no seu navegador: <br>
+            <a href="{{ $resetLink }}" style="color: #5A34EA; word-break: break-all;">{{ $resetLink }}</a>
+        </p>
+
         <div class="footer">
             <p>Obrigado,<br>A equipa da <strong>{{ config('app.name') }}</strong></p>
             <p>© {{ date('Y') }} {{ config('app.name') }}. Todos os direitos reservados.</p>
