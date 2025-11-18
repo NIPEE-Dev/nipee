@@ -1,19 +1,18 @@
-import React, { useEffect, useState } from 'react';
-import { Stack, Divider, Box, Button, Spinner } from '@chakra-ui/react';
-import { Formik, Form, Field } from 'formik';
-import FormField from '../../components/FormField/FormField';
-import GroupContainer from '../GroupContainer';
-import AddressFields from '../Shared/AddressFields';
-import { ResponsibleFields } from '../Shared/ResponsibleFields';
-import { ContactFields } from '../Shared/ContactFields';
-import { cnpjMask } from '../../utils/formHelpers';
-import DocumentsTable from '../../components/DocumentsTable/DocumentsTable';
-import FileUpload from '../../components/FileUpload/FileUpload';
-import { nifValidator } from '../../utils/formValidators';
-import {Text} from '@chakra-ui/react';
-import {Select} from 'chakra-react-select';
+import React, { useEffect, useState } from "react";
+import { Stack, Divider, Box, Button, Spinner } from "@chakra-ui/react";
+import { Formik, Form, Field } from "formik";
+import FormField from "../../components/FormField/FormField";
+import GroupContainer from "../GroupContainer";
+import AddressFields from "../Shared/AddressFields";
+import { ResponsibleFields } from "../Shared/ResponsibleFields";
+import { ContactFields } from "../Shared/ContactFields";
+import { cnpjMask } from "../../utils/formHelpers";
+import DocumentsTable from "../../components/DocumentsTable/DocumentsTable";
+import FileUpload from "../../components/FileUpload/FileUpload";
+import { nifValidator } from "../../utils/formValidators";
+import { Text } from "@chakra-ui/react";
+import { Select } from "chakra-react-select";
 import api from "../../api";
-
 
 const CourseSelect = ({ value = [], onChange, readOnly }) => {
   const [courses, setCourses] = useState([]);
@@ -23,20 +22,24 @@ const CourseSelect = ({ value = [], onChange, readOnly }) => {
     const fetchCourses = async () => {
       setLoading(true);
       try {
-        const currentValues = value.map(c => String(c.id));
-        let res = await api.get('/base-records?type=6');
+        const currentValues = value.map((c) => String(c.id));
+        let res = await api.get("/base-records", {
+          params: { type: 6, perPage: 99 },
+        });
         setCourses(res.data.data);
         onChange(currentValues);
         setLoading(false);
       } catch (err) {
-        console.error('Erro ao carregar cursos:', err);
-      } 
+        console.error("Erro ao carregar cursos:", err);
+      }
     };
     fetchCourses();
   }, []);
 
   const handleChange = (selectedOptions) => {
-    const selectedValues = selectedOptions ? selectedOptions.map(option => option.value) : [];
+    const selectedValues = selectedOptions
+      ? selectedOptions.map((option) => option.value)
+      : [];
     onChange(selectedValues);
   };
 
@@ -55,19 +58,24 @@ const CourseSelect = ({ value = [], onChange, readOnly }) => {
       chakraStyles={{
         control: (provided) => ({
           ...provided,
-          background: "gray.50"
+          background: "gray.50",
         }),
         dropdownIndicator: (provided) => ({
           ...provided,
-          background: "gray.50"
+          background: "gray.50",
         }),
       }}
-      value={courses.filter(course => value.includes(String(course.id))).map(course => ({ value: String(course.id), label: course.title || 'Unknown' }))}
+      value={courses
+        .filter((course) => value.includes(String(course.id)))
+        .map((course) => ({
+          value: String(course.id),
+          label: course.title || "Unknown",
+        }))}
       onChange={handleChange}
       isDisabled={readOnly}
       placeholder="Selecione os cursos"
-      options={courses.map(course => {
-        return { value: String(course.id), label: course.title || 'Unknown' };
+      options={courses.map((course) => {
+        return { value: String(course.id), label: course.title || "Unknown" };
       })}
     />
   );
@@ -77,61 +85,64 @@ export const SchoolsForm = ({ readOnly, isLoading, typeForm, ...props }) => (
   <Formik
     enableReinitialize
     initialErrors={props.initialErrors}
-    initialValues={props.initialValues} 
+    initialValues={props.initialValues}
     onSubmit={async (values, { setSubmitting, setFieldError }) => {
-    try {
-      await props.onSubmit(values);
-    } catch (error) {
-      if (error.response?.data?.errors) {
-        Object.keys(error.response.data.errors).forEach(field => {
-          setFieldError(field, error.response.data.errors[field][0]);
+      try {
+        await props.onSubmit(values);
+      } catch (error) {
+        if (error.response?.data?.errors) {
+          Object.keys(error.response.data.errors).forEach((field) => {
+            setFieldError(field, error.response.data.errors[field][0]);
+          });
+        }
+        toast({
+          title: "Erro!",
+          description:
+            error.response?.data?.message ||
+            error.message ||
+            "Ocorreu um erro desconhecido.",
+          status: "error",
+          duration: 5000,
+          isClosable: true,
+          position: "top-right",
+          variant: "left-accent",
         });
+      } finally {
+        setSubmitting(false);
       }
-      toast({
-        title: "Erro!",
-        description: error.response?.data?.message || error.message || "Ocorreu um erro desconhecido.",
-        status: "error",
-        duration: 5000,
-        isClosable: true,
-        position: 'top-right',
-        variant: 'left-accent',
-      });
-    } finally {
-      setSubmitting(false);
-    }
-  }}
+    }}
   >
     {({ values, setFieldValue, isSubmitting }) => (
       <Form>
         <GroupContainer
-          title='Dados da escola'
-          subtitle='Informações pertinentes a escola'
+          title="Dados da escola"
+          subtitle="Informações pertinentes a escola"
         >
-          <Stack direction={['column', 'row']} spacing='24px'>
+          <Stack direction={["column", "row"]} spacing="24px">
             <Field
-              id='fantasy_name'
-              name='fantasy_name'
-              placeholder='Nome da Instituição'
+              id="fantasy_name"
+              name="fantasy_name"
+              placeholder="Nome da Instituição"
               component={FormField}
               readOnly={readOnly}
               required
             />
 
             <Field
-              id='corporate_name'
-              name='corporate_name'
-              placeholder='Nome do Agrupamento'
+              id="corporate_name"
+              name="corporate_name"
+              placeholder="Nome do Agrupamento"
               component={FormField}
               readOnly={readOnly}
               required
             />
           </Stack>
 
-          <Stack direction={['column', 'row']} spacing='24px' mt={5}>
+          <Stack direction={["column", "row"]} spacing="24px" mt={5}>
             <Field
-              id='cnpj'
-              name='cnpj'
-              placeholder='NIF'
+              id="cnpj"
+              name="cnpj"
+              placeholder="NIF"
               component={FormField.InputMask}
               mask={cnpjMask}
               readOnly={readOnly}
@@ -139,14 +150,14 @@ export const SchoolsForm = ({ readOnly, isLoading, typeForm, ...props }) => (
             />
 
             <Field
-              id='cae'
-              name='cae'
-              placeholder='CAE'
+              id="cae"
+              name="cae"
+              placeholder="CAE"
               component={FormField}
               readOnly={readOnly}
             />
-            </Stack>
-            <Stack direction={['column', 'row']} spacing='24px' mt={5}>
+          </Stack>
+          <Stack direction={["column", "row"]} spacing="24px" mt={5}>
             <Field name="courses">
               {({ field, form }) => (
                 <>
@@ -154,22 +165,21 @@ export const SchoolsForm = ({ readOnly, isLoading, typeForm, ...props }) => (
                     <Text fontWeight="semibold">Cursos</Text>
                     <CourseSelect
                       value={field.value}
-                      onChange={(val) => form.setFieldValue('courses', val)}
+                      onChange={(val) => form.setFieldValue("courses", val)}
                       readOnly={readOnly}
                     />
                   </Stack>
                 </>
               )}
             </Field>
-
           </Stack>
         </GroupContainer>
 
         <Divider my={25} />
 
         <GroupContainer
-          title='Dados da morada'
-          subtitle='Localidade em que a escola fica sediada.'
+          title="Dados da morada"
+          subtitle="Localidade em que a escola fica sediada."
         >
           <AddressFields readOnly={readOnly} setFieldValue={setFieldValue} />
         </GroupContainer>
@@ -177,8 +187,8 @@ export const SchoolsForm = ({ readOnly, isLoading, typeForm, ...props }) => (
         <Divider my={25} />
 
         <GroupContainer
-          title='Dados do responsável'
-          subtitle='Pessoa que iremos tratar em relação a esta escola'
+          title="Dados do responsável"
+          subtitle="Pessoa que iremos tratar em relação a esta escola"
         >
           <ResponsibleFields readOnly={readOnly} />
         </GroupContainer>
@@ -186,28 +196,31 @@ export const SchoolsForm = ({ readOnly, isLoading, typeForm, ...props }) => (
         <Divider my={25} />
 
         <GroupContainer
-          title='Dados do contacto'
-          subtitle='Preencha os dados que serão usados para entrar em contacto com a escola.'
+          title="Dados do contacto"
+          subtitle="Preencha os dados que serão usados para entrar em contacto com a escola."
         >
-          <ContactFields requiredFields={['name', 'phone', 'role']} readonly={readOnly} />
+          <ContactFields
+            requiredFields={["name", "phone", "role"]}
+            readonly={readOnly}
+          />
         </GroupContainer>
 
-        {['edit', 'view'].includes(typeForm) && (
+        {["edit", "view"].includes(typeForm) && (
           <GroupContainer
-            title='Documentos'
-            subtitle='Todos anexos disponíveis para este protocolo'
+            title="Documentos"
+            subtitle="Todos anexos disponíveis para este protocolo"
           >
             <DocumentsTable
               typeForm={typeForm}
               documents={values.documents}
-              {...(typeForm === 'edit' && {
+              {...(typeForm === "edit" && {
                 thContent: (
                   <FileUpload
                     resource={props.resource}
-                    types={['Contracts']}
-                    model='School'
+                    types={["Contracts"]}
+                    model="School"
                   />
-                )
+                ),
               })}
             />
           </GroupContainer>
