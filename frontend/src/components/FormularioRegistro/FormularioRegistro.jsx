@@ -132,6 +132,7 @@ const FormularioRegistro = () => {
         const res = await api.get(`/schools`, {
           params: {
             currentPage,
+            perPage: 99,
             district: schoolLocation.district
               ? districtMap[schoolLocation.district]
               : null,
