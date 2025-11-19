@@ -10,14 +10,15 @@ import {
   Tooltip,
   Checkbox,
   VStack,
-  Text
+  Text,
 } from "@chakra-ui/react";
 import {
   MdUploadFile,
   MdDriveFileMoveOutline,
   MdOutlineDriveFileMoveRtl,
   MdEdit,
-  MdFileDownload
+  MdFileDownload,
+  MdRestore 
 } from "react-icons/md";
 import ResourceScreen from "../../components/ResourceScreen/ResourceScreen";
 import routes from "../../routes";
@@ -26,6 +27,64 @@ import getRoute from "../../utils/getRoute";
 import WithModal from "../../components/WithModal/WithModal";
 import SignaturePad from "../../components/SignaturePad/SignaturePad";
 import api from "../../api";
+
+const ResetFlowModal = ({ documentId, toggleModal, refreshData }) => {
+  const [isLoading, setIsLoading] = React.useState(false);
+  const toast = useToast();
+
+  const handleReset = async () => {
+    try {
+      setIsLoading(true);
+      await api.put(`/documents/${documentId}/reset-signature-flow`); 
+
+      toast({
+        title: "Fluxo Reiniciado",
+        description: "O status do documento voltou para o início.",
+        status: "success",
+        duration: 5000,
+        isClosable: true,
+      });
+      
+      refreshData();
+      toggleModal();
+    } catch (error) {
+      console.error("Erro ao reiniciar fluxo:", error);
+      toast({
+        title: "Erro",
+        description: "Não foi possível reiniciar o fluxo.",
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return (
+    <VStack spacing={4} align="stretch" p={4}>
+      <Text>
+        Tem certeza que deseja <b>reiniciar o fluxo de assinatura</b>?
+      </Text>
+      <Text fontSize="sm" color="red.500">
+        Isso descartará qualquer assinatura ou arquivo enviado até o momento e o status voltará para o inicial. Use esta opção se o arquivo enviado estiver incorreto ou o formato da assinatura não for aceito.
+      </Text>
+      <HStack justifyContent="flex-end" pt={4}>
+        <Button variant="ghost" onClick={toggleModal} isDisabled={isLoading}>
+          Cancelar
+        </Button>
+        <Button 
+          colorScheme="red" 
+          onClick={handleReset} 
+          isLoading={isLoading}
+          leftIcon={<MdRestore />}
+        >
+          Confirmar Reinício
+        </Button>
+      </HStack>
+    </VStack>
+  );
+};
 
 const UploadDocumentModal = ({ documentId, toggleModal, refreshData, endpoint, requiresAcceptance }) => {
   const [file, setFile] = React.useState(null);
@@ -225,7 +284,7 @@ const DocumentsPage = () => {
 
                     return (
                         <HStack spacing={2}>
-                            <Tooltip label="Downloa" hasArrow>
+                            <Tooltip label="Download" hasArrow>
                                 <Link href={downloadUrl} target="_blank" _hover={{ textDecoration: 'none' }}>
                                     <Button size="xs" colorScheme="blue">
                                         <MdFileDownload />
@@ -258,6 +317,32 @@ const DocumentsPage = () => {
                                 </Tooltip>
                                 )}
                             </WithModal>
+
+                            {isProtocoloAutomatico && (
+                                <WithModal
+                                    title="Reiniciar Fluxo"
+                                    modal={({ toggleModal: innerToggleModal }) => (
+                                        <ResetFlowModal 
+                                            documentId={documentId}
+                                            toggleModal={innerToggleModal}
+                                            refreshData={refreshData}
+                                        />
+                                    )}
+                                >
+                                    {({ toggleModal }) => (
+                                        <Tooltip label="Recusar/Reiniciar Fluxo" hasArrow>
+                                            <Button
+                                                colorScheme="red"
+                                                variant="outline"
+                                                size="xs"
+                                                onClick={toggleModal}
+                                            >
+                                                <MdRestore />
+                                            </Button>
+                                        </Tooltip>
+                                    )}
+                                </WithModal>
+                            )}
                         </HStack>
                     );
                   }
@@ -302,7 +387,7 @@ const DocumentsPage = () => {
               },
             ]
           : []),
-        {
+{
           Header: "Tipo",
           accessor: (originalData) => {
             const availableNames = {
