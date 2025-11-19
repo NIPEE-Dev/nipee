@@ -27,6 +27,7 @@ import Termos from '../../pages/Termos/Termos.jsx';
 import DashboardSchools from '../../pages/DashboardSchools/DashboardSchools.jsx';
 import ActivityReport from '../../pages/ActivityReport/ActivityReport.jsx';
 import ReportsFCT from '../../pages/ReportsFCT/ReportsFCT.jsx';
+import AvaliacaoFCT from '../../pages/AvaliacaoFCT/AvaliacaoFCT.jsx';
 import JobDetails from '../../pages/JobsPage/JobDetails.jsx';
 function App() {
   return (
@@ -117,6 +118,14 @@ function App() {
           element={
             <PermissionRoute permission='reportsCandidates.index'>
               <ReportsFCT />
+            </PermissionRoute>
+          }
+        />
+        <Route
+          path='evaluation-fct/*'
+          element={
+            <PermissionRoute permission='evaluationCandidates.index'>
+              <AvaliacaoFCT />
             </PermissionRoute>
           }
         />
