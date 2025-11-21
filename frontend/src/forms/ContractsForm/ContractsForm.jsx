@@ -906,6 +906,12 @@ export const ContractsForm = ({
           </GroupContainer>
 
           <GroupContainer title='Dados do seguro' subtitle='Dados pertinentes ao seguro'>
+              <Text color="blue.500" fontSize="sm">
+                   O aluno já possui cobertura de seguro escolar emitida pela respetiva escola.
+                  </Text>
+                  <Text color="blue.500" fontSize="sm">
+                    Não é necessária qualquer ação adicional por parte da empresa relativamente ao seguro durante o período da FCT.
+                  </Text>
             <Stack direction={['column', 'row']} spacing='24px' alignItems="center">
               <Field name="has_insurance">
                 {({ field, form }) => (
@@ -922,7 +928,7 @@ export const ContractsForm = ({
                     }}
                     isReadOnly={readOnly}
                   >
-                    Possuí seguro?
+                    Deseja acrescentar um novo seguro?
                   </Checkbox>
                 )}
               </Field>
@@ -933,7 +939,7 @@ export const ContractsForm = ({
                 <FastField
                   id='insurance_number'
                   name='insurance_number'
-                  placeholder='Número do seguro'
+                  placeholder='Número da Apólice '
                   component={FormField}
                   readOnly={readOnly}
                   required={formProps.values.has_insurance}
@@ -941,7 +947,7 @@ export const ContractsForm = ({
                 <FastField
                   id='insurance_date'
                   name='insurance_date'
-                  placeholder='Data início do seguro'
+                  placeholder='Data início da Apólice '
                   component={FormField}
                   type='date'
                   readOnly={readOnly}
