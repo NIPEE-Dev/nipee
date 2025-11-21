@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\CreateFctEvaluationRequest;
 use App\Http\Requests\UploadFctEvaluationRequest;
+use App\Http\Resources\FctEvaluationResource;
 use App\Services\FctEvaluationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -24,7 +25,7 @@ class FctEvaluationController extends Controller
 
         $evaluations = $this->fctEvaluationService->getByCompanyId($companyId);
 
-        return $evaluations;
+        return response()->json(['data' => FctEvaluationResource::collection($evaluations)]);
     }
 
     public function store(CreateFctEvaluationRequest $request, $id)
