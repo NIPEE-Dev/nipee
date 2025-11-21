@@ -4,8 +4,10 @@ namespace App\Services\Activities;
 
 use App\Enums\ActiveEnum;
 use App\Enums\Activities\ActivityStatusEnum;
+use App\Enums\FctEvaluationStatusEnum;
 use App\Mail\FctReportMail;
 use App\Models\Activities\Activity;
+use App\Models\FctEvaluation;
 use App\Models\FctReport;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Cache;
@@ -76,6 +78,13 @@ class ActivitiesService
                             'school_id' => $school->id,
                             'company_id' => $company->id,
                             'sent_date' => Carbon::now(),
+                        ]);
+                        FctEvaluation::create([
+                            'status' => FctEvaluationStatusEnum::PENDING->value,
+                            'candidate_id' => $activity->user->candidate->id,
+                            'school_id' => $school->id,
+                            'company_id' => $company->id,
+                            'job_id' => $contract->job->id,
                         ]);
 
                         foreach ([$school->contact->email, $company->contact->email] as $recipient) {

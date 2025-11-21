@@ -23,6 +23,7 @@ use App\Models\Users\User;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ContatoController;
+use App\Http\Controllers\FctEvaluationController;
 use App\Http\Middleware\CheckPermission;
 
 /*
@@ -128,3 +129,7 @@ Route::post('/contracts/{contractId}/upload-signature-school', [SignatureControl
 
 Route::post('/documents/{document}/signed-contract', [DocumentsController::class, 'updateSignedContract'])->middleware('checkPermission:documents.index');
 Route::post('/documents/{document}/restart', [DocumentsController::class, 'restartSignedContract'])->middleware('checkPermission:documents.index');
+
+Route::get('/fct-evaluations', [FctEvaluationController::class, 'index']);
+Route::post('/fct-evaluations/{id}', [FctEvaluationController::class, 'store']);
+Route::post('/fct-evaluations/{id}/upload', [FctEvaluationController::class, 'upload']);
