@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   Box,
   Button,
@@ -32,72 +32,56 @@ import {
   useToast,
   Tooltip,
   IconButton,
+  Spinner,
+  Center
 } from "@chakra-ui/react";
 import {
   MdAssignment,
   MdFileDownload,
   MdUploadFile,
-  MdCheckCircle,
   MdPictureAsPdf,
 } from "react-icons/md";
+import useFctEvaluation from "../../hooks/useFctEvaluation";
 
-const MOCK_CANDIDATES = [
-  {
-    id: 1,
-    name: "João Silva",
-    school: "Escola Técnica A",
-    course: "Técnico de Informática",
-    status: "pending",
-  },
-  {
-    id: 2,
-    name: "Maria Oliveira",
-    school: "Escola Profissional B",
-    course: "Gestão",
-    status: "generated",
-  },
-  {
-    id: 3,
-    name: "Carlos Souza",
-    school: "Escola Técnica A",
-    course: "Multimédia",
-    status: "completed", 
-  },
+const EVALUATION_FIELDS = [
+  { key: "qualityAndOrganization", label: "Qualidade e organização de Trabalho" },
+  { key: "integrationAndAdaptation", label: "Integração e Adaptação ao Contexto de Trabalho" },
+  { key: "effortAndInterest", label: "Empenho e interesse nas funções desempenhadas" },
+  { key: "learningCapacity", label: "Capacidade de Aprendizagem no trabalho" },
+  { key: "teamWorkCapacity", label: "Capacidade de Trabalhar em Equipa" },
+  { key: "initiative", label: "Espírito de Iniciativa" },
+  { key: "workQuality", label: "Qualidade do Trabalho realizado" },
+  { key: "workRhythm", label: "Ritmo de Trabalho" },
+  { key: "comunication", label: "Comunicação" },
+  { key: "securityNorms", label: "Aplicações das normas de segurança" },
+  { key: "pontuality", label: "Assiduidade e pontualidade" },
+  { key: "personalPresentation", label: "Apresentação pessoal" },
+  { key: "interpersonalRelationship", label: "Relacionamento interpessoal" },
+  { key: "companyCulture", label: "Apropriação da cultura da empresa" },
+  { key: "autonomy", label: "Autonomia" },
+  { key: "relationshipWithManagement", label: "Relacionamento com a chefia" },
 ];
 
-const EVALUATION_PARAMS = [
-  "Qualidade e organização de Trabalho",
-  "Integração e Adaptação ao Contexto de Trabalho",
-  "Empenho e interesse nas funções desempenhadas",
-  "Capacidade de Aprendizagem no trabalho",
-  "Capacidade de Trabalhar em Equipa",
-  "Espírito de Iniciativa",
-  "Qualidade do Trabalho realizado",
-  "Ritmo de Trabalho",
-  "Comunicação",
-  "Aplicações das normas de segurança",
-  "Assiduidade e pontualidade",
-  "Apresentação pessoal",
-  "Relacionamento interpessoal",
-  "Apropriação da cultura da empresa",
-  "Autonomia",
-  "Relacionamento com a chefia",
-];
+const EVALUATION_STATUS = {
+  PENDING: 1,
+  WAITING_UPLOAD: 2,
+  CONCLUDED: 3
+};
 
-const EvaluationFormModal = ({ isOpen, onClose, candidate, onConfirm }) => {
+const EvaluationFormModal = ({ isOpen, onClose, evaluation, onConfirm, isSubmitting }) => {
   const [scores, setScores] = useState(
-    EVALUATION_PARAMS.reduce((acc, param) => ({ ...acc, [param]: 0 }), {})
+    EVALUATION_FIELDS.reduce((acc, field) => ({ ...acc, [field.key]: 0 }), {})
   );
 
-  const handleScoreChange = (param, value) => {
+  const handleScoreChange = (key, value) => {
     setScores((prev) => ({
       ...prev,
-      [param]: parseInt(value) || 0,
+      [key]: parseInt(value) || 0,
     }));
   };
 
   const totalScore = Object.values(scores).reduce((a, b) => a + b, 0);
-  const finalAverage = (totalScore / 16).toFixed(2);
+  const finalAverage = (totalScore / EVALUATION_FIELDS.length).toFixed(2);
 
   const getClassificationLabel = (val) => {
     if (val < 7) return "Muito Insuficiente";
@@ -107,11 +91,21 @@ const EvaluationFormModal = ({ isOpen, onClose, candidate, onConfirm }) => {
     return "Muito Bom";
   };
 
+  const handleConfirm = () => {
+    const payload = {
+        ...scores,
+        totalPontuation: totalScore,
+        final_average: finalAverage,
+        classification: getClassificationLabel(finalAverage)
+    };
+    onConfirm(evaluation.id, payload);
+  };
+
   return (
     <Modal isOpen={isOpen} onClose={onClose} size="4xl" scrollBehavior="inside">
       <ModalOverlay />
       <ModalContent>
-        <ModalHeader>Avaliação Final - {candidate?.name}</ModalHeader>
+        <ModalHeader>Avaliação Final - {evaluation?.candidate?.name}</ModalHeader>
         <ModalCloseButton />
         <ModalBody>
           <VStack spacing={4} align="stretch">
@@ -120,27 +114,29 @@ const EvaluationFormModal = ({ isOpen, onClose, candidate, onConfirm }) => {
             </Text>
 
             <SimpleGrid columns={{ base: 1, md: 2 }} spacing={4}>
-              {EVALUATION_PARAMS.map((param, index) => (
-                <FormControl key={index} display="flex" justifyContent="space-between" alignItems="center">
-                  <FormLabel fontSize="sm" mb={0} maxW="70%">
-                    {index + 1}. {param}
-                  </FormLabel>
-                  <NumberInput
-                    size="sm"
-                    maxW="80px"
-                    min={0}
-                    max={20}
-                    value={scores[param]}
-                    onChange={(val) => handleScoreChange(param, val)}
-                  >
-                    <NumberInputField />
-                    <NumberInputStepper>
-                      <NumberIncrementStepper />
-                      <NumberDecrementStepper />
-                    </NumberInputStepper>
-                  </NumberInput>
-                </FormControl>
-              ))}
+              {EVALUATION_FIELDS.map((field, index) => {
+                return (
+                  <FormControl key={field.key} display="flex" justifyContent="space-between" alignItems="center">
+                    <FormLabel fontSize="sm" mb={0} maxW="70%">
+                      {index + 1}. {field.label}
+                    </FormLabel>
+                    <NumberInput
+                      size="sm"
+                      maxW="80px"
+                      min={0}
+                      max={20}
+                      value={scores[field.key]}
+                      onChange={(val) => handleScoreChange(field.key, val)}
+                    >
+                      <NumberInputField />
+                      <NumberInputStepper>
+                        <NumberIncrementStepper />
+                        <NumberDecrementStepper />
+                      </NumberInputStepper>
+                    </NumberInput>
+                  </FormControl>
+                );
+              })}
             </SimpleGrid>
 
             <Divider />
@@ -148,7 +144,7 @@ const EvaluationFormModal = ({ isOpen, onClose, candidate, onConfirm }) => {
             <HStack justifyContent="space-between" bg="gray.50" p={4} borderRadius="md">
               <VStack align="flex-start" spacing={0}>
                 <Text fontWeight="bold">Classificação Final</Text>
-                <Text fontSize="xs">(Somatório das classificações / 16)</Text>
+                <Text fontSize="xs">(Média Simples)</Text>
               </VStack>
               <VStack align="flex-end" spacing={0}>
                 <Text fontSize="2xl" fontWeight="bold" color="blue.600">
@@ -172,10 +168,10 @@ const EvaluationFormModal = ({ isOpen, onClose, candidate, onConfirm }) => {
         </ModalBody>
 
         <ModalFooter>
-          <Button variant="ghost" mr={3} onClick={onClose}>
+          <Button variant="ghost" mr={3} onClick={onClose} isDisabled={isSubmitting}>
             Cancelar
           </Button>
-          <Button colorScheme="blue" onClick={() => onConfirm(finalAverage)}>
+          <Button colorScheme="blue" onClick={handleConfirm} isLoading={isSubmitting}>
             Gerar Documento PDF
           </Button>
         </ModalFooter>
@@ -184,7 +180,7 @@ const EvaluationFormModal = ({ isOpen, onClose, candidate, onConfirm }) => {
   );
 };
 
-const UploadSignedModal = ({ isOpen, onClose, onConfirm }) => {
+const UploadSignedModal = ({ isOpen, onClose, onConfirm, isSubmitting }) => {
   const [file, setFile] = useState(null);
 
   return (
@@ -196,7 +192,7 @@ const UploadSignedModal = ({ isOpen, onClose, onConfirm }) => {
         <ModalBody>
           <VStack spacing={4}>
             <Text fontSize="sm">
-              Baixe o documento gerado, assine-o manualmente ou digitalmente e anexe o PDF final aqui.
+              Baixe o documento gerado, assine-o e anexe o PDF final aqui.
             </Text>
             <input
               type="file"
@@ -207,12 +203,13 @@ const UploadSignedModal = ({ isOpen, onClose, onConfirm }) => {
           </VStack>
         </ModalBody>
         <ModalFooter>
-          <Button variant="ghost" mr={3} onClick={onClose}>
+          <Button variant="ghost" mr={3} onClick={onClose} isDisabled={isSubmitting}>
             Cancelar
           </Button>
           <Button
             colorScheme="orange"
             isDisabled={!file}
+            isLoading={isSubmitting}
             onClick={() => onConfirm(file)}
             leftIcon={<MdUploadFile />}
           >
@@ -225,9 +222,18 @@ const UploadSignedModal = ({ isOpen, onClose, onConfirm }) => {
 };
 
 const AvaliacaoFCTEmpresa = () => {
-  const [candidates, setCandidates] = useState(MOCK_CANDIDATES);
-  const [selectedCandidate, setSelectedCandidate] = useState(null);
-  
+  const { 
+    evaluations, 
+    fetchEvaluations, 
+    submitEvaluationData, 
+    uploadEvaluation, 
+    loading, 
+    error 
+  } = useFctEvaluation();
+
+  const [selectedEvaluation, setSelectedEvaluation] = useState(null);
+  const [actionLoading, setActionLoading] = useState(false);
+
   const { 
     isOpen: isEvalOpen, 
     onOpen: onEvalOpen, 
@@ -242,109 +248,155 @@ const AvaliacaoFCTEmpresa = () => {
 
   const toast = useToast();
 
-  const handleOpenEvaluation = (candidate) => {
-    setSelectedCandidate(candidate);
+  useEffect(() => {
+    fetchEvaluations();
+  }, [fetchEvaluations]);
+
+  const handleOpenEvaluation = (evaluation) => {
+    setSelectedEvaluation(evaluation);
     onEvalOpen();
   };
 
-  const handleConfirmEvaluation = (averageScore) => {
-    const updatedList = candidates.map(c => 
-      c.id === selectedCandidate.id ? { ...c, status: "generated" } : c
-    );
-    setCandidates(updatedList);
-    
-    toast({
-      title: "Documento Gerado",
-      description: "A avaliação foi gerada. Agora baixe, assine e anexe o documento.",
-      status: "success",
-      duration: 5000,
-      isClosable: true,
-    });
-    
-    onEvalClose();
+  const handleConfirmEvaluation = async (id, data) => {
+    setActionLoading(true);
+    try {
+        await submitEvaluationData(id, data);
+        toast({
+            title: "Documento Gerado",
+            description: "A avaliação foi salva e o documento gerado.",
+            status: "success",
+            duration: 5000,
+            isClosable: true,
+        });
+        onEvalClose();
+        fetchEvaluations();
+    } catch (err) {
+        toast({
+            title: "Erro",
+            description: "Não foi possível gerar a avaliação. Verifique se todos os campos estão preenchidos.",
+            status: "error",
+            duration: 5000,
+            isClosable: true,
+        });
+    } finally {
+        setActionLoading(false);
+    }
   };
 
-  const handleDownloadPDF = (candidate) => {
-    toast({
-      title: "Download Iniciado",
-      description: `Baixando avaliação de ${candidate.name}...`,
-      status: "info",
-      duration: 2000,
-    });
+  const handleDownloadPDF = (evaluation) => {
+     if (!evaluation.file_path) {
+         toast({ status: 'warning', title: 'Arquivo indisponível' });
+         return;
+     }
+     
+     const baseURL = import.meta.env.VITE_API_URL || 'http://localhost:8000'; 
+     const fileUrl = `${baseURL}/storage${evaluation.file_path}`;
+     
+     window.open(fileUrl, '_blank');
   };
 
-  const handleOpenUpload = (candidate) => {
-    setSelectedCandidate(candidate);
+  const handleOpenUpload = (evaluation) => {
+    setSelectedEvaluation(evaluation);
     onUploadOpen();
   };
 
-  const handleConfirmUpload = (file) => {
-    const updatedList = candidates.map(c => 
-      c.id === selectedCandidate.id ? { ...c, status: "completed" } : c
-    );
-    setCandidates(updatedList);
-
-    toast({
-      title: "Sucesso!",
-      description: "Avaliação assinada anexada com sucesso.",
-      status: "success",
-      duration: 4000,
-    });
+  const handleConfirmUpload = async (file) => {
+    if (!selectedEvaluation) return;
     
-    onUploadClose();
+    setActionLoading(true);
+    try {
+        await uploadEvaluation(selectedEvaluation.id, file);
+        toast({
+            title: "Sucesso!",
+            description: "Avaliação assinada anexada com sucesso.",
+            status: "success",
+            duration: 4000,
+        });
+        onUploadClose();
+        fetchEvaluations(); 
+    } catch (err) {
+        toast({
+            title: "Erro",
+            description: "Falha no upload do arquivo.",
+            status: "error",
+            duration: 4000,
+        });
+    } finally {
+        setActionLoading(false);
+    }
   };
+
+  const renderStatus = (status) => {
+      switch (status) {
+          case EVALUATION_STATUS.PENDING:
+              return <Tag colorScheme="yellow">Pendente</Tag>;
+          case EVALUATION_STATUS.WAITING_UPLOAD:
+              return <Tag colorScheme="blue">Aguardando Upload</Tag>;
+          case EVALUATION_STATUS.CONCLUDED:
+              return <Tag colorScheme="green">Concluído</Tag>;
+          default:
+              return <Tag colorScheme="gray">Desconhecido</Tag>;
+      }
+  };
+
+  if (loading && evaluations.length === 0) {
+      return (
+          <Center p={10}>
+              <Spinner size="xl" color="blue.500" />
+          </Center>
+      );
+  }
 
   return (
     <Box p={5} bg="white" borderRadius="lg" shadow="sm">
       <HStack mb={5} justifyContent="space-between">
         <Text fontSize="xl" fontWeight="bold">Avaliações de Estágio (FCT)</Text>
+        <Button size="sm" onClick={fetchEvaluations} isLoading={loading}>Atualizar Lista</Button>
       </HStack>
+
+      {error && (
+          <Box mb={4} p={3} bg="red.50" color="red.500" borderRadius="md">
+              {error}
+          </Box>
+      )}
 
       <Table variant="simple">
         <Thead bg="gray.50">
           <Tr>
             <Th>Aluno</Th>
-            <Th>Escola / Curso</Th>
+            <Th>Escola / Cargo</Th>
             <Th>Status</Th>
             <Th textAlign="right">Ações</Th>
           </Tr>
         </Thead>
         <Tbody>
-          {candidates.map((candidate) => (
-            <Tr key={candidate.id}>
-              <Td fontWeight="medium">{candidate.name}</Td>
+          {evaluations.map((evaluation) => (
+            <Tr key={evaluation.id}>
+              <Td fontWeight="medium">{evaluation.candidate || 'N/A'}</Td>
               <Td>
                 <VStack align="start" spacing={0}>
-                    <Text fontSize="sm">{candidate.school}</Text>
-                    <Text fontSize="xs" color="gray.500">{candidate.course}</Text>
+                    <Text fontSize="sm">{evaluation.school || 'Escola N/A'}</Text>
+                    <Text fontSize="xs" color="gray.500">{evaluation.role || 'Cargo N/A'}</Text>
                 </VStack>
               </Td>
               <Td>
-                {candidate.status === "pending" && (
-                  <Tag colorScheme="yellow">Pendente</Tag>
-                )}
-                {candidate.status === "generated" && (
-                  <Tag colorScheme="blue">Aguardando Upload</Tag>
-                )}
-                {candidate.status === "completed" && (
-                  <Tag colorScheme="green">Concluído</Tag>
-                )}
+                {renderStatus(evaluation.status)}
               </Td>
               <Td textAlign="right">
                 <HStack justifyContent="flex-end">
                   
-                  {candidate.status === "pending" && (
+                  {evaluation.status === EVALUATION_STATUS.PENDING && (
                     <Button 
                       leftIcon={<MdAssignment />} 
                       colorScheme="blue" 
                       size="sm"
-                      onClick={() => handleOpenEvaluation(candidate)}
+                      onClick={() => handleOpenEvaluation(evaluation)}
                     >
                       Avaliar
                     </Button>
                   )}
 
-                  {candidate.status === "generated" && (
+                  {evaluation.status === EVALUATION_STATUS.WAITING_UPLOAD && (
                     <>
                       <Tooltip label="Baixar PDF Gerado">
                         <IconButton
@@ -352,7 +404,8 @@ const AvaliacaoFCTEmpresa = () => {
                           colorScheme="blue"
                           variant="outline"
                           size="sm"
-                          onClick={() => handleDownloadPDF(candidate)}
+                          onClick={() => handleDownloadPDF(evaluation)}
+                          aria-label="Download"
                         />
                       </Tooltip>
                       
@@ -361,7 +414,7 @@ const AvaliacaoFCTEmpresa = () => {
                           leftIcon={<MdUploadFile />}
                           colorScheme="orange"
                           size="sm"
-                          onClick={() => handleOpenUpload(candidate)}
+                          onClick={() => handleOpenUpload(evaluation)}
                         >
                           Anexar
                         </Button>
@@ -369,29 +422,41 @@ const AvaliacaoFCTEmpresa = () => {
                     </>
                   )}
 
-                  {candidate.status === "completed" && (
-                    <Button 
-                        leftIcon={<MdPictureAsPdf />} 
-                        variant="ghost" 
-                        size="sm"
-                        isDisabled
-                    >
-                        Ver Documento
-                    </Button>
+                  {evaluation.status === EVALUATION_STATUS.CONCLUDED && (
+                    <Tooltip label="Ver Documento Final">
+                        <IconButton
+                            icon={<MdFileDownload />}
+                            variant="ghost"
+                            size="md"
+                            colorScheme="blue"
+                            onClick={() => handleDownloadPDF(evaluation)}
+                            aria-label="Ver Documento"
+                        />
+                    </Tooltip>
                   )}
+
                 </HStack>
               </Td>
             </Tr>
           ))}
+          
+          {!loading && evaluations.length === 0 && (
+              <Tr>
+                  <Td colSpan={4} textAlign="center" py={6} color="gray.500">
+                      Nenhuma avaliação encontrada para sua empresa.
+                  </Td>
+              </Tr>
+          )}
         </Tbody>
       </Table>
 
-      {selectedCandidate && (
+      {selectedEvaluation && (
         <EvaluationFormModal 
             isOpen={isEvalOpen} 
             onClose={onEvalClose} 
-            candidate={selectedCandidate}
+            evaluation={selectedEvaluation}
             onConfirm={handleConfirmEvaluation}
+            isSubmitting={actionLoading}
         />
       )}
 
@@ -399,6 +464,7 @@ const AvaliacaoFCTEmpresa = () => {
         isOpen={isUploadOpen}
         onClose={onUploadClose}
         onConfirm={handleConfirmUpload}
+        isSubmitting={actionLoading}
       />
 
     </Box>
