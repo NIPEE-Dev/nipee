@@ -44,7 +44,7 @@ class FctEvaluationService
         $pathPdf = storage_path('app/generated_documents/' . config('app.system_identifier') . '/' . $randomName . '.pdf');
         $templateProcessor->saveAs($path);
 
-        $rendererName = Settings::PDF_RENDERER_DOMPDF;
+        $rendererName = Settings::PDF_RENDERER_MPDF;
         $rendererLibraryPath = realpath(base_path('vendor/mpdf/mpdf'));
         Settings::setPdfRenderer($rendererName, $rendererLibraryPath);
 
