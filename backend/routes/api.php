@@ -127,3 +127,4 @@ Route::post('/contracts/{contractId}/upload-signature-company', [SignatureContro
 Route::post('/contracts/{contractId}/upload-signature-school', [SignatureController::class, 'uploadSignatureSchool'])->middleware('checkPermission:documents.index');
 
 Route::post('/documents/{document}/signed-contract', [DocumentsController::class, 'updateSignedContract'])->middleware('checkPermission:documents.index');
+Route::post('/documents/{document}/restart', [DocumentsController::class, 'restartSignedContract'])->middleware('checkPermission:documents.index');
