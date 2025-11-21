@@ -79,7 +79,7 @@ class DocumentsController extends Controller
 
     public function restartSignedContract(Request $request, Document $document)
     {
-        $document->status = DocumentStatusEnum::RETURNED;
+        $document->status = DocumentStatusEnum::PENDING_COMPANY_SIGNATURE;
         $document->attachable->school_signature = false;
         $document->attachable->company_signature = false;
         $document->save();

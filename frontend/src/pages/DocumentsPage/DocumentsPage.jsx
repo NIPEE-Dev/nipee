@@ -26,16 +26,15 @@ import { dateFormatter } from "../../utils/visualization";
 import getRoute from "../../utils/getRoute";
 import WithModal from "../../components/WithModal/WithModal";
 import SignaturePad from "../../components/SignaturePad/SignaturePad";
-import api from "../../api";
+import useUploadSignature from "../../hooks/useUploadSignature";
 
 const ResetFlowModal = ({ documentId, toggleModal, refreshData }) => {
-  const [isLoading, setIsLoading] = React.useState(false);
+  const { restartContract, loading: isLoading } = useUploadSignature();
   const toast = useToast();
 
   const handleReset = async () => {
     try {
-      setIsLoading(true);
-      await api.put(`/documents/${documentId}/reset-signature-flow`); 
+      await restartContract(documentId);
 
       toast({
         title: "Fluxo Reiniciado",
@@ -47,17 +46,18 @@ const ResetFlowModal = ({ documentId, toggleModal, refreshData }) => {
       
       refreshData();
       toggleModal();
+      setTimeout(() => {
+        window.location.reload();
+      }, 500);
     } catch (error) {
       console.error("Erro ao reiniciar fluxo:", error);
       toast({
         title: "Erro",
-        description: "Não foi possível reiniciar o fluxo.",
+        description: error.message || "Não foi possível reiniciar o fluxo.",
         status: "error",
         duration: 5000,
         isClosable: true,
       });
-    } finally {
-      setIsLoading(false);
     }
   };
 
@@ -86,10 +86,11 @@ const ResetFlowModal = ({ documentId, toggleModal, refreshData }) => {
   );
 };
 
-const UploadDocumentModal = ({ documentId, toggleModal, refreshData, endpoint, requiresAcceptance }) => {
+const UploadDocumentModal = ({ documentId, toggleModal, refreshData, requiresAcceptance }) => {
   const [file, setFile] = React.useState(null);
   const [accepted, setAccepted] = React.useState(!requiresAcceptance);
-  const [isLoading, setIsLoading] = React.useState(false);
+  
+  const { uploadSignedFile, loading: isLoading } = useUploadSignature();
   const toast = useToast();
 
   const handleFileChange = (event) => {
@@ -119,16 +120,8 @@ const UploadDocumentModal = ({ documentId, toggleModal, refreshData, endpoint, r
         return;
     }
 
-    const formData = new FormData();
-    formData.append("file", file);
-
     try {
-      setIsLoading(true);
-      await api.post(endpoint, formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      });
+      await uploadSignedFile(documentId, file);
 
       toast({
         title: "Sucesso",
@@ -146,13 +139,11 @@ const UploadDocumentModal = ({ documentId, toggleModal, refreshData, endpoint, r
       console.error("Erro ao enviar documento:", error);
       toast({
         title: "Erro no Upload",
-        description: "Ocorreu uma falha ao anexar o documento.",
+        description: error.message || "Ocorreu uma falha ao anexar o documento.",
         status: "error",
         duration: 5000,
         isClosable: true,
       });
-    } finally {
-      setIsLoading(false);
     }
   };
 
@@ -277,9 +268,6 @@ const DocumentsPage = () => {
                   }
 
                   if (showUploadFlow) {
-                    const endpointUpload = isProtocoloManual 
-                        ? `/documents/${documentId}/signed-contract`
-                        : `/documents/${documentId}/upload-signed-protocol`;
                     const downloadUrl = `${import.meta.env.VITE_BACKEND_BASE_URL}/documents/${filename}.${file_extension}/download`;
 
                     return (
@@ -299,7 +287,6 @@ const DocumentsPage = () => {
                                     documentId={documentId}
                                     toggleModal={innerToggleModal}
                                     refreshData={refreshData}
-                                    endpoint={endpointUpload}
                                     requiresAcceptance={isProtocoloAutomatico} 
                                 />
                                 )}
@@ -387,7 +374,7 @@ const DocumentsPage = () => {
               },
             ]
           : []),
-{
+        {
           Header: "Tipo",
           accessor: (originalData) => {
             const availableNames = {
