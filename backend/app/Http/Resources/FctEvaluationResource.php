@@ -19,9 +19,14 @@ class FctEvaluationResource extends JsonResource
             'id' => $this->id,
             'candidate' => $this->candidate->name,
             'school' => $this->school->corporate_name,
+            'company' => [
+                'name' => $this->company->name,
+                'responsible' => $this->company->supervisor,
+            ],
             'role' => $this->job->role,
             'status' => $this->status,
             'statusEnum' => FctEvaluationStatusEnum::getLabel($this->status),
+            'createdAt' => $this->created_at,
         ];
     }
 }
