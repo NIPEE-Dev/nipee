@@ -19,6 +19,20 @@ class FctEvaluationService
         return $evaluations;
     }
 
+    public function getBySchoolId($schoolId)
+    {
+        $evaluations = FctEvaluation::query()->where('school_id', $schoolId)->get();
+
+        return $evaluations;
+    }
+
+    public function getByCandidateId($candidateId)
+    {
+        $evaluations = FctEvaluation::query()->where('candidate_id', $candidateId)->get();
+
+        return $evaluations;
+    }
+
     public function create($data)
     {
         $id = $data['id'];

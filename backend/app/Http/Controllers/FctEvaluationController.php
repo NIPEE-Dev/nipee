@@ -21,9 +21,23 @@ class FctEvaluationController extends Controller
     public function index()
     {
         $user = Auth::user();
-        $companyId = $user->company->id;
+        $user = Auth::user();
+        $roleId = $user->roles[0]->id;
+        $evaluations = [];
+        if ($roleId === RolesEnum::CANDIDATE->value) {
+            $candidateId = $user->candidate->id;
+            $evaluations = $this->fctEvaluationService->getByCandidateId($candidateId);
+        }
 
-        $evaluations = $this->fctEvaluationService->getByCompanyId($companyId);
+        if ($roleId === RolesEnum::SCHOOL->value) {
+            $schoolId = $user->school->first()->id;
+            $evaluations = $this->fctEvaluationService->getBySchoolId($schoolId);
+        }
+
+        if ($roleId === RolesEnum::COMPANY->value) {
+            $companyId = $user->company->id;
+            $evaluations = $this->fctEvaluationService->getByCompanyId($companyId);
+        }
 
         return response()->json(['data' => FctEvaluationResource::collection($evaluations)]);
     }
