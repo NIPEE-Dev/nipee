@@ -40,14 +40,17 @@ class FctEvaluationService
         $evaluation = FctEvaluation::query()->where('id', $id)->first();
         if (!isset($evaluation)) throw new HttpException(400, 'Avaliação não encontrada');
 
+        $contract = $evaluation->candidate->contracts()->where('company_id', $evaluation->company->id)->where('status', '1')->first();
+        $startDate = $contract->start_contract_vigence->format('d/m/Y');
+        $endDate = $contract->end_contract_vigence->format('d/m/Y');
         $templateProcessor = new TemplateProcessor(storage_path('app/base_documents/' . config('app.system_identifier') . '/' . 'fctEvaluation.docx'));
         $templateProcessor->setValue('candidateName', $evaluation->candidate->name, 1);
         $templateProcessor->setValue('schoolName', $evaluation->school->corporate_name, 1);
         $templateProcessor->setValue('companyName', $evaluation->company->corporate_name, 1);
         $templateProcessor->setValue('role', $evaluation->job->role, 1);
-        $templateProcessor->setValue('formationArea', "", 1);
-        $templateProcessor->setValue('fctDate', "03/11/2025", 1);
-        $templateProcessor->setValue('monitorName', "", 1);
+        $templateProcessor->setValue('formationArea', $evaluation->candidate->userCourse->title, 1);
+        $templateProcessor->setValue('fctDate', "$startDate - $endDate", 1);
+        $templateProcessor->setValue('monitorName', $evaluation->company->supervisor, 1);
 
         foreach ($data as $key => $value) {
             $templateProcessor->setValue($key, $value, 1);

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\RolesEnum;
 use App\Http\Requests\CreateFctEvaluationRequest;
 use App\Http\Requests\UploadFctEvaluationRequest;
 use App\Http\Resources\FctEvaluationResource;
