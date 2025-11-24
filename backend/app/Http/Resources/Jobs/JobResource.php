@@ -19,7 +19,7 @@ class JobResource extends JsonResource
     public function toArray($request)
     {
         $user = Auth::user();
-        $roleId = $user->roles[0]->id;
+        $roleId = $user->roles[0]->id ?? null;
         $compatibleCandidates = [];
         if (isset($this->courses)) {
             $coursesIds = $this->courses->pluck('id');

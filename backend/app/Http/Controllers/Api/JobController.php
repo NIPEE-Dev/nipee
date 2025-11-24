@@ -194,4 +194,9 @@ class JobController extends Controller
 
         return response(null, 204);
     }
+
+    public function publicJobs()
+    {
+        return JobResource::collection($this->jobService->get());
+    }
 }

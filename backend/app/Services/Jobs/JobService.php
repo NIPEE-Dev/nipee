@@ -352,4 +352,9 @@ class JobService
             throw $th;
         }
     }
+
+    public function get()
+    {
+        return Job::query()->where('show_web', true)->paginate(10);
+    }
 }
