@@ -5,6 +5,7 @@ namespace App\Services\Activities;
 use App\Enums\ActiveEnum;
 use App\Enums\Activities\ActivityStatusEnum;
 use App\Enums\FctEvaluationStatusEnum;
+use App\Mail\CompletedFctHoursMail;
 use App\Mail\FctReportMail;
 use App\Models\Activities\Activity;
 use App\Models\FctEvaluation;
@@ -87,6 +88,7 @@ class ActivitiesService
                             'job_id' => $contract->originalJob->id,
                         ]);
 
+                        Mail::to($company->contact->email)->send(new CompletedFctHoursMail($company->supervisor, $school->corporate_name));
                         foreach ([$school->contact->email, $company->contact->email] as $recipient) {
                             Mail::to($recipient)->send(new FctReportMail($docPath['path']));
                         }
