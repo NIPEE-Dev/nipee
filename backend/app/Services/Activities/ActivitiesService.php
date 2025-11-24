@@ -84,7 +84,7 @@ class ActivitiesService
                             'candidate_id' => $activity->user->candidate->id,
                             'school_id' => $school->id,
                             'company_id' => $company->id,
-                            'job_id' => $contract->job->id,
+                            'job_id' => $contract->originalJob->id,
                         ]);
 
                         foreach ([$school->contact->email, $company->contact->email] as $recipient) {
