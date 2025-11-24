@@ -56,6 +56,7 @@ Route::apiResource('companies', CompanyController::class)->middleware('checkPerm
 
 Route::controller(SchoolController::class)->prefix('schools')->group(function () {
     Route::get('/', 'index')->withoutMiddleware('auth:api');
+    Route::get('/public', 'publicSchools')->withoutMiddleware('auth:api');
     Route::post('/', 'store')->middleware('checkPermission:schools.index');
     Route::get('/{school}', 'show')->middleware('checkPermission:schools.index');
     Route::get('/{school}/courses', 'getCourses')->withoutMiddleware('auth:api');

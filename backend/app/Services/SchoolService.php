@@ -112,4 +112,9 @@ class SchoolService
         }
         throw new HttpException(403, 'Sem permissão para editar essa escola');
     }
+
+    public function get()
+    {
+        return School::query()->paginate(10);
+    }
 }
