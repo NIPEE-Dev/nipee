@@ -27,6 +27,7 @@ class CandidatesService
 
     public function index($criteria)
     {
+
         $this->addSpecialField('birth_day', function (Builder $builder, Filter $filter) {
             match ($filter->getValue()) {
                 0 => $builder->whereRaw("MONTH(birth_day) = " . date("n")),
@@ -49,6 +50,7 @@ class CandidatesService
             $criteria
         );
 
+        dd($criteria);
         if (isset($criteria['user_id'])) {
             $candidateBuilder->where('user_id', $criteria['user_id']);
         }

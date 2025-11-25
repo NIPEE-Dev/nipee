@@ -3,12 +3,14 @@
 namespace App\Services\Jobs;
 
 use App\Beans\MailTask;
+use App\Enums\ActiveEnum;
 use App\Enums\CandidateStatusEnum;
 use App\Enums\Document\DocumentTypeTemplateEnum;
 use App\Enums\JobCandidateStatusEnum;
 use App\Enums\JobInterviewInviteStatusEnum;
 use App\Enums\JobStatusEnum;
 use App\Enums\RolesEnum;
+use App\Enums\UserCandidateStatusEnum;
 use App\Jobs\SendMail;
 use App\Mail\AcceptInterviewMail;
 use App\Mail\CandidateCalledMail;
@@ -155,6 +157,12 @@ class JobService
         if ($roleId !== RolesEnum::CANDIDATE->value) {
             throw new HttpException(400, 'Somente candidatos podem se candidatar em vagas');
         }
+
+        if (
+            $user->candidate->status === UserCandidateStatusEnum::CONCLUDED ||
+            $user->candidate->status === UserCandidateStatusEnum::IN_FCT ||
+            $user->candidate->contracts->where('status', ActiveEnum::ACTIVE)->first() !== null
+        ) throw new HttpException(400, 'Você não pode se candidatar a outras vagas');
 
         $alreadyApplied = $job->candidates->where('id', $user->candidate->id)->first();
         if ($alreadyApplied) throw new HttpException(400, 'Você já se candidatou nessa vaga');

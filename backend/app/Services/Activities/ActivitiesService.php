@@ -5,6 +5,7 @@ namespace App\Services\Activities;
 use App\Enums\ActiveEnum;
 use App\Enums\Activities\ActivityStatusEnum;
 use App\Enums\FctEvaluationStatusEnum;
+use App\Enums\UserCandidateStatusEnum;
 use App\Mail\CompletedFctHoursMail;
 use App\Mail\FctReportMail;
 use App\Models\Activities\Activity;
@@ -39,6 +40,12 @@ class ActivitiesService
                         throw new HttpException(400, 'Atividade não encontrada');
                     }
                     $activity->update($data);
+                    $activity->user->candidate->hours_concluded += $activity->estimated_time;
+                    $activity->user->candidate->hours_remaining = ($activity->user->candidate->hours_fct ?? 0) - $activity->user->candidate->hours_concluded;
+                    if ($activity->user->candidate->hours_remaining <= 0) {
+                        $activity->user->candidate = UserCandidateStatusEnum::CONCLUDED->value;
+                    }
+                    $activity->user->candidate->save();
                     $availableTotalHours = $activity->user->candidate->contracts->where('status', ActiveEnum::ACTIVE)->first()->originalJob?->fct_hours ?? 0;
                     $currentTotalHours = $activity->user->activities->where('status', '!=', ActivityStatusEnum::PENDING->value)->sum('estimated_time');
                     if ($availableTotalHours !== 0 && $currentTotalHours >= $availableTotalHours) {
