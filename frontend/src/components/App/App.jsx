@@ -24,6 +24,7 @@ import { WorkflowCompaniesPage } from '../../pages/WorkflowCompaniesPage';
 import { DashboardCompanies } from '../../pages/DashboardCompanies';
 import Inicio from '../../pages/Inicio/Inicio.jsx';
 import EscolasRegistadas from '../../pages/EscolasRegistadas/EscolasRegistadas.jsx';
+import VagasEmAberto from '../../pages/VagasEmAberto/VagasEmAberto.jsx';
 import Termos from '../../pages/Termos/Termos.jsx';
 import DashboardSchools from '../../pages/DashboardSchools/DashboardSchools.jsx';
 import ActivityReport from '../../pages/ActivityReport/ActivityReport.jsx';
@@ -34,7 +35,7 @@ function App() {
   return (
     <Routes>
       <Route path="/" element={<Inicio />} />
-      <Route path="/vagas-em-aberto" element={<Inicio />} />
+      <Route path="/vagas-em-aberto" element={<VagasEmAberto />} />
       <Route path="/escolas-registadas" element={<EscolasRegistadas />} />
       <Route path="/termos-condicoes-uso" element={<Termos />} />
       <Route path={routes.auth.login} element={<Login />} />
