@@ -49,8 +49,30 @@ class CandidatesService
             Candidate::query()->orderBy('name', 'asc'),
             $criteria
         );
+        $skills = [];
+        $schoolId = null;
+        if (isset($criteria['filterFields'])) {
+            $decodedFilters = json_decode($criteria['filterFields'], true);
+            $withoutSkillsArr = [];
+            foreach ($decodedFilters as $key => $value) {
+                if ($value['field'] === 'skills') {
+                    $skills[] = $value['value'];
+                    continue;
+                }
+                if ($value['field'] === 'school_id') {
+                    $schoolId = $value['value'];
+                    continue;
+                }
+                $withoutSkillsArr[] = $value;
+            }
+            $criteria['filterFields'] = json_encode($withoutSkillsArr);
+        }
 
-        dd($criteria);
+        if (count($skills) > 0) {
+            foreach ($skills as $value) {
+                $candidateBuilder->where('candidate_observations', 'LIKE', '%' . $value . '%');
+            }
+        }
         if (isset($criteria['user_id'])) {
             $candidateBuilder->where('user_id', $criteria['user_id']);
         }
@@ -64,6 +86,11 @@ class CandidatesService
         if ($user->roles[0]->id === 10) {
             $data->whereHas('user.school', function ($q) use ($user) {
                 $q->where('school_members.school_id', $user->school[0]->id);
+            })->get();
+        }
+        if (isset($schoolId)) {
+            $data->whereHas('user.school', function ($q) use ($schoolId) {
+                $q->where('school_members.school_id', $schoolId);
             })->get();
         }
         if ($user->roles[0]->id === 13) {

@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import ResourceScreen from "../../components/ResourceScreen/ResourceScreen";
 import { CandidatesForm as Form } from "../../forms/CandidatesForm/CandidatesForm";
 import { Link } from "@chakra-ui/react";
@@ -8,9 +8,11 @@ import {
   citiesFilters,
 } from "../../utils/filterHelpers";
 import { useNavigate } from "react-router-dom";
+import { usePublic } from "../../hooks/usePublic";
 
 const CandidatesPage = () => {
   const navigate = useNavigate();
+  const { fetchSchools, schools } = usePublic();
   const userProfile = JSON.parse(localStorage.getItem("profile"));
   const userRole = userProfile?.role || "";
   const isEmpresa = userRole === "Empresa";
@@ -24,6 +26,7 @@ const CandidatesPage = () => {
     if (isCandidato) {
       navigate(routes.candidates.self);
     }
+    fetchSchools();
   }, []);
 
   return (
@@ -53,9 +56,26 @@ const CandidatesPage = () => {
         {
           field: "course",
           header: "Curso",
-          type: "text", // como posso fazer com o select ???
+          type: "text",
         },
-
+        {
+          field: "skills",
+          header: "Habilidades",
+          type: "text",
+        },
+        {
+          field: "school_id",
+          header: "Escola",
+          type: "select",
+          options: schools.map((element) => ({
+            header: element.corporate_name,
+            value: element.id,
+          })),
+          // [
+          //   { value: "F", header: "Feminino" },
+          //   { value: "M", header: "Masculino" },
+          // ]
+        },
         ...candidatesCitiesFilters,
       ]}
       columns={[
