@@ -404,6 +404,24 @@ export const CandidatesForm = ({ readOnly, isLoading, typeForm, ...props }) => {
                     readOnly={readOnly}
                   />
                 )}
+                {values.interest === "EF" && (
+                  <FastField
+                    id="hours_completed"
+                    name="hours_completed"
+                    placeholder="Horas concluídas"
+                    component={FormField}
+                    readOnly
+                  />
+                )}
+                {values.interest === "EF" && (
+                  <FastField
+                    id="hours_remaining"
+                    name="hours_remaining"
+                    placeholder="Horas restantes"
+                    component={FormField}
+                    readOnly
+                  />
+                )}
               </Stack>
 
               <Stack direction={["column", "row"]} spacing="24px">
