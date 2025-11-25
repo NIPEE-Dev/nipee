@@ -3,7 +3,7 @@
 namespace App\Models;
 
 use App\Models\Company\Company;
-use App\Models\Contracts\Job;
+use App\Models\Jobs\Job;
 use Illuminate\Database\Eloquent\Model;
 
 class FctEvaluation extends Model
