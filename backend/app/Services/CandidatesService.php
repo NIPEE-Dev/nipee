@@ -67,7 +67,7 @@ class CandidatesService
         if ($user->roles[0]->id === 13) {
             $data->where('user_id', $user->id);
         }
-        return $data->paginate(Arr::get($criteria, 'perPage', 10));
+        return $data->groupBy('user_id')->paginate(Arr::get($criteria, 'perPage', 10));
     }
 
     private function getBuilder(Builder $builder, array $criteria): Builder
