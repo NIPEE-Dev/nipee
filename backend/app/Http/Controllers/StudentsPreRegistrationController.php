@@ -271,7 +271,7 @@ class StudentsPreRegistrationController extends Controller
             }
 
             $preRegistration = StudentsPreRegistration::create($studentData);
-            $school = School::query()->where('school_id', $studentData['school_id'])->first();
+            $school = School::query()->where('id', $studentData['school_id'])->first();
             Mail::to($studentData['email'])->send(new PreRegistrationStudentSuccess($studentData['full_name'], $studentData['full_name']));
             Mail::to('contacto@nipee.org')->send(new PreRegistrationNoticeMail());
             Mail::to($school->contact->email)->send(new PreRegistrationSchoolNoticeMail());
