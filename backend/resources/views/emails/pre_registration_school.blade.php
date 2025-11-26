@@ -1,10 +1,9 @@
 <!DOCTYPE html>
 <html lang="pt">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pré-Registo Enviado com Sucesso</title>
+    <title>Novo Pré-Registo</title>
     <style>
         body {
             font-family: 'Arial', sans-serif;
@@ -44,37 +43,17 @@
             margin-bottom: 15px;
         }
 
-        .content {
-            margin-bottom: 25px;
-        }
-
         .footer {
             text-align: center;
             margin-top: 40px;
             font-size: 14px;
             color: #aaa;
         }
-
+        
         .footer a {
             color: #5A34EA;
             text-decoration: none;
             font-weight: bold;
-        }
-
-        .button {
-            display: inline-block;
-            padding: 12px 30px;
-            background-color: #5A34EA;
-            color: #ffffff;
-            font-size: 16px;
-            font-weight: 600;
-            border-radius: 50px;
-            text-decoration: none;
-            margin-top: 20px;
-        }
-
-        .button:hover {
-            background-color: #4a29b2;
         }
     </style>
 </head>
@@ -82,12 +61,27 @@
 <body>
 
     <div class="email-container">
-        <h1>Pré-Registo Enviado com Sucesso</h1>
-        <div class="content">
-            <p>Novo Pré-Registo na plataforma.</p>
+        <h1>Novo Pré-Registo Recebido</h1>
+
+        <p class="greeting">Olá,</p>
+
+        <p>
+            Foi submetido um novo pedido de pré-registo na plataforma.  
+            Para consultar todos os detalhes e validar a informação,
+            por favor aceda ao painel administrativo.
+        </p>
+
+        <p>
+            Caso necessite de suporte adicional, estamos ao dispor para ajudar.
+        </p>
+
+        <p>Melhores cumprimentos,<br>
+        <strong>Equipa NIPEE</strong></p>
+
+        <div class="footer">
+            Este é um e-mail automático — por favor, não responda diretamente a esta mensagem.
         </div>
     </div>
 
 </body>
-
 </html>
