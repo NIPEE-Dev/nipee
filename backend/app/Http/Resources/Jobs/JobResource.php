@@ -25,7 +25,7 @@ class JobResource extends JsonResource
             $coursesIds = $this->courses->pluck('id');
             $candidatesIds = $this->candidates->pluck('id');
             $allowedGenders = $this->gender === GenderEnum::AMBOS ? [GenderEnum::FEMALE, GenderEnum::MALE] : [$this->gender];
-            $jobCity = $this->location;
+            $jobCity = $this->company->address->city;
             $candidates = Candidate::query()
                 ->whereNotIn('id', $candidatesIds)
                 ->where(function ($q) {
@@ -34,7 +34,7 @@ class JobResource extends JsonResource
                     });
                 })
                 ->whereHas('address', function ($q) use ($jobCity) {
-                    $q->where('city', 'LIKE', '%' . $jobCity . "%");
+                    $q->where('city', $jobCity);
                 })
                 ->whereIn('course', $coursesIds)->whereIn('gender', $allowedGenders)->get();
             $compatibleCandidates = $candidates;
