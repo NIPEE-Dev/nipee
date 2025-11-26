@@ -363,6 +363,6 @@ class JobService
 
     public function get()
     {
-        return Job::query()->where('show_web', '1')->paginate(10);
+        return Job::query()->where('show_web', '1')->paginate(9999);
     }
 }

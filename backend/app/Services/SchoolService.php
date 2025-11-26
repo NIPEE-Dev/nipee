@@ -115,6 +115,6 @@ class SchoolService
 
     public function get()
     {
-        return School::query()->paginate(10);
+        return School::query()->paginate(9999);
     }
 }
