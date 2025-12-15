@@ -254,6 +254,18 @@ const CandidacyTable = ({ candidates, jobId }) => {
     );
   };
 
+  const handleGenerateProtocol = (candidate) => {
+    navigate('/contracts/add', {
+      state: {
+        preFill: {
+          candidate: candidate,
+          jobId: jobId,
+          schoolId: candidate.user?.school?.[0]?.id || null 
+        }
+      }
+    });
+  };
+
   return (
     <div>
       <TableContainer>
@@ -327,6 +339,16 @@ const CandidacyTable = ({ candidates, jobId }) => {
                     )}
                     {c.status == 7 && (
                       <Button size="xs" colorScheme="teal" onClick={() => openModal(c, 'TEST')}>Avaliar Teste</Button>
+                    )}
+                    {c.status == 2 && (
+                       <Button 
+                         size="xs" 
+                         colorScheme="green" 
+                         leftIcon={<FaFilePdf />}
+                         onClick={() => handleGenerateProtocol(c)}
+                       >
+                         Gerar Protocolo
+                       </Button>
                     )}
                   </Flex>
                 </Td>

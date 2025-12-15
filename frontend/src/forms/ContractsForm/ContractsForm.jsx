@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import {
   Alert,
   AlertIcon,
@@ -61,13 +61,68 @@ export const ContractsForm = ({
   const toast = useToast();
   const [jobsArr, setJobsArr] = useState(undefined);
 
+  useEffect(() => {
+    if (state?.preFill) {
+      console.group('Dados para Protocolo');
+      console.log('Candidato:', state.preFill.candidate);
+      console.log('Job ID:', state.preFill.jobId);
+      console.log('School ID:', state.preFill.schoolId);
+      console.groupEnd();
+    }
+  }, [state]);
 
   useEffect(() => {
-    if (state) {
+    if (state && !state.preFill) {
       fetchContractData({ job: state.job, candidate: state.candidate });
       navigate(location.pathname, {});
     }
   }, []);
+
+  const mergedInitialValues = useMemo(() => {
+    let values = {
+        ...(_isEmpty(props.initialValues) ? {} : props.initialValues),
+        company_id: props.initialValues?.company_id || '0',
+        has_insurance: props.initialValues?.has_insurance || false,
+        retroative_billing: props.initialValues?.retroative_billing || '0',
+        working_day: {
+          ...props.initialValues?.working_day,
+          day_off: props.initialValues?.working_day?.day_off || 'DUAS FOLGAS SEMANAIS AO SÁBADO E DOMINGO',
+          start_weekday: props.initialValues?.working_day?.start_weekday || 1,
+          end_weekday: props.initialValues?.working_day?.start_weekday || 5,
+        },
+        manual_contract_upload: false,
+        manual_contract_file: null,
+    };
+
+    if (state?.preFill) {
+        const { candidate, jobId, schoolId } = state.preFill;
+        
+        values = {
+            ...values,
+            'job.id': jobId, 
+            'school.id': schoolId,
+            'candidate.id': candidate.id,
+
+            candidate: {
+                ...candidate,
+                contact: candidate.contact || {},
+                address: candidate.address || {},
+                cpf: candidate.cpf || '',
+            },
+            
+            userAddress: candidate.address || values.userAddress,
+        };
+
+        if (candidate.phone || candidate.contact?.phone) {
+             const phone = candidate.phone || candidate.contact?.phone;
+             values['candidate.contact.phone'] = phone; 
+             if(!values.candidate.contact) values.candidate.contact = {};
+             values.candidate.contact.phone = phone;
+        }
+    }
+
+    return values;
+  }, [props.initialValues, state]);
 
   if (isLoadingResource) {
     return <Spinner />;
@@ -79,7 +134,7 @@ export const ContractsForm = ({
     selectedCandidate
   ) => {
     const candidate = candidates.find((c) => c.id === +selectedCandidate);
-    console.log('candidado:', candidate, candidates, selectedCandidate);
+    console.log('candidado selecionado manualmente:', candidate, candidates, selectedCandidate);
     if (candidate) {
 
       setFieldValue('candidate', {
@@ -113,20 +168,7 @@ export const ContractsForm = ({
     <Formik
       enableReinitialize
       initialErrors={props.initialErrors}
-      initialValues={{
-        ...(_isEmpty(props.initialValues) ? {} : props.initialValues),
-        company_id: props.initialValues?.company_id || '0',
-        has_insurance: props.initialValues?.has_insurance || false,
-        retroative_billing: props.initialValues?.retroative_billing || '0',
-        working_day: {
-          ...props.initialValues?.working_day,
-          day_off: props.initialValues?.working_day?.day_off || 'DUAS FOLGAS SEMANAIS AO SÁBADO E DOMINGO',
-          start_weekday: props.initialValues?.working_day?.start_weekday || 1,
-          end_weekday: props.initialValues?.working_day?.start_weekday || 5,
-        },
-        manual_contract_upload: false,
-        manual_contract_file: null,
-      }}
+      initialValues={mergedInitialValues}
        onSubmit={async (values, { setSubmitting, setFieldError }) => {
     try {
       await props.onSubmit(values);
@@ -242,7 +284,7 @@ export const ContractsForm = ({
                 perPage: 9999,
                 ...(typeForm === 'add' && { withoutTrashed: true })
               }}
-              autoFetch={formProps.values.company_id}
+              autoFetch={formProps.values.company_id} 
             >
               {({ records, isLoading }) => {
                 if (jobsArr === undefined) {
