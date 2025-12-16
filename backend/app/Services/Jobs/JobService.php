@@ -69,6 +69,22 @@ class JobService
         return tap(Job::create($data), function (Job $job) use ($data) {
             $job->courses()->sync($data['courses']);
             $job->workingDay()->create(Arr::get($data, 'working_day'));
+            if (is_array($data['courses']) && count($data['courses']) > 0) {
+                $jobCity = $job->company->address->city;
+                $candidates = Candidate::query()
+                    ->with('user')
+                    ->where(function ($q) {
+                        $q->orWhereDoesntHave('contracts')->orWhereHas('contracts', function ($query) {
+                            $query->where('status', ActiveEnum::NOT_ACTIVE->value);
+                        });
+                    })
+                    ->whereHas('address', function ($q) use ($jobCity) {
+                        $q->where('city', $jobCity);
+                    })
+                    ->whereIn('course', $data['courses'])->get();
+
+                $emails = $candidates->pluck('user.email');
+            }
 
             return $job->load(['workingDay', 'company', 'documents']);
         });
