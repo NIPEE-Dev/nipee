@@ -24,9 +24,10 @@ class JobCandidateResource extends JsonResource
             'location' => $this->address->uf ?? '',
             'council' => $this->address->city ?? '',
             'phone' => $this->contact->phone ?? '',
-            'statusLabel' => JobCandidateStatusEnum::getLabel(''.$this->pivot->status),
+            'statusLabel' => JobCandidateStatusEnum::getLabel('' . $this->pivot->status),
             'status' => (int) $this->pivot->status,
             'resume' => $this->resume,
+            'schoolId' => $this->user->school->first()->id ?? 0,
             'interviewSchedules' => $this->invites
                 ->where('job_id', $this->pivot->job_id)
                 ->flatMap(function ($invite) {
@@ -35,7 +36,7 @@ class JobCandidateResource extends JsonResource
                         ->map(function ($schedule) {
                             return [
                                 'date' => \Carbon\Carbon::parse($schedule->date)->format('d/m/Y'),
-                                'time' => \Carbon\Carbon::parse($schedule->time)->format('H:i'), 
+                                'time' => \Carbon\Carbon::parse($schedule->time)->format('H:i'),
                             ];
                         });
                 }),
