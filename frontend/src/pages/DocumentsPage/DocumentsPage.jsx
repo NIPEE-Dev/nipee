@@ -208,6 +208,11 @@ const DocumentsPage = () => {
       }}
       filters={[
         {
+            field: "nif",
+            header: "NIF",
+            type: "text",
+        },
+        {
           field: "status",
           header: "Status",
           type: "select",
@@ -426,6 +431,14 @@ const DocumentsPage = () => {
             };
 
             return availableNames[originalData.name] || "";
+          },
+        },
+        {
+          Header: "NIF",
+          accessor: (originalData) => {
+            if (originalData.name === "Candidate") {
+              return originalData.attachable?.cpf || "";
+            }
           },
         },
         {
