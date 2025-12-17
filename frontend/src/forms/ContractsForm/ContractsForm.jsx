@@ -78,52 +78,6 @@ export const ContractsForm = ({
     }
   }, []);
 
-  const mergedInitialValues = useMemo(() => {
-    let values = {
-        ...(_isEmpty(props.initialValues) ? {} : props.initialValues),
-        company_id: props.initialValues?.company_id || '0',
-        has_insurance: props.initialValues?.has_insurance || false,
-        retroative_billing: props.initialValues?.retroative_billing || '0',
-        working_day: {
-          ...props.initialValues?.working_day,
-          day_off: props.initialValues?.working_day?.day_off || 'DUAS FOLGAS SEMANAIS AO SÁBADO E DOMINGO',
-          start_weekday: props.initialValues?.working_day?.start_weekday || 1,
-          end_weekday: props.initialValues?.working_day?.start_weekday || 5,
-        },
-        manual_contract_upload: false,
-        manual_contract_file: null,
-    };
-
-    if (state?.preFill) {
-        const { candidate, jobId, schoolId } = state.preFill;
-        
-        values = {
-            ...values,
-            'job.id': jobId, 
-            'school.id': schoolId,
-            'candidate.id': candidate.id,
-
-            candidate: {
-                ...candidate,
-                contact: candidate.contact || {},
-                address: candidate.address || {},
-                cpf: candidate.cpf || '',
-            },
-            
-            userAddress: candidate.address || values.userAddress,
-        };
-
-        if (candidate.phone || candidate.contact?.phone) {
-             const phone = candidate.phone || candidate.contact?.phone;
-             values['candidate.contact.phone'] = phone; 
-             if(!values.candidate.contact) values.candidate.contact = {};
-             values.candidate.contact.phone = phone;
-        }
-    }
-
-    return values;
-  }, [props.initialValues, state]);
-
   if (isLoadingResource) {
     return <Spinner />;
   }
@@ -168,7 +122,22 @@ export const ContractsForm = ({
     <Formik
       enableReinitialize
       initialErrors={props.initialErrors}
-      initialValues={mergedInitialValues}
+      initialValues={{
+        ...(_isEmpty(props.initialValues) ? {} : props.initialValues),
+        company_id: props.initialValues?.company_id || '0',
+        has_insurance: props.initialValues?.has_insurance || false,
+        retroative_billing: props.initialValues?.retroative_billing || '0',
+        working_day: {
+          ...props.initialValues?.working_day,
+          day_off: props.initialValues?.working_day?.day_off || 'DUAS FOLGAS SEMANAIS AO SÁBADO E DOMINGO',
+          start_weekday: props.initialValues?.working_day?.start_weekday || 1,
+          end_weekday: props.initialValues?.working_day?.start_weekday || 5,
+        },
+        manual_contract_upload: false,
+        manual_contract_file: null,
+
+        
+      }}
        onSubmit={async (values, { setSubmitting, setFieldError }) => {
     try {
       await props.onSubmit(values);

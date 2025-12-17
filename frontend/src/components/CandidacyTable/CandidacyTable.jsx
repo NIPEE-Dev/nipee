@@ -255,12 +255,15 @@ const CandidacyTable = ({ candidates, jobId }) => {
   };
 
   const handleGenerateProtocol = (candidate) => {
+    const companyId = candidate.job?.company_id || candidate.job?.company?.id;
+
     navigate('/contracts/add', {
       state: {
         preFill: {
           candidate: candidate,
           jobId: jobId,
-          schoolId: candidate.user?.school?.[0]?.id || null 
+          schoolId: candidate.schoolId,
+          companyId: companyId
         }
       }
     });
