@@ -8,3 +8,7 @@
 !docs/.gitkeep
 !public/docs/
 !public/docs/.gitkeep
+!public/excel/
+!public/excel/.gitkeep
+!public/zip/
+!public/zip/.gitkeep

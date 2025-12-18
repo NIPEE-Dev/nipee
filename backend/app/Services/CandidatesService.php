@@ -19,6 +19,12 @@ use Symfony\Component\HttpKernel\Exception\HttpException;
 use Illuminate\Support\Facades\Log;
 use App\Enums\BaseRecordsEnum;
 use App\Enums\JobCandidateStatusEnum;
+use PhpOffice\PhpWord\IOFactory;
+use PhpOffice\PhpWord\Settings;
+use Illuminate\Support\Str;
+use PhpOffice\PhpWord\PhpWord;
+use Rap2hpoutre\FastExcel\FastExcel;
+use ZipArchive;
 
 class CandidatesService
 {
@@ -205,5 +211,104 @@ class CandidatesService
             return $item->candidate;
         });
         return $candidates;
+    }
+
+    public function getCandidateHistory(Candidate $candidate)
+    {
+        $contracts = $candidate->contracts;
+        $arr = [];
+        foreach ($contracts as $key => $value) {
+            $evaluation = $value->company->fctEvaluations()->where('candidate_id', $candidate->id)->first();
+            $report = $value->company->fctReports()->where('candidate_id', $candidate->id)->first();
+            $arr[] = [
+                'startDate' => $value->start_contract_vigence,
+                'endDate' => $value->end_contract_vigence,
+                'company' => $value->company->corporate_name,
+                'evaluation' => $evaluation->evaluation ?? null,
+                'fctEvaluationPath' => $evaluation->file_path ?? null,
+                'fctReportPath' => $report->report ?? null,
+                'totalHours' => $report->total_hours
+            ];
+        }
+        return $arr;
+    }
+
+    public function exportHistory($candidate, $format)
+    {
+        $arr = $this->getCandidateHistory($candidate);
+        $zipFile = new ZipArchive();
+        $zipName = Str::uuid() . '.zip';
+        $zipPath = storage_path('app/public/zip/') . $zipName;
+        $zipFile->open($zipPath, ZipArchive::CREATE);
+
+        foreach ($arr as $key => $value) {
+            if ($value['fctReportPath']) {
+                $splitReportName = explode('/', $value['fctReportPath']);
+                $zipFile->addFile(storage_path('app/public/' . $value['fctReportPath']), end($splitReportName));
+            }
+            if ($value['fctEvaluationPath']) {
+                $splitReportName = explode('/', $value['fctEvaluationPath']);
+                $zipFile->addFile(storage_path() . '/app' . $value['fctEvaluationPath'], end($splitReportName));
+            }
+        }
+
+        if ($format === 'excel') {
+            $excelName = Str::uuid() . '.xlsx';
+            $excelPath = storage_path('app/public/excel/' . $excelName);
+            (new FastExcel($arr))->export($excelPath, function ($data) {
+                return [
+                    'Empresa' => $data['company'],
+                    'Período' => $data['startDate']->format('d/m/Y') . ' a ' . $data['endDate']->format('d/m/Y'),
+                    'Carga Horária' => $data['totalHours'],
+                    'Avaliação' => $data['evaluation'],
+                ];
+            });
+            $zipFile->addFile($excelPath, $excelName);
+            $zipFile->close();
+            return $zipPath;
+        }
+
+        if ($format === 'pdf') {
+            $word = new PhpWord();
+            $section = $word->addSection();
+
+            $table = $section->addTable(array('borderSize' => 6, 'borderColor' => '000000', 'width' => 10000, 'unit' => 'pct'));
+
+            // Add table header
+            $table->addRow();
+            $table->addCell(1750)->addText('Empresa', array('bold' => true));
+            $table->addCell(1750)->addText('Período', array('bold' => true));
+            $table->addCell(1750)->addText('Carga Horária', array('bold' => true));
+            $table->addCell(1750)->addText('Avaliação', array('bold' => true));
+
+            // Add data rows using a foreach loop
+            foreach ($arr as $row) {
+                $table->addRow();
+                $table->addCell(1750)->addText($row['company']);
+                $table->addCell(1750)->addText($row['startDate']->format('d/m/Y') . ' a ' . $row['endDate']->format('d/m/Y'));
+                $table->addCell(1750)->addText($row['totalHours']);
+                $table->addCell(1750)->addText($row['evaluation']);
+            }
+
+            $wordName = Str::uuid() . '.docx';
+            $pdfName = 'teste' . '.pdf';
+            $path = storage_path('app/public/docs/' . $wordName);
+            $pathPdf = storage_path('app/public/docs/' . $pdfName);
+            $word->save($path);
+
+            $rendererName = Settings::PDF_RENDERER_MPDF;
+            $rendererLibraryPath = realpath(base_path('vendor/mpdf/mpdf'));
+            Settings::setPdfRenderer($rendererName, $rendererLibraryPath);
+
+            $phpWord = IOFactory::load($path);
+            $objWriter = IOFactory::createWriter($phpWord, 'PDF');
+            $objWriter->save($pathPdf);
+
+            $zipFile->addFile($pathPdf, $pdfName);
+            $zipFile->close();
+            return $zipPath;
+        }
+
+        throw new HttpException(400, 'format unknown');
     }
 }

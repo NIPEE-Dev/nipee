@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreCandidateDocumentsRequest;
 use App\Http\Requests\StoreCandidateRequest;
 use App\Http\Requests\UpdateCandidateRequest;
+use Illuminate\Support\Facades\Validator;
 use App\Http\Resources\CandidateResource;
 use App\Models\Candidate;
 use App\Services\CandidatesService;
@@ -17,6 +18,7 @@ use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 
 class CandidateController extends Controller
@@ -127,5 +129,20 @@ class CandidateController extends Controller
 
         $document = $candidate->documents()->create($fileData);
         return response()->json($document, 201);
+    }
+
+    public function history(Request $request, Candidate $candidate)
+    {
+        $data = $this->candidatesService->getCandidateHistory($candidate);
+        return response()->json(['data' => $data], 200);
+    }
+
+    public function exportHistory(Request $request, Candidate $candidate)
+    {
+        $data = Validator::make($request->all(), [
+            'format' => ['required', 'string', Rule::in(['excel', 'pdf'])],
+        ])->validate();
+        $file = $this->candidatesService->exportHistory($candidate, $data['format']);
+        return response()->download($file);
     }
 }

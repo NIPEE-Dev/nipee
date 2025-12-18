@@ -64,6 +64,8 @@ Route::controller(SchoolController::class)->prefix('schools')->group(function ()
     Route::delete('/{school}', 'destroy')->withTrashed()->middleware('checkPermission:schools.index');
 });
 
+Route::get('candidates/{candidate}/history', [CandidateController::class, 'history'])->middleware('checkPermission:candidates.index');
+Route::get('candidates/{candidate}/history/download', [CandidateController::class, 'exportHistory'])->withoutMiddleware(['auth:api']);
 Route::get('candidates/interviewing', [CandidateController::class, 'schoolCandidates'])->middleware('checkPermission:candidates.index');
 Route::apiResource('candidates', CandidateController::class)->middleware('checkPermission:candidates.index');
 Route::post('candidates/{candidate}/document', [CandidateController::class, 'storeDocuments'])->middleware('checkPermission:candidates.index');
