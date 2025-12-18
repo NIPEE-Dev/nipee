@@ -10,10 +10,15 @@ enum UserCandidateStatusEnum: int
 
     public static function getLabel($status): string
     {
-        return match ($status) {
-            CandidateStatusEnum::PENDING->value => 'Disponível',
-            CandidateStatusEnum::APPROVED->value => 'Em FCT',
-            CandidateStatusEnum::DENIED->value => 'Concluído',
-        };
+        switch ($status) {
+            case 0:
+                return 'Disponível';
+            case 1:
+                return 'Em FCT';
+            case 2:
+                return 'Concluído';
+            default:
+                return '';
+        }
     }
 }
