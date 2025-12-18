@@ -94,10 +94,12 @@ class ActivitiesService
                             'company_id' => $company->id,
                             'job_id' => $contract->originalJob->id,
                         ]);
-
-                        Mail::to($company->contact->email)->send(new CompletedFctHoursMail($company->supervisor, $school->corporate_name));
-                        foreach ([$school->contact->email, $company->contact->email] as $recipient) {
-                            Mail::to($recipient)->send(new FctReportMail($docPath['path']));
+                        try {
+                            Mail::to($company->contact->email)->send(new CompletedFctHoursMail($company->supervisor, $school->corporate_name));
+                            foreach ([$school->contact->email, $company->contact->email] as $recipient) {
+                                Mail::to($recipient)->send(new FctReportMail($docPath['path']));
+                            }
+                        } catch (\Throwable $th) {
                         }
                     }
 

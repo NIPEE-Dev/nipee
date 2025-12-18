@@ -272,9 +272,12 @@ class StudentsPreRegistrationController extends Controller
 
             $preRegistration = StudentsPreRegistration::create($studentData);
             $school = School::query()->where('id', $studentData['school_id'])->first();
-            Mail::to($studentData['email'])->send(new PreRegistrationStudentSuccess($studentData['full_name'], $studentData['full_name']));
-            Mail::to('contacto@nipee.org')->send(new PreRegistrationNoticeMail());
-            Mail::to($school->contact->email)->send(new PreRegistrationSchoolNoticeMail());
+            try {
+                Mail::to($studentData['email'])->send(new PreRegistrationStudentSuccess($studentData['full_name'], $studentData['full_name']));
+                Mail::to('contacto@nipee.org')->send(new PreRegistrationNoticeMail());
+                Mail::to($school->contact->email)->send(new PreRegistrationSchoolNoticeMail());
+            } catch (\Throwable $th) {
+            }
 
             return response()->json([
                 'message' => 'Seu pré-registro foi realizado com sucesso!',
