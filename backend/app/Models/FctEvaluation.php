@@ -16,7 +16,8 @@ class FctEvaluation extends Model
         'candidate_id',
         'school_id',
         'company_id',
-        'job_id'
+        'job_id',
+        'evaluation',
     ];
 
     public function company()

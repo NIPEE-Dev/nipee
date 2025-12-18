@@ -69,6 +69,7 @@ class FctEvaluationService
         $objWriter = IOFactory::createWriter($phpWord, 'PDF');
         $objWriter->save($pathPdf);
 
+        $evaluation->evaluation = $data['totalPontuation'];
         $evaluation->file_path = '/generated_documents/' . config('app.system_identifier') . '/' . $randomName . '.pdf';
         $evaluation->status = FctEvaluationStatusEnum::WAITING_UPLOAD->value;
         $evaluation->save();
