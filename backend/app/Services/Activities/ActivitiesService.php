@@ -40,8 +40,8 @@ class ActivitiesService
                         throw new HttpException(400, 'Atividade não encontrada');
                     }
                     $activity->update($data);
-                    $activity->user->candidate->hours_concluded += $activity->estimated_time;
-                    $activity->user->candidate->hours_remaining = ($activity->user->candidate->hours_fct ?? 0) - $activity->user->candidate->hours_concluded;
+                    $activity->user->candidate->hours_completed += $activity->estimated_time;
+                    $activity->user->candidate->hours_remaining = ($activity->user->candidate->hours_fct ?? 0) - $activity->user->candidate->hours_completed;
                     if ($activity->user->candidate->hours_remaining <= 0) {
                         $activity->user->candidate = UserCandidateStatusEnum::CONCLUDED->value;
                     }
