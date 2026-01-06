@@ -39,9 +39,10 @@ import {
   MdAssignment,
   MdFileDownload,
   MdUploadFile,
-  MdPictureAsPdf,
 } from "react-icons/md";
 import useFctEvaluation from "../../hooks/useFctEvaluation";
+
+// ... (Mantenha EVALUATION_FIELDS e EVALUATION_STATUS como estão)
 
 const EVALUATION_FIELDS = [
   { key: "qualityAndOrganization", label: "Qualidade e organização de Trabalho" },
@@ -67,6 +68,8 @@ const EVALUATION_STATUS = {
   WAITING_UPLOAD: 2,
   CONCLUDED: 3
 };
+
+// ... (Mantenha EvaluationFormModal e UploadSignedModal como estão)
 
 const EvaluationFormModal = ({ isOpen, onClose, evaluation, onConfirm, isSubmitting }) => {
   const [scores, setScores] = useState(
@@ -231,20 +234,16 @@ const AvaliacaoFCTEmpresa = () => {
     error 
   } = useFctEvaluation();
 
+  const userProfile = JSON.parse(localStorage.getItem('profile'));
+  const userRole = userProfile?.role || '';
+  const isCandidato = userRole === "Candidato";
+  const isEscola = userRole === "Escola";
+
   const [selectedEvaluation, setSelectedEvaluation] = useState(null);
   const [actionLoading, setActionLoading] = useState(false);
 
-  const { 
-    isOpen: isEvalOpen, 
-    onOpen: onEvalOpen, 
-    onClose: onEvalClose 
-  } = useDisclosure();
-  
-  const { 
-    isOpen: isUploadOpen, 
-    onOpen: onUploadOpen, 
-    onClose: onUploadClose 
-  } = useDisclosure();
+  const { isOpen: isEvalOpen, onOpen: onEvalOpen, onClose: onEvalClose } = useDisclosure();
+  const { isOpen: isUploadOpen, onOpen: onUploadOpen, onClose: onUploadClose } = useDisclosure();
 
   const toast = useToast();
 
@@ -261,23 +260,11 @@ const AvaliacaoFCTEmpresa = () => {
     setActionLoading(true);
     try {
         await submitEvaluationData(id, data);
-        toast({
-            title: "Documento Gerado",
-            description: "A avaliação foi salva e o documento gerado.",
-            status: "success",
-            duration: 5000,
-            isClosable: true,
-        });
+        toast({ title: "Documento Gerado", status: "success" });
         onEvalClose();
         fetchEvaluations();
     } catch (err) {
-        toast({
-            title: "Erro",
-            description: "Não foi possível gerar a avaliação. Verifique se todos os campos estão preenchidos.",
-            status: "error",
-            duration: 5000,
-            isClosable: true,
-        });
+        toast({ title: "Erro", status: "error" });
     } finally {
         setActionLoading(false);
     }
@@ -288,11 +275,8 @@ const AvaliacaoFCTEmpresa = () => {
          toast({ status: 'warning', title: 'Arquivo indisponível' });
          return;
      }
-     
      const baseURL = import.meta.env.VITE_API_URL || 'http://localhost:8000'; 
-     const fileUrl = `${baseURL}/storage${evaluation.file_path}`;
-     
-     window.open(fileUrl, '_blank');
+     window.open(`${baseURL}/storage${evaluation.file_path}`, '_blank');
   };
 
   const handleOpenUpload = (evaluation) => {
@@ -302,25 +286,14 @@ const AvaliacaoFCTEmpresa = () => {
 
   const handleConfirmUpload = async (file) => {
     if (!selectedEvaluation) return;
-    
     setActionLoading(true);
     try {
         await uploadEvaluation(selectedEvaluation.id, file);
-        toast({
-            title: "Sucesso!",
-            description: "Avaliação assinada anexada com sucesso.",
-            status: "success",
-            duration: 4000,
-        });
+        toast({ title: "Sucesso!", status: "success" });
         onUploadClose();
         fetchEvaluations(); 
     } catch (err) {
-        toast({
-            title: "Erro",
-            description: "Falha no upload do arquivo.",
-            status: "error",
-            duration: 4000,
-        });
+        toast({ title: "Erro", status: "error" });
     } finally {
         setActionLoading(false);
     }
@@ -328,37 +301,25 @@ const AvaliacaoFCTEmpresa = () => {
 
   const renderStatus = (status) => {
       switch (status) {
-          case EVALUATION_STATUS.PENDING:
-              return <Tag colorScheme="yellow">Pendente</Tag>;
-          case EVALUATION_STATUS.WAITING_UPLOAD:
-              return <Tag colorScheme="blue">Aguardando Upload</Tag>;
-          case EVALUATION_STATUS.CONCLUDED:
-              return <Tag colorScheme="green">Concluído</Tag>;
-          default:
-              return <Tag colorScheme="gray">Desconhecido</Tag>;
+          case EVALUATION_STATUS.PENDING: return <Tag colorScheme="yellow">Pendente</Tag>;
+          case EVALUATION_STATUS.WAITING_UPLOAD: return <Tag colorScheme="blue">Aguardando Upload</Tag>;
+          case EVALUATION_STATUS.CONCLUDED: return <Tag colorScheme="green">Concluído</Tag>;
+          default: return <Tag colorScheme="gray">Desconhecido</Tag>;
       }
   };
 
   if (loading && evaluations.length === 0) {
       return (
-          <Center p={10}>
-              <Spinner size="xl" color="blue.500" />
-          </Center>
+          <Center p={10}><Spinner size="xl" color="blue.500" /></Center>
       );
   }
 
   return (
     <Box p={5} bg="white" borderRadius="lg" shadow="sm">
       <HStack mb={5} justifyContent="space-between">
-        <Text fontSize="xl" fontWeight="bold">Avaliações de Estágio (FCT)</Text>
+        <Text fontSize="xl" fontWeight="bold">Avaliações de FCT</Text>
         <Button size="sm" onClick={fetchEvaluations} isLoading={loading}>Atualizar Lista</Button>
       </HStack>
-
-      {error && (
-          <Box mb={4} p={3} bg="red.50" color="red.500" borderRadius="md">
-              {error}
-          </Box>
-      )}
 
       <Table variant="simple">
         <Thead bg="gray.50">
@@ -379,13 +340,11 @@ const AvaliacaoFCTEmpresa = () => {
                     <Text fontSize="xs" color="gray.500">{evaluation.role || 'Cargo N/A'}</Text>
                 </VStack>
               </Td>
-              <Td>
-                {renderStatus(evaluation.status)}
-              </Td>
+              <Td>{renderStatus(evaluation.status)}</Td>
               <Td textAlign="right">
                 <HStack justifyContent="flex-end">
                   
-                  {evaluation.status === EVALUATION_STATUS.PENDING && (
+                  {evaluation.status === EVALUATION_STATUS.PENDING && !isCandidato || evaluation.status === EVALUATION_STATUS.PENDING && !isEscola && (
                     <Button 
                       leftIcon={<MdAssignment />} 
                       colorScheme="blue" 
@@ -409,16 +368,18 @@ const AvaliacaoFCTEmpresa = () => {
                         />
                       </Tooltip>
                       
-                      <Tooltip label="Anexar Avaliação Assinada">
-                        <Button
-                          leftIcon={<MdUploadFile />}
-                          colorScheme="orange"
-                          size="sm"
-                          onClick={() => handleOpenUpload(evaluation)}
-                        >
-                          Anexar
-                        </Button>
-                      </Tooltip>
+                      {!isCandidato || !isEscola && (
+                        <Tooltip label="Anexar Avaliação Assinada">
+                          <Button
+                            leftIcon={<MdUploadFile />}
+                            colorScheme="orange"
+                            size="sm"
+                            onClick={() => handleOpenUpload(evaluation)}
+                          >
+                            Anexar
+                          </Button>
+                        </Tooltip>
+                      )}
                     </>
                   )}
 
@@ -439,14 +400,6 @@ const AvaliacaoFCTEmpresa = () => {
               </Td>
             </Tr>
           ))}
-          
-          {!loading && evaluations.length === 0 && (
-              <Tr>
-                  <Td colSpan={4} textAlign="center" py={6} color="gray.500">
-                      Nenhuma avaliação encontrada para sua empresa.
-                  </Td>
-              </Tr>
-          )}
         </Tbody>
       </Table>
 
@@ -459,14 +412,12 @@ const AvaliacaoFCTEmpresa = () => {
             isSubmitting={actionLoading}
         />
       )}
-
       <UploadSignedModal 
         isOpen={isUploadOpen}
         onClose={onUploadClose}
         onConfirm={handleConfirmUpload}
         isSubmitting={actionLoading}
       />
-
     </Box>
   );
 };

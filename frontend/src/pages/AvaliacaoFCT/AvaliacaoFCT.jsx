@@ -6,13 +6,16 @@ const AvaliacaoFCT = () => {
   const userProfile = JSON.parse(localStorage.getItem('profile'));
   const userRole = userProfile?.role || '';
 
-  if (userRole === "Candidato") {
+/*   if (userRole === "Candidato") {
     return <AvaliacaoFCTAluno />;
   }
 
   if (userRole === "Empresa") {
     return <AvaliacaoFCTEmpresa />;
   }
+ */
+    return <AvaliacaoFCTEmpresa />;
+
 
   if (userRole === "Escola") {
     return <AvaliacaoFCTEscola />;

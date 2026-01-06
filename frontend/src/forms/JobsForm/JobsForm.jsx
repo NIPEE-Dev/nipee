@@ -654,7 +654,7 @@ export const JobsForm = ({ readOnly, typeForm, isLoading, ...props }) => {
 
           {["edit", "view"].includes(typeForm) &&
             props.initialValues?.id &&
-            props.initialValues?.status === 1 && (
+             (
               <GroupContainer
                 title="Candidaturas"
                 subtitle="Todas as candidaturas para esta vaga"
