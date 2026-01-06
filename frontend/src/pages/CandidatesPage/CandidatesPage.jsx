@@ -29,7 +29,7 @@ const CandidatesPage = () => {
       navigate(routes.candidates.self);
     }
     fetchSchools();
-  }, []);
+  }, [isCandidato, navigate, fetchSchools]);
 
   const handleOpenHistory = (student) => {
     setSelectedStudent(student);
@@ -98,10 +98,12 @@ const CandidatesPage = () => {
                 import.meta.env.VITE_BACKEND_BASE_URL_EX
               }/storage/${originalRow.resume}`;
 
-              return (
-                <Link target="_blank" href={filePath}>
-                  Currículo de {originalRow.name}
+              return originalRow.resume ? (
+                <Link target="_blank" href={filePath} color="blue.500">
+                  Ver Currículo
                 </Link>
+              ) : (
+                "Não enviado"
               );
             },
           },
@@ -139,19 +141,14 @@ const CandidatesPage = () => {
             Header: "Período",
             accessor: "period",
             Cell: ({ value }) => {
-              switch (value) {
-                case "M":
-                  return "Manhã";
-                case "T":
-                  return "Tarde";
-                case "N":
-                  return "Noite";
-                case "MN":
-                case "I":
-                  return "Integral";
-                default:
-                  return "Período desconhecido";
-              }
+              const periods = {
+                M: "Manhã",
+                T: "Tarde",
+                N: "Noite",
+                MN: "Integral",
+                I: "Integral",
+              };
+              return periods[value] || "Não definido";
             },
           },
           {
@@ -179,6 +176,7 @@ const CandidatesPage = () => {
         isOpen={isOpen}
         onClose={onClose}
         studentName={selectedStudent?.name}
+        candidateId={selectedStudent?.id} 
       />
     </>
   );
