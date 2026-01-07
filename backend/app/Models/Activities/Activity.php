@@ -22,6 +22,7 @@ class Activity extends Model
         'activity_date',
         'justification',
         'justificated_at',
+        'job_id',
     ];
 
     public function user(): BelongsTo
