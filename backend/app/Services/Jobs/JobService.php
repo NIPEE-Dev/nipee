@@ -175,9 +175,9 @@ class JobService
         }
 
         if (
-            $user->candidate->status === UserCandidateStatusEnum::CONCLUDED ||
-            $user->candidate->status === UserCandidateStatusEnum::IN_FCT ||
-            $user->candidate->contracts->where('status', ActiveEnum::ACTIVE)->first() !== null
+            $user->candidate->status === UserCandidateStatusEnum::CONCLUDED->value ||
+            $user->candidate->status === UserCandidateStatusEnum::IN_FCT->value ||
+            $user->candidate->contracts->where('status', ActiveEnum::ACTIVE->value)->first() !== null
         ) throw new HttpException(400, 'Você não pode se candidatar a outras vagas');
 
         $alreadyApplied = $job->candidates->where('id', $user->candidate->id)->first();
