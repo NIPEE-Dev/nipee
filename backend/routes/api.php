@@ -137,3 +137,4 @@ Route::post('/documents/{document}/restart', [DocumentsController::class, 'resta
 Route::get('/fct-evaluations', [FctEvaluationController::class, 'index']);
 Route::post('/fct-evaluations/{id}', [FctEvaluationController::class, 'store']);
 Route::post('/fct-evaluations/{id}/upload', [FctEvaluationController::class, 'upload']);
+Route::get('/storage/generated_documents/guarulhos/{file}', [DocumentsController::class, 'downloadFile']);

@@ -11,9 +11,11 @@ use App\Http\Requests\UploadSignedContractRequest;
 use App\Http\Resources\DocumentsResource;
 use App\Models\Document;
 use App\Services\Documents\DocumentsService;
+use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
 
 class DocumentsController extends Controller
@@ -86,5 +88,16 @@ class DocumentsController extends Controller
         $document->attachable->save();
 
         return $document;
+    }
+
+    public function downloadFile($file)
+    {
+        $paste = "generated_documents/" . config('app.system_identifier') . "/$file";
+        $path = storage_path("app/$paste");
+        if (!File::exists($path)) {
+            throw new FileNotFoundException("Arquivo não encontrado");
+        }
+
+        return response()->download($path);
     }
 }
