@@ -68,7 +68,7 @@ const HistoryModal = ({ isOpen, onClose, studentName, candidateId }) => {
                         <HStack spacing={3}>
                           {item.fctReportPath && (
                             <Link 
-                              href={`${baseURL}/storage/${item.fctReportPath}`} 
+                              href={`${baseURL}/storage${item.fctReportPath}`} 
                               color="#5C3BEB" 
                               fontSize="xs" 
                               isExternal
@@ -78,7 +78,7 @@ const HistoryModal = ({ isOpen, onClose, studentName, candidateId }) => {
                           )}
                           {item.fctEvaluationPath && (
                             <Link 
-                              href={`${baseURL}/storage/${item.fctEvaluationPath}`} 
+                              href={`${baseURL}/storage${item.fctEvaluationPath}`} 
                               color="#5C3BEB" 
                               fontSize="xs" 
                               isExternal

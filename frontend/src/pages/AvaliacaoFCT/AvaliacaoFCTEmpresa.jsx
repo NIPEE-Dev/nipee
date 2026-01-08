@@ -41,8 +41,7 @@ import {
   MdUploadFile,
 } from "react-icons/md";
 import useFctEvaluation from "../../hooks/useFctEvaluation";
-
-// ... (Mantenha EVALUATION_FIELDS e EVALUATION_STATUS como estão)
+import apiex from "../../apiex";
 
 const EVALUATION_FIELDS = [
   { key: "qualityAndOrganization", label: "Qualidade e organização de Trabalho" },
@@ -68,8 +67,6 @@ const EVALUATION_STATUS = {
   WAITING_UPLOAD: 2,
   CONCLUDED: 3
 };
-
-// ... (Mantenha EvaluationFormModal e UploadSignedModal como estão)
 
 const EvaluationFormModal = ({ isOpen, onClose, evaluation, onConfirm, isSubmitting }) => {
   const [scores, setScores] = useState(
@@ -238,6 +235,7 @@ const AvaliacaoFCTEmpresa = () => {
   const userRole = userProfile?.role || '';
   const isCandidato = userRole === "Candidato";
   const isEscola = userRole === "Escola";
+  const isEmpresa = userRole === "Empresa";
 
   const [selectedEvaluation, setSelectedEvaluation] = useState(null);
   const [actionLoading, setActionLoading] = useState(false);
@@ -271,12 +269,14 @@ const AvaliacaoFCTEmpresa = () => {
   };
 
   const handleDownloadPDF = (evaluation) => {
-     if (!evaluation.file_path) {
-         toast({ status: 'warning', title: 'Arquivo indisponível' });
-         return;
-     }
-     const baseURL = import.meta.env.VITE_API_URL || 'http://localhost:8000'; 
-     window.open(`${baseURL}/storage${evaluation.file_path}`, '_blank');
+    if (!evaluation.file_path) {
+      toast({ status: 'warning', title: 'Arquivo indisponível' });
+      return;
+    }
+
+    const fileUrl = `${import.meta.env.VITE_BACKEND_BASE_URL}/storage${evaluation.file_path}`;
+
+    window.open(fileUrl, '_blank');
   };
 
   const handleOpenUpload = (evaluation) => {
@@ -344,7 +344,7 @@ const AvaliacaoFCTEmpresa = () => {
               <Td textAlign="right">
                 <HStack justifyContent="flex-end">
                   
-                  {evaluation.status === EVALUATION_STATUS.PENDING && !isCandidato || evaluation.status === EVALUATION_STATUS.PENDING && !isEscola && (
+                  {evaluation.status === EVALUATION_STATUS.PENDING && isEmpresa && (
                     <Button 
                       leftIcon={<MdAssignment />} 
                       colorScheme="blue" 
@@ -368,7 +368,7 @@ const AvaliacaoFCTEmpresa = () => {
                         />
                       </Tooltip>
                       
-                      {!isCandidato || !isEscola && (
+                      {!isCandidato && (
                         <Tooltip label="Anexar Avaliação Assinada">
                           <Button
                             leftIcon={<MdUploadFile />}
