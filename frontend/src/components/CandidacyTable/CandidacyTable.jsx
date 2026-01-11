@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import {
   Button,
   Table,
@@ -24,63 +24,70 @@ import {
   Input,
   RadioGroup,
   Stack,
-  Radio
-} from '@chakra-ui/react';
-import { FaFilePdf } from 'react-icons/fa';
-import { getDistrictName } from '../../utils/district';
-import { useNavigate } from 'react-router-dom';
-import { CandidateJobStatusNew } from '../../utils/constants';
+  Radio,
+} from "@chakra-ui/react";
+import { FaFilePdf } from "react-icons/fa";
+import { getDistrictName } from "../../utils/district";
+import { useNavigate } from "react-router-dom";
+import { CandidateJobStatusNew } from "../../utils/constants";
 import { useJobs } from "./../../hooks/useJobs";
 
 const JobCandidateStatusEnum = {
-  PENDING: '1',
-  APPROVED: '2',
-  DENIED: '3',
-  WAITING_RESPONSE: '4',
-  INTERVIEWING: '5',
-  INTERVIEW_REJECT_BY_USER: '6',
-  TESTING: '7',
+  PENDING: "1",
+  APPROVED: "2",
+  DENIED: "3",
+  WAITING_RESPONSE: "4",
+  INTERVIEWING: "5",
+  INTERVIEW_REJECT_BY_USER: "6",
+  TESTING: "7",
 };
 
-
 const statusColorMap = {
-  1: 'yellow', // PENDING
-  4: 'purple', // WAITING_RESPONSE
-  5: 'blue',   // INTERVIEWING
-  7: 'orange', // TESTING
-  2: 'green',  // APPROVED
-  3: 'red',    // DENIED
-  6: 'red',    // INTERVIEW_REJECT_BY_USER
+  1: "yellow", // PENDING
+  4: "purple", // WAITING_RESPONSE
+  5: "blue", // INTERVIEWING
+  7: "orange", // TESTING
+  2: "green", // APPROVED
+  3: "red", // DENIED
+  6: "red", // INTERVIEW_REJECT_BY_USER
 };
 
 const getStatusLabel = (status) => {
   const labels = {
-    '1': 'Pendente',
-    '2': 'Aprovado',
-    '3': 'Reprovado',
-    '4': 'Esperando resposta',
-    '5': 'Em entrevista',
-    '6': 'Entrevista rejeitada',
-    '7': 'Em teste',
+    1: "Pendente",
+    2: "Aprovado",
+    3: "Reprovado",
+    4: "Esperando resposta",
+    5: "Em entrevista",
+    6: "Entrevista rejeitada",
+    7: "Em teste",
   };
-  return labels[status] || 'Desconhecido';
+  return labels[status] || "Desconhecido";
 };
 
 const CandidacyTable = ({ candidates, jobId }) => {
+  console.log(candidates);
   const toast = useToast();
   const navigate = useNavigate();
-  const { createInvite, updateJobInterviewEvaluation, updateJobInterviewTesting, loading, errorMessage, successMessage, clearMessages } = useJobs();
+  const {
+    createInvite,
+    updateJobInterviewEvaluation,
+    updateJobInterviewTesting,
+    loading,
+    errorMessage,
+    successMessage,
+    clearMessages,
+  } = useJobs();
 
   const [currentPage, setCurrentPage] = useState(1);
   const candidatesPerPage = 10;
   const [selectedCandidate, setSelectedCandidate] = useState(null);
   const [visibleCandidates, setVisibleCandidates] = useState(candidates || []);
-  const [modalType, setModalType] = useState('');
-  const [message, setMessage] = useState('');
-  const [schedules, setSchedules] = useState([{ date: '', time: '' }]);
-  const [selectedSchedule, setSelectedSchedule] = useState('');
-  const [evaluation, setEvaluation] = useState('');
-
+  const [modalType, setModalType] = useState("");
+  const [message, setMessage] = useState("");
+  const [schedules, setSchedules] = useState([{ date: "", time: "" }]);
+  const [selectedSchedule, setSelectedSchedule] = useState("");
+  const [evaluation, setEvaluation] = useState("");
 
   useEffect(() => {
     setVisibleCandidates(candidates || []);
@@ -114,33 +121,39 @@ const CandidacyTable = ({ candidates, jobId }) => {
 
   const indexOfLastCandidate = currentPage * candidatesPerPage;
   const indexOfFirstCandidate = indexOfLastCandidate - candidatesPerPage;
-  const currentCandidates = candidates ? candidates.slice(indexOfFirstCandidate, indexOfLastCandidate) : [];
+  const currentCandidates = candidates
+    ? candidates.slice(indexOfFirstCandidate, indexOfLastCandidate)
+    : [];
 
   const pageNumbers = [];
   if (candidates) {
-    for (let i = 1; i <= Math.ceil(candidates.length / candidatesPerPage); i++) {
+    for (
+      let i = 1;
+      i <= Math.ceil(candidates.length / candidatesPerPage);
+      i++
+    ) {
       pageNumbers.push(i);
     }
   }
 
   const handleViewProfile = (id) => navigate(`/candidates/view/${id}`);
 
-
   const openModal = (candidate, type) => {
     setSelectedCandidate(candidate);
     setModalType(type);
-    setSelectedSchedule(candidate.confirmedSchedule || '');
-    setEvaluation('');
-    setMessage('');
-    setSchedules([{ date: '', time: '' }]);
+    setSelectedSchedule(candidate.confirmedSchedule || "");
+    setEvaluation("");
+    setMessage("");
+    setSchedules([{ date: "", time: "" }]);
   };
 
   const closeModal = () => {
     setSelectedCandidate(null);
-    setModalType('');
+    setModalType("");
   };
 
-  const handleAddSchedule = () => setSchedules([...schedules, { date: '', time: '' }]);
+  const handleAddSchedule = () =>
+    setSchedules([...schedules, { date: "", time: "" }]);
   const handleChangeSchedule = (index, field, value) => {
     const updated = [...schedules];
     updated[index][field] = value;
@@ -149,45 +162,70 @@ const CandidacyTable = ({ candidates, jobId }) => {
 
   const handleSendInvite = async () => {
     if (!message.trim()) {
-      toast({ title: 'Escreva uma mensagem para o candidato.', status: 'error', duration: 2000 });
+      toast({
+        title: "Escreva uma mensagem para o candidato.",
+        status: "error",
+        duration: 2000,
+      });
       return;
     }
     const hasValidSchedule = schedules.some((s) => s.date && s.time);
     if (!hasValidSchedule) {
-      toast({ title: 'Adicione pelo menos um horário válido.', status: 'error', duration: 2000 });
+      toast({
+        title: "Adicione pelo menos um horário válido.",
+        status: "error",
+        duration: 2000,
+      });
       return;
     }
 
     const invitePayload = {
       candidateId: selectedCandidate.id,
       message: message,
-      schedules: schedules.filter(s => s.date && s.time),
+      schedules: schedules.filter((s) => s.date && s.time),
     };
 
-  try {
-        await createInvite(jobId, invitePayload);
-        const formattedSchedules = schedules.filter(s => s.date && s.time).map(s => ({
-            date: s.date,
-            time: s.time,
+    try {
+      await createInvite(jobId, invitePayload);
+      const formattedSchedules = schedules
+        .filter((s) => s.date && s.time)
+        .map((s) => ({
+          date: s.date,
+          time: s.time,
         }));
-        
-        updateLocalState(JobCandidateStatusEnum.WAITING_RESPONSE, null, formattedSchedules);
-        window.location.reload(); 
-        
-        closeModal();
+
+      updateLocalState(
+        JobCandidateStatusEnum.WAITING_RESPONSE,
+        null,
+        formattedSchedules
+      );
+      window.location.reload();
+
+      closeModal();
     } catch (error) {
-        console.error("Erro ao enviar convite: ", error);
+      console.error("Erro ao enviar convite: ", error);
     }
   };
 
   const handleEvaluation = async (approved, actionType) => {
-    if (actionType === 'reject' && !evaluation.trim()) {
-      toast({ title: 'Preencha o motivo da reprovação.', status: 'error', duration: 2000 });
+    if (actionType === "reject" && !evaluation.trim()) {
+      toast({
+        title: "Preencha o motivo da reprovação.",
+        status: "error",
+        duration: 2000,
+      });
       return;
     }
 
-    if ((modalType === 'INTERVIEW' || modalType === 'TEST') && !evaluation.trim()) {
-      toast({ title: 'Preencha a avaliação antes de continuar.', status: 'error', duration: 2000 });
+    if (
+      (modalType === "INTERVIEW" || modalType === "TEST") &&
+      !evaluation.trim()
+    ) {
+      toast({
+        title: "Preencha a avaliação antes de continuar.",
+        status: "error",
+        duration: 2000,
+      });
       return;
     }
 
@@ -196,40 +234,63 @@ const CandidacyTable = ({ candidates, jobId }) => {
     let apiCall;
     let candidateIdToUpdate = selectedCandidate.id;
 
-    if (modalType === 'REJECT' || actionType === 'reject') {
+    if (modalType === "REJECT" || actionType === "reject") {
       evaluationPayload = {
         interviewEvaluation: evaluation,
         approved: false,
       };
       newStatus = JobCandidateStatusEnum.DENIED;
-      apiCall = () => updateJobInterviewEvaluation(jobId, candidateIdToUpdate, evaluationPayload);
-    } else if (modalType === 'INTERVIEW') {
+      apiCall = () =>
+        updateJobInterviewEvaluation(
+          jobId,
+          candidateIdToUpdate,
+          evaluationPayload
+        );
+    } else if (modalType === "INTERVIEW") {
       evaluationPayload = {
         interviewEvaluation: evaluation,
         approved: approved,
       };
-      newStatus = approved ? JobCandidateStatusEnum.TESTING : JobCandidateStatusEnum.DENIED;
-      apiCall = () => updateJobInterviewEvaluation(jobId, candidateIdToUpdate, evaluationPayload);
-    } else if (modalType === 'TEST') {
+      newStatus = approved
+        ? JobCandidateStatusEnum.TESTING
+        : JobCandidateStatusEnum.DENIED;
+      apiCall = () =>
+        updateJobInterviewEvaluation(
+          jobId,
+          candidateIdToUpdate,
+          evaluationPayload
+        );
+    } else if (modalType === "TEST") {
       evaluationPayload = {
         testingEvaluation: evaluation,
         approved: approved,
       };
-      newStatus = approved ? JobCandidateStatusEnum.APPROVED : JobCandidateStatusEnum.DENIED;
-      apiCall = () => updateJobInterviewTesting(jobId, candidateIdToUpdate, evaluationPayload);
+      newStatus = approved
+        ? JobCandidateStatusEnum.APPROVED
+        : JobCandidateStatusEnum.DENIED;
+      apiCall = () =>
+        updateJobInterviewTesting(
+          jobId,
+          candidateIdToUpdate,
+          evaluationPayload
+        );
     }
 
     try {
       await apiCall();
       updateLocalState(newStatus, evaluation);
       closeModal();
-      window.location.reload(); 
+      window.location.reload();
     } catch (error) {
       console.error(`Erro ao atualizar avaliação: `, error);
     }
   };
 
-  const updateLocalState = (newStatus, evaluation = null, newSchedule = null) => {
+  const updateLocalState = (
+    newStatus,
+    evaluation = null,
+    newSchedule = null
+  ) => {
     setVisibleCandidates((prev) =>
       prev.map((c) => {
         if (c.id === selectedCandidate.id) {
@@ -256,16 +317,16 @@ const CandidacyTable = ({ candidates, jobId }) => {
 
   const handleGenerateProtocol = (candidate) => {
     const companyId = candidate.job?.company_id || candidate.job?.company?.id;
-
-    navigate('/contracts/add', {
+    console.log(candidate);
+    navigate("/contracts/add", {
       state: {
         preFill: {
           candidate: candidate,
           jobId: jobId,
           schoolId: candidate.schoolId,
-          companyId: companyId
-        }
-      }
+          companyId: companyId,
+        },
+      },
     });
   };
 
@@ -294,7 +355,9 @@ const CandidacyTable = ({ candidates, jobId }) => {
                 <Td>
                   {c.resume ? (
                     <Link
-                      href={`${import.meta.env.VITE_BACKEND_BASE_URL_EX}/storage/${c.resume}`}
+                      href={`${
+                        import.meta.env.VITE_BACKEND_BASE_URL_EX
+                      }/storage/${c.resume}`}
                       isExternal
                       color="purple.500"
                     >
@@ -304,18 +367,27 @@ const CandidacyTable = ({ candidates, jobId }) => {
                     <Text>Sem currículo</Text>
                   )}
                 </Td>
-                <Td>{c.gender === 'F' ? 'Feminino' : c.gender === 'M' ? 'Masculino' : 'N/A'}</Td>
-                <Td>{c.course?.title || 'N/A'}</Td>
-                <Td>{getDistrictName(c.location) || 'N/A'}</Td>
-                <Td>{c.council || 'N/A'}</Td>
-                <Td>{c.phone || 'N/A'}</Td>
+                <Td>
+                  {c.gender === "F"
+                    ? "Feminino"
+                    : c.gender === "M"
+                    ? "Masculino"
+                    : "N/A"}
+                </Td>
+                <Td>{c.course?.title || "N/A"}</Td>
+                <Td>{getDistrictName(c.location) || "N/A"}</Td>
+                <Td>{c.council || "N/A"}</Td>
+                <Td>{c.phone || "N/A"}</Td>
                 <Td>
                   {c.interviewSchedules && c.interviewSchedules.length > 0 ? (
                     <Text>
-                      {c.interviewSchedules[0].date} às {c.interviewSchedules[0].time}
+                      {c.interviewSchedules[0].date} às{" "}
+                      {c.interviewSchedules[0].time}
                     </Text>
                   ) : (
-                    <Text color="gray.500" fontSize="sm">Ainda não agendada</Text>
+                    <Text color="gray.500" fontSize="sm">
+                      Ainda não agendada
+                    </Text>
                   )}
                 </Td>
                 <Td>
@@ -325,33 +397,63 @@ const CandidacyTable = ({ candidates, jobId }) => {
                     py={1}
                     borderRadius="full"
                   >
-                    {getStatusLabel(c.status) || 'Desconhecido'}
+                    {getStatusLabel(c.status) || "Desconhecido"}
                   </Badge>
                 </Td>
                 <Td>
                   <Flex gap={2}>
-                    <Button size="xs" colorScheme="blue" onClick={() => handleViewProfile(c.id)}>Ver Perfil</Button>
+                    <Button
+                      size="xs"
+                      colorScheme="blue"
+                      onClick={() => handleViewProfile(c.id)}
+                    >
+                      Ver Perfil
+                    </Button>
                     {c.status == 1 && (
                       <>
-                        <Button size="xs" colorScheme="purple" onClick={() => openModal(c, 'INVITE')}>Marcar Entrevista</Button>
-                        <Button size="xs" colorScheme="red" onClick={() => openModal(c, 'REJECT')}>Reprovar</Button>
+                        <Button
+                          size="xs"
+                          colorScheme="purple"
+                          onClick={() => openModal(c, "INVITE")}
+                        >
+                          Marcar Entrevista
+                        </Button>
+                        <Button
+                          size="xs"
+                          colorScheme="red"
+                          onClick={() => openModal(c, "REJECT")}
+                        >
+                          Reprovar
+                        </Button>
                       </>
                     )}
                     {c.status == 5 && (
-                      <Button size="xs" colorScheme="orange" onClick={() => openModal(c, 'INTERVIEW')}>Avaliar Entrevista</Button>
+                      <Button
+                        size="xs"
+                        colorScheme="orange"
+                        onClick={() => openModal(c, "INTERVIEW")}
+                      >
+                        Avaliar Entrevista
+                      </Button>
                     )}
                     {c.status == 7 && (
-                      <Button size="xs" colorScheme="teal" onClick={() => openModal(c, 'TEST')}>Avaliar Teste</Button>
+                      <Button
+                        size="xs"
+                        colorScheme="teal"
+                        onClick={() => openModal(c, "TEST")}
+                      >
+                        Avaliar Teste
+                      </Button>
                     )}
                     {c.status == 2 && (
-                       <Button 
-                         size="xs" 
-                         colorScheme="green" 
-                         leftIcon={<FaFilePdf />}
-                         onClick={() => handleGenerateProtocol(c)}
-                       >
-                         Gerar Protocolo
-                       </Button>
+                      <Button
+                        size="xs"
+                        colorScheme="green"
+                        leftIcon={<FaFilePdf />}
+                        onClick={() => handleGenerateProtocol(c)}
+                      >
+                        Gerar Protocolo
+                      </Button>
                     )}
                   </Flex>
                 </Td>
@@ -365,25 +467,34 @@ const CandidacyTable = ({ candidates, jobId }) => {
         <Flex justifyContent="center" mt={4} mb={4} gap={2}>
           <Button
             size="sm"
-            onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+            onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
             isDisabled={currentPage === 1}
           >
             Anterior
           </Button>
-          {pageNumbers.map(number => (
+          {pageNumbers.map((number) => (
             <Button
               key={number}
               size="sm"
               onClick={() => setCurrentPage(number)}
-              colorScheme={currentPage === number ? 'blue' : 'gray'}
+              colorScheme={currentPage === number ? "blue" : "gray"}
             >
               {number}
             </Button>
           ))}
           <Button
             size="sm"
-            onClick={() => setCurrentPage(prev => Math.min(Math.ceil(candidates.length / candidatesPerPage), prev + 1))}
-            isDisabled={currentPage === Math.ceil(candidates.length / candidatesPerPage)}
+            onClick={() =>
+              setCurrentPage((prev) =>
+                Math.min(
+                  Math.ceil(candidates.length / candidatesPerPage),
+                  prev + 1
+                )
+              )
+            }
+            isDisabled={
+              currentPage === Math.ceil(candidates.length / candidatesPerPage)
+            }
           >
             Próxima
           </Button>
@@ -394,14 +505,14 @@ const CandidacyTable = ({ candidates, jobId }) => {
         <ModalOverlay />
         <ModalContent>
           <ModalHeader>
-            {modalType === 'INVITE' && 'Enviar Convite'}
-            {modalType === 'INTERVIEW' && 'Avaliação da Entrevista'}
-            {modalType === 'TEST' && 'Avaliação do Teste'}
-            {modalType === 'REJECT' && 'Reprovar Candidato'}
+            {modalType === "INVITE" && "Enviar Convite"}
+            {modalType === "INTERVIEW" && "Avaliação da Entrevista"}
+            {modalType === "TEST" && "Avaliação do Teste"}
+            {modalType === "REJECT" && "Reprovar Candidato"}
           </ModalHeader>
           <ModalCloseButton />
           <ModalBody>
-            {modalType === 'INVITE' && (
+            {modalType === "INVITE" && (
               <>
                 <Textarea
                   placeholder="Mensagem para o candidato..."
@@ -411,15 +522,33 @@ const CandidacyTable = ({ candidates, jobId }) => {
                 />
                 {schedules.map((s, i) => (
                   <Flex key={i} gap={2} mb={2}>
-                    <Input type="date" value={s.date} onChange={(e) => handleChangeSchedule(i, 'date', e.target.value)} />
-                    <Input type="time" value={s.time} onChange={(e) => handleChangeSchedule(i, 'time', e.target.value)} />
+                    <Input
+                      type="date"
+                      value={s.date}
+                      onChange={(e) =>
+                        handleChangeSchedule(i, "date", e.target.value)
+                      }
+                    />
+                    <Input
+                      type="time"
+                      value={s.time}
+                      onChange={(e) =>
+                        handleChangeSchedule(i, "time", e.target.value)
+                      }
+                    />
                   </Flex>
                 ))}
-                <Button size="sm" colorScheme="teal" onClick={handleAddSchedule}>+ Adicionar horário</Button>
+                <Button
+                  size="sm"
+                  colorScheme="teal"
+                  onClick={handleAddSchedule}
+                >
+                  + Adicionar horário
+                </Button>
               </>
             )}
 
-            {(modalType === 'INTERVIEW' || modalType === 'TEST') && (
+            {(modalType === "INTERVIEW" || modalType === "TEST") && (
               <>
                 <Textarea
                   placeholder="Avaliação"
@@ -429,7 +558,7 @@ const CandidacyTable = ({ candidates, jobId }) => {
                 />
               </>
             )}
-            {modalType === 'REJECT' && (
+            {modalType === "REJECT" && (
               <>
                 <Text mb={2}>Por favor, insira o motivo da reprovação:</Text>
                 <Textarea
@@ -441,21 +570,45 @@ const CandidacyTable = ({ candidates, jobId }) => {
             )}
           </ModalBody>
           <ModalFooter>
-            {modalType === 'INVITE' && (
-              <Button colorScheme="purple" onClick={handleSendInvite} isLoading={loading} loadingText="Enviando...">Enviar</Button>
+            {modalType === "INVITE" && (
+              <Button
+                colorScheme="purple"
+                onClick={handleSendInvite}
+                isLoading={loading}
+                loadingText="Enviando..."
+              >
+                Enviar
+              </Button>
             )}
-            {(modalType === 'INTERVIEW' || modalType === 'TEST') && (
+            {(modalType === "INTERVIEW" || modalType === "TEST") && (
               <>
-                <Button colorScheme="green" mr={3} onClick={() => handleEvaluation(true)}>Aprovar</Button>
-                <Button colorScheme="red" onClick={() => handleEvaluation(false)}>Reprovar</Button>
+                <Button
+                  colorScheme="green"
+                  mr={3}
+                  onClick={() => handleEvaluation(true)}
+                >
+                  Aprovar
+                </Button>
+                <Button
+                  colorScheme="red"
+                  onClick={() => handleEvaluation(false)}
+                >
+                  Reprovar
+                </Button>
               </>
             )}
-            {modalType === 'REJECT' && (
-              <Button colorScheme="red" onClick={() => handleEvaluation(false, 'reject')} isLoading={loading}>
+            {modalType === "REJECT" && (
+              <Button
+                colorScheme="red"
+                onClick={() => handleEvaluation(false, "reject")}
+                isLoading={loading}
+              >
                 Confirmar Reprovação
               </Button>
             )}
-            <Button variant="ghost" onClick={closeModal}>Cancelar</Button>
+            <Button variant="ghost" onClick={closeModal}>
+              Cancelar
+            </Button>
           </ModalFooter>
         </ModalContent>
       </Modal>
