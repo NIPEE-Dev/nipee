@@ -120,7 +120,7 @@ export const JobsForm = ({ readOnly, typeForm, isLoading, ...props }) => {
         ...props.initialValues,
         has_scholarship: props.initialValues?.has_scholarship ?? "1",
       }}
-      onSubmit={(values, { setSubmitting }) => {
+      onSubmit={async (values) => {
         const finalValues = { ...values, status: submissionStatus };
         // if (finalValues.start_at && finalValues.end_at) {
         //   if (
@@ -139,9 +139,9 @@ export const JobsForm = ({ readOnly, typeForm, isLoading, ...props }) => {
         //     setSubmitting(false);
         //     return;
         //   }
-        // } 
+        // }
 
-        props.onSubmit(finalValues);
+        await props.onSubmit(finalValues);
       }}
     >
       {({ values, isSubmitting, setFieldValue }) => (
@@ -652,21 +652,19 @@ export const JobsForm = ({ readOnly, typeForm, isLoading, ...props }) => {
               </GroupContainer>
             )}
 
-          {["edit", "view"].includes(typeForm) &&
-            props.initialValues?.id &&
-             (
-              <GroupContainer
-                title="Candidaturas"
-                subtitle="Todas as candidaturas para esta vaga"
-              >
-                <CandidacyTable
-                  typeForm={typeForm}
-                  readOnly={readOnly}
-                  jobId={props.initialValues.id}
-                  candidates={props.initialValues.candidates}
-                />
-              </GroupContainer>
-            )}
+          {["edit", "view"].includes(typeForm) && props.initialValues?.id && (
+            <GroupContainer
+              title="Candidaturas"
+              subtitle="Todas as candidaturas para esta vaga"
+            >
+              <CandidacyTable
+                typeForm={typeForm}
+                readOnly={readOnly}
+                jobId={props.initialValues.id}
+                candidates={props.initialValues.candidates}
+              />
+            </GroupContainer>
+          )}
 
           {["edit", "view"].includes(typeForm) &&
             props.initialValues?.id &&
