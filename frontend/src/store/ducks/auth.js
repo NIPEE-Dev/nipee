@@ -173,7 +173,7 @@ export const resetSilently = (message) => ({
   }
 });
 
-export const handleLogin = (email, password) => (dispatch, getState) => {
+export const handleLogin = (email, password, redirectPathFromUrl) => (dispatch, getState) => {
   dispatch(resetSilently());
 
   return dispatch({
@@ -188,7 +188,9 @@ export const handleLogin = (email, password) => (dispatch, getState) => {
     else if (userRole === "Candidato") redirectPath = `/candidates/view/${userProfile.candidate_id}`;
     else if (userRole === "Escola") redirectPath = '/dashboard-schools';
 
-    history.push(redirectPath);
+    const finalPath = redirectPathFromUrl || redirectPath;
+
+    history.push(finalPath);
     
     window.location.reload();
   });

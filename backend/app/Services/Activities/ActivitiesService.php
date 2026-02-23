@@ -43,7 +43,7 @@ class ActivitiesService
                     $activity->user->candidate->hours_completed += $activity->estimated_time;
                     $activity->user->candidate->hours_remaining = ($activity->user->candidate->hours_fct ?? 0) - $activity->user->candidate->hours_completed;
                     if ($activity->user->candidate->hours_remaining <= 0) {
-                        $activity->user->candidate = UserCandidateStatusEnum::CONCLUDED->value;
+                        $activity->user->candidate->status = UserCandidateStatusEnum::CONCLUDED->value;
                     }
                     $activity->user->candidate->save();
                     $availableTotalHours = $activity->user->candidate->contracts->where('status', ActiveEnum::ACTIVE)->first()->originalJob?->fct_hours ?? 0;

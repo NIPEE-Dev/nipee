@@ -408,7 +408,7 @@ export const CandidatesForm = ({ readOnly, isLoading, typeForm, ...props }) => {
                   <FastField
                     id="hours_completed"
                     name="hours_completed"
-                    placeholder="Horas concluídas"
+                    placeholder="Horas concluídas (Auto-Preencimento)"
                     component={FormField}
                     readOnly
                   />
@@ -417,7 +417,7 @@ export const CandidatesForm = ({ readOnly, isLoading, typeForm, ...props }) => {
                   <FastField
                     id="hours_remaining"
                     name="hours_remaining"
-                    placeholder="Horas restantes"
+                    placeholder="Horas restantes (Auto-Preencimento)"
                     component={FormField}
                     readOnly
                   />

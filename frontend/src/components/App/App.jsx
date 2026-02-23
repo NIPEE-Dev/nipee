@@ -31,6 +31,8 @@ import ActivityReport from '../../pages/ActivityReport/ActivityReport.jsx';
 import ReportsFCT from '../../pages/ReportsFCT/ReportsFCT.jsx';
 import AvaliacaoFCT from '../../pages/AvaliacaoFCT/AvaliacaoFCT.jsx';
 import JobDetails from '../../pages/JobsPage/JobDetails.jsx';
+import TermosUtilizacao from '../../pages/Termos/TermosUtilizacao.jsx';
+import PoliticaPrivacidade from '../../pages/Termos/PoliticaPrivacidade.jsx';
 function App() {
   return (
     <Routes>
@@ -38,6 +40,8 @@ function App() {
       <Route path="/vagas-em-aberto" element={<VagasEmAberto />} />
       <Route path="/escolas-registadas" element={<EscolasRegistadas />} />
       <Route path="/termos-condicoes-uso" element={<Termos />} />
+      <Route path="/termos-condicoes-utilizacao" element={<TermosUtilizacao />} />
+      <Route path="/politica-de-privacidade" element={<PoliticaPrivacidade />} />
       <Route path={routes.auth.login} element={<Login />} />
       <Route path={routes.resetPassword} element={<ResetPassword />} />
       <Route path={routes.recuperaSenha} element={<ResetPassword2 />} />

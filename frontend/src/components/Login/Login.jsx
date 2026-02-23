@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Box,
   Flex,
@@ -22,7 +22,7 @@ import {
 } from '@chakra-ui/react';
 import { RiEyeLine, RiEyeOffLine } from "react-icons/ri";
 import { connect } from 'react-redux';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { handleLogin, isLoading, authError } from '../../store/ducks/auth';
 import logo from '/src/images/logo.png';
 import ReCAPTCHA from "react-google-recaptcha";
@@ -46,12 +46,15 @@ const avatars = [
   },
 ];
 
-const Login = ({ isLoading, handleLogin, authError }) => {
+const Login = ({ isLoading, handleLogin, authError, isAuthenticated }) => {
   const [recaptchaToken, setRecaptchaToken] = useState(null);
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const location = useLocation();
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
+  const params = new URLSearchParams(location.search);
+  const redirectTo = params.get('redirect');
 
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
@@ -61,9 +64,9 @@ const Login = ({ isLoading, handleLogin, authError }) => {
     setRecaptchaToken(token);
   };  
 
-  const handleKeyDown = (event) => {
-    if (event.key === 'Enter' && recaptchaToken) {
-      handleLogin(username, password);
+const handleKeyDown = (event) => {
+    if (event.key === 'Enter' && recaptchaToken && username && password) {
+      handleLogin(username, password, redirectTo);
     }
   };
   
@@ -242,7 +245,7 @@ const Login = ({ isLoading, handleLogin, authError }) => {
               _hover={{ bgGradient: 'linear(to-r, #7289FF, #5931E9)', boxShadow: 'xl' }}
               isLoading={isLoading}
               isDisabled={!username || !password || !recaptchaToken}
-              onClick={() => handleLogin(username, password)}
+              onClick={() => handleLogin(username, password, redirectTo)}
             >
               Acessar
             </Button>

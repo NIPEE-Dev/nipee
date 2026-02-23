@@ -32,6 +32,7 @@ import {
   FaUtensils, 
   FaBriefcase 
 } from "react-icons/fa";
+import { Link as RouterLink } from "react-router-dom";
 
 import Navbar from "../../components/Navbar/Navbar";
 import Footer from "../../components/Footer/Footer";
@@ -198,14 +199,13 @@ const VagasEmAberto = () => {
 
                       <Box bg="gray.50" p={4} borderTop="1px solid" borderColor="gray.100">
                         <Button 
-                            as="a" 
-                            href="/#registrar" 
-                            w="full" 
-                            bgGradient="linear(to-r, #5931E9, #7289FF)"
-                            color="white"
-                            _hover={{ bgGradient: "linear(to-r, #7289FF, #5931E9)" }}
+                          as={RouterLink} 
+                          to={`/login?redirect=/jobs-candidate/${vaga.id}`} 
+                          w="full" 
+                          bgGradient="linear(to-r, #5931E9, #7289FF)"
+                          color="white"
                         >
-                            Ver Detalhes e Candidatar
+                          Ver Detalhes e Candidatar
                         </Button>
                       </Box>
                     </Box>
