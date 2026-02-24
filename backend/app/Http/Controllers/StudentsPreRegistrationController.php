@@ -258,9 +258,7 @@ class StudentsPreRegistrationController extends Controller
             if (isset($studentData['resume']) && strpos($studentData['resume'], 'data:') === 0) {
                 $fileData = substr($studentData['resume'], strpos($studentData['resume'], ',') + 1);
                 $fileMimeType = explode(';', explode(':', $studentData['resume'])[1])[0];
-
                 $fileContents = base64_decode($fileData);
-
                 $fileName = uniqid() . '.' . ($fileMimeType == 'application/pdf' ? 'pdf' : 'docx');
 
                 $path = Storage::disk('public')->put('resumes/' . $fileName, $fileContents);
@@ -270,21 +268,31 @@ class StudentsPreRegistrationController extends Controller
                 }
             }
 
+            $studentData['accepted_terms_at'] = now();
+            $studentData['user_ip'] = $request->ip();
+            $studentData['user_agent'] = $request->userAgent();
+
             $preRegistration = StudentsPreRegistration::create($studentData);
+            
             $school = School::query()->where('id', $studentData['school_id'])->first();
+            
             try {
                 Mail::to($studentData['email'])->send(new PreRegistrationStudentSuccess($studentData['full_name'], $studentData['full_name']));
                 Mail::to('contacto@nipee.org')->send(new PreRegistrationNoticeMail());
-                Mail::to($school->contact->email)->send(new PreRegistrationSchoolNoticeMail());
+                if ($school && $school->contact) {
+                    Mail::to($school->contact->email)->send(new PreRegistrationSchoolNoticeMail());
+                }
             } catch (\Throwable $th) {
+
             }
 
             return response()->json([
                 'message' => 'Seu pré-registro foi realizado com sucesso!',
                 'data' => $preRegistration,
             ], 201);
+
         } catch (\Exception $e) {
-            Log::error('Erro ao criar pré-registro:', [
+            Log::error('Erro ao criar pré-registro de aluno:', [
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),
             ]);

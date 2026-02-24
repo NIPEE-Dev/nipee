@@ -66,7 +66,12 @@ class CompanyPreRegistrationController extends Controller
                 ], 400);
             }
 
+            $empresaData['accepted_terms_at'] = now();
+            $empresaData['user_ip'] = $request->ip();
+            $empresaData['user_agent'] = $request->userAgent();
+
             $preRegistration = CompanyPreRegistration::create($empresaData);
+
             try {
                 Mail::to($empresaData['corporate_email'])->send(new PreRegistrationSuccess($empresaData['company_name'], $empresaData['representative_name']));
                 Mail::to('contacto@nipee.org')->send(new PreRegistrationNoticeMail());
@@ -77,6 +82,7 @@ class CompanyPreRegistrationController extends Controller
                 'message' => 'Seu pré-registro foi realizado com sucesso! E-mail de confirmação enviado.',
                 'data' => $preRegistration,
             ], 201);
+
         } catch (\Exception $e) {
             Log::error('Erro ao criar pré-registro:', [
                 'error' => $e->getMessage(),
