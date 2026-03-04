@@ -124,11 +124,12 @@ class ContractService
             'candidate_id' => $candidateID,
         ]);
 
-        return DB::transaction(fn() => tap(Contract::create($contractData), function (Contract $contract) use ($data) {
+        return DB::transaction(fn() => tap(Contract::create($contractData), function (Contract $contract) use ($data, $candidate) {
             $job = Arr::get($data, 'job');
             $userAddress = Arr::get($data, 'userAddress');
             $jobAddress = $contract->company->address ?? "";
             $jobOtherAddress = Arr::get($data, 'jobOtherAddress');
+            $candidateModel = $candidate;
             $candidate = Arr::get($data, 'candidate');
             $candidateAddress = $candidate['address'];
 
@@ -168,8 +169,7 @@ class ContractService
             ]));
 
             $candidate['name'] = $candidate['nameOriginal'] ?? '';
-            Log::info($candidate);
-            $candidate = $contract->candidate()->create($candidate);
+            $candidate = $contract->candidate()->save($candidateModel);
             $candidate->contact()->create(Arr::get($data, 'candidate.contact'));
             $contract->load(['candidate', 'company.address', 'school.address', 'job']);
 
