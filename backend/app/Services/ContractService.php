@@ -167,7 +167,7 @@ class ContractService
                 'working_hours',
             ]));
 
-            $candidate['name'] = $candidate['nameOriginal'];
+            $candidate['name'] = $candidate['nameOriginal'] ?? '';
             $candidate = $contract->candidate()->create($candidate);
             $candidate->contact()->create(Arr::get($data, 'candidate.contact'));
             $contract->load(['candidate', 'company.address', 'school.address', 'job']);
