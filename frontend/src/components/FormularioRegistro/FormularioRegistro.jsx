@@ -701,6 +701,8 @@ const FormularioRegistro = () => {
                        to="/politica-de-privacidade" 
                        color="blue.500" 
                        fontWeight="medium"
+                       target="_blank"
+                       rel="noopener noreferrer"
                        _hover={{ textDecoration: "underline", color: "blue.600" }}
                        >
                        Política de Privacidade da NIPEE

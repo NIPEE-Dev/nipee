@@ -42,6 +42,18 @@ export const CandidatesForm = ({ readOnly, isLoading, typeForm, ...props }) => {
   const isCandidato = userRole === "Candidato";
   const isEscola = userRole === "Escola";
   const isAdm = userRole === "Administrador Geral";
+
+  const effectiveReadOnly = isEmpresa ? true : readOnly;
+
+  const disabledStyles = {
+    _disabled: {
+      opacity: 1, 
+      color: "black",
+      cursor: "not-allowed",
+      bg: "gray.50", 
+    }
+  };
+
   const candidateUploadOptions = [
     { value: "Voluntariado", label: "Voluntariado" },
     { value: "Currículo (CV)", label: "Currículo (CV)" },
@@ -185,7 +197,8 @@ export const CandidatesForm = ({ readOnly, isLoading, typeForm, ...props }) => {
                   name="name"
                   placeholder="Nome do candidato"
                   component={FormField}
-                  readOnly={readOnly}
+                  readOnly={effectiveReadOnly}
+                  {...disabledStyles}
                   required
                 />
 
@@ -195,7 +208,8 @@ export const CandidatesForm = ({ readOnly, isLoading, typeForm, ...props }) => {
                   placeholder="Data de nascimento"
                   component={FormField.InputMask}
                   mask="99/99/9999"
-                  readOnly={readOnly}
+                  readOnly={effectiveReadOnly}
+                  {...disabledStyles}
                   required
                 />
               </Stack>
@@ -207,7 +221,8 @@ export const CandidatesForm = ({ readOnly, isLoading, typeForm, ...props }) => {
                   placeholder="NIF"
                   component={FormField.InputMask}
                   mask={cnpjMask}
-                  readOnly={readOnly}
+                  readOnly={effectiveReadOnly}
+                  {...disabledStyles}
                   validate={(value) => nifValidator(value, true)}
                   required
                 />
@@ -217,7 +232,8 @@ export const CandidatesForm = ({ readOnly, isLoading, typeForm, ...props }) => {
                   name="rg"
                   placeholder="CC / T. Residência / Passaporte"
                   component={FormField}
-                  readOnly={readOnly}
+                  readOnly={effectiveReadOnly}
+                  {...disabledStyles}
                   required
                 />
 
@@ -227,7 +243,8 @@ export const CandidatesForm = ({ readOnly, isLoading, typeForm, ...props }) => {
                   type="date"
                   placeholder="Validade"
                   component={FormField}
-                  readOnly={readOnly}
+                  readOnly={effectiveReadOnly}
+                  {...disabledStyles}
                   required
                 />
               </Stack>
@@ -238,7 +255,9 @@ export const CandidatesForm = ({ readOnly, isLoading, typeForm, ...props }) => {
                   name="gender"
                   placeholder="Género"
                   component={FormField.Select}
-                  readOnly={readOnly}
+                  readOnly={effectiveReadOnly}
+                  disabled={effectiveReadOnly}
+                  {...disabledStyles}
                   required
                 >
                   <option value="F">Feminino</option>
@@ -250,7 +269,9 @@ export const CandidatesForm = ({ readOnly, isLoading, typeForm, ...props }) => {
                   name="studying_level"
                   placeholder="Nível de Ensino"
                   component={FormField.Select}
-                  readOnly={readOnly}
+                  readOnly={effectiveReadOnly}
+                  disabled={effectiveReadOnly}
+                  {...disabledStyles}
                   required
                 >
                   <option value="E">
@@ -267,7 +288,9 @@ export const CandidatesForm = ({ readOnly, isLoading, typeForm, ...props }) => {
                   name='serie'
                   placeholder='Ano'
                   component={FormField.Select}
-                  readOnly={readOnly}
+                  readOnly={effectiveReadOnly}
+                  disabled={effectiveReadOnly}
+                  {...disabledStyles}
                   required
                 >
                   <optgroup label='Ensino Secundário'>
@@ -298,7 +321,9 @@ export const CandidatesForm = ({ readOnly, isLoading, typeForm, ...props }) => {
                         name="course"
                         placeholder="Curso"
                         component={FormField.Select}
-                        readOnly={readOnly}
+                        readOnly={effectiveReadOnly}
+                        disabled={effectiveReadOnly}
+                        {...disabledStyles}
                         isLoading={isLoading}
                         required
                       >
@@ -316,7 +341,9 @@ export const CandidatesForm = ({ readOnly, isLoading, typeForm, ...props }) => {
                     name="semester"
                     placeholder="Ano"
                     component={FormField.Select}
-                    readOnly={readOnly}
+                    readOnly={effectiveReadOnly}
+                    disabled={effectiveReadOnly}
+                    {...disabledStyles}
                   >
                     {[...Array(3).keys()].map((v) => (
                       <option key={v} value={v}>
@@ -333,14 +360,17 @@ export const CandidatesForm = ({ readOnly, isLoading, typeForm, ...props }) => {
                   name="ra"
                   placeholder="N.º Processo"
                   component={FormField}
-                  readOnly={readOnly}
+                  readOnly={effectiveReadOnly}
+                  {...disabledStyles}
                 />
                 <FastField
                   id="period"
                   name="period"
                   placeholder="Período"
                   component={FormField.Select}
-                  readOnly={readOnly}
+                  readOnly={effectiveReadOnly}
+                  disabled={effectiveReadOnly}
+                  {...disabledStyles}
                   required
                 >
                   <option value="N">Noite</option>
@@ -360,7 +390,9 @@ export const CandidatesForm = ({ readOnly, isLoading, typeForm, ...props }) => {
                       name="school_id"
                       placeholder="Escola"
                       component={FormField.Select}
-                      readOnly={readOnly}
+                      readOnly={effectiveReadOnly}
+                      disabled={effectiveReadOnly}
+                      {...disabledStyles}
                       isLoading={isLoading}
                       required
                     >
@@ -379,7 +411,9 @@ export const CandidatesForm = ({ readOnly, isLoading, typeForm, ...props }) => {
                   name="interest"
                   placeholder="Interesse"
                   component={FormField.Select}
-                  readOnly={readOnly}
+                  readOnly={effectiveReadOnly}
+                  disabled={effectiveReadOnly}
+                  {...disabledStyles}
                   required
                   onChange={(e) => {
                     const value = e.target.value;
@@ -389,8 +423,6 @@ export const CandidatesForm = ({ readOnly, isLoading, typeForm, ...props }) => {
                 >
                   <option value="EF">FCT</option>
                   <option value="ES">Estágio</option>
-                  {/* <option value="EF">Efetivo</option>
-                <option value="AM">Ambos</option> */}
                 </FastField>
               </Stack>
 
@@ -401,7 +433,8 @@ export const CandidatesForm = ({ readOnly, isLoading, typeForm, ...props }) => {
                     name="hours_fct"
                     placeholder="N.º Horas FCT"
                     component={FormField}
-                    readOnly={readOnly}
+                    readOnly={effectiveReadOnly}
+                    {...disabledStyles}
                   />
                 )}
                 {values.interest === "EF" && (
@@ -411,6 +444,7 @@ export const CandidatesForm = ({ readOnly, isLoading, typeForm, ...props }) => {
                     placeholder="Horas concluídas (Auto-Preencimento)"
                     component={FormField}
                     readOnly
+                    {...disabledStyles}
                   />
                 )}
                 {values.interest === "EF" && (
@@ -420,6 +454,7 @@ export const CandidatesForm = ({ readOnly, isLoading, typeForm, ...props }) => {
                     placeholder="Horas restantes (Auto-Preencimento)"
                     component={FormField}
                     readOnly
+                    {...disabledStyles}
                   />
                 )}
               </Stack>
@@ -430,70 +465,10 @@ export const CandidatesForm = ({ readOnly, isLoading, typeForm, ...props }) => {
                   name="volunteer_experience"
                   placeholder="Participa ou participou de voluntariado? Descreva"
                   component={FormField.Textarea}
-                  readOnly={readOnly}
+                  readOnly={effectiveReadOnly}
+                  {...disabledStyles}
                 />
               </Stack>
-
-              {/* <Stack direction={['column', 'row']} spacing="24px" align="center">
-              {props.initialValues?.resume && (
-                <a
-                  target="_blank"
-                  href={`${import.meta.env.VITE_BACKEND_BASE_URL_EX}/storage/${props.initialValues.resume}`}
-                  style={{
-                    color: '#3182ce',
-                    fontWeight: '500',
-                    textDecoration: 'none',
-                    display: 'inline-block',
-                    paddingBottom: '4px',
-                    transition: 'color 0.3s ease',
-                  }}
-                  onMouseOver={(e) => (e.target.style.color = '#63b3ed')}
-                  onMouseOut={(e) => (e.target.style.color = '#3182ce')}
-                >
-                  Ver o Currículo
-                </a>
-              )}
-
-              <input
-                id="resume"
-                name="resume"
-                type="file"
-                accept=".pdf,.doc,.docx"
-                onChange={(event) => {
-                  const file = event.target.files[0];
-
-                  if (file) {
-                    const reader = new FileReader();
-                    reader.readAsDataURL(file);
-                    reader.onload = () => {
-                      const base64String = reader.result.split(',')[1]; 
-                      setFieldValue('resume', base64String);
-                    };
-                  }
-                }}
-                style={{ display: 'none' }}
-                disabled={readOnly}
-              />
-
-              {!readOnly && (
-                <label htmlFor="resume">
-                  <Button
-                    as="span"
-                    colorScheme="blue"
-                    size="sm"
-                    fontWeight="500"
-                    borderRadius="md"
-                    _hover={{
-                      bg: '#63b3ed',
-                      transform: 'scale(1.05)',
-                      transition: 'all 0.2s ease-in-out',
-                    }}
-                  >
-                    {props.initialValues?.resume ? 'Trocar Currículo' : 'Anexar Currículo'}
-                  </Button>
-                </label>
-              )}
-            </Stack> */}
             </GroupContainer>
 
             <Divider my={25} />
@@ -503,8 +478,10 @@ export const CandidatesForm = ({ readOnly, isLoading, typeForm, ...props }) => {
               subtitle="Lugar em que o candidato mora."
             >
               <AddressFields
-                readOnly={readOnly}
+                readOnly={effectiveReadOnly}
                 setFieldValue={setFieldValue}
+                // Se AddressFields for um componente customizado, 
+                // ele precisará tratar os estilos internamente ou receber via props
               />
             </GroupContainer>
 
@@ -516,7 +493,7 @@ export const CandidatesForm = ({ readOnly, isLoading, typeForm, ...props }) => {
             >
               <ContactFields
                 requiredFields={["name", "phone"]}
-                readonly={readOnly}
+                readonly={effectiveReadOnly}
               />
             </GroupContainer>
 
@@ -532,7 +509,9 @@ export const CandidatesForm = ({ readOnly, isLoading, typeForm, ...props }) => {
                   name="piercing"
                   placeholder="Portador de Deficiência?"
                   component={FormField.Select}
-                  readOnly={readOnly}
+                  readOnly={effectiveReadOnly}
+                  disabled={effectiveReadOnly}
+                  {...disabledStyles}
                 >
                   <option value="1">Sim</option>
                   <option value="0">Não</option>
@@ -543,7 +522,8 @@ export const CandidatesForm = ({ readOnly, isLoading, typeForm, ...props }) => {
                   name="tattoo"
                   placeholder="Se sim, qual?"
                   component={FormField}
-                  readOnly={readOnly}
+                  readOnly={effectiveReadOnly}
+                  {...disabledStyles}
                 ></FastField>
               </Stack>
 
@@ -553,7 +533,9 @@ export const CandidatesForm = ({ readOnly, isLoading, typeForm, ...props }) => {
                   name="smoker"
                   placeholder="Fumador"
                   component={FormField.Select}
-                  readOnly={readOnly}
+                  readOnly={effectiveReadOnly}
+                  disabled={effectiveReadOnly}
+                  {...disabledStyles}
                 >
                   <option value="1">Sim</option>
                   <option value="0">Não</option>
@@ -564,7 +546,9 @@ export const CandidatesForm = ({ readOnly, isLoading, typeForm, ...props }) => {
                   name="sons"
                   placeholder="Filhos"
                   component={FormField.Select}
-                  readOnly={readOnly}
+                  readOnly={effectiveReadOnly}
+                  disabled={effectiveReadOnly}
+                  {...disabledStyles}
                 >
                   <option value="1">Sim</option>
                   <option value="0">Não</option>
@@ -576,7 +560,9 @@ export const CandidatesForm = ({ readOnly, isLoading, typeForm, ...props }) => {
                   name="marital_status"
                   placeholder="Estado Cívil"
                   component={FormField.Select}
-                  readOnly={readOnly}
+                  readOnly={effectiveReadOnly}
+                  disabled={effectiveReadOnly}
+                  {...disabledStyles}
                 >
                   <option value="S">Solteiro</option>
                   <option value="C">Casado</option>
@@ -589,7 +575,9 @@ export const CandidatesForm = ({ readOnly, isLoading, typeForm, ...props }) => {
                   name="how_find_us"
                   placeholder="Como nos conheceu"
                   component={FormField.Select}
-                  readOnly={readOnly}
+                  readOnly={effectiveReadOnly}
+                  disabled={effectiveReadOnly}
+                  {...disabledStyles}
                 >
                   <option value="6">EMPRESA</option>
                   <option value="7">ESCOLA</option>
@@ -607,20 +595,6 @@ export const CandidatesForm = ({ readOnly, isLoading, typeForm, ...props }) => {
               </Stack>
 
               <Stack direction={["column", "row"]} spacing="24px">
-                {/*  <FastField
-                id='how_find_us_name'
-                name='how_find_us_name'
-                placeholder='Qual/Onde?'
-                component={FormField}
-                readOnly={readOnly}
-              /> */}
-                {/*  <FastField
-                id='tags'
-                name='tags'
-                placeholder='Palavras chaves'
-                component={FormField}
-                readOnly={readOnly}
-              /> */}
               </Stack>
               <Stack direction={["column", "row"]} spacing="24px">
                 <FastField
@@ -628,7 +602,8 @@ export const CandidatesForm = ({ readOnly, isLoading, typeForm, ...props }) => {
                   name="candidate_observations"
                   placeholder="Habilidades (ex. PHP, Inglês, Java)"
                   component={FormField.Textarea}
-                  readOnly={readOnly}
+                  readOnly={effectiveReadOnly}
+                  {...disabledStyles}
                 />
               </Stack>
             </GroupContainer>
@@ -681,32 +656,6 @@ export const CandidatesForm = ({ readOnly, isLoading, typeForm, ...props }) => {
                 </Accordion>
               </GroupContainer>
             )}
-
-            {/* {['edit', 'view'].includes(typeForm) && (
-            <GroupContainer
-              title='Anexos'
-            subtitle='Todos anexos disponíveis enviados pelo candidato '
-            >
-              <DocumentsTable
-                typeForm={typeForm}
-                documents={values.documents}
-                {...(typeForm === 'edit' && {
-                  thContent: (
-                    <FileUpload
-                      resource={props.resource}
-                      types={[
-                        'CurriculumVitae',
-                        'CoverLetter',
-                        'Volunteering',
-                        'Others',
-                      ]}
-                      model='Candidate'
-                    />
-                  )
-                })}
-              />
-            </GroupContainer>
-          )} */}
 
             {["edit", "view", undefined].includes(typeForm) && (
               <GroupContainer
@@ -770,7 +719,6 @@ export const CandidatesForm = ({ readOnly, isLoading, typeForm, ...props }) => {
                         documentUpload.document === null
                       }
                       onClick={() => {
-                        console.log(values);
                         handleDocumentUpload(values, setFieldValue);
                       }}
                       style={{ marginTop: "auto" }}

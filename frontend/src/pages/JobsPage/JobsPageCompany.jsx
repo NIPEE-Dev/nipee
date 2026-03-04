@@ -140,7 +140,7 @@ const JobsPageCompany = () => {
           field: 'id',
           header: 'ID'
         }, */
-        {
+        /* {
           field: 'fantasy_name',
           relation: 'company',
           header: 'Nome fantasia empresa'
@@ -195,7 +195,7 @@ const JobsPageCompany = () => {
           field: 'available',
           header: 'Vagas disponíveis',
           serverType: 'equals'
-        },
+        }, */
         {
           field: 'status',
           header: 'Status da Vaga',
@@ -207,7 +207,7 @@ const JobsPageCompany = () => {
           ],
           relation: 'candidates'
         },
-        ...citiesFilters.map((row) => {
+        /* ...citiesFilters.map((row) => {
           row.children = row.children.map((children) => {
             children.relation = children.relation.includes('company')
               ? children.relation
@@ -216,7 +216,7 @@ const JobsPageCompany = () => {
           });
 
           return row;
-        })
+        }) */
       ]}
       actions={({ activeFilters, id, rowProps, resourceProps }) => {
         const statusFilter = _map(activeFilters, 'value') || [];

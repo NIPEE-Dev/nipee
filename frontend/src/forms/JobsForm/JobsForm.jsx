@@ -171,24 +171,37 @@ export const JobsForm = ({ readOnly, typeForm, isLoading, ...props }) => {
                 autoFetch
                 resourceParams={{ perPage: 9999 }}
               >
-                {({ records, isLoading }) => (
-                  <Field
-                    id="company_id"
-                    name="company_id"
-                    placeholder="Nome da empresa"
-                    component={FormField.Select}
-                    disabled={canEdit === false}
-                    readOnly={readOnly}
-                    isLoading={isLoading}
-                    required
-                  >
-                    {records.map((record) => (
-                      <option key={record.id} value={record.id}>
-                        {record.corporate_name}
-                      </option>
-                    ))}
-                  </Field>
-                )}
+                {({ records, isLoading }) => {
+                  React.useEffect(() => {
+                    if (
+                      !isLoading && 
+                      records.length > 0 && 
+                      userRole !== "Administrador Geral" && 
+                      !values.company_id 
+                    ) {
+                      setFieldValue("company_id", records[0].id);
+                    }
+                  }, [isLoading, records, userRole, setFieldValue, values.company_id]);
+
+                  return (
+                    <Field
+                      id="company_id"
+                      name="company_id"
+                      placeholder="Nome da empresa"
+                      component={FormField.Select}
+                      disabled={userRole !== "Administrador Geral" || canEdit === false}
+                      readOnly={readOnly}
+                      isLoading={isLoading}
+                      required
+                    >
+                      {records.map((record) => (
+                        <option key={record.id} value={record.id}>
+                          {record.corporate_name}
+                        </option>
+                      ))}
+                    </Field>
+                  );
+                }}
               </Resource>
             </Stack>
 

@@ -269,7 +269,7 @@ class JobService
                     $candidateModel = Candidate::query()->where('id', $data['candidateId'])->first();
 
                     try {
-                        Mail::to($candidateModel->user->email)->send(new AcceptInterviewMail($candidateModel->name, $interviewDatetime->format('d/m/Y H:i')));
+                        //Mail::to($candidateModel->user->email)->send(new AcceptInterviewMail($candidateModel->name, $interviewDatetime->format('d/m/Y H:i')));
                         Mail::to($jobInterview->job->company->user->email)->send(new AcceptInterviewMail($candidateModel->name, $interviewDatetime->format('d/m/Y H:i')));
                     } catch (\Throwable $th) {
                     }
