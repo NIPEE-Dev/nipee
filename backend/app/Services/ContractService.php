@@ -139,7 +139,9 @@ class ContractService
                 $job['role'] = $job['role']['title'];
             }
 
-            $contract->company->tax()->create(['type' => TaxEnum::ACCESSION, 'contract_id' => $contract->id]);
+            if (isset($contract->company)) {
+                $contract->company->tax()->create(['type' => TaxEnum::ACCESSION, 'contract_id' => $contract->id]);
+            }
 
             $contract->job()->create(Arr::only($job, [
                 'role',
