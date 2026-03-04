@@ -315,8 +315,6 @@ const CandidacyTable = ({ candidates, jobId, formValues }) => {
   };
 
   const handleGenerateProtocol = (candidate) => {
-    const companyId = candidate.job?.company_id || candidate.job?.company?.id;
-
     navigate("/contracts/add", {
       state: {
         preFill: {
@@ -334,7 +332,7 @@ const CandidacyTable = ({ candidates, jobId, formValues }) => {
           },
           working_day: formValues.working_day,
           schoolId: candidate.schoolId,
-          companyId: companyId,
+          companyId: formValues.company_id,
         },
       },
     });

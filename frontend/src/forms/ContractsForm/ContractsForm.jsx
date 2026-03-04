@@ -61,17 +61,6 @@ export const ContractsForm = ({
   const [jobsArr, setJobsArr] = useState(undefined);
 
   useEffect(() => {
-    if (state?.preFill) {
-      console.group("Dados para Protocolo");
-      console.log("Candidato:", state.preFill.candidate);
-      console.log("Job ID:", state.preFill.jobId);
-      console.log("School ID:", state.preFill.schoolId);
-      console.groupEnd();
-      // setFieldValue("school", { id: state.preFill.schoolId });
-    }
-  }, [state]);
-
-  useEffect(() => {
     if (state && !state.preFill) {
       fetchContractData({ job: state.job, candidate: state.candidate });
       navigate(location.pathname, {});
@@ -88,12 +77,6 @@ export const ContractsForm = ({
     selectedCandidate,
   ) => {
     const candidate = candidates.find((c) => c.id === +selectedCandidate);
-    console.log(
-      "candidado selecionado manualmente:",
-      candidate,
-      candidates,
-      selectedCandidate,
-    );
     if (candidate) {
       setFieldValue(
         "candidate",
@@ -129,14 +112,15 @@ export const ContractsForm = ({
       setFieldValue("jobAddress", job.company.address, true);
     }
   };
-
+  console.log(state?.preFill);
   return (
     <Formik
       enableReinitialize
       initialErrors={props.initialErrors}
       initialValues={{
         ...(_isEmpty(props.initialValues) ? {} : props.initialValues),
-        company_id: props.initialValues?.company_id || "0",
+        company_id:
+          props.initialValues?.company_id || state?.preFill?.companyId || "0",
         school_id: state?.preFill?.schoolId
           ? state?.preFill?.schoolId
           : undefined,
@@ -270,7 +254,6 @@ export const ContractsForm = ({
                     isLoading={isLoading}
                     required
                   >
-                    {console.log("escolas", records)}
                     {records.map((record) => (
                       <option key={record.id} value={record.id}>
                         {record.corporate_name}
@@ -353,13 +336,6 @@ export const ContractsForm = ({
                   }}
                 >
                   {({ records, isLoading }) => {
-                    console.log(
-                      "candidartes:",
-                      records,
-                      formProps.values.job_id,
-                      formProps.values.candidate,
-                      formProps.values.school_id,
-                    );
                     const selectedSchoolId =
                       typeForm === "edit"
                         ? formProps.values.school_id
@@ -372,7 +348,6 @@ export const ContractsForm = ({
                     ) {
                       jobs = formProps.values.job.candidates;
                     } else {
-                      console.log(jobsArr);
                       const selected = jobsArr
                         ? jobsArr.find(
                             (element) => element.id === formProps.values.job_id,
@@ -386,7 +361,6 @@ export const ContractsForm = ({
                     const approvedCandidatesIds = jobs
                       .filter((element) => element.statusLabel === "Aprovado")
                       .map((element) => element.id);
-                    console.log(approvedCandidatesIds);
                     const candidatesFromSchool = (records || []).filter(
                       (record) =>
                         record.user?.school?.some(
@@ -409,7 +383,6 @@ export const ContractsForm = ({
                             records,
                             e.target.value,
                           );
-                          console.log(formProps.values);
                         }}
                         required
                       >
