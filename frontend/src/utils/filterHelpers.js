@@ -36,7 +36,7 @@ export const candidatesCitiesFilters = [
     header: "Morada",
     children: [
       {
-        field: "city",
+        field: "uf",
         header: "Distrito",
         relation: "address",
       },
