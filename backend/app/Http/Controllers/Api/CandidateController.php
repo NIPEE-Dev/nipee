@@ -68,7 +68,6 @@ class CandidateController extends Controller
             'jobs' => [
                 'history' => fn(HasMany $builder) => $builder->where('candidate_id', '=', $candidate->id),
                 'company',
-                'role'
             ]
         ]));
     }
