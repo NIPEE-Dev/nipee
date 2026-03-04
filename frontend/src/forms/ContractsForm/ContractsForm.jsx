@@ -118,41 +118,48 @@ export const ContractsForm = ({
       enableReinitialize
       initialErrors={props.initialErrors}
       initialValues={{
-        ...(_isEmpty(props.initialValues) ? {} : props.initialValues),
-        company_id:
-          props.initialValues?.company_id || state?.preFill?.companyId || "0",
-        school_id: state?.preFill?.schoolId
-          ? state?.preFill?.schoolId
-          : undefined,
-        school: state?.preFill?.schoolId
-          ? { id: state?.preFill?.schoolId }
-          : undefined,
-        candidate: state?.preFill?.candidate
-          ? state?.preFill?.candidate
-          : undefined,
-        job_id: state?.preFill?.jobId ? state?.preFill?.jobId : undefined,
-        job:
-          state?.preFill?.jobId && state?.preFill?.jobData
-            ? { id: state?.preFill?.jobId, ...state?.preFill?.jobData }
-            : undefined,
-        userAddress: state?.preFill?.candidate?.address
-          ? state?.preFill?.candidate?.address
-          : undefined,
-        has_insurance: props.initialValues?.has_insurance || false,
-        retroative_billing: props.initialValues?.retroative_billing || "0",
-        working_day: state?.preFill?.working_day
-          ? state?.preFill?.working_day
-          : {
-              ...props.initialValues?.working_day,
-              day_off:
-                props.initialValues?.working_day?.day_off ||
-                "DUAS FOLGAS SEMANAIS AO SÁBADO E DOMINGO",
-              start_weekday:
-                props.initialValues?.working_day?.start_weekday || 1,
-              end_weekday: props.initialValues?.working_day?.start_weekday || 5,
-            },
-        manual_contract_upload: false,
-        manual_contract_file: null,
+        ...(_isEmpty(props.initialValues)
+          ? {
+              company_id:
+                props.initialValues?.company_id ||
+                state?.preFill?.companyId ||
+                "0",
+              school_id: state?.preFill?.schoolId
+                ? state?.preFill?.schoolId
+                : undefined,
+              school: state?.preFill?.schoolId
+                ? { id: state?.preFill?.schoolId }
+                : undefined,
+              candidate: state?.preFill?.candidate
+                ? state?.preFill?.candidate
+                : undefined,
+              job_id: state?.preFill?.jobId ? state?.preFill?.jobId : undefined,
+              job:
+                state?.preFill?.jobId && state?.preFill?.jobData
+                  ? { id: state?.preFill?.jobId, ...state?.preFill?.jobData }
+                  : undefined,
+              userAddress: state?.preFill?.candidate?.address
+                ? state?.preFill?.candidate?.address
+                : undefined,
+              has_insurance: props.initialValues?.has_insurance || false,
+              retroative_billing:
+                props.initialValues?.retroative_billing || "0",
+              working_day: state?.preFill?.working_day
+                ? state?.preFill?.working_day
+                : {
+                    ...props.initialValues?.working_day,
+                    day_off:
+                      props.initialValues?.working_day?.day_off ||
+                      "DUAS FOLGAS SEMANAIS AO SÁBADO E DOMINGO",
+                    start_weekday:
+                      props.initialValues?.working_day?.start_weekday || 1,
+                    end_weekday:
+                      props.initialValues?.working_day?.start_weekday || 5,
+                  },
+              manual_contract_upload: false,
+              manual_contract_file: null,
+            }
+          : props.initialValues),
       }}
       onSubmit={async (values, { setSubmitting, setFieldError }) => {
         try {
