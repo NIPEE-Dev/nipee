@@ -127,7 +127,7 @@ class ContractService
         return DB::transaction(fn() => tap(Contract::create($contractData), function (Contract $contract) use ($data) {
             $job = Arr::get($data, 'job');
             $userAddress = Arr::get($data, 'userAddress');
-            $jobAddress = $contract->company->address;
+            $jobAddress = $contract->company->address ?? "";
             $jobOtherAddress = Arr::get($data, 'jobOtherAddress');
             $candidate = Arr::get($data, 'candidate');
             $candidateAddress = $candidate['address'];
