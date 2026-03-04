@@ -168,6 +168,7 @@ class ContractService
             ]));
 
             $candidate['name'] = $candidate['nameOriginal'] ?? '';
+            Log::info($candidate);
             $candidate = $contract->candidate()->create($candidate);
             $candidate->contact()->create(Arr::get($data, 'candidate.contact'));
             $contract->load(['candidate', 'company.address', 'school.address', 'job']);
