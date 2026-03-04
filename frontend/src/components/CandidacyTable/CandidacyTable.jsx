@@ -65,8 +65,7 @@ const getStatusLabel = (status) => {
   return labels[status] || "Desconhecido";
 };
 
-const CandidacyTable = ({ candidates, jobId }) => {
-  console.log(candidates);
+const CandidacyTable = ({ candidates, jobId, formValues }) => {
   const toast = useToast();
   const navigate = useNavigate();
   const {
@@ -197,7 +196,7 @@ const CandidacyTable = ({ candidates, jobId }) => {
       updateLocalState(
         JobCandidateStatusEnum.WAITING_RESPONSE,
         null,
-        formattedSchedules
+        formattedSchedules,
       );
       window.location.reload();
 
@@ -244,7 +243,7 @@ const CandidacyTable = ({ candidates, jobId }) => {
         updateJobInterviewEvaluation(
           jobId,
           candidateIdToUpdate,
-          evaluationPayload
+          evaluationPayload,
         );
     } else if (modalType === "INTERVIEW") {
       evaluationPayload = {
@@ -258,7 +257,7 @@ const CandidacyTable = ({ candidates, jobId }) => {
         updateJobInterviewEvaluation(
           jobId,
           candidateIdToUpdate,
-          evaluationPayload
+          evaluationPayload,
         );
     } else if (modalType === "TEST") {
       evaluationPayload = {
@@ -272,7 +271,7 @@ const CandidacyTable = ({ candidates, jobId }) => {
         updateJobInterviewTesting(
           jobId,
           candidateIdToUpdate,
-          evaluationPayload
+          evaluationPayload,
         );
     }
 
@@ -289,7 +288,7 @@ const CandidacyTable = ({ candidates, jobId }) => {
   const updateLocalState = (
     newStatus,
     evaluation = null,
-    newSchedule = null
+    newSchedule = null,
   ) => {
     setVisibleCandidates((prev) =>
       prev.map((c) => {
@@ -311,18 +310,29 @@ const CandidacyTable = ({ candidates, jobId }) => {
           return updates;
         }
         return c;
-      })
+      }),
     );
   };
 
   const handleGenerateProtocol = (candidate) => {
     const companyId = candidate.job?.company_id || candidate.job?.company?.id;
-    console.log(candidate);
+
     navigate("/contracts/add", {
       state: {
         preFill: {
           candidate: candidate,
           jobId: jobId,
+          jobData: {
+            has_scholarship: formValues.has_scholarship,
+            scholarship_nominal_value: formValues.scholarship_nominal_value,
+            transport_voucher: formValues.transport_voucher,
+            transport_voucher_nominal_value:
+              formValues.transport_voucher_nominal_value,
+            transport_voucher_value: formValues.transport_voucher_value,
+            scholarship_value: formValues.scholarship_value,
+            type: formValues.type,
+          },
+          working_day: formValues.working_day,
           schoolId: candidate.schoolId,
           companyId: companyId,
         },
@@ -488,8 +498,8 @@ const CandidacyTable = ({ candidates, jobId }) => {
               setCurrentPage((prev) =>
                 Math.min(
                   Math.ceil(candidates.length / candidatesPerPage),
-                  prev + 1
-                )
+                  prev + 1,
+                ),
               )
             }
             isDisabled={

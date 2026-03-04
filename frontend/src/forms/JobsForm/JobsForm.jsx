@@ -658,6 +658,7 @@ export const JobsForm = ({ readOnly, typeForm, isLoading, ...props }) => {
               subtitle="Todas as candidaturas para esta vaga"
             >
               <CandidacyTable
+                formValues={values}
                 typeForm={typeForm}
                 readOnly={readOnly}
                 jobId={props.initialValues.id}

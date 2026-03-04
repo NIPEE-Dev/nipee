@@ -85,14 +85,14 @@ export const ContractsForm = ({
   const handleCandidateChange = (
     setFieldValue,
     candidates,
-    selectedCandidate
+    selectedCandidate,
   ) => {
     const candidate = candidates.find((c) => c.id === +selectedCandidate);
     console.log(
       "candidado selecionado manualmente:",
       candidate,
       candidates,
-      selectedCandidate
+      selectedCandidate,
     );
     if (candidate) {
       setFieldValue(
@@ -101,7 +101,7 @@ export const ContractsForm = ({
           id: candidate.id,
           ...candidate,
         },
-        false
+        false,
       );
       setFieldValue("userAddress", candidate.address, false);
 
@@ -110,7 +110,7 @@ export const ContractsForm = ({
           setFieldValue(
             "candidate.contact.phone",
             candidate.contact.phone,
-            true
+            true,
           );
         }
         if (candidate.cpf) {
@@ -147,20 +147,26 @@ export const ContractsForm = ({
           ? state?.preFill?.candidate
           : undefined,
         job_id: state?.preFill?.jobId ? state?.preFill?.jobId : undefined,
-        job: state?.preFill?.jobId ? { id: state?.preFill?.jobId } : undefined,
+        job:
+          state?.preFill?.jobId && state?.preFill?.jobData
+            ? { id: state?.preFill?.jobId, ...state?.preFill?.jobData }
+            : undefined,
         userAddress: state?.preFill?.candidate?.address
           ? state?.preFill?.candidate?.address
           : undefined,
         has_insurance: props.initialValues?.has_insurance || false,
         retroative_billing: props.initialValues?.retroative_billing || "0",
-        working_day: {
-          ...props.initialValues?.working_day,
-          day_off:
-            props.initialValues?.working_day?.day_off ||
-            "DUAS FOLGAS SEMANAIS AO SÁBADO E DOMINGO",
-          start_weekday: props.initialValues?.working_day?.start_weekday || 1,
-          end_weekday: props.initialValues?.working_day?.start_weekday || 5,
-        },
+        working_day: state?.preFill?.working_day
+          ? state?.preFill?.working_day
+          : {
+              ...props.initialValues?.working_day,
+              day_off:
+                props.initialValues?.working_day?.day_off ||
+                "DUAS FOLGAS SEMANAIS AO SÁBADO E DOMINGO",
+              start_weekday:
+                props.initialValues?.working_day?.start_weekday || 1,
+              end_weekday: props.initialValues?.working_day?.start_weekday || 5,
+            },
         manual_contract_upload: false,
         manual_contract_file: null,
       }}
@@ -301,7 +307,7 @@ export const ContractsForm = ({
                       handleJobChange(
                         formProps.setFieldValue,
                         records,
-                        e.target.value
+                        e.target.value,
                       )
                     }
                     required
@@ -352,7 +358,7 @@ export const ContractsForm = ({
                       records,
                       formProps.values.job_id,
                       formProps.values.candidate,
-                      formProps.values.school_id
+                      formProps.values.school_id,
                     );
                     const selectedSchoolId =
                       typeForm === "edit"
@@ -369,7 +375,7 @@ export const ContractsForm = ({
                       console.log(jobsArr);
                       const selected = jobsArr
                         ? jobsArr.find(
-                            (element) => element.id === formProps.values.job_id
+                            (element) => element.id === formProps.values.job_id,
                           )
                         : undefined;
                       jobs = selected ? selected.candidates : [];
@@ -385,8 +391,8 @@ export const ContractsForm = ({
                       (record) =>
                         record.user?.school?.some(
                           (school) =>
-                            String(school.id) === String(selectedSchoolId)
-                        ) && approvedCandidatesIds.includes(record.id)
+                            String(school.id) === String(selectedSchoolId),
+                        ) && approvedCandidatesIds.includes(record.id),
                     );
 
                     return (
@@ -401,7 +407,7 @@ export const ContractsForm = ({
                           handleCandidateChange(
                             formProps.setFieldValue,
                             records,
-                            e.target.value
+                            e.target.value,
                           );
                           console.log(formProps.values);
                         }}
@@ -934,7 +940,7 @@ export const ContractsForm = ({
                     onChange={(e) => {
                       formProps.setFieldValue(
                         "manual_contract_upload",
-                        e.target.checked
+                        e.target.checked,
                       );
 
                       if (!e.target.checked) {
@@ -962,7 +968,7 @@ export const ContractsForm = ({
                       const base64String = reader.result;
                       formProps.setFieldValue(
                         "manual_contract_file",
-                        base64String
+                        base64String,
                       );
                     };
                     reader.readAsDataURL(event.currentTarget.files[0]);
