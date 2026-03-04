@@ -219,7 +219,7 @@ class ContractService
 
                 'anos' => "${anoLetivo}",
 
-                'period' => PeriodEnum::getLabel(PeriodEnum::from($job['period'])),
+                'period' => PeriodEnum::getLabel(PeriodEnum::from($candidate['period'])),
 
                 'nomeCandidato' => $candidate->name,
                 'nascimentoCandidato' => $candidate->birth_day,
