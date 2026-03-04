@@ -178,7 +178,7 @@ class ContractService
                     "A escola necessita de uma morada válida para realizar o protocolo."
                 );
             }
-            Log::info($candidate['period']);
+            Log::info($candidate);
             if (! $contract->company || ! $contract->company->address) {
                 throw new \RuntimeException(
                     "A empresa necessita de uma morada válida para realizar o protocolo."
