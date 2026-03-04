@@ -308,7 +308,7 @@ class JobService
                     $job->save();
                 }
             } else {
-                Mail::to($candidate->user->email)->send(new JobDenied($candidate->name, $job->role));
+                Mail::to($candidate->user->email)->send(new JobDenied($candidate->name, $job->role, $data['interviewEvaluation']));
             }
             $candidate->pivot->save();
             DB::commit();

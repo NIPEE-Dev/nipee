@@ -15,16 +15,18 @@ class JobDenied extends Mailable
 
     public $candidate;
     public $jobName;
+    public $justification;
 
     /**
      * Create a new message instance.
      *
      * @return void
      */
-    public function __construct($candidate, $jobName)
+    public function __construct($candidate, $jobName, $justification)
     {
         $this->candidate = $candidate;
         $this->jobName = $jobName;
+        $this->justification = $justification;
     }
 
     /**
@@ -51,6 +53,7 @@ class JobDenied extends Mailable
             with: [
                 'candidate' => $this->candidate,
                 'jobName' => $this->jobName,
+                'justification' => $this->justification,
             ]
         );
     }
