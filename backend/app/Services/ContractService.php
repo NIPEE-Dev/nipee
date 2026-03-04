@@ -171,14 +171,14 @@ class ContractService
             $candidate['name'] = $candidate['nameOriginal'] ?? '';
             $candidate = $contract->candidate()->save($candidateModel);
             $candidate->contact()->create(Arr::get($data, 'candidate.contact'));
-            $contract->load(['candidate', 'company.address', 'school.address', 'job']);
+            $contract->load(['candidate', 'company', 'company.address', 'school.address', 'job']);
 
             if (! $contract->school || ! $contract->school->address) {
                 throw new \RuntimeException(
                     "A escola necessita de uma morada válida para realizar o protocolo."
                 );
             }
-
+            Log::info($contract);
             if (! $contract->company || ! $contract->company->address) {
                 throw new \RuntimeException(
                     "A empresa necessita de uma morada válida para realizar o protocolo."
