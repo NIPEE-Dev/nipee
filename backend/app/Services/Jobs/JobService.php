@@ -382,6 +382,6 @@ class JobService
 
     public function get()
     {
-        return Job::query()->where('show_web', '1')->paginate(9999);
+        return Job::query()->where('show_web', '1')->where('status', JobStatusEnum::OPEN->value)->paginate(9999);
     }
 }
