@@ -112,4 +112,9 @@ class Job extends Model
     {
         return $this->hasMany(JobInterviewInvite::class, 'job_id');
     }
+
+    public function role()
+    {
+        return $this->belongsTo(BaseRecord::class, 'role_id');
+    }
 }
