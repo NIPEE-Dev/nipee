@@ -42,11 +42,11 @@ class JobService
 
     public function index($criteria)
     {
-        $builder = Job::query()->with(['workingDay', 'company.address', 'role']);
+        $builder = Job::query()->with(['workingDay', 'company.address']);
         $user = Auth::user();
         $roleId = $user->roles[0]->id;
         if ($roleId === RolesEnum::CANDIDATE->value) {
-            $builder->where('status', JobStatusEnum::OPEN->value);
+            $builder->where('status', JobStatusEnum::OPEN->value)->whereDate('end_at', '>', Carbon::today());
         }
 
         if (!isset($criteria['withoutTrashed'])) {
@@ -382,6 +382,6 @@ class JobService
 
     public function get()
     {
-        return Job::query()->where('show_web', '1')->where('status', JobStatusEnum::OPEN->value)->paginate(9999);
+        return Job::query()->where('show_web', '1')->where('status', JobStatusEnum::OPEN->value)->whereDate('end_at', '>', Carbon::today())->paginate(9999);
     }
 }
