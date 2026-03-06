@@ -29,6 +29,9 @@ class CompanyPreRegistration extends Model
         'password_creation_link',
         'approved_at',
         'reject_at',
+        'accepted_terms_at',
+        'user_ip',
+        'user_agent'
     ];
 
     protected $dates = [
@@ -36,5 +39,6 @@ class CompanyPreRegistration extends Model
         'reject_at',
         'created_at',
         'updated_at',
+        'accepted_terms_at',
     ];
 }

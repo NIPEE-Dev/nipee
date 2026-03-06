@@ -13,6 +13,7 @@ use App\Mail\PreRegistrationRReject;
 use App\Models\Shared\Contact;
 use App\Models\Shared\Responsible;
 use App\Mail\PreRegistrationApproveSuccess;
+use App\Mail\PreRegistrationNoticeMail;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 
@@ -65,9 +66,17 @@ class CompanyPreRegistrationController extends Controller
                 ], 400);
             }
 
+            $empresaData['accepted_terms_at'] = now();
+            $empresaData['user_ip'] = $request->ip();
+            $empresaData['user_agent'] = $request->userAgent();
+
             $preRegistration = CompanyPreRegistration::create($empresaData);
 
-            Mail::to($empresaData['corporate_email'])->send(new PreRegistrationSuccess($empresaData['company_name'], $empresaData['representative_name']));
+            try {
+                Mail::to($empresaData['corporate_email'])->send(new PreRegistrationSuccess($empresaData['company_name'], $empresaData['representative_name']));
+                Mail::to('contacto@nipee.org')->send(new PreRegistrationNoticeMail());
+            } catch (\Throwable $th) {
+            }
 
             return response()->json([
                 'message' => 'Seu pré-registro foi realizado com sucesso! E-mail de confirmação enviado.',
@@ -118,7 +127,6 @@ class CompanyPreRegistrationController extends Controller
                 'message' => 'Pré-registro encontrado com sucesso.',
                 'data' => $preRegistration,
             ], 200);
-
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
             return response()->json([
                 'message' => 'Pré-registro não encontrado.',
@@ -171,9 +179,9 @@ class CompanyPreRegistrationController extends Controller
                 'user_id' => $user->id,
             ]);
 
-            $company->contact()->save(new Contact([ 'name' => $preRegistration->company_name, 'phone' => $preRegistration->phone, 'email' => $preRegistration->corporate_email]));
+            $company->contact()->save(new Contact(['name' => $preRegistration->company_name, 'phone' => $preRegistration->phone, 'email' => $preRegistration->corporate_email]));
 
-            $company->responsible()->save(new Responsible([ 'name' => $preRegistration->representative_name, 'phone' => $preRegistration->phone, 'email' => $preRegistration->corporate_email, 'document' => $preRegistration->nif]));
+            $company->responsible()->save(new Responsible(['name' => $preRegistration->representative_name, 'phone' => $preRegistration->phone, 'email' => $preRegistration->corporate_email, 'document' => $preRegistration->nif]));
 
             $frontendUrl = config('app.frontend_url');
             $passwordResetLink = $frontendUrl . '/redefinir-senha?email=' . urlencode($user->email);
@@ -189,7 +197,6 @@ class CompanyPreRegistrationController extends Controller
                 'message' => 'Empresa aprovada, usuário e cadastro da empresa criados com sucesso!',
                 /* 'data' => $company, */
             ], 200);
-
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
             return response()->json([
                 'message' => 'Pré-registro não encontrado.',
@@ -236,7 +243,6 @@ class CompanyPreRegistrationController extends Controller
                 'message' => 'Empresa rejeitada com sucesso.',
                 'data' => $preRegistration,
             ], 200);
-
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
             return response()->json([
                 'message' => 'Pré-registro não encontrado.',
@@ -302,7 +308,6 @@ class CompanyPreRegistrationController extends Controller
                 'message' => 'O pré-registro foi atualizado com sucesso!',
                 'data' => $preRegistration,
             ], 200);
-
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
             return response()->json([
                 'message' => 'Pré-registro não encontrado.',

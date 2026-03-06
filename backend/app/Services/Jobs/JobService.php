@@ -3,12 +3,14 @@
 namespace App\Services\Jobs;
 
 use App\Beans\MailTask;
+use App\Enums\ActiveEnum;
 use App\Enums\CandidateStatusEnum;
 use App\Enums\Document\DocumentTypeTemplateEnum;
 use App\Enums\JobCandidateStatusEnum;
 use App\Enums\JobInterviewInviteStatusEnum;
 use App\Enums\JobStatusEnum;
 use App\Enums\RolesEnum;
+use App\Enums\UserCandidateStatusEnum;
 use App\Jobs\SendMail;
 use App\Mail\AcceptInterviewMail;
 use App\Mail\CandidateCalledMail;
@@ -40,11 +42,11 @@ class JobService
 
     public function index($criteria)
     {
-        $builder = Job::query()->with(['workingDay', 'company.address', 'role']);
+        $builder = Job::query()->with(['workingDay', 'company.address']);
         $user = Auth::user();
         $roleId = $user->roles[0]->id;
         if ($roleId === RolesEnum::CANDIDATE->value) {
-            $builder->where('status', JobStatusEnum::OPEN->value);
+            $builder->where('status', JobStatusEnum::OPEN->value)->whereDate('end_at', '>', Carbon::today());
         }
 
         if (!isset($criteria['withoutTrashed'])) {
@@ -67,6 +69,22 @@ class JobService
         return tap(Job::create($data), function (Job $job) use ($data) {
             $job->courses()->sync($data['courses']);
             $job->workingDay()->create(Arr::get($data, 'working_day'));
+            if (is_array($data['courses']) && count($data['courses']) > 0) {
+                $jobCity = $job->company->address->city;
+                $candidates = Candidate::query()
+                    ->with('user')
+                    ->where(function ($q) {
+                        $q->orWhereDoesntHave('contracts')->orWhereHas('contracts', function ($query) {
+                            $query->where('status', ActiveEnum::NOT_ACTIVE->value);
+                        });
+                    })
+                    ->whereHas('address', function ($q) use ($jobCity) {
+                        $q->where('city', $jobCity);
+                    })
+                    ->whereIn('course', $data['courses'])->get();
+
+                $emails = $candidates->pluck('user.email');
+            }
 
             return $job->load(['workingDay', 'company', 'documents']);
         });
@@ -156,6 +174,12 @@ class JobService
             throw new HttpException(400, 'Somente candidatos podem se candidatar em vagas');
         }
 
+        if (
+            $user->candidate->status === UserCandidateStatusEnum::CONCLUDED->value ||
+            $user->candidate->status === UserCandidateStatusEnum::IN_FCT->value ||
+            $user->candidate->contracts->where('status', ActiveEnum::ACTIVE->value)->first() !== null
+        ) throw new HttpException(400, 'Você não pode se candidatar a outras vagas');
+
         $alreadyApplied = $job->candidates->where('id', $user->candidate->id)->first();
         if ($alreadyApplied) throw new HttpException(400, 'Você já se candidatou nessa vaga');
 
@@ -244,8 +268,11 @@ class JobService
                     $interviewDatetime->setTimeFromTimeString($schedule->time);
                     $candidateModel = Candidate::query()->where('id', $data['candidateId'])->first();
 
-                    //Mail::to($candidateModel->user->email)->send(new AcceptInterviewMail($candidateModel->name, $interviewDatetime->format('d/m/Y H:i')));
-                    Mail::to($jobInterview->job->company->user->email)->send(new AcceptInterviewMail($candidateModel->name, $interviewDatetime->format('d/m/Y H:i')));
+                    try {
+                        //Mail::to($candidateModel->user->email)->send(new AcceptInterviewMail($candidateModel->name, $interviewDatetime->format('d/m/Y H:i')));
+                        Mail::to($jobInterview->job->company->user->email)->send(new AcceptInterviewMail($candidateModel->name, $interviewDatetime->format('d/m/Y H:i')));
+                    } catch (\Throwable $th) {
+                    }
                 } catch (\Exception $mailTh) {
                     report($mailTh);
                 }
@@ -281,7 +308,7 @@ class JobService
                     $job->save();
                 }
             } else {
-                Mail::to($candidate->user->email)->send(new JobDenied($candidate->name, $job->role));
+                Mail::to($candidate->user->email)->send(new JobDenied($candidate->name, $job->role, $data['interviewEvaluation']));
             }
             $candidate->pivot->save();
             DB::commit();
@@ -351,5 +378,10 @@ class JobService
             report($th);
             throw $th;
         }
+    }
+
+    public function get()
+    {
+        return Job::query()->where('show_web', '1')->where('status', JobStatusEnum::OPEN->value)->whereDate('end_at', '>', Carbon::today())->paginate(9999);
     }
 }

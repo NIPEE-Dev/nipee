@@ -97,10 +97,6 @@ class Job extends Model
         )->withTimestamps();
     }
 
-    public function role()
-    {
-        return $this->hasOne(BaseRecord::class, 'id', 'role_id')->where('type', '=', BaseRecordsEnum::ROLES->value);
-    }
 
     public function history()
     {
@@ -115,5 +111,10 @@ class Job extends Model
     public function invites()
     {
         return $this->hasMany(JobInterviewInvite::class, 'job_id');
+    }
+
+    public function role()
+    {
+        return $this->belongsTo(BaseRecord::class, 'role_id');
     }
 }

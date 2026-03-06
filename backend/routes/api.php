@@ -23,6 +23,7 @@ use App\Models\Users\User;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ContatoController;
+use App\Http\Controllers\FctEvaluationController;
 use App\Http\Middleware\CheckPermission;
 
 /*
@@ -55,6 +56,7 @@ Route::apiResource('companies', CompanyController::class)->middleware('checkPerm
 
 Route::controller(SchoolController::class)->prefix('schools')->group(function () {
     Route::get('/', 'index')->withoutMiddleware('auth:api');
+    Route::get('/public', 'publicSchools')->withoutMiddleware('auth:api');
     Route::post('/', 'store')->middleware('checkPermission:schools.index');
     Route::get('/{school}', 'show')->middleware('checkPermission:schools.index');
     Route::get('/{school}/courses', 'getCourses')->withoutMiddleware('auth:api');
@@ -62,6 +64,8 @@ Route::controller(SchoolController::class)->prefix('schools')->group(function ()
     Route::delete('/{school}', 'destroy')->withTrashed()->middleware('checkPermission:schools.index');
 });
 
+Route::get('candidates/{candidate}/history', [CandidateController::class, 'history'])->middleware('checkPermission:candidates.index');
+Route::get('candidates/{candidate}/history/download', [CandidateController::class, 'exportHistory'])->withoutMiddleware(['auth:api']);
 Route::get('candidates/interviewing', [CandidateController::class, 'schoolCandidates'])->middleware('checkPermission:candidates.index');
 Route::apiResource('candidates', CandidateController::class)->middleware('checkPermission:candidates.index');
 Route::post('candidates/{candidate}/document', [CandidateController::class, 'storeDocuments'])->middleware('checkPermission:candidates.index');
@@ -73,6 +77,7 @@ Route::prefix('base-records')->group(function () {
     Route::delete('/{baseRecord}', [BaseRecordsController::class, 'destroy'])->middleware('checkPermission:base-records.index');
 });
 
+Route::get('jobs/public', [JobController::class, 'publicJobs'])->withoutMiddleware(['checkPermission:jobs.index', 'auth:api']);
 Route::get('jobs/history', [JobController::class, 'jobsHistory'])->middleware('checkPermission:jobs.index');
 Route::get('jobs/invites/interview', [JobController::class, 'interviewInvites'])->middleware('checkPermission:jobs.index');
 Route::put('jobs/invites/interview/{jobInterview}', [JobController::class, 'updateJobInterview'])->middleware('checkPermission:jobs.index');
@@ -127,3 +132,9 @@ Route::post('/contracts/{contractId}/upload-signature-company', [SignatureContro
 Route::post('/contracts/{contractId}/upload-signature-school', [SignatureController::class, 'uploadSignatureSchool'])->middleware('checkPermission:documents.index');
 
 Route::post('/documents/{document}/signed-contract', [DocumentsController::class, 'updateSignedContract'])->middleware('checkPermission:documents.index');
+Route::post('/documents/{document}/restart', [DocumentsController::class, 'restartSignedContract'])->middleware('checkPermission:documents.index');
+
+Route::get('/fct-evaluations', [FctEvaluationController::class, 'index']);
+Route::post('/fct-evaluations/{id}', [FctEvaluationController::class, 'store']);
+Route::post('/fct-evaluations/{id}/upload', [FctEvaluationController::class, 'upload']);
+Route::get('/storage/generated_documents/guarulhos/{file}', [DocumentsController::class, 'downloadFile']);

@@ -23,10 +23,20 @@ class JobCandidateResource extends JsonResource
             'course' => $this->userCourse,
             'location' => $this->address->uf ?? '',
             'council' => $this->address->city ?? '',
+            'birth_day' => $this->birth_day,
+            'cpf' => $this->cpf,
+            'rg' => $this->rg,
+            'studying_level' => $this->studying_level,
+            'semester' => $this->semester,
+            'period' => $this->period,
+            'ra' => $this->ra,
+            'address' => $this->address,
+            'contact' => $this->contact,
             'phone' => $this->contact->phone ?? '',
-            'statusLabel' => JobCandidateStatusEnum::getLabel(''.$this->pivot->status),
+            'statusLabel' => JobCandidateStatusEnum::getLabel('' . $this->pivot->status),
             'status' => (int) $this->pivot->status,
             'resume' => $this->resume,
+            'schoolId' => $this->user->school->first()->id ?? 0,
             'interviewSchedules' => $this->invites
                 ->where('job_id', $this->pivot->job_id)
                 ->flatMap(function ($invite) {
@@ -35,7 +45,7 @@ class JobCandidateResource extends JsonResource
                         ->map(function ($schedule) {
                             return [
                                 'date' => \Carbon\Carbon::parse($schedule->date)->format('d/m/Y'),
-                                'time' => \Carbon\Carbon::parse($schedule->time)->format('H:i'), 
+                                'time' => \Carbon\Carbon::parse($schedule->time)->format('H:i'),
                             ];
                         });
                 }),

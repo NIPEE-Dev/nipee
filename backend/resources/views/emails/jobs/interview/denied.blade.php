@@ -76,7 +76,7 @@
     <div class="email-container">
         <p class="greeting">Olá, {{ $candidate }}</p>
 
-        <p>Você foi reprovado para a vaga {{ $jobName }}</p>
+        <p>Informamos que não foi selecionado para a vaga {{ $jobName }}. {{ $justification }}</p>
 
         <div class="footer">
             <p>Equipe NIPEE</p>

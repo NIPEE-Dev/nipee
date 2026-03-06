@@ -59,15 +59,16 @@ class ActivitiesController extends Controller
         if ($roleId === RolesEnum::CANDIDATE->value) {
             $activities = $this->activitiesService->getByUserId($user->id);
             $activeContract = $user->candidate && $user->candidate->contracts ? $user->candidate->contracts->where('status', ActiveEnum::ACTIVE)->first() : null;
-            $workedHours = $activities->reduce(function ($carry, $item) {
-                return $carry + $item->estimated_time ?? 0;
-            }, 0);
 
             if (!isset($activeContract)) {
                 return response()->json([
                     'activeContract' => false,
                 ]);
             }
+
+            $workedHours = $activities->where('job_id', $activeContract->originalJob->id)->reduce(function ($carry, $item) {
+                return $carry + $item->estimated_time ?? 0;
+            }, 0);
 
             return response()->json([
                 'activeContract' => true,
@@ -99,8 +100,10 @@ class ActivitiesController extends Controller
     {
         $user = Auth::user();
         $data = $request->validated();
+        $jobId = $user->candidate->contracts->where('status', ActiveEnum::ACTIVE)->first()->originalJob->id ?? null;
         $activity = $this->activitiesService->create([
             ...$data,
+            'job_id' => $jobId,
             'user_id' => $user->id,
             'estimated_time' => $data['estimatedTime'],
             'activity_date' => $data['activityDate'],

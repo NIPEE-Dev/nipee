@@ -3,6 +3,8 @@
 namespace App\Models\Company;
 
 use App\Enums\Company\TypeEnum;
+use App\Models\FctEvaluation;
+use App\Models\FctReport;
 use App\Models\Financial\Tax;
 use App\Models\Shared\Address;
 use App\Models\Shared\Contact;
@@ -79,5 +81,15 @@ class Company extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function fctEvaluations()
+    {
+        return $this->hasMany(FctEvaluation::class, 'company_id');
+    }
+
+    public function fctReports()
+    {
+        return $this->hasMany(FctReport::class, 'company_id');
     }
 }

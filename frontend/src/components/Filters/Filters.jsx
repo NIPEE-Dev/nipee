@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import React, { useState, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import {
   Menu,
   MenuButton,
@@ -15,17 +15,18 @@ import {
   Text,
   Wrap,
   WrapItem,
-  Flex
-} from '@chakra-ui/react';
-import { FiChevronDown } from 'react-icons/fi';
-import { MdArrowRightAlt } from 'react-icons/md';
-import moment from 'moment';
+  Flex,
+} from "@chakra-ui/react";
+import { FiChevronDown } from "react-icons/fi";
+import { MdArrowRightAlt } from "react-icons/md";
+import moment from "moment";
+import { getUfByDistrictName, getDistrictName } from "../../utils/district";
 
 const Filters = ({
   filters,
   onChangeFilter,
   onActiveFilterChange,
-  children
+  children,
 }) => {
   const [selectedFilterOption, setSelectedFilterOption] = useState({});
   const [filterList, setFilterList] = useState([]);
@@ -38,7 +39,7 @@ const Filters = ({
   }, [filters]);
 
   useEffect(() => {
-    const filterFields = searchParams.get('filterFields');
+    const filterFields = searchParams.get("filterFields");
     if (filterFields) {
       const filtersFromUrl = JSON.parse(filterFields);
       if (filtersFromUrl) {
@@ -51,9 +52,9 @@ const Filters = ({
   const update = (newFilters, normalFilters) => {
     const filtersWithPagination = {
       ...newFilters,
-      ...(searchParams.get('perPage') && {
-        perPage: searchParams.get('perPage')
-      })
+      ...(searchParams.get("perPage") && {
+        perPage: searchParams.get("perPage"),
+      }),
     };
 
     if (onChangeFilter === undefined) {
@@ -68,7 +69,7 @@ const Filters = ({
     setActiveFilters((curFilters) => {
       const filterIndex = curFilters.findIndex(
         (curFilter) =>
-          curFilter.field === filter.field && curFilter.value === filter.value
+          curFilter.field === filter.field && curFilter.value === filter.value,
       );
 
       let newFilters = [...curFilters];
@@ -88,7 +89,8 @@ const Filters = ({
         (curFilter) =>
           (curFilter.field === filter.field &&
             curFilter.value !== filter.value) ||
-          (curFilter.field !== filter.field && curFilter.value !== filter.value)
+          (curFilter.field !== filter.field &&
+            curFilter.value !== filter.value),
       );
 
       if (newFilters.length <= 0) {
@@ -107,7 +109,7 @@ const Filters = ({
   };
 
   return (
-    <Stack direction={['column', 'row']} spacing={3}>
+    <Stack direction={["column", "row"]} spacing={3}>
       <MenuContainer
         filterList={filters}
         onChangeFilter={setSelectedFilterOption}
@@ -117,26 +119,28 @@ const Filters = ({
       )}
 
       {activeFilters.length > 0 && (
-        <Flex alignItems='center'>
-          <Divider width='10px' height='30px' orientation='vertical' />
-          <Wrap align='baseline'>
+        <Flex alignItems="center">
+          <Divider width="10px" height="30px" orientation="vertical" />
+          <Wrap align="baseline">
             <span>Filtros: </span>
             {activeFilters.map((filter) => (
               <WrapItem>
                 <Tag
                   key={filter.value}
-                  size='sm'
-                  maxH='20px'
+                  size="sm"
+                  maxH="20px"
                   borderRadius={6}
-                  variant='solid'
-                  colorScheme='blue'
+                  variant="solid"
+                  colorScheme="blue"
                 >
                   <TagLabel>
-                    {filter.header}:{' '}
-                    {filter.type === 'date-range'
+                    {filter.header}:{" "}
+                    {filter.field === "uf"
+                      ? getDistrictName(filter.value)
+                      : filter.type === "date-range"
                       ? `${moment(filter.value[0]).format(
-                          'DD/MM/YYYY'
-                        )} - ${moment(filter.value[1]).format('DD/MM/YYYY')}`
+                          "DD/MM/YYYY",
+                        )} - ${moment(filter.value[1]).format("DD/MM/YYYY")}`
                       : filter.optionValue || filter.value}
                   </TagLabel>
                   <TagCloseButton onClick={() => removeFilter(filter)} />
@@ -145,10 +149,10 @@ const Filters = ({
             ))}
             <Text
               onClick={() => clearFilters()}
-              whiteSpace='nowrap'
-              color='orange.600'
-              fontSize='sm'
-              cursor='pointer'
+              whiteSpace="nowrap"
+              color="orange.600"
+              fontSize="sm"
+              cursor="pointer"
             >
               Limpar filtros
             </Text>
@@ -194,11 +198,11 @@ const MenuContainer = ({ filterList, onChangeFilter, depth = 0 }) => {
           borderRightRadius={0}
           borderLeftRadius={isNestedLevel && 0}
           style={{
-            marginInlineStart: isNestedLevel ? '0px' : 3
+            marginInlineStart: isNestedLevel ? "0px" : 3,
           }}
-          variant='outline'
+          variant="outline"
           rightIcon={<FiChevronDown />}
-          size='sm'
+          size="sm"
         >
           {selectedFilterOption.header}
         </MenuButton>
@@ -208,7 +212,7 @@ const MenuContainer = ({ filterList, onChangeFilter, depth = 0 }) => {
               key={`${filter.header}-${filter.field}-${filter.relation}-${depth}`}
               onClick={() => selectFilterOption(filter)}
             >
-              <Flex alignItems='center' justifyContent='space-between' w='100%'>
+              <Flex alignItems="center" justifyContent="space-between" w="100%">
                 <span>{filter.header}</span>
                 {filter.children && <MdArrowRightAlt />}
               </Flex>
@@ -229,12 +233,12 @@ const MenuContainer = ({ filterList, onChangeFilter, depth = 0 }) => {
 
 const FilterOptions = ({ onChange, filter }) => {
   const [currentOptionSelected, setCurrentOptionSelected] = useState({});
-  const [searchFieldText, setSearchFieldText] = useState('');
+  const [searchFieldText, setSearchFieldText] = useState("");
 
-  const [beginDate, setBeginDate] = useState(moment().format('YYYY-MM-DD'));
-  const [endDate, setEndDate] = useState(moment().format('YYYY-MM-DD'));
+  const [beginDate, setBeginDate] = useState(moment().format("YYYY-MM-DD"));
+  const [endDate, setEndDate] = useState(moment().format("YYYY-MM-DD"));
 
-  const { header, type = 'text', options } = filter;
+  const { header, type = "text", options } = filter;
 
   useEffect(() => {
     if (options) {
@@ -242,20 +246,20 @@ const FilterOptions = ({ onChange, filter }) => {
     }
   }, [options]);
 
-  if (type === 'select') {
+  if (type === "select") {
     return (
       <Menu>
         <MenuButton
           as={Button}
           borderLeftRadius={0}
-          variant='outline'
+          variant="outline"
           rightIcon={<FiChevronDown />}
-          size='sm'
+          size="sm"
           style={{ marginInlineStart: 0 }}
         >
           {currentOptionSelected.header}
         </MenuButton>
-        <MenuList style={{ overflowY: 'scroll', maxHeight: '50vh' }}>
+        <MenuList style={{ overflowY: "scroll", maxHeight: "50vh" }}>
           {options.map((optionFilter) => (
             <MenuItem
               key={optionFilter.value}
@@ -266,7 +270,7 @@ const FilterOptions = ({ onChange, filter }) => {
                   optionValue: optionFilter.header,
                   value: optionFilter.value,
                   relation: filter.relation,
-                  serverType: filter.serverType
+                  serverType: filter.serverType,
                 });
                 setCurrentOptionSelected(optionFilter);
               }}
@@ -277,14 +281,14 @@ const FilterOptions = ({ onChange, filter }) => {
         </MenuList>
       </Menu>
     );
-  } else if (type === 'date-range') {
+  } else if (type === "date-range") {
     return (
       <>
         <Input
-          size='sm'
+          size="sm"
           style={{ marginInlineStart: 0 }}
           maxW={250}
-          type='date'
+          type="date"
           borderLeftRadius={0}
           placeholder={`Filtrar por ${header}`}
           value={beginDate}
@@ -294,16 +298,16 @@ const FilterOptions = ({ onChange, filter }) => {
             if (endDate) {
               onChange({
                 ...filter,
-                value: [e.target.value, endDate]
+                value: [e.target.value, endDate],
               });
             }
           }}
         />
         <Input
-          size='sm'
+          size="sm"
           style={{ marginInlineStart: 0 }}
           maxW={250}
-          type='date'
+          type="date"
           borderLeftRadius={0}
           placeholder={`Filtrar por ${header}`}
           value={endDate}
@@ -313,7 +317,7 @@ const FilterOptions = ({ onChange, filter }) => {
             if (beginDate) {
               onChange({
                 ...filter,
-                value: [beginDate, e.target.value]
+                value: [beginDate, e.target.value],
               });
             }
           }}
@@ -324,7 +328,7 @@ const FilterOptions = ({ onChange, filter }) => {
 
   return (
     <Input
-      size='sm'
+      size="sm"
       style={{ marginInlineStart: 0 }}
       maxW={250}
       type={type}
@@ -332,16 +336,24 @@ const FilterOptions = ({ onChange, filter }) => {
       placeholder={`Filtrar por ${header}`}
       value={searchFieldText}
       onChange={(e) => {
-        if (type === 'date') {
+        console.log(filter);
+        if (type === "date") {
           onChange({ ...filter, value: e.target.value });
         }
 
         setSearchFieldText(e.target.value);
       }}
       onKeyPress={(ev) => {
-        if (ev.key === 'Enter') {
-          onChange({ ...filter, value: ev.target.value });
-          setSearchFieldText('');
+        if (ev.key === "Enter") {
+          if (filter.field === "uf" && filter.relation === "address") {
+            onChange({
+              ...filter,
+              value: getUfByDistrictName(ev.target.value),
+            });
+          } else {
+            onChange({ ...filter, value: ev.target.value });
+          }
+          setSearchFieldText("");
         }
       }}
     />

@@ -120,7 +120,7 @@ export const JobsForm = ({ readOnly, typeForm, isLoading, ...props }) => {
         ...props.initialValues,
         has_scholarship: props.initialValues?.has_scholarship ?? "1",
       }}
-      onSubmit={(values, { setSubmitting }) => {
+      onSubmit={async (values) => {
         const finalValues = { ...values, status: submissionStatus };
         // if (finalValues.start_at && finalValues.end_at) {
         //   if (
@@ -139,9 +139,9 @@ export const JobsForm = ({ readOnly, typeForm, isLoading, ...props }) => {
         //     setSubmitting(false);
         //     return;
         //   }
-        // } 
+        // }
 
-        props.onSubmit(finalValues);
+        await props.onSubmit(finalValues);
       }}
     >
       {({ values, isSubmitting, setFieldValue }) => (
@@ -171,24 +171,37 @@ export const JobsForm = ({ readOnly, typeForm, isLoading, ...props }) => {
                 autoFetch
                 resourceParams={{ perPage: 9999 }}
               >
-                {({ records, isLoading }) => (
-                  <Field
-                    id="company_id"
-                    name="company_id"
-                    placeholder="Nome da empresa"
-                    component={FormField.Select}
-                    disabled={canEdit === false}
-                    readOnly={readOnly}
-                    isLoading={isLoading}
-                    required
-                  >
-                    {records.map((record) => (
-                      <option key={record.id} value={record.id}>
-                        {record.corporate_name}
-                      </option>
-                    ))}
-                  </Field>
-                )}
+                {({ records, isLoading }) => {
+                  React.useEffect(() => {
+                    if (
+                      !isLoading && 
+                      records.length > 0 && 
+                      userRole !== "Administrador Geral" && 
+                      !values.company_id 
+                    ) {
+                      setFieldValue("company_id", records[0].id);
+                    }
+                  }, [isLoading, records, userRole, setFieldValue, values.company_id]);
+
+                  return (
+                    <Field
+                      id="company_id"
+                      name="company_id"
+                      placeholder="Nome da empresa"
+                      component={FormField.Select}
+                      disabled={userRole !== "Administrador Geral" || canEdit === false}
+                      readOnly={readOnly}
+                      isLoading={isLoading}
+                      required
+                    >
+                      {records.map((record) => (
+                        <option key={record.id} value={record.id}>
+                          {record.corporate_name}
+                        </option>
+                      ))}
+                    </Field>
+                  );
+                }}
               </Resource>
             </Stack>
 
@@ -652,21 +665,20 @@ export const JobsForm = ({ readOnly, typeForm, isLoading, ...props }) => {
               </GroupContainer>
             )}
 
-          {["edit", "view"].includes(typeForm) &&
-            props.initialValues?.id &&
-            props.initialValues?.status === 1 && (
-              <GroupContainer
-                title="Candidaturas"
-                subtitle="Todas as candidaturas para esta vaga"
-              >
-                <CandidacyTable
-                  typeForm={typeForm}
-                  readOnly={readOnly}
-                  jobId={props.initialValues.id}
-                  candidates={props.initialValues.candidates}
-                />
-              </GroupContainer>
-            )}
+          {["edit", "view"].includes(typeForm) && props.initialValues?.id && (
+            <GroupContainer
+              title="Candidaturas"
+              subtitle="Todas as candidaturas para esta vaga"
+            >
+              <CandidacyTable
+                formValues={values}
+                typeForm={typeForm}
+                readOnly={readOnly}
+                jobId={props.initialValues.id}
+                candidates={props.initialValues.candidates}
+              />
+            </GroupContainer>
+          )}
 
           {["edit", "view"].includes(typeForm) &&
             props.initialValues?.id &&

@@ -11,6 +11,7 @@ import {
   MdOutlineTextSnippet, // 📝 Usado em: Registos Base
   MdAssignmentInd, // ✅ Usado em: Aprovação
   MdMenu, // 📋 Usado em: container do menu principal
+  MdOutlineRateReview,
 } from "react-icons/md";
 import { FaSchool } from "react-icons/fa"; // icon para escola
 import routes from "../../routes";
@@ -40,6 +41,12 @@ export const baseMenuItems = [
     icon: MdOutlineDashboard,
     to: "/reports-fct",
     permission: "reportsCandidates.index",
+  },
+   {
+    name: "Avaliações FCT",
+    icon: MdOutlineRateReview,
+    to: "/evaluation-fct",
+    permission: "evaluationCandidates.index",
   },
   {
     name: "Dados do seguro",

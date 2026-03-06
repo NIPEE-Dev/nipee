@@ -124,11 +124,12 @@ class ContractService
             'candidate_id' => $candidateID,
         ]);
 
-        return DB::transaction(fn() => tap(Contract::create($contractData), function (Contract $contract) use ($data) {
+        return DB::transaction(fn() => tap(Contract::create($contractData), function (Contract $contract) use ($data, $candidate) {
             $job = Arr::get($data, 'job');
             $userAddress = Arr::get($data, 'userAddress');
-            $jobAddress = $contract->company->address;
+            $jobAddress = $contract->company->address ?? "";
             $jobOtherAddress = Arr::get($data, 'jobOtherAddress');
+            $candidateModel = $candidate;
             $candidate = Arr::get($data, 'candidate');
             $candidateAddress = $candidate['address'];
 
@@ -139,7 +140,9 @@ class ContractService
                 $job['role'] = $job['role']['title'];
             }
 
-            $contract->company->tax()->create(['type' => TaxEnum::ACCESSION, 'contract_id' => $contract->id]);
+            if (isset($contract->company)) {
+                $contract->company->tax()->create(['type' => TaxEnum::ACCESSION, 'contract_id' => $contract->id]);
+            }
 
             $contract->job()->create(Arr::only($job, [
                 'role',
@@ -165,10 +168,10 @@ class ContractService
                 'working_hours',
             ]));
 
-            $candidate['name'] = $candidate['nameOriginal'];
-            $candidate = $contract->candidate()->create($candidate);
+            $candidate['name'] = $candidate['nameOriginal'] ?? '';
+            $candidate = $contract->candidate()->save($candidateModel);
             $candidate->contact()->create(Arr::get($data, 'candidate.contact'));
-            $contract->load(['candidate', 'company.address', 'school.address', 'job']);
+            $contract->load(['candidate', 'company', 'company.address', 'school.address', 'job']);
 
             if (! $contract->school || ! $contract->school->address) {
                 throw new \RuntimeException(
@@ -216,7 +219,7 @@ class ContractService
 
                 'anos' => "${anoLetivo}",
 
-                'period' => PeriodEnum::getLabel(PeriodEnum::from($job['period'])),
+                'period' => PeriodEnum::getLabel($candidate['period']),
 
                 'nomeCandidato' => $candidate->name,
                 'nascimentoCandidato' => $candidate->birth_day,

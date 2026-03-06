@@ -8,13 +8,17 @@ import {
   Button,
   useToast,
   Tooltip,
+  Checkbox,
+  VStack,
+  Text,
 } from "@chakra-ui/react";
 import {
   MdUploadFile,
   MdDriveFileMoveOutline,
   MdOutlineDriveFileMoveRtl,
-  MdOutlineOpenInNew,
   MdEdit,
+  MdFileDownload,
+  MdRestore 
 } from "react-icons/md";
 import ResourceScreen from "../../components/ResourceScreen/ResourceScreen";
 import routes from "../../routes";
@@ -22,11 +26,71 @@ import { dateFormatter } from "../../utils/visualization";
 import getRoute from "../../utils/getRoute";
 import WithModal from "../../components/WithModal/WithModal";
 import SignaturePad from "../../components/SignaturePad/SignaturePad";
-import api from "../../api";
+import useUploadSignature from "../../hooks/useUploadSignature";
 
-const UploadDocumentModal = ({ documentId, toggleModal, refreshData }) => {
+const ResetFlowModal = ({ documentId, toggleModal, refreshData }) => {
+  const { restartContract, loading: isLoading } = useUploadSignature();
+  const toast = useToast();
+
+  const handleReset = async () => {
+    try {
+      await restartContract(documentId);
+
+      toast({
+        title: "Fluxo Reiniciado",
+        description: "O status do documento voltou para o início.",
+        status: "success",
+        duration: 5000,
+        isClosable: true,
+      });
+      
+      refreshData();
+      toggleModal();
+      setTimeout(() => {
+        window.location.reload();
+      }, 500);
+    } catch (error) {
+      console.error("Erro ao reiniciar fluxo:", error);
+      toast({
+        title: "Erro",
+        description: error.message || "Não foi possível reiniciar o fluxo.",
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+      });
+    }
+  };
+
+  return (
+    <VStack spacing={4} align="stretch" p={4}>
+      <Text>
+        Tem certeza que deseja <b>reiniciar o fluxo de assinatura</b>?
+      </Text>
+      <Text fontSize="sm" color="red.500">
+        Isso descartará qualquer assinatura ou arquivo enviado até o momento e o status voltará para o inicial. Use esta opção se o arquivo enviado estiver incorreto ou o formato da assinatura não for aceito.
+      </Text>
+      <HStack justifyContent="flex-end" pt={4}>
+        <Button variant="ghost" onClick={toggleModal} isDisabled={isLoading}>
+          Cancelar
+        </Button>
+        <Button 
+          colorScheme="red" 
+          onClick={handleReset} 
+          isLoading={isLoading}
+          leftIcon={<MdRestore />}
+        >
+          Confirmar Reinício
+        </Button>
+      </HStack>
+    </VStack>
+  );
+};
+
+const UploadDocumentModal = ({ documentId, toggleModal, refreshData, requiresAcceptance }) => {
   const [file, setFile] = React.useState(null);
-  const [isLoading, setIsLoading] = React.useState(false);
+  const [accepted, setAccepted] = React.useState(!requiresAcceptance);
+  
+  const { uploadSignedFile, loading: isLoading } = useUploadSignature();
   const toast = useToast();
 
   const handleFileChange = (event) => {
@@ -45,20 +109,23 @@ const UploadDocumentModal = ({ documentId, toggleModal, refreshData }) => {
       return;
     }
 
-    const formData = new FormData();
-    formData.append("file", file);
+    if (requiresAcceptance && !accepted) {
+        toast({
+          title: "Atenção",
+          description: "Você precisa confirmar que leu e está de acordo.",
+          status: "warning",
+          duration: 3000,
+          isClosable: true,
+        });
+        return;
+    }
 
     try {
-      setIsLoading(true);
-      await api.post(`/documents/${documentId}/signed-contract`, formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      });
+      await uploadSignedFile(documentId, file);
 
       toast({
         title: "Sucesso",
-        description: "Protocolo Manual anexado com sucesso!",
+        description: "Documento anexado com sucesso!",
         status: "success",
         duration: 5000,
         isClosable: true,
@@ -72,29 +139,42 @@ const UploadDocumentModal = ({ documentId, toggleModal, refreshData }) => {
       console.error("Erro ao enviar documento:", error);
       toast({
         title: "Erro no Upload",
-        description: "Ocorreu uma falha ao anexar o Protocolo.",
+        description: error.message || "Ocorreu uma falha ao anexar o documento.",
         status: "error",
         duration: 5000,
         isClosable: true,
       });
-    } finally {
-      setIsLoading(false);
     }
   };
 
   return (
-    <HStack p={4} spacing={4} justifyContent="flex-end">
-      <input type="file" onChange={handleFileChange} style={{ flexGrow: 1 }} />
-      <Button
-        colorScheme="orange"
-        onClick={handleUpload}
-        isLoading={isLoading}
-        isDisabled={!file}
-        leftIcon={<MdUploadFile />}
-      >
-        Enviar
-      </Button>
-    </HStack>
+    <VStack p={4} spacing={4} alignItems="stretch">
+      <input type="file" onChange={handleFileChange} accept=".pdf" />
+      
+      {requiresAcceptance && (
+          <Checkbox 
+            isChecked={accepted} 
+            onChange={(e) => setAccepted(e.target.checked)}
+            colorScheme="orange"
+          >
+            <Text fontSize="sm">
+                Li o documento, confirmei as assinaturas e estou de acordo.
+            </Text>
+          </Checkbox>
+      )}
+
+      <HStack justifyContent="flex-end">
+        <Button
+          colorScheme="orange"
+          onClick={handleUpload}
+          isLoading={isLoading}
+          isDisabled={!file || (requiresAcceptance && !accepted)}
+          leftIcon={<MdUploadFile />}
+        >
+          Submeter
+        </Button>
+      </HStack>
+    </VStack>
   );
 };
 
@@ -104,7 +184,6 @@ const DocumentsPage = () => {
   const isEscola = userRole === "Escola";
   const isEmpresa = userRole === "Empresa";
   const isAdm = userRole === "Administrador Geral";
-  const isCandidato = userRole === "Candidato";
 
   const resourceScreenRef = React.useRef();
   const refreshData = () => {
@@ -129,6 +208,11 @@ const DocumentsPage = () => {
       }}
       filters={[
         {
+            field: "nif",
+            header: "NIF",
+            type: "text",
+        },
+        {
           field: "status",
           header: "Status",
           type: "select",
@@ -143,9 +227,9 @@ const DocumentsPage = () => {
           serverType: "equals",
         },
         {
-          field: "created_at",
-          header: "Criado em",
-          type: "date-range",
+            field: "created_at",
+            header: "Criado em",
+            type: "date-range",
         },
       ]}
       columns={[
@@ -155,72 +239,116 @@ const DocumentsPage = () => {
                 Header: "Ação",
                 accessor: "sign_or_upload",
                 Cell: ({ row }) => {
-                  const tiposComAcao = [
-                    "Contrato",
-                    "Protocolo",
-                    "Protocolo Manual",
-                  ];
                   const {
                     status,
                     attachable,
                     type,
                     id: documentId,
+                    filename,
+                    file_extension
                   } = row.original;
                   const attachableId = row.original.attachable_id;
+
+                  const tiposComAcao = [
+                    "Contrato",
+                    "Protocolo",
+                    "Protocolo Manual",
+                  ];
 
                   if (!tiposComAcao.includes(type)) return null;
                   if (status === "5") return null;
 
-                  if (type === "Protocolo Manual" && isEscola) {
-                    if (status === "1") return null;
+                  const isProtocoloManual = type === "Protocolo Manual";
+                  const isProtocoloAutomatico = type === "Protocolo";
+
+                  let showUploadFlow = false;
+
+                  if (isProtocoloManual && isEscola && status !== "1") {
+                    showUploadFlow = true;
+                  }
+
+                  if (isProtocoloAutomatico) {
+                    if (isEmpresa && status === "3") showUploadFlow = true;
+                    if (isEscola && status === "4") showUploadFlow = true;
+                  }
+
+                  if (showUploadFlow) {
+                    const downloadUrl = `${import.meta.env.VITE_BACKEND_BASE_URL}/documents/${filename}.${file_extension}/download`;
 
                     return (
-                      <WithModal
-                        title="Anexar Protocolo Manual"
-                        modal={({ toggleModal: innerToggleModal }) => (
-                          <UploadDocumentModal
-                            documentId={documentId}
-                            toggleModal={innerToggleModal}
-                            refreshData={refreshData}
-                          />
-                        )}
-                        size="xl"
-                      >
-                        {({ toggleModal }) => (
-                          <Tooltip label="Anexar Protocolo Manual" hasArrow>
-                            <Button
-                              colorScheme="orange"
-                              size="xs"
-                              onClick={toggleModal}
+                        <HStack spacing={2}>
+                            <Tooltip label="Download" hasArrow>
+                                <Link href={downloadUrl} target="_blank" _hover={{ textDecoration: 'none' }}>
+                                    <Button size="xs" colorScheme="blue">
+                                        <MdFileDownload />
+                                    </Button>
+                                </Link>
+                            </Tooltip>
+
+                            <WithModal
+                                title={isProtocoloAutomatico ? "Anexar Protocolo Assinado" : "Anexar Protocolo Manual"}
+                                modal={({ toggleModal: innerToggleModal }) => (
+                                <UploadDocumentModal
+                                    documentId={documentId}
+                                    toggleModal={innerToggleModal}
+                                    refreshData={refreshData}
+                                    requiresAcceptance={isProtocoloAutomatico} 
+                                />
+                                )}
+                                size="xl"
                             >
-                              <MdUploadFile />
-                            </Button>
-                          </Tooltip>
-                        )}
-                      </WithModal>
+                                {({ toggleModal }) => (
+                                <Tooltip label="Anexar" hasArrow>
+                                    <Button
+                                    colorScheme="orange"
+                                    size="xs"
+                                    onClick={toggleModal}
+                                    >
+                                    <MdUploadFile />
+                                    </Button>
+                                </Tooltip>
+                                )}
+                            </WithModal>
+
+                            {isProtocoloAutomatico && (
+                                <WithModal
+                                    title="Reiniciar Fluxo"
+                                    modal={({ toggleModal: innerToggleModal }) => (
+                                        <ResetFlowModal 
+                                            documentId={documentId}
+                                            toggleModal={innerToggleModal}
+                                            refreshData={refreshData}
+                                        />
+                                    )}
+                                >
+                                    {({ toggleModal }) => (
+                                        <Tooltip label="Recusar/Reiniciar Fluxo" hasArrow>
+                                            <Button
+                                                colorScheme="red"
+                                                variant="outline"
+                                                size="xs"
+                                                onClick={toggleModal}
+                                            >
+                                                <MdRestore />
+                                            </Button>
+                                        </Tooltip>
+                                    )}
+                                </WithModal>
+                            )}
+                        </HStack>
                     );
                   }
 
-                  const isAssinavelDigital = ["Contrato", "Protocolo"].includes(
-                    type
-                  );
+                  const isAssinavelDigital = ["Contrato"].includes(type);
 
                   if (isAssinavelDigital) {
                     let canSign = false;
 
-                    if (isEmpresa) {
-                      if (
-                        status === "3" &&
-                        attachable.company_signature === 0
-                      ) {
+                    if (isEmpresa && status === "3" && attachable.company_signature === 0) {
                         canSign = true;
-                      }
                     }
-
-                    if (isEscola) {
-                      if (status === "4" && attachable.school_signature === 0) {
+                    if (isEscola && status === "4" && attachable.school_signature === 0) {
                         canSign = true;
-                      }
                     }
 
                     if (canSign) {
@@ -231,7 +359,7 @@ const DocumentsPage = () => {
                           size="xl"
                         >
                           {({ toggleModal }) => (
-                            <Tooltip label="Assinar" hasArrow>
+                            <Tooltip label="Assinar Digitalmente" hasArrow>
                               <Button
                                 colorScheme="blue"
                                 size="xs"
@@ -303,6 +431,14 @@ const DocumentsPage = () => {
             };
 
             return availableNames[originalData.name] || "";
+          },
+        },
+        {
+          Header: "NIF",
+          accessor: (originalData) => {
+            if (originalData.name === "Candidate") {
+              return originalData.attachable?.cpf || "";
+            }
           },
         },
         {

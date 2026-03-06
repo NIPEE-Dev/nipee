@@ -28,7 +28,10 @@ class StudentsPreRegistration extends Model
         'password_creation_link',
         'approved_at',
         'reject_at',
-        'school_id'
+        'school_id',
+        'accepted_terms_at',
+        'user_ip',
+        'user_agent'
     ];
 
     protected $dates = [
@@ -37,6 +40,7 @@ class StudentsPreRegistration extends Model
         'reject_at',
         'created_at',
         'updated_at',
+        'accepted_terms_at',
     ];
 
     public function school()

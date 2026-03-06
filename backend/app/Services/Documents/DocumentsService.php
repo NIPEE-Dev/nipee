@@ -28,6 +28,19 @@ class DocumentsService
         $user = Auth::user();
         $roleId = $user->roles[0]->id;
         $isAdmin = $this->isAdmin();
+        $nif = null;
+        if (isset($criteria['filterFields'])) {
+            $decodedFilters = json_decode($criteria['filterFields'], true);
+            $withoutSkillsArr = [];
+            foreach ($decodedFilters as $key => $value) {
+                if ($value['field'] === 'nif') {
+                    $nif = $value['value'];
+                    continue;
+                }
+                $withoutSkillsArr[] = $value;
+            }
+            $criteria['filterFields'] = json_encode($withoutSkillsArr);
+        }
 
         $this->addSpecialField('created_at', function (Builder $builder, Filter $filter) {
             return $builder->whereBetween('created_at', [$filter->getValue()[0] . ' 00:00:00', $filter->getValue()[1] . ' 23:59:59']);
@@ -45,27 +58,39 @@ class DocumentsService
             }
         ]), $criteria);
 
-        if (!$isAdmin && in_array($roleId, [13, 10, 14])) {
-            $data->orWhereHasMorph('attachable', Contract::class, function (Builder $query) use ($user) {
-                $query->where('candidate_id', $user->candidate->id ?? 0)
-                      ->orWhere('company_id', $user->company->id ?? 0)
-                      ->orWhere('school_id', $user->school[0]->id ?? 0);
+
+        if (isset($nif)) {
+            $data->whereHasMorph('attachable', [Candidate::class], function ($q) use ($nif) {
+                $q->where('cpf', $nif);
+            });
+        }
+        if (!$isAdmin && in_array($roleId, [13, 10, 14]) && !isset($nif)) {
+            $data->orWhereHasMorph('attachable', Contract::class, function (Builder $query) use ($user, $roleId) {
+                if ($roleId === 13) {
+                    $query->where('candidate_id', $user->candidate->id ?? 0);
+                }
+                if ($roleId === 14) {
+                    $query->where('company_id', $user->company->id ?? 0);
+                }
+                if ($roleId === 10) {
+                    $query->where('school_id', $user->school[0]->id ?? 0);
+                }
             });
         }
 
-        if (!$isAdmin && $roleId === 13) {
+        if (!$isAdmin && $roleId === 13 && !isset($nif)) {
             $data->orWhereHasMorph('attachable', Candidate::class, function (Builder $query) use ($user) {
                 $query->where('user_id', $user->id);
             });
         }
 
-        if (!$isAdmin && $roleId === 10) {
+        if (!$isAdmin && $roleId === 10 && !isset($nif)) {
             $data->orWhereHasMorph('attachable', School::class, function (Builder $query) use ($user) {
                 $query->where('id', $user->id);
             });
         }
 
-        if (!$isAdmin && $roleId === 14) {
+        if (!$isAdmin && $roleId === 14 && !isset($nif)) {
             $data->orWhereHasMorph('attachable', Company::class, function (Builder $query) use ($user) {
                 $query->where('user_id', $user->id);
             });

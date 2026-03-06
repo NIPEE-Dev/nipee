@@ -6,6 +6,7 @@ use App\Enums\GenderEnum;
 use App\Enums\InterestEnum;
 use App\Enums\JobCandidateStatusEnum;
 use App\Enums\PeriodEnum;
+use App\Enums\UserCandidateStatusEnum;
 use Illuminate\Foundation\Auth\User;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Auth;
@@ -30,6 +31,7 @@ class CandidateResource extends JsonResource
             'school_id' => $this->user->school[0]->id ?? null,
             'course_title' => $this->userCourse->title ?? null,
             'jobs_situations' => $situations,
+            'status' => UserCandidateStatusEnum::getLabel($this->status)
         ]);
     }
 }

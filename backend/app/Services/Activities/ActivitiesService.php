@@ -4,8 +4,12 @@ namespace App\Services\Activities;
 
 use App\Enums\ActiveEnum;
 use App\Enums\Activities\ActivityStatusEnum;
+use App\Enums\FctEvaluationStatusEnum;
+use App\Enums\UserCandidateStatusEnum;
+use App\Mail\CompletedFctHoursMail;
 use App\Mail\FctReportMail;
 use App\Models\Activities\Activity;
+use App\Models\FctEvaluation;
 use App\Models\FctReport;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Cache;
@@ -36,6 +40,12 @@ class ActivitiesService
                         throw new HttpException(400, 'Atividade não encontrada');
                     }
                     $activity->update($data);
+                    $activity->user->candidate->hours_completed += $activity->estimated_time;
+                    $activity->user->candidate->hours_remaining = ($activity->user->candidate->hours_fct ?? 0) - $activity->user->candidate->hours_completed;
+                    if ($activity->user->candidate->hours_remaining <= 0) {
+                        $activity->user->candidate->status = UserCandidateStatusEnum::CONCLUDED->value;
+                    }
+                    $activity->user->candidate->save();
                     $availableTotalHours = $activity->user->candidate->contracts->where('status', ActiveEnum::ACTIVE)->first()->originalJob?->fct_hours ?? 0;
                     $currentTotalHours = $activity->user->activities->where('status', '!=', ActivityStatusEnum::PENDING->value)->sum('estimated_time');
                     if ($availableTotalHours !== 0 && $currentTotalHours >= $availableTotalHours) {
@@ -77,9 +87,19 @@ class ActivitiesService
                             'company_id' => $company->id,
                             'sent_date' => Carbon::now(),
                         ]);
-
-                        foreach ([$school->contact->email, $company->contact->email] as $recipient) {
-                            Mail::to($recipient)->send(new FctReportMail($docPath['path']));
+                        FctEvaluation::create([
+                            'status' => FctEvaluationStatusEnum::PENDING->value,
+                            'candidate_id' => $activity->user->candidate->id,
+                            'school_id' => $school->id,
+                            'company_id' => $company->id,
+                            'job_id' => $contract->originalJob->id,
+                        ]);
+                        try {
+                            Mail::to($company->contact->email)->send(new CompletedFctHoursMail($company->supervisor, $school->corporate_name));
+                            foreach ([$school->contact->email, $company->contact->email] as $recipient) {
+                                Mail::to($recipient)->send(new FctReportMail($docPath['path']));
+                            }
+                        } catch (\Throwable $th) {
                         }
                     }
 

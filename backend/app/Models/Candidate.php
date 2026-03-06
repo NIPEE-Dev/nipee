@@ -58,7 +58,9 @@ class Candidate extends Model
         'volunteer_experience',
         'user_id',
         'resume',
-        'rgValidade'
+        'rgValidade',
+        'hours_remaining',
+        'hours_completed'
     ];
 
     public $casts = [
@@ -84,8 +86,8 @@ class Candidate extends Model
     protected function birthDay(): Attribute
     {
         return Attribute::make(
-            get: fn ($value) => Carbon::parse($value)->format("d/m/Y"),
-            set: fn ($value) => Carbon::createFromFormat("d/m/Y", $value),
+            get: fn($value) => Carbon::parse($value)->format("d/m/Y"),
+            set: fn($value) => Carbon::createFromFormat("d/m/Y", $value),
         );
     }
 
@@ -123,10 +125,10 @@ class Candidate extends Model
     }
 
     public function userCourse()
-{
-    return $this->belongsTo(BaseRecord::class, 'course')
-        ->where('type', '=', BaseRecordsEnum::COURSES->value);
-}
+    {
+        return $this->belongsTo(BaseRecord::class, 'course')
+            ->where('type', '=', BaseRecordsEnum::COURSES->value);
+    }
 
     public function school()
     {
@@ -169,7 +171,7 @@ class Candidate extends Model
     public function interviews()
     {
         return $this->belongsToMany(Job::class, 'job_candidate')
-                    ->withPivot('status')
-                    ->withTimestamps();
+            ->withPivot('status')
+            ->withTimestamps();
     }
 }

@@ -14,9 +14,7 @@ use App\Http\Resources\BaseRecordResource;
 
 class SchoolController extends Controller
 {
-    public function __construct(public SchoolService $schoolService)
-    {
-    }
+    public function __construct(public SchoolService $schoolService) {}
 
     /**
      * Display a listing of the resource.
@@ -83,11 +81,15 @@ class SchoolController extends Controller
      * @param School $school
      * @return BaseRecordResource
      */
-     public function getCourses(School $school)
+    public function getCourses(School $school)
     {
         $courses = $school->courses;
         return BaseRecordResource::collection($courses);
     }
 
-    
+    public function publicSchools()
+    {
+        $schools = $this->schoolService->get();
+        return SchoolResource::collection($schools);
+    }
 }
