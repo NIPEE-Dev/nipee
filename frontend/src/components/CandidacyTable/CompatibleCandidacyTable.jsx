@@ -153,7 +153,7 @@ const CompatibleCandidacyTable = ({ candidates, jobId }) => {
                 <Td>
                   {c.resume ? (
                     <Link
-                      href={`${import.meta.env.VITE_BACKEND_BASE_URL_EX}/storage/${c.resume}`}
+                      href={`${import.meta.env.VITE_BACKEND_BASE_URL_EX}/storage/api/documents/${c.resume}/download`}
                       isExternal
                       color="purple.500"
                     >
