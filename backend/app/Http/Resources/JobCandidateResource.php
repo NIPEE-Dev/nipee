@@ -16,6 +16,13 @@ class JobCandidateResource extends JsonResource
      */
     public function toArray($request)
     {
+        $resume = $this->resume;
+
+        if (is_null($resume)) {
+            $resumeDoc = $this->documents->where('type', 'Currículo (CV)')->first();
+            $resume = $resumeDoc->filename ?? null;
+        }
+
         return [
             'id' => $this->id,
             'name' => $this->name,
@@ -35,7 +42,7 @@ class JobCandidateResource extends JsonResource
             'phone' => $this->contact->phone ?? '',
             'statusLabel' => JobCandidateStatusEnum::getLabel('' . $this->pivot->status),
             'status' => (int) $this->pivot->status,
-            'resume' => $this->resume,
+            'resume' => $resume,
             'schoolId' => $this->user->school->first()->id ?? 0,
             'interviewSchedules' => $this->invites
                 ->where('job_id', $this->pivot->job_id)
