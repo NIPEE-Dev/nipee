@@ -19,8 +19,8 @@ class JobCandidateResource extends JsonResource
         $resume = $this->resume;
 
         if (is_null($resume)) {
-            $resumeDoc = $this->documents->where('type', 'Currículo (CV)')->first();
-            $resume = $resume ? $resumeDoc->filename . ".$resumeDoc->file_extension" : null;
+            $resumeDoc = $this->documents->whereIn('type', ['Currículo (CV)', 'Curriculum Vitae'])->first();
+            $resume = $resumeDoc ? $resumeDoc->filename . ".$resumeDoc->file_extension" : null;
         }
 
         return [
