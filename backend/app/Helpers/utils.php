@@ -139,7 +139,7 @@ if (!function_exists('getCityByUf')) {
             'viseu' => 'Viseu',
             'acores' => 'Açores',
             'madeira' => 'Madeira',
-            default => null, 
+            default => null,
         };
     }
 }
@@ -159,8 +159,8 @@ if (!function_exists('user')) {
         foreach (array_keys(config('auth.guards')) as $guard) {
             if (
                 auth()
-                    ->guard($guard)
-                    ->check()
+                ->guard($guard)
+                ->check()
             ) {
                 return auth($guard)->user();
             }
@@ -184,12 +184,12 @@ if (!function_exists('journeyText')) {
 
         ];
 
-        $text = "De {$weekdays[$workingDay->start_weekday]} à {$weekdays[$workingDay->end_weekday]} das {$workingDay->start_hour} às {$workingDay->end_hour}";
+        $text = "A Formação em Contexto de Trabalho decorrerá sempre que possível, no regime de {$weekdays[$workingDay->start_weekday]} à {$weekdays[$workingDay->end_weekday]} das {$workingDay->start_hour} às {$workingDay->end_hour}";
         if ($workingDay->day_off_start_weekday) {
             $text .= " e de {$weekdays[$workingDay->day_off_start_weekday]} das {$workingDay->day_off_start_hour} às {$workingDay->day_off_end_hour}";
         }
 
-        $text .= " (com {$workingDay->day_off}) totalizando {$workingDay->working_hours} horas semanais";
+        $text .= " (com {$workingDay->day_off}) totalizando {$workingDay->working_hours} horas semanais, podendo abranger os fins-de-semana e funcionar em regime de rotatividade, caso seja necessário. Em casos particulares poderá o horário ser prolongado para além das 20h00.";
 
         return strtoupper($text);
     }
