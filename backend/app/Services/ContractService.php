@@ -166,6 +166,8 @@ class ContractService
                 'day_off_end_hour',
                 'day_off',
                 'working_hours',
+                'schedule_type',
+                'flexible_text',
             ]));
 
             $candidate['name'] = $candidate['nameOriginal'] ?? '';
@@ -244,7 +246,7 @@ class ContractService
                 'dataInicial' => $contract->start_contract_vigence->format("d/m/Y"),
                 'dataFinal' => $contract->end_contract_vigence->format("d/m/Y"),
                 'bolsa' => "R$ " . number_format($contract->job->scholarship_value, 2, ",", "."),
-                'jornada' => strtolower(journeyText($contract->workingDay)),
+                'jornada' => isset($contract->workingDay->flexible_text) ? strtolower($contract->workingDay->flexible_text) : strtolower(journeyText($contract->workingDay)),
                 'supervisor' => $contract->supervisor,
                 'razaoSocialEmpresa2' => $contract->company->corporate_name,
                 'razaoSocialEscola2' => $contract->school->corporate_name,
@@ -377,6 +379,8 @@ class ContractService
             'day_off_end_hour',
             'day_off',
             'working_hours',
+            'schedule_type',
+            'flexible_text',
         ]));
 
         $contract->userAddress->update(Arr::get($data, 'userAddress', []));

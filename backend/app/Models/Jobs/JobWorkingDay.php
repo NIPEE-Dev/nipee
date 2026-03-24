@@ -20,5 +20,7 @@ class JobWorkingDay extends Model
         'day_off_end_hour',
         'day_off',
         'working_hours',
+        'schedule_type',
+        'flexible_text',
     ];
 }
