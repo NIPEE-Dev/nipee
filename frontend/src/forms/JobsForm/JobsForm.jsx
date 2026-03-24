@@ -8,6 +8,10 @@ import {
   Textarea,
   Spinner,
   useToast,
+  FormControl,
+  FormLabel,
+  RadioGroup,
+  Radio,
 } from "@chakra-ui/react";
 import { Formik, Form, Field, FastField } from "formik";
 import FormField from "../../components/FormField/FormField";
@@ -481,165 +485,203 @@ export const JobsForm = ({ readOnly, typeForm, isLoading, ...props }) => {
             title="Dados da jornada"
             subtitle="Informações pertinentes à carga horária do estagiário"
           >
-            <Stack direction={["column", "row"]} spacing="24px">
-              <FastField
-                id="working_day.start_weekday"
-                name="working_day.start_weekday"
-                placeholder="De"
-                component={FormField.Select}
-                readOnly={readOnly}
-                required
+            <FormControl as="fieldset" mb={6}>
+              <FormLabel as="legend" fontWeight="bold" mb={3}>Tipo de Horário</FormLabel>
+              <RadioGroup
+                onChange={(val) => {
+                  setFieldValue("working_day.schedule_type", val);
+
+                  if (val === "flexible" && !values.working_day?.flexible_text) {
+                    setFieldValue(
+                      "working_day.flexible_text",
+                      "A Formação em Contexto de Trabalho decorrerá sempre que possível, no regime de sete ou oito horas diárias, entre as 8h00 e as 20h00, divididas por cinco dias da semana, podendo abranger os fins-de-semana e funcionar em regime de rotatividade, caso seja necessário. Em casos particulares poderá o horário ser prolongado para além das 20h00."
+                    );
+                  }
+                }} 
+                value={values.working_day?.schedule_type || "fixed"}
               >
-                {weekDays.map((day, i) => (
-                  <option key={i + 1} value={i + 1}>
-                    {day}
-                  </option>
-                ))}
-              </FastField>
-              <FastField
-                id="working_day.end_weekday"
-                name="working_day.end_weekday"
-                placeholder="À"
-                disabled={canEdit === false}
-                component={FormField.Select}
-                readOnly={readOnly}
-                required
-              >
-                {weekDays.map((day, i) => (
-                  <option key={i + 1} value={i + 1}>
-                    {day}
-                  </option>
-                ))}
-              </FastField>
-            </Stack>
-            <Stack direction={["column", "row"]} spacing="24px">
-              <FastField
-                id="working_day.start_hour"
-                name="working_day.start_hour"
-                placeholder="Das"
-                disabled={canEdit === false}
-                component={FormField}
-                type="time"
-                readOnly={readOnly}
-              />
-              <FastField
-                id="working_day.end_hour"
-                name="working_day.end_hour"
-                placeholder="Às"
-                disabled={canEdit === false}
-                component={FormField}
-                type="time"
-                readOnly={readOnly}
-              />
-            </Stack>
-            <Text
-              display="flex"
-              flexDirection="row"
-              marginX={2}
-              as="i"
-              _before={{
-                content: `""`,
-                flex: "1 1",
-                borderBottom: "2px solid var(--chakra-colors-gray-200)",
-                margin: "auto",
-              }}
-              _after={{
-                content: `""`,
-                flex: "1 1",
-                borderBottom: "2px solid var(--chakra-colors-gray-200)",
-                margin: "auto",
-              }}
-            >
-              <chakra.div
-                textAlign="center"
-                userSelect="none"
-                color="gray.500"
-                width="140px"
-              >
-                Exceção
-              </chakra.div>
-            </Text>
-            <Stack direction={["column", "row"]} spacing="24px">
-              <FastField
-                disabled={canEdit === false}
-                id="working_day.day_off_start_weekday"
-                name="working_day.day_off_start_weekday"
-                placeholder="De"
-                component={FormField.Select}
-                readOnly={readOnly}
-              >
-                {weekDays.map((day, i) => (
-                  <option key={i + 1} value={i + 1}>
-                    {day}
-                  </option>
-                ))}
-              </FastField>
-              <FastField
-                disabled={canEdit === false}
-                id="working_day.day_off_start_hour"
-                name="working_day.day_off_start_hour"
-                placeholder="Das"
-                component={FormField}
-                type="time"
-                readOnly={readOnly}
-              />
-              <FastField
-                id="working_day.day_off_end_hour"
-                name="working_day.day_off_end_hour"
-                placeholder="Às"
-                component={FormField}
-                type="time"
-                readOnly={readOnly}
-              />
-            </Stack>
-            <Text
-              display="flex"
-              flexDirection="row"
-              marginX={2}
-              as="i"
-              _before={{
-                content: `""`,
-                flex: "1 1",
-                borderBottom: "2px solid var(--chakra-colors-gray-200)",
-                margin: "auto",
-              }}
-              _after={{
-                content: `""`,
-                flex: "1 1",
-                borderBottom: "2px solid var(--chakra-colors-gray-200)",
-                margin: "auto",
-              }}
-            >
-              <chakra.div
-                textAlign="center"
-                userSelect="none"
-                color="gray.500"
-                width="140px"
-              >
-                Folga
-              </chakra.div>
-            </Text>
-            <Stack direction={["column", "row"]} spacing="24px">
-              <FastField
-                disabled={canEdit === false}
-                id="working_day.day_off"
-                name="working_day.day_off"
-                placeholder="Folga"
-                component={FormField}
-                readOnly={readOnly}
-                required
-              />
-              <FastField
-                id="working_day.working_hours"
-                name="working_day.working_hours"
-                placeholder="Horas semanais"
-                component={FormField}
-                type="number"
-                readOnly={readOnly}
-                required
-              />
-            </Stack>
-            {makeJourneyText(values)}
+                <Stack direction="row" spacing={10}>
+                  <Radio value="fixed">Horário fixo</Radio>
+                  <Radio value="flexible">Horário flexível / rotativo</Radio>
+                </Stack>
+              </RadioGroup>
+            </FormControl>
+
+            {values.working_day?.schedule_type !== "flexible" && (
+              <>
+                <Stack direction={["column", "row"]} spacing="24px">
+                  <FastField
+                    id="working_day.start_weekday"
+                    name="working_day.start_weekday"
+                    placeholder="De"
+                    component={FormField.Select}
+                    readOnly={readOnly}
+                    required
+                  >
+                    {weekDays.map((day, i) => (
+                      <option key={i + 1} value={i + 1}>
+                        {day}
+                      </option>
+                    ))}
+                  </FastField>
+                  <FastField
+                    id="working_day.end_weekday"
+                    name="working_day.end_weekday"
+                    placeholder="À"
+                    disabled={canEdit === false}
+                    component={FormField.Select}
+                    readOnly={readOnly}
+                    required
+                  >
+                    {weekDays.map((day, i) => (
+                      <option key={i + 1} value={i + 1}>
+                        {day}
+                      </option>
+                    ))}
+                  </FastField>
+                </Stack>
+
+                <Stack direction={["column", "row"]} spacing="24px">
+                  <FastField
+                    id="working_day.start_hour"
+                    name="working_day.start_hour"
+                    placeholder="Das"
+                    disabled={canEdit === false}
+                    component={FormField}
+                    type="time"
+                    readOnly={readOnly}
+                  />
+                  <FastField
+                    id="working_day.end_hour"
+                    name="working_day.end_hour"
+                    placeholder="Às"
+                    disabled={canEdit === false}
+                    component={FormField}
+                    type="time"
+                    readOnly={readOnly}
+                  />
+                </Stack>
+
+                <Text
+                  display="flex"
+                  flexDirection="row"
+                  marginX={2}
+                  as="i"
+                  _before={{
+                    content: `""`,
+                    flex: "1 1",
+                    borderBottom: "2px solid var(--chakra-colors-gray-200)",
+                    margin: "auto",
+                  }}
+                  _after={{
+                    content: `""`,
+                    flex: "1 1",
+                    borderBottom: "2px solid var(--chakra-colors-gray-200)",
+                    margin: "auto",
+                  }}
+                >
+                  <chakra.div textAlign="center" userSelect="none" color="gray.500" width="140px">
+                    Exceção
+                  </chakra.div>
+                </Text>
+
+                <Stack direction={["column", "row"]} spacing="24px">
+                  <FastField
+                    disabled={canEdit === false}
+                    id="working_day.day_off_start_weekday"
+                    name="working_day.day_off_start_weekday"
+                    placeholder="De"
+                    component={FormField.Select}
+                    readOnly={readOnly}
+                  >
+                    {weekDays.map((day, i) => (
+                      <option key={i + 1} value={i + 1}>
+                        {day}
+                      </option>
+                    ))}
+                  </FastField>
+                  <FastField
+                    disabled={canEdit === false}
+                    id="working_day.day_off_start_hour"
+                    name="working_day.day_off_start_hour"
+                    placeholder="Das"
+                    component={FormField}
+                    type="time"
+                    readOnly={readOnly}
+                  />
+                  <FastField
+                    id="working_day.day_off_end_hour"
+                    name="working_day.day_off_end_hour"
+                    placeholder="Às"
+                    component={FormField}
+                    type="time"
+                    readOnly={readOnly}
+                  />
+                </Stack>
+
+                <Text
+                  display="flex"
+                  flexDirection="row"
+                  marginX={2}
+                  as="i"
+                  _before={{
+                    content: `""`,
+                    flex: "1 1",
+                    borderBottom: "2px solid var(--chakra-colors-gray-200)",
+                    margin: "auto",
+                  }}
+                  _after={{
+                    content: `""`,
+                    flex: "1 1",
+                    borderBottom: "2px solid var(--chakra-colors-gray-200)",
+                    margin: "auto",
+                  }}
+                >
+                  <chakra.div textAlign="center" userSelect="none" color="gray.500" width="140px">
+                    Folga
+                  </chakra.div>
+                </Text>
+
+                <Stack direction={["column", "row"]} spacing="24px">
+                  <FastField
+                    disabled={canEdit === false}
+                    id="working_day.day_off"
+                    name="working_day.day_off"
+                    placeholder="Folga"
+                    component={FormField}
+                    readOnly={readOnly}
+                    required
+                  />
+                  <FastField
+                    id="working_day.working_hours"
+                    name="working_day.working_hours"
+                    placeholder="Horas semanais"
+                    component={FormField}
+                    type="number"
+                    readOnly={readOnly}
+                    required
+                  />
+                </Stack>
+                {makeJourneyText(values)}
+              </>
+            )}
+
+            {values.working_day?.schedule_type === "flexible" && (
+              <Stack direction="column" spacing="24px">
+                <FastField
+                  id="working_day.flexible_text"
+                  name="working_day.flexible_text"
+                  label="Informação do Horário"
+                  component={FormField.Textarea}
+                  readOnly={readOnly}
+                  rows={6}
+                />
+                
+                
+              </Stack>
+            )}
+
+            
           </GroupContainer>
 
           {["edit", "view"].includes(typeForm) &&
