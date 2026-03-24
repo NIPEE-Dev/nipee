@@ -13,7 +13,7 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::table('nullable_in_contracts_job_working_day', function (Blueprint $table) {
+        Schema::table('contracts_job_working_day', function (Blueprint $table) {
             $table->time('start_hour')->nullable()->change();
             $table->time('end_hour')->nullable()->change();
         });
@@ -26,7 +26,7 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::table('nullable_in_contracts_job_working_day', function (Blueprint $table) {
+        Schema::table('contracts_job_working_day', function (Blueprint $table) {
             $table->time('start_hour')->change();
             $table->time('end_hour')->change();
         });
