@@ -158,8 +158,8 @@ class Candidate extends Model
         return $this
             ->contracts()
             ->withoutTrashed()
-            #->where('end_contract_vigence', '>', now())
-            ->where('status', '=', ActiveEnum::ACTIVE)
+            ->where('end_contract_vigence', '>', now())
+            ->where('status', '=', ActiveEnum::ACTIVE->value)
             ->exists();
     }
 
