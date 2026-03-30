@@ -322,6 +322,7 @@ const CandidacyTable = ({ candidates, jobId, formValues }) => {
           jobId: jobId,
           jobData: {
             has_scholarship: formValues.has_scholarship,
+            fct_hours: formValues.fct_hours,
             scholarship_nominal_value: formValues.scholarship_nominal_value,
             transport_voucher: formValues.transport_voucher,
             transport_voucher_nominal_value:
@@ -363,7 +364,9 @@ const CandidacyTable = ({ candidates, jobId, formValues }) => {
                 <Td>
                   {c.resume ? (
                     <Link
-                      href={`${import.meta.env.VITE_BACKEND_BASE_URL_EX}/storage/api/documents/${c.resume}/download`}
+                      href={`${
+                        import.meta.env.VITE_BACKEND_BASE_URL_EX
+                      }/storage/api/documents/${c.resume}/download`}
                       isExternal
                       color="purple.500"
                     >
