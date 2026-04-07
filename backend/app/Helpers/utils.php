@@ -184,7 +184,7 @@ if (!function_exists('journeyText')) {
 
         ];
 
-        $text = "A Formação em Contexto de Trabalho decorrerá sempre que possível, no regime de {$weekdays[$workingDay->start_weekday]} à {$weekdays[$workingDay->end_weekday]} das {$workingDay->start_hour} às {$workingDay->end_hour}";
+        $text = "A Formação em Contexto de Trabalho decorrerá sempre que possível, no regime de {$weekdays[$workingDay->start_weekday]} à {$weekdays[$workingDay->end_weekday]} das {$workingDay->start_hour->format('H:i')} às {$workingDay->end_hour->format('H:i')}";
         if ($workingDay->day_off_start_weekday) {
             $text .= " e de {$weekdays[$workingDay->day_off_start_weekday]} das {$workingDay->day_off_start_hour} às {$workingDay->day_off_end_hour}";
         }
