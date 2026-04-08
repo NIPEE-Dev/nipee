@@ -245,7 +245,7 @@ class JobService
             $jobId = $data['jobId'];
             $invite = JobInterviewInvite::query()->where('job_id', $jobId)->where('candidate_id', $candidateId)->first();
             if (!isset($invite)) throw new HttpException('Convite para entrevista não encontrado');
-            $candidate = Candidate::query()->where('id', $candidateId);
+            $candidate = Candidate::query()->where('id', $candidateId)->first();
             if (!isset($candidate)) throw new HttpException('Candidato não encontrado');
 
             Mail::to($candidate->user->email)->send(new JobInterviewInviteCancelMail($candidate, $invite));
