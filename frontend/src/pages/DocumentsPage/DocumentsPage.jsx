@@ -171,7 +171,7 @@ const UploadDocumentModal = ({ documentId, toggleModal, refreshData, requiresAcc
           isDisabled={!file || (requiresAcceptance && !accepted)}
           leftIcon={<MdUploadFile />}
         >
-          Submeter
+          Submeter para assinatura
         </Button>
       </HStack>
     </VStack>
