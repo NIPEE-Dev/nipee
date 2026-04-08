@@ -236,7 +236,7 @@ class JobService
         }
     }
 
-    public function cancelJobInterview($data)
+    public function cancelJobInterview($data, $job)
     {
         try {
             DB::beginTransaction();
@@ -247,6 +247,10 @@ class JobService
             if (!isset($invite)) throw new HttpException('Convite para entrevista não encontrado');
             $candidate = Candidate::query()->where('id', $candidateId)->first();
             if (!isset($candidate)) throw new HttpException('Candidato não encontrado');
+
+            $jobCandidate = $job->candidates->where('id', $data['candidateId'])->first();
+            $jobCandidate->pivot->status = JobCandidateStatusEnum::PENDING;
+            $jobCandidate->pivot->save();
 
             Mail::to($candidate->user->email)->send(new JobInterviewInviteCancelMail($candidate, $invite));
             DB::commit();

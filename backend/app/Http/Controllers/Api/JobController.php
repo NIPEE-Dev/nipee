@@ -181,7 +181,7 @@ class JobController extends Controller
 
     public function cancelJobInterview(Request $request, Job $job, $candidateId)
     {
-        $job = $this->jobService->cancelJobInterview(['candidateId' => $candidateId, 'jobId' => $job->id]);
+        $job = $this->jobService->cancelJobInterview(['candidateId' => $candidateId, 'jobId' => $job->id], $job);
 
         return response(null, 204);
     }
