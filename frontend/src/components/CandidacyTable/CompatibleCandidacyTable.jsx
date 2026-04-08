@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   Button,
   Table,
@@ -22,6 +22,13 @@ import {
   ModalCloseButton,
   Textarea,
   Input,
+  useDisclosure,
+  AlertDialog,
+  AlertDialogBody,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogContent,
+  AlertDialogOverlay,
 } from '@chakra-ui/react';
 import { FaFilePdf } from 'react-icons/fa';
 import { getDistrictName } from '../../utils/district';
@@ -40,6 +47,8 @@ const CompatibleCandidacyTable = ({ candidates, jobId }) => {
   const [modalType, setModalType] = useState('');
   const [message, setMessage] = useState('');
   const [schedules, setSchedules] = useState([{ date: '', time: '' }]);
+  const { isOpen: isAlertOpen, onOpen: onAlertOpen, onClose: onAlertClose } = useDisclosure();
+  const cancelRef = useRef();
 
   useEffect(() => {
     setCurrentPage(1);
@@ -47,25 +56,11 @@ const CompatibleCandidacyTable = ({ candidates, jobId }) => {
 
   useEffect(() => {
     if (errorMessage) {
-      toast({
-        title: "Erro",
-        description: errorMessage,
-        status: "error",
-        duration: 3000,
-        isClosable: true,
-        position: "top",
-      });
+      toast({ title: "Erro", description: errorMessage, status: "error", duration: 3000, isClosable: true, position: "top" });
       clearMessages();
     }
     if (successMessage) {
-      toast({
-        title: "Sucesso!",
-        description: successMessage,
-        status: "success",
-        duration: 3000,
-        isClosable: true,
-        position: "top",
-      });
+      toast({ title: "Sucesso!", description: successMessage, status: "success", duration: 3000, isClosable: true, position: "top" });
       clearMessages();
     }
   }, [errorMessage, successMessage, clearMessages, toast]);
@@ -83,11 +78,14 @@ const CompatibleCandidacyTable = ({ candidates, jobId }) => {
 
   const handleViewProfile = (id) => navigate(`/candidates/view/${id}`);
 
-  const openModal = (candidate, type) => {
+  const handleInviteClick = (candidate) => {
     setSelectedCandidate(candidate);
-    setModalType(type);
-    setSelectedSchedule(candidate.confirmedSchedule || '');
-    setEvaluation('');
+    onAlertOpen();
+  };
+
+  const confirmInviteAction = () => {
+    onAlertClose();
+    setModalType('INVITE');
     setMessage('');
     setSchedules([{ date: '', time: '' }]);
   };
@@ -171,7 +169,7 @@ const CompatibleCandidacyTable = ({ candidates, jobId }) => {
                 <Td>
                   <Flex gap={2}>
                     <Button size="xs" colorScheme="blue" onClick={() => handleViewProfile(c.id)}>Ver Perfil</Button>
-                    <Button size="xs" colorScheme="purple" onClick={() => openModal(c, 'INVITE')}>Convidar</Button>
+                    <Button size="xs" colorScheme="purple" onClick={() => handleInviteClick(c)}>Convidar</Button>
                   </Flex>
                 </Td>
               </Tr>
@@ -179,35 +177,32 @@ const CompatibleCandidacyTable = ({ candidates, jobId }) => {
           </Tbody>
         </Table>
       </TableContainer>
+      <AlertDialog
+        isOpen={isAlertOpen}
+        leastDestructiveRef={cancelRef}
+        onClose={onAlertClose}
+      >
+        <AlertDialogOverlay>
+          <AlertDialogContent>
+            <AlertDialogHeader fontSize="lg" fontWeight="bold">
+              Confirmar Convite
+            </AlertDialogHeader>
 
-      {candidates && candidates.length > candidatesPerPage && (
-        <Flex justifyContent="center" mt={4} mb={4} gap={2}>
-          <Button
-            size="sm"
-            onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
-            isDisabled={currentPage === 1}
-          >
-            Anterior
-          </Button>
-          {pageNumbers.map(number => (
-            <Button
-              key={number}
-              size="sm"
-              onClick={() => setCurrentPage(number)}
-              colorScheme={currentPage === number ? 'blue' : 'gray'}
-            >
-              {number}
-            </Button>
-          ))}
-          <Button
-            size="sm"
-            onClick={() => setCurrentPage(prev => Math.min(Math.ceil(candidates.length / candidatesPerPage), prev + 1))}
-            isDisabled={currentPage === Math.ceil(candidates.length / candidatesPerPage)}
-          >
-            Próxima
-          </Button>
-        </Flex>
-      )}
+            <AlertDialogBody>
+              Deseja convidar o candidato <strong>{selectedCandidate?.name}</strong> para uma entrevista?
+            </AlertDialogBody>
+
+            <AlertDialogFooter>
+              <Button ref={cancelRef} onClick={onAlertClose}>
+                Não
+              </Button>
+              <Button colorScheme="purple" onClick={confirmInviteAction} ml={3}>
+                Sim, Convidar
+              </Button>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialogOverlay>
+      </AlertDialog>
 
       <Modal isOpen={!!modalType} onClose={closeModal} size="lg">
         <ModalOverlay />

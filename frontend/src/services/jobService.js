@@ -43,3 +43,7 @@ export const updateJobInterviewEvaluation = async (jobId, candidateId, data) => 
 export const updateJobInterviewTesting = async (jobId, candidateId, data) => {
   return await api.put(`/jobs/${jobId}/invite/interview/${candidateId}/testing`, data);
 };
+
+export const cancelJobInterview = async (jobId, candidateId) => {
+  return await api.delete(`/jobs/${jobId}/invite/interview/${candidateId}/cancel`);
+};

@@ -67,6 +67,9 @@ const ReportsCandidate = () => {
   const [currentTitle, setCurrentTitle] = useState("");
   const [currentNote, setCurrentNote] = useState("");
   const [currentHours, setCurrentHours] = useState("");
+  const [hasAbsence, setHasAbsence] = useState(false);
+  const [absenceReason, setAbsenceReason] = useState("");
+  const [absenceFile, setAbsenceFile] = useState(null);
 
   const toast = useToast();
   const {
@@ -149,13 +152,12 @@ const ReportsCandidate = () => {
       startDate = endDate = selectedDate;
     }
 
-    const hoursToSave = parseFloat(currentHours.replace(",", ".")) || 0;
+    const hoursToSave = parseFloat(currentHours.toString().replace(",", ".")) || 0;
 
-    if (!isDraft && hoursToSave <= 0) {
+    if (!isDraft && hoursToSave <= 0 && !hasAbsence) {
       toast({
-        title: "Horas Inválidas",
-        description:
-          "Não é possível submeter uma atividade com 0 ou menos horas. Salve como rascunho se desejar.",
+        title: "Dados insuficientes",
+        description: "Informe as horas trabalhadas ou registre uma falta para submeter.",
         status: "warning",
         duration: 5000,
         isClosable: true,
@@ -163,7 +165,7 @@ const ReportsCandidate = () => {
       return;
     }
 
-    if (!currentTitle && !currentNote && hoursToSave === 0) {
+    if (!currentTitle && !currentNote && hoursToSave === 0 && !hasAbsence) {
       toast({
         title: "Entrada Vazia",
         description: "Preencha ao menos um campo para salvar.",
@@ -212,21 +214,29 @@ const ReportsCandidate = () => {
         currentWorkedHoursSum = potentialNewWorkedHours;
       }
 
-      const payload = {
-        title: currentTitle,
-        description: currentNote,
-        estimatedTime: hoursForThisDate,
-        activityDate: formatDateForApi(currentDate),
-        draft: isDraft,
-      };
+      const formData = new FormData();
+      formData.append("title", currentTitle);
+      formData.append("description", currentNote);
+      formData.append("estimatedTime", hoursForThisDate);
+      formData.append("activityDate", formatDateForApi(currentDate));
+      formData.append("draft", isDraft ? 0 : 1);
+      
+      formData.append("has_absence", hasAbsence ? 1 : 0);
+      if (hasAbsence) {
+        formData.append("absence_description", absenceReason);
+        if (absenceFile) {
+          formData.append("absence_file", absenceFile);
+        }
+      }
 
       if (existingActivity) {
-        promises.push(updateActivity(existingActivity.id, payload));
-      } else {
-        promises.push(createNewActivity(payload));
-      }
-      datesProcessed.push(new Date(currentDate));
 
+        promises.push(updateActivity(existingActivity.id, formData));
+      } else {
+        promises.push(createNewActivity(formData));
+      }
+
+      datesProcessed.push(new Date(currentDate));
       currentDate.setDate(currentDate.getDate() + 1);
     }
 
@@ -319,12 +329,15 @@ const ReportsCandidate = () => {
         duration: 5000,
         isClosable: true,
       });
-    } finally {
+
       setSelectedDate(endDate);
       setIsRangeMode(false);
       setCurrentTitle("");
       setCurrentNote("");
       setCurrentHours("");
+      setHasAbsence(false);
+      setAbsenceReason("");
+      setAbsenceFile(null);
     }
   };
 
@@ -925,6 +938,46 @@ const ReportsCandidate = () => {
                 </NumberInputStepper>
               </NumberInput>
             </FormControl>
+            <FormControl display="flex" alignItems="center" isDisabled={isFormDisabled}>
+              <FormLabel htmlFor="falta" mb="0" fontWeight="semibold">
+                Registrar Falta/Ausência?
+              </FormLabel>
+              <Switch
+                id="falta"
+                colorScheme="red"
+                isChecked={hasAbsence}
+                onChange={(e) => setHasAbsence(e.target.checked)}
+              />
+            </FormControl>
+
+            {hasAbsence && (
+              <VStack align="stretch" spacing={4} p={4} bg="gray.50" borderRadius="md" borderWidth="1px">
+                <FormControl isRequired isDisabled={isFormDisabled}>
+                  <FormLabel fontWeight="semibold">Motivo da Falta</FormLabel>
+                  <Textarea
+                    placeholder="Descreva o motivo da ausência..."
+                    value={absenceReason}
+                    onChange={(e) => setAbsenceReason(e.target.value)}
+                    bg="white"
+                    focusBorderColor="purple.500"
+                  />
+                </FormControl>
+
+                <FormControl isDisabled={isFormDisabled}>
+                  <FormLabel fontWeight="semibold">Anexar Justificativo (Opcional)</FormLabel>
+                  <Input
+                    type="file"
+                    p={1}
+                    onChange={(e) => setAbsenceFile(e.target.files[0])}
+                    accept=".pdf,.jpg,.jpeg,.png"
+                    bg="white"
+                  />
+                  <Text fontSize="xs" color="gray.500" mt={1}>
+                    Formatos aceitos: PDF, PNG, JPG.
+                  </Text>
+                </FormControl>
+              </VStack>
+            )}
 
             {(() => {
               if (allHoursUsed && !activityForSelectedDate && !isRangeMode) {

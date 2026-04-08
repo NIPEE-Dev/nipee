@@ -11,6 +11,7 @@ import {
   updateJobInterview as updateJobInterviewApi,
   updateJobInterviewEvaluation as updateJobInterviewEvaluationApi,
   updateJobInterviewTesting as updateJobInterviewTestingApi,
+  cancelJobInterview as cancelJobInterviewApi,
 } from "../services/jobService";
 
 export const useJobs = () => {
@@ -215,6 +216,23 @@ export const useJobs = () => {
       }
     }, [clearMessages]);
 
+    const cancelJobInterview = useCallback(async (jobId, candidateId) => {
+      setLoading(true);
+      clearMessages();
+      try {
+        const response = await cancelJobInterviewApi(jobId, candidateId);
+        setSuccessMessage("Entrevista cancelada com sucesso!");
+        return response;
+      } catch (err) {
+        setErrorMessage(
+          err.response?.data?.message || "Erro ao cancelar entrevista."
+        );
+        throw err;
+      } finally {
+        setLoading(false);
+      }
+    }, [clearMessages]);
+
   return {
     jobs,
     jobDetail,
@@ -235,5 +253,6 @@ export const useJobs = () => {
     updateJobInterviewEvaluation,
     updateJobInterviewTesting,
     clearMessages,
+    cancelJobInterview,
   };
 };

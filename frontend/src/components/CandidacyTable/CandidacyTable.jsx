@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   Button,
   Table,
@@ -25,6 +25,13 @@ import {
   RadioGroup,
   Stack,
   Radio,
+  useDisclosure,
+  AlertDialog,
+  AlertDialogBody,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogContent,
+  AlertDialogOverlay,
 } from "@chakra-ui/react";
 import { FaFilePdf } from "react-icons/fa";
 import { getDistrictName } from "../../utils/district";
@@ -72,6 +79,7 @@ const CandidacyTable = ({ candidates, jobId, formValues }) => {
     createInvite,
     updateJobInterviewEvaluation,
     updateJobInterviewTesting,
+    cancelJobInterview,
     loading,
     errorMessage,
     successMessage,
@@ -87,6 +95,14 @@ const CandidacyTable = ({ candidates, jobId, formValues }) => {
   const [schedules, setSchedules] = useState([{ date: "", time: "" }]);
   const [selectedSchedule, setSelectedSchedule] = useState("");
   const [evaluation, setEvaluation] = useState("");
+  const { isOpen: isAlertOpen, onOpen: onAlertOpen, onClose: onAlertClose } = useDisclosure();
+  const cancelRef = useRef();
+  const [tempCandidate, setTempCandidate] = useState(null);
+  const { 
+    isOpen: isCancelAlertOpen, 
+    onOpen: onCancelAlertOpen, 
+    onClose: onCancelAlertClose 
+  } = useDisclosure();
 
   useEffect(() => {
     setVisibleCandidates(candidates || []);
@@ -149,6 +165,31 @@ const CandidacyTable = ({ candidates, jobId, formValues }) => {
   const closeModal = () => {
     setSelectedCandidate(null);
     setModalType("");
+  };
+
+  const handleConfirmInvite = (candidate) => {
+    setTempCandidate(candidate);
+    onAlertOpen();
+  };
+
+  const onConfirmAction = () => {
+    onAlertClose();
+    openModal(tempCandidate, "INVITE");
+  };
+
+  const handleOpenCancelAlert = (candidate) => {
+    setTempCandidate(candidate);
+    onCancelAlertOpen();
+  };
+
+  const onConfirmCancel = async () => {
+    try {
+      await cancelJobInterview(jobId, tempCandidate.id);
+      onCancelAlertClose();
+      window.location.reload();
+    } catch (error) {
+      console.error("Erro ao cancelar: ", error);
+    }
   };
 
   const handleAddSchedule = () =>
@@ -423,7 +464,7 @@ const CandidacyTable = ({ candidates, jobId, formValues }) => {
                         <Button
                           size="xs"
                           colorScheme="purple"
-                          onClick={() => openModal(c, "INVITE")}
+                          onClick={() => handleConfirmInvite(c)}
                         >
                           Marcar Entrevista
                         </Button>
@@ -435,6 +476,16 @@ const CandidacyTable = ({ candidates, jobId, formValues }) => {
                           Reprovar
                         </Button>
                       </>
+                    )}
+                    {(c.status == 4 || c.status == 5) && (
+                      <Button
+                        size="xs"
+                        colorScheme="red"
+                        variant="outline"
+                        onClick={() => handleOpenCancelAlert(c)}
+                      >
+                        Cancelar Entrevista
+                      </Button>
                     )}
                     {c.status == 5 && (
                       <Button
@@ -621,6 +672,61 @@ const CandidacyTable = ({ candidates, jobId, formValues }) => {
           </ModalFooter>
         </ModalContent>
       </Modal>
+
+      <AlertDialog
+        isOpen={isAlertOpen}
+        leastDestructiveRef={cancelRef}
+        onClose={onAlertClose}
+      >
+        <AlertDialogOverlay>
+          <AlertDialogContent>
+            <AlertDialogHeader fontSize="lg" fontWeight="bold">
+              Confirmar Ação
+            </AlertDialogHeader>
+
+            <AlertDialogBody>
+              Deseja marcar uma entrevista para <strong>{tempCandidate?.name}</strong>?
+            </AlertDialogBody>
+
+            <AlertDialogFooter>
+              <Button ref={cancelRef} onClick={onAlertClose}>
+                Não
+              </Button>
+              <Button colorScheme="purple" onClick={onConfirmAction} ml={3}>
+                Sim, Marcar
+              </Button>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialogOverlay>
+      </AlertDialog>
+
+      <AlertDialog
+        isOpen={isCancelAlertOpen}
+        leastDestructiveRef={cancelRef}
+        onClose={onCancelAlertClose}
+      >
+        <AlertDialogOverlay>
+          <AlertDialogContent>
+            <AlertDialogHeader fontSize="lg" fontWeight="bold">
+              Cancelar Entrevista
+            </AlertDialogHeader>
+
+            <AlertDialogBody>
+              Tem certeza que deseja cancelar a entrevista de <strong>{tempCandidate?.name}</strong>? 
+              Isso enviará um e-mail de notificação para o candidato.
+            </AlertDialogBody>
+
+            <AlertDialogFooter>
+              <Button ref={cancelRef} onClick={onCancelAlertClose}>
+                Voltar
+              </Button>
+              <Button colorScheme="red" onClick={onConfirmCancel} ml={3} isLoading={loading}>
+                Sim, Cancelar
+              </Button>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialogOverlay>
+      </AlertDialog>
     </div>
   );
 };
