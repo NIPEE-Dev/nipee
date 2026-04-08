@@ -87,6 +87,7 @@ Route::apiResource('jobs', JobController::class)->middleware('checkPermission:jo
 Route::post('jobs/{job}/apply', [JobController::class, 'apply'])->middleware('checkPermission:jobs.index');
 Route::post('jobs/{job}/invite', [JobController::class, 'inviteToJob'])->middleware('checkPermission:jobs.index');
 Route::post('jobs/{job}/invite/interview', [JobController::class, 'storeInvite'])->middleware('checkPermission:jobs.index');
+Route::delete('jobs/{job}/invite/interview/{candidateId}/cancel', [JobController::class, 'cancelJobInterview'])->middleware('checkPermission:jobs.index');
 Route::put('jobs/{job}/invite/interview/{candidateId}/evaluation', [JobController::class, 'updateJobInterviewEvaluation'])->middleware('checkPermission:jobs.index');
 Route::put('jobs/{job}/invite/interview/{candidateId}/testing', [JobController::class, 'updateJobTestingEvaluation'])->middleware('checkPermission:jobs.index');
 Route::patch('jobs/{job}/status', [JobController::class, 'updateJobStatus'])->middleware('checkPermission:jobs.index');

@@ -179,6 +179,13 @@ class JobController extends Controller
         return response(null, 204);
     }
 
+    public function cancelJobInterview(Request $request, Job $job, $candidateId)
+    {
+        $job = $this->jobService->cancelJobInterview(['candidateId' => $candidateId, 'jobId' => $job->id]);
+
+        return response(null, 204);
+    }
+
     public function updateJobTestingEvaluation(UpdateJobInterviewTestingRequest $request, Job $job, $candidateId)
     {
         $data = $request->validated();

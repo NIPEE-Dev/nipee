@@ -16,6 +16,7 @@ use App\Mail\AcceptInterviewMail;
 use App\Mail\CandidateCalledMail;
 use App\Mail\JobApproved;
 use App\Mail\JobDenied;
+use App\Mail\JobInterviewInviteCancelMail;
 use App\Mail\JobInterviewInviteMail;
 use App\Mail\NotifyJobApply;
 use App\Models\Candidate;
@@ -231,6 +232,26 @@ class JobService
         } catch (\Throwable $th) {
             DB::rollBack();
             report($th);
+            throw $th;
+        }
+    }
+
+    public function cancelJobInterview($data)
+    {
+        try {
+            DB::beginTransaction();
+
+            $candidateId = $data['candidateId'];
+            $jobId = $data['jobId'];
+            $invite = JobInterviewInvite::query()->where('job_id', $jobId)->where('candidate_id', $candidateId)->first();
+            if (!isset($invite)) throw new HttpException('Convite para entrevista não encontrado');
+            $candidate = Candidate::query()->where('id', $candidateId);
+            if (!isset($candidate)) throw new HttpException('Candidato não encontrado');
+
+            Mail::to($candidate->user->email)->send(new JobInterviewInviteCancelMail($candidate, $invite));
+            DB::commit();
+        } catch (\Throwable $th) {
+            DB::rollBack();
             throw $th;
         }
     }
