@@ -34,7 +34,7 @@ class JobResource extends JsonResource
                     });
                 })
                 ->whereHas('address', function ($q) use ($jobCity) {
-                    $q->where('city', $jobCity);
+                    $q->where('city', 'LIKE', '%' . $jobCity . "%");
                 })
                 ->whereIn('course', $coursesIds)->whereIn('gender', $allowedGenders)->get();
             $compatibleCandidates = $candidates;
