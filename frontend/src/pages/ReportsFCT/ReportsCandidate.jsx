@@ -58,7 +58,13 @@ import { useActivities } from "../../hooks/useActivities";
 const formatDateKey = (date) =>
   new Date(date.getFullYear(), date.getMonth(), date.getDate()).toDateString();
 
-const formatDateForApi = (date) => date.toISOString().split("T")[0];
+const formatDateForApi = (date) => {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+
+  return `${year}-${month}-${day}`;
+};
 
 const ReportsCandidate = () => {
   const [selectedDate, setSelectedDate] = useState(new Date());
@@ -95,16 +101,16 @@ const ReportsCandidate = () => {
       filterSelectedDate.length === 2
     ) {
       params.startDate = `${filterSelectedDate[0].getFullYear()}-${String(
-        filterSelectedDate[0].getMonth() + 1
+        filterSelectedDate[0].getMonth() + 1,
       ).padStart(2, "0")}-${String(filterSelectedDate[0].getDate()).padStart(
         2,
-        "0"
+        "0",
       )}`;
       params.endDate = `${filterSelectedDate[1].getFullYear()}-${String(
-        filterSelectedDate[1].getMonth() + 1
+        filterSelectedDate[1].getMonth() + 1,
       ).padStart(2, "0")}-${String(filterSelectedDate[1].getDate()).padStart(
         2,
-        "0"
+        "0",
       )}`;
     }
     fetchActivities(params);
@@ -152,12 +158,14 @@ const ReportsCandidate = () => {
       startDate = endDate = selectedDate;
     }
 
-    const hoursToSave = parseFloat(currentHours.toString().replace(",", ".")) || 0;
+    const hoursToSave =
+      parseFloat(currentHours.toString().replace(",", ".")) || 0;
 
     if (!isDraft && hoursToSave <= 0 && !hasAbsence) {
       toast({
         title: "Dados insuficientes",
-        description: "Informe as horas trabalhadas ou registre uma falta para submeter.",
+        description:
+          "Informe as horas trabalhadas ou registre uma falta para submeter.",
         status: "warning",
         duration: 5000,
         isClosable: true,
@@ -191,7 +199,7 @@ const ReportsCandidate = () => {
 
       if (!canEdit) {
         datesBlockedBecauseSubmitted.push(
-          currentDate.toLocaleDateString("pt-PT")
+          currentDate.toLocaleDateString("pt-PT"),
         );
         currentDate.setDate(currentDate.getDate() + 1);
         continue;
@@ -220,7 +228,7 @@ const ReportsCandidate = () => {
       formData.append("estimatedTime", hoursForThisDate);
       formData.append("activityDate", formatDateForApi(currentDate));
       formData.append("draft", isDraft ? 0 : 1);
-      
+
       formData.append("has_absence", hasAbsence ? 1 : 0);
       if (hasAbsence) {
         formData.append("absence_description", absenceReason);
@@ -230,7 +238,6 @@ const ReportsCandidate = () => {
       }
 
       if (existingActivity) {
-
         promises.push(updateActivity(existingActivity.id, formData));
       } else {
         promises.push(createNewActivity(formData));
@@ -248,7 +255,7 @@ const ReportsCandidate = () => {
 
         if (datesProcessed.length === 1) {
           successDescription = `Atividade para ${datesProcessed[0].toLocaleDateString(
-            "pt-PT"
+            "pt-PT",
           )} ${actionType} com sucesso!`;
         } else if (datesProcessed.length > 1) {
           successDescription = `Atividades para o período selecionado (${datesProcessed.length} registros) ${actionType} com sucesso!`;
@@ -283,14 +290,14 @@ const ReportsCandidate = () => {
             filterSelectedDate.length === 2
           ) {
             params.startDate = `${filterSelectedDate[0].getFullYear()}-${String(
-              filterSelectedDate[0].getMonth() + 1
+              filterSelectedDate[0].getMonth() + 1,
             ).padStart(2, "0")}-${String(
-              filterSelectedDate[0].getDate()
+              filterSelectedDate[0].getDate(),
             ).padStart(2, "0")}`;
             params.endDate = `${filterSelectedDate[1].getFullYear()}-${String(
-              filterSelectedDate[1].getMonth() + 1
+              filterSelectedDate[1].getMonth() + 1,
             ).padStart(2, "0")}-${String(
-              filterSelectedDate[1].getDate()
+              filterSelectedDate[1].getDate(),
             ).padStart(2, "0")}`;
           }
           fetchActivities(params);
@@ -301,7 +308,7 @@ const ReportsCandidate = () => {
         toast({
           title: "Limite de Horas Atingido",
           description: `Não foi possível registrar atividades para ${datesExceedingLimit.join(
-            ", "
+            ", ",
           )} pois o limite total de horas do protocolo seria excedido.`,
           status: "error",
           duration: 7000,
@@ -313,7 +320,7 @@ const ReportsCandidate = () => {
         toast({
           title: "Atenção: Atividades Já Submetidas",
           description: `As atividades para ${datesBlockedBecauseSubmitted.join(
-            ", "
+            ", ",
           )} não foram alteradas pois já foram submetidas para validação ou aprovadas.`,
           status: "info",
           duration: 7000,
@@ -487,7 +494,7 @@ const ReportsCandidate = () => {
       }
       return null;
     },
-    [dailyData, getDisplayStatusInfo]
+    [dailyData, getDisplayStatusInfo],
   );
 
   const summaryEntries = useMemo(() => {
@@ -938,7 +945,7 @@ const ReportsCandidate = () => {
                 </NumberInputStepper>
               </NumberInput>
             </FormControl>
-            <FormControl display="flex" alignItems="center" isDisabled={isFormDisabled}>
+            {/* <FormControl display="flex" alignItems="center" isDisabled={isFormDisabled}>
               <FormLabel htmlFor="falta" mb="0" fontWeight="semibold">
                 Registrar Falta/Ausência?
               </FormLabel>
@@ -948,10 +955,17 @@ const ReportsCandidate = () => {
                 isChecked={hasAbsence}
                 onChange={(e) => setHasAbsence(e.target.checked)}
               />
-            </FormControl>
+            </FormControl> */}
 
             {hasAbsence && (
-              <VStack align="stretch" spacing={4} p={4} bg="gray.50" borderRadius="md" borderWidth="1px">
+              <VStack
+                align="stretch"
+                spacing={4}
+                p={4}
+                bg="gray.50"
+                borderRadius="md"
+                borderWidth="1px"
+              >
                 <FormControl isRequired isDisabled={isFormDisabled}>
                   <FormLabel fontWeight="semibold">Motivo da Falta</FormLabel>
                   <Textarea
@@ -964,7 +978,9 @@ const ReportsCandidate = () => {
                 </FormControl>
 
                 <FormControl isDisabled={isFormDisabled}>
-                  <FormLabel fontWeight="semibold">Anexar Justificativo (Opcional)</FormLabel>
+                  <FormLabel fontWeight="semibold">
+                    Anexar Justificativo (Opcional)
+                  </FormLabel>
                   <Input
                     type="file"
                     p={1}
@@ -1008,12 +1024,12 @@ const ReportsCandidate = () => {
                     mt={4}
                     borderColor={
                       getDisplayStatusInfo(
-                        activityForSelectedDate?.status
+                        activityForSelectedDate?.status,
                       ).color.split(".")[0] + ".300"
                     }
                     bg={`${
                       getDisplayStatusInfo(
-                        activityForSelectedDate?.status
+                        activityForSelectedDate?.status,
                       ).color.split(".")[0]
                     }.50`}
                   >
@@ -1063,7 +1079,7 @@ const ReportsCandidate = () => {
                         onClick={() =>
                           handleDeleteActivity(
                             activityForSelectedDate.id,
-                            activityForSelectedDate.status
+                            activityForSelectedDate.status,
                           )
                         }
                         mt={3}
