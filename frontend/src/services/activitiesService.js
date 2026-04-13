@@ -1,15 +1,15 @@
-import api from '../api';
+import api from "../api";
 
 export const getActivities = async (params) => {
-  return await api.get('/activities', { params });
+  return await api.get("/activities", { params });
 };
 
 export const createActivity = async (payload) => {
-  return await api.post('/activities', payload);
+  return await api.post("/activities", payload);
 };
 
 export const updateActivity = async (id, payload) => {
-  return await api.put(`/activities/${id}`, payload);
+  return await api.post(`/activities/${id}`, payload);
 };
 
 export const deleteActivity = async (id) => {

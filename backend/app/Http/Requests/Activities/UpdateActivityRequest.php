@@ -26,7 +26,7 @@ class UpdateActivityRequest extends FormRequest
     public function rules()
     {
         return [
-            'draft' => ['boolean'],
+            'draft' => ['string'],
             'title' => ['string'],
             'description' => ['string'],
             'estimatedTime' => ['integer', 'gt:0'],
