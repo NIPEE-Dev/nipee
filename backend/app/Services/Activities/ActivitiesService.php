@@ -15,6 +15,7 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Storage;
 use PhpOffice\PhpWord\TemplateProcessor;
 use Illuminate\Support\Str;
 use Symfony\Component\HttpKernel\Exception\HttpException;
@@ -23,6 +24,13 @@ class ActivitiesService
 {
     public function create($data)
     {
+        if (isset($data['absence_file'])) {
+            $file = $data['absence_file'];
+            $filename = $file->getClientOriginalName();
+
+            Storage::disk('public')->put('/absences/' . $filename, file_get_contents($file));
+            $data['absence_file'] = "/storage/absences/" . $filename;
+        }
         $activity = Activity::query()->create($data);
 
         return $activity;
@@ -39,7 +47,15 @@ class ActivitiesService
                     if (!isset($activity)) {
                         throw new HttpException(400, 'Atividade não encontrada');
                     }
-                    $activity->update($data);
+                    $updateData = [...$data];
+                    if (isset($data['absence_file'])) {
+                        $file = $data['absence_file'];
+                        $filename = $file->getClientOriginalName();
+
+                        Storage::disk('public')->put('/absences/' . $filename, file_get_contents($file));
+                        $data['absence_file'] = "/storage/absences/" . $filename;
+                    }
+                    $activity->update($updateData);
                     $activity->user->candidate->hours_completed += $activity->estimated_time;
                     $activity->user->candidate->hours_remaining = ($activity->user->candidate->hours_fct ?? 0) - $activity->user->candidate->hours_completed;
                     if ($activity->user->candidate->hours_remaining <= 0) {
