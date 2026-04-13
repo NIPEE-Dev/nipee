@@ -53,6 +53,7 @@ import {
   FaChevronRight,
   FaTimesCircle,
   FaCalendar,
+  FaDownload,
 } from "react-icons/fa";
 import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
@@ -639,83 +640,71 @@ const ReportsCompany = () => {
                                       shadow="sm"
                                       borderWidth="1px"
                                       borderRadius="md"
-                                      bg="white"
+                                      bg={activity.hasAbsence ? "orange.50" : "white"}
+                                      borderColor={activity.hasAbsence ? "orange.200" : "gray.200"}
                                     >
-                                      <HStack
-                                        justifyContent="space-between"
-                                        alignItems="flex-start"
-                                      >
+                                      <HStack justifyContent="space-between" alignItems="flex-start">
                                         <Checkbox
-                                          isChecked={
-                                            selectedActivitiesByStudent[
-                                              studentKey
-                                            ]?.has(activity.id) || false
-                                          }
-                                          onChange={() =>
-                                            handleToggleActivitySelection(
-                                              studentKey,
-                                              activity.id
-                                            )
-                                          }
+                                          isChecked={selectedActivitiesByStudent[studentKey]?.has(activity.id) || false}
+                                          onChange={() => handleToggleActivitySelection(studentKey, activity.id)}
                                           mr={2}
                                         >
                                           <Heading size="sm" mb={1}>
-                                            {activity.title}
+                                            {activity.hasAbsence ? "Falta Registrada" : (activity.title || "Sem Título")}
                                           </Heading>
                                         </Checkbox>
-                                        <HStack spacing={3}>
+                                        
+                                        <HStack spacing={2}>
+                                          {activity.hasAbsence === 1 && activity.absenceFile && (
+                                            <IconButton
+                                              as="a"
+                                              href={`${import.meta.env.VITE_BACKEND_BASE_URL_EX}${activity.absenceFile}`}
+                                              target="_blank"
+                                              rel="noopener noreferrer"
+                                              download
+                                              aria-label="Baixar justificativo"
+                                              icon={<FaDownload />}
+                                              size="sm"
+                                              variant="ghost"
+                                              colorScheme="green"
+                                              title="Baixar Justificativo"
+                                            />
+                                          )}
+
                                           <Button
                                             size="sm"
                                             colorScheme="red"
                                             variant="outline"
-                                            onClick={() =>
-                                              openReproveModal(activity)
-                                            }
+                                            onClick={() => openReproveModal(activity)}
                                             leftIcon={<FaTimesCircle />}
-                                            isDisabled={
-                                              loading ||
-                                              selectedActivitiesByStudent[
-                                                studentKey
-                                              ]?.has(activity.id) ||
-                                              false
-                                            }
+                                            isDisabled={loading || selectedActivitiesByStudent[studentKey]?.has(activity.id)}
                                           >
                                             Reprovar
                                           </Button>
                                           <Button
                                             size="sm"
                                             colorScheme="green"
-                                            onClick={() =>
-                                              handleApprove(activity.id)
-                                            }
+                                            onClick={() => handleApprove(activity.id)}
                                             leftIcon={<FaCheckCircle />}
-                                            isDisabled={
-                                              loading ||
-                                              selectedActivitiesByStudent[
-                                                studentKey
-                                              ]?.has(activity.id) ||
-                                              false
-                                            }
+                                            isDisabled={loading || selectedActivitiesByStudent[studentKey]?.has(activity.id)}
                                           >
                                             Aprovar
                                           </Button>
                                         </HStack>
                                       </HStack>
-                                      <Text
-                                        fontSize="sm"
-                                        color="gray.600"
-                                        noOfLines={2}
-                                        mb={1}
-                                      >
-                                        Descrição:{" "}
-                                        {activity.description || "N/A"}
-                                      </Text>
-                                      <Text
-                                        fontSize="sm"
-                                        color="gray.600"
-                                        mb={2}
-                                      >
-                                        Horas: {activity.estimatedTime}
+
+                                      {activity.hasAbsence ? (
+                                        <Text fontSize="sm" color="gray.700" fontWeight="medium" mt={1}>
+                                          <strong>Motivo da Falta:</strong> {activity.absenceDescription || "Não informado"}
+                                        </Text>
+                                      ) : (
+                                        <Text fontSize="sm" color="gray.600" noOfLines={2} mb={1}>
+                                          <strong>Descrição:</strong> {activity.description || "N/A"}
+                                        </Text>
+                                      )}
+
+                                      <Text fontSize="sm" color="gray.600">
+                                        <strong>Horas:</strong> {activity.estimatedTime}h
                                       </Text>
                                     </Box>
                                   ))}

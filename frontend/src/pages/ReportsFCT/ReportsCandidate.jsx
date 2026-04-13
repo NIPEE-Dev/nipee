@@ -12,6 +12,8 @@ import {
   FaEdit,
   FaPaperPlane,
   FaEye,
+  FaDownload,
+  FaExclamationTriangle,
 } from "react-icons/fa";
 import {
   Box,
@@ -52,6 +54,7 @@ import {
   PopoverTrigger,
   PopoverContent,
   PopoverBody,
+  Tooltip,
 } from "@chakra-ui/react";
 import { useActivities } from "../../hooks/useActivities";
 
@@ -76,6 +79,8 @@ const ReportsCandidate = () => {
   const [hasAbsence, setHasAbsence] = useState(false);
   const [absenceReason, setAbsenceReason] = useState("");
   const [absenceFile, setAbsenceFile] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
 
   const toast = useToast();
   const {
@@ -353,10 +358,15 @@ const ReportsCandidate = () => {
       setCurrentTitle(activityForSelectedDate.title || "");
       setCurrentNote(activityForSelectedDate.description || "");
       setCurrentHours(activityForSelectedDate.estimatedTime?.toString() || "");
+      setHasAbsence(!!activityForSelectedDate.hasAbsence);
+      setAbsenceReason(activityForSelectedDate.absenceDescription || "");
     } else {
       setCurrentTitle("");
       setCurrentNote("");
       setCurrentHours("");
+      setHasAbsence(false);
+      setAbsenceReason("");
+      setAbsenceFile(null);
     }
   }, [activityForSelectedDate]);
 
@@ -513,6 +523,17 @@ const ReportsCandidate = () => {
       })
       .sort((a, b) => a.date.getTime() - b.date.getTime());
   }, [activities, getDisplayStatusInfo]);
+
+  const totalPages = Math.ceil(summaryEntries.length / itemsPerPage);
+
+  const currentTableData = useMemo(() => {
+    const start = (currentPage - 1) * itemsPerPage;
+    return summaryEntries.slice(start, start + itemsPerPage);
+  }, [summaryEntries, currentPage]);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [activities.length]);
 
   const displaySelectedDate = () => {
     if (Array.isArray(selectedDate)) {
@@ -816,16 +837,20 @@ const ReportsCandidate = () => {
                     </Tr>
                   </Thead>
                   <Tbody>
-                    {summaryEntries.map((entry) => (
+                    {currentTableData.map((entry) => (
                       <Tr key={entry.id}>
                         <Td>{entry.displayDate}</Td>
-                        <Td
-                          whiteSpace="normal"
-                          wordBreak="break-word"
-                          maxW="180px"
-                          title={entry.title}
-                        >
-                          {entry.title || "(Sem título)"}
+                        <Td maxW="180px">
+                          <HStack>
+                            <Text isTruncated title={entry.title}>
+                              {entry.title || (entry.hasAbsence ? "Falta Registrada" : "Sem título")}
+                            </Text>
+                            {entry.hasAbsence && (
+                              <Tooltip label={`Motivo: ${entry.absenceDescription || 'Não informado'}`}>
+                                <span><Icon as={FaExclamationTriangle} color="red.500" /></span>
+                              </Tooltip>
+                            )}
+                          </HStack>
                         </Td>
                         <Td isNumeric>
                           {(entry.estimatedTime || 0).toLocaleString("pt-PT")}
@@ -840,49 +865,84 @@ const ReportsCandidate = () => {
                           </Text>
                         </Td>
                         <Td>
-                          {entry.status !== "Rascunho" && (
-                            <HStack spacing={1}>
+                          <HStack spacing={1}>
+                            <IconButton
+                              aria-label="Ver atividade"
+                              icon={<FaEye />}
+                              size="sm"
+                              variant="ghost"
+                              colorScheme="blue"
+                              onClick={() => handleEditDraft(entry)}
+                              title="Ver atividade"
+                            />
+
+                            {entry.absenceFile && (
                               <IconButton
-                                aria-label="Ver atividade"
-                                icon={<FaEye />}
+                                as="a" 
+                                href={`${import.meta.env.VITE_BACKEND_BASE_URL_EX}${entry.absenceFile}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                download
+                                aria-label="Baixar justificativo"
+                                icon={<FaDownload />}
                                 size="sm"
                                 variant="ghost"
-                                colorScheme="blue"
-                                onClick={() => handleEditDraft(entry)}
-                                title="Ver atividade"
+                                colorScheme="green"
+                                title="Baixar Justificativo"
                               />
-                            </HStack>
-                          )}
-                          {entry.status === "Rascunho" && (
-                            <HStack spacing={1}>
-                              <IconButton
-                                aria-label="Editar rascunho"
-                                icon={<FaEdit />}
-                                size="sm"
-                                variant="ghost"
-                                colorScheme="blue"
-                                onClick={() => handleEditDraft(entry)}
-                                title="Editar Rascunho"
-                              />
-                              <IconButton
-                                aria-label="Apagar rascunho"
-                                icon={<FaTrash />}
-                                size="sm"
-                                variant="ghost"
-                                colorScheme="red"
-                                onClick={() =>
-                                  handleDeleteActivity(entry.id, entry.status)
-                                }
-                                title="Apagar Rascunho"
-                              />
-                            </HStack>
-                          )}
+                            )}
+
+                            {entry.status === "Rascunho" && (
+                              <HStack spacing={1}>
+                                <IconButton
+                                  aria-label="Editar rascunho"
+                                  icon={<FaEdit />}
+                                  size="sm"
+                                  variant="ghost"
+                                  colorScheme="blue"
+                                  onClick={() => handleEditDraft(entry)}
+                                  title="Editar Rascunho"
+                                />
+                                <IconButton
+                                  aria-label="Apagar rascunho"
+                                  icon={<FaTrash />}
+                                  size="sm"
+                                  variant="ghost"
+                                  colorScheme="red"
+                                  onClick={() => handleDeleteActivity(entry.id, entry.status)}
+                                  title="Apagar Rascunho"
+                                />
+                              </HStack>
+                            )}
+                          </HStack>
                         </Td>
                       </Tr>
                     ))}
                   </Tbody>
                 </Table>
               </TableContainer>
+
+              <Flex justify="center" align="center" mt={4} gap={4}>
+                <IconButton
+                  icon={<FaChevronLeft />}
+                  isDisabled={currentPage === 1}
+                  onClick={() => setCurrentPage(currentPage - 1)}
+                  size="sm"
+                  variant="outline"
+                  aria-label="Página Anterior"
+                />
+                <Text fontSize="sm" fontWeight="bold">
+                  Página {currentPage} de {totalPages || 1}
+                </Text>
+                <IconButton
+                  icon={<FaChevronRight />}
+                  isDisabled={currentPage === totalPages || totalPages === 0}
+                  onClick={() => setCurrentPage(currentPage + 1)}
+                  size="sm"
+                  variant="outline"
+                  aria-label="Próxima Página"
+                />
+              </Flex>
             </Box>
           )}
         </Box>
@@ -959,7 +1019,7 @@ const ReportsCandidate = () => {
                 isChecked={hasAbsence}
                 onChange={(e) => setHasAbsence(e.target.checked)}
               />
-            </FormControl> */}
+            </FormControl> 
 
             {hasAbsence && (
               <VStack
