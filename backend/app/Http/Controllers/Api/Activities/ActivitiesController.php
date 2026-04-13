@@ -108,7 +108,7 @@ class ActivitiesController extends Controller
             ...$this->transformArrayKeysToSnakeCase($data),
             'job_id' => $jobId,
             'user_id' => $user->id,
-            'status' => isset($data['draft']) && $data['draft'] === true ? ActivityStatusEnum::PENDING->value : ActivityStatusEnum::DRAFT->value,
+            'status' => isset($data['draft']) && $data['draft'] === 1 ? ActivityStatusEnum::PENDING->value : ActivityStatusEnum::DRAFT->value,
         ]);
 
         return new ActivityResource($activity);
@@ -124,7 +124,7 @@ class ActivitiesController extends Controller
         $data = $request->validated();
         $activity = $this->activitiesService->update([
             ...$this->transformArrayKeysToSnakeCase($data),
-            'status' => isset($data['draft']) && $data['draft'] === true ? ActivityStatusEnum::PENDING->value : ActivityStatusEnum::DRAFT->value,
+            'status' => isset($data['draft']) && $data['draft'] === 1 ? ActivityStatusEnum::PENDING->value : ActivityStatusEnum::DRAFT->value,
         ], $id);
 
         return new ActivityResource($activity);
