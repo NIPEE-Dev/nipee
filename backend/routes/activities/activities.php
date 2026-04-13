@@ -9,6 +9,6 @@ Route::controller(ActivitiesController::class)->prefix('activities')->group(func
   Route::get('/', 'index');
   Route::get('/reports', 'indexReports');
   Route::delete('/{id}', 'destroy');
-  Route::put('/{id}', 'update');
+  Route::post('/{id}', 'update');
   Route::put('/{id}/status', 'updateStatus');
 });
