@@ -229,11 +229,11 @@ const ReportsCandidate = () => {
       formData.append("activityDate", formatDateForApi(currentDate));
       formData.append("draft", isDraft ? 0 : 1);
 
-      formData.append("has_absence", hasAbsence ? 1 : 0);
+      formData.append("hasAbsence", hasAbsence ? 1 : 0);
       if (hasAbsence) {
-        formData.append("absence_description", absenceReason);
+        formData.append("absenceDescription", absenceReason);
         if (absenceFile) {
-          formData.append("absence_file", absenceFile);
+          formData.append("absenceFile", absenceFile);
         }
       }
 
@@ -945,7 +945,11 @@ const ReportsCandidate = () => {
                 </NumberInputStepper>
               </NumberInput>
             </FormControl>
-            {/* <FormControl display="flex" alignItems="center" isDisabled={isFormDisabled}>
+            <FormControl
+              display="flex"
+              alignItems="center"
+              isDisabled={isFormDisabled}
+            >
               <FormLabel htmlFor="falta" mb="0" fontWeight="semibold">
                 Registrar Falta/Ausência?
               </FormLabel>

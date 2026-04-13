@@ -12,6 +12,7 @@ use App\Http\Requests\Activities\UpdateActivityStatusRequest;
 use App\Http\Resources\Activities\ActivityResource;
 use App\Http\Resources\FctReportResource;
 use App\Services\Activities\ActivitiesService;
+use App\Traits\Common\TransformArrayKeysToSnakeCase;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -20,6 +21,7 @@ use Illuminate\Support\Facades\Validator;
 
 class ActivitiesController extends Controller
 {
+    use TransformArrayKeysToSnakeCase;
     private ActivitiesService $activitiesService;
 
     public function __construct(ActivitiesService $activitiesService = new ActivitiesService)
@@ -101,13 +103,12 @@ class ActivitiesController extends Controller
         $user = Auth::user();
         $data = $request->validated();
         $jobId = $user->candidate->contracts->where('status', ActiveEnum::ACTIVE)->first()->originalJob->id ?? null;
+
         $activity = $this->activitiesService->create([
-            ...$data,
+            ...$this->transformArrayKeysToSnakeCase($data),
             'job_id' => $jobId,
             'user_id' => $user->id,
-            'estimated_time' => $data['estimatedTime'],
-            'activity_date' => $data['activityDate'],
-            'status' => $data['draft'] === true ? ActivityStatusEnum::PENDING->value : ActivityStatusEnum::DRAFT->value,
+            'status' => isset($data['draft']) && $data['draft'] === true ? ActivityStatusEnum::PENDING->value : ActivityStatusEnum::DRAFT->value,
         ]);
 
         return new ActivityResource($activity);
@@ -122,9 +123,8 @@ class ActivitiesController extends Controller
     {
         $data = $request->validated();
         $activity = $this->activitiesService->update([
-            ...$data,
-            'estimated_time' => $data['estimatedTime'],
-            'status' => $data['draft'] === true ? ActivityStatusEnum::PENDING->value : ActivityStatusEnum::DRAFT->value,
+            ...$this->transformArrayKeysToSnakeCase($data),
+            'status' => isset($data['draft']) && $data['draft'] === true ? ActivityStatusEnum::PENDING->value : ActivityStatusEnum::DRAFT->value,
         ], $id);
 
         return new ActivityResource($activity);

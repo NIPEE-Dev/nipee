@@ -27,10 +27,13 @@ class CreateActivityRequest extends FormRequest
     {
         return [
             'draft' => ['required', 'boolean'],
-            'title' => ['required', 'string'],
-            'description' => ['required', 'string'],
-            'estimatedTime' => ['required', 'integer', 'gt:0'],
             'activityDate' => ['required', 'date_format:Y-m-d'],
+            'title' => [Rule::requiredIf($this->input('hasAbsence') === 0), 'nullable', 'string'],
+            'description' => [Rule::requiredIf($this->input('hasAbsence') === 0), 'nullable', 'string'],
+            'estimatedTime' => [Rule::requiredIf($this->input('hasAbsence') === 0), 'nullable', 'integer', 'gte:0'],
+            'hasAbsence' => ['boolean'],
+            'absenceDescription' => [Rule::requiredIf($this->input('hasAbsence') === 1), 'string'],
+            'absenceFile' => ['nullable', 'file'],
         ];
     }
 

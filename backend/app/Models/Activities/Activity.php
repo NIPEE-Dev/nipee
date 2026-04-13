@@ -23,10 +23,17 @@ class Activity extends Model
         'justification',
         'justificated_at',
         'job_id',
+        'has_absence',
+        'absence_description',
+        'absence_file',
     ];
 
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
+
+    public $casts = [
+        'has_absencee' => 'boolean'
+    ];
 }

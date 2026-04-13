@@ -26,10 +26,13 @@ class UpdateActivityRequest extends FormRequest
     public function rules()
     {
         return [
-            'draft' => ['required', 'boolean'],
-            'title' => ['required', 'string'],
-            'description' => ['required', 'string'],
-            'estimatedTime' => ['required', 'integer', 'gt:0'],
+            'draft' => ['boolean'],
+            'title' => ['string'],
+            'description' => ['string'],
+            'estimatedTime' => ['integer', 'gt:0'],
+            'hasAbsence' => ['boolean'],
+            'absenceDescription' => [Rule::requiredIf($this->input('hasAbsence') === 1), 'string'],
+            'absenceFile' => ['file'],
         ];
     }
 
