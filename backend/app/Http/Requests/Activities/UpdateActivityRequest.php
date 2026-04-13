@@ -31,7 +31,7 @@ class UpdateActivityRequest extends FormRequest
             'description' => ['string'],
             'estimatedTime' => ['integer', 'gt:0'],
             'hasAbsence' => ['boolean'],
-            'absenceDescription' => [Rule::requiredIf($this->input('hasAbsence') === 1), 'string'],
+            'absenceDescription' => ['string'],
             'absenceFile' => ['file'],
         ];
     }
@@ -45,10 +45,8 @@ class UpdateActivityRequest extends FormRequest
             'description.string' => 'Descrição deve ser um texto',
             'type.enum' => 'Tipo inválido',
             'type' => 'Tipo é obrigatório',
-            'estimatedTime.required' => 'Duração estimada é obrigatório',
             'estimatedTime.integer' => 'Duração estimada deve ser um número inteiro',
             'estimatedTime.gt' => 'Duração estimada deve ser maior que 0',
-            'activityDate.required' => 'Data da atividade é obrigatório',
             'activityDate.date_format' => 'Data da atividade deve ser no seguinte formato: YYYY-MM-DD',
             'observation.string' => 'Observação deve ser um textos'
         ];
