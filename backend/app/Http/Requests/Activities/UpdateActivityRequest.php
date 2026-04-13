@@ -27,9 +27,9 @@ class UpdateActivityRequest extends FormRequest
     {
         return [
             'draft' => ['string'],
-            'title' => ['string'],
-            'description' => ['string'],
-            'estimatedTime' => ['integer', 'gt:0'],
+            'title' => ['nullable', 'string'],
+            'description' => ['nullable', 'string'],
+            'estimatedTime' => ['nullable', 'integer', 'gt:0'],
             'hasAbsence' => ['boolean'],
             'absenceDescription' => ['string'],
             'absenceFile' => ['file'],
