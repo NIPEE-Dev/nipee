@@ -29,7 +29,7 @@ class UpdateActivityRequest extends FormRequest
             'draft' => ['string'],
             'title' => ['nullable', 'string'],
             'description' => ['nullable', 'string'],
-            'estimatedTime' => ['nullable', 'integer', 'gt:0'],
+            'estimatedTime' => ['nullable', 'integer'],
             'hasAbsence' => ['boolean'],
             'absenceDescription' => ['string'],
             'absenceFile' => ['file'],
