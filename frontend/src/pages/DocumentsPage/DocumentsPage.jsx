@@ -11,6 +11,18 @@ import {
   Checkbox,
   VStack,
   Text,
+  FormControl,
+  FormLabel,
+  Input,
+  Select,
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  ModalCloseButton,
+  ModalBody,
+  ModalFooter,
+  useDisclosure,
 } from "@chakra-ui/react";
 import {
   MdUploadFile,
@@ -18,7 +30,8 @@ import {
   MdOutlineDriveFileMoveRtl,
   MdEdit,
   MdFileDownload,
-  MdRestore 
+  MdRestore,
+  MdAdd,
 } from "react-icons/md";
 import ResourceScreen from "../../components/ResourceScreen/ResourceScreen";
 import routes from "../../routes";
@@ -27,6 +40,163 @@ import getRoute from "../../utils/getRoute";
 import WithModal from "../../components/WithModal/WithModal";
 import SignaturePad from "../../components/SignaturePad/SignaturePad";
 import useUploadSignature from "../../hooks/useUploadSignature";
+import api from "../../api";
+
+const initialAddDocumentForm = {
+  candidateId: "",
+  file: null,
+};
+
+const AddDocumentModal = ({ isOpen, onClose, onSuccess }) => {
+  const [formValues, setFormValues] = React.useState(initialAddDocumentForm);
+  const [candidates, setCandidates] = React.useState([]);
+  const [isLoadingCandidates, setIsLoadingCandidates] = React.useState(false);
+  const [isSubmitting, setIsSubmitting] = React.useState(false);
+  const toast = useToast();
+
+  React.useEffect(() => {
+    if (!isOpen) {
+      setFormValues(initialAddDocumentForm);
+      return;
+    }
+
+    const fetchCandidates = async () => {
+      setIsLoadingCandidates(true);
+
+      try {
+        const response = await api.get("/candidates", {
+          params: {
+            perPage: 9999,
+          },
+        });
+
+        setCandidates(response?.data?.data || []);
+      } catch (error) {
+        toast({
+          title: "Erro ao carregar alunos",
+          description:
+            error.response?.data?.message ||
+            error.message ||
+            "Não foi possível carregar a lista de alunos.",
+          status: "error",
+          duration: 5000,
+          isClosable: true,
+        });
+      } finally {
+        setIsLoadingCandidates(false);
+      }
+    };
+
+    fetchCandidates();
+  }, [isOpen, toast]);
+
+  const handleChange = (field, value) => {
+    setFormValues((current) => ({
+      ...current,
+      [field]: value,
+    }));
+  };
+
+  const handleSubmit = async () => {
+    if (!formValues.candidateId || !formValues.file) {
+      toast({
+        title: "Atenção",
+        description: "Selecione o aluno e anexe o documento.",
+        status: "warning",
+        duration: 4000,
+        isClosable: true,
+      });
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      const formData = new FormData();
+      formData.append("file", formValues.file);
+      formData.append("type", "Documento");
+
+      await api.post(`/candidates/${formValues.candidateId}/document`, formData);
+
+      toast({
+        title: "Documento adicionado",
+        description: "O documento foi enviado com sucesso.",
+        status: "success",
+        duration: 5000,
+        isClosable: true,
+      });
+
+      onClose();
+      onSuccess?.();
+    } catch (error) {
+      toast({
+        title: "Erro ao enviar documento",
+        description:
+          error.response?.data?.message ||
+          error.message ||
+          "Não foi possível enviar o documento.",
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  return (
+    <Modal isOpen={isOpen} onClose={onClose} size="lg">
+      <ModalOverlay />
+      <ModalContent>
+        <ModalHeader>Adicionar documento</ModalHeader>
+        <ModalCloseButton />
+        <ModalBody>
+          <VStack spacing={4} align="stretch">
+            <FormControl isRequired>
+              <FormLabel>Aluno</FormLabel>
+              <Select
+                placeholder={
+                  isLoadingCandidates ? "Carregando alunos..." : "Selecione o aluno"
+                }
+                value={formValues.candidateId}
+                onChange={(event) => handleChange("candidateId", event.target.value)}
+                isDisabled={isLoadingCandidates}
+              >
+                {candidates.map((candidate) => (
+                  <option key={candidate.id} value={candidate.id}>
+                    {candidate.name}
+                    {candidate.cpf ? ` - ${candidate.cpf}` : ""}
+                  </option>
+                ))}
+              </Select>
+            </FormControl>
+
+            <FormControl isRequired>
+              <FormLabel>Documento</FormLabel>
+              <Input
+                type="file"
+                onChange={(event) => handleChange("file", event.target.files?.[0] || null)}
+              />
+            </FormControl>
+          </VStack>
+        </ModalBody>
+        <ModalFooter gap={3}>
+          <Button variant="ghost" onClick={onClose} isDisabled={isSubmitting}>
+            Cancelar
+          </Button>
+          <Button
+            colorScheme="blue"
+            leftIcon={<MdAdd />}
+            onClick={handleSubmit}
+            isLoading={isSubmitting}
+          >
+            Adicionar
+          </Button>
+        </ModalFooter>
+      </ModalContent>
+    </Modal>
+  );
+};
 
 const ResetFlowModal = ({ documentId, toggleModal, refreshData }) => {
   const { restartContract, loading: isLoading } = useUploadSignature();
@@ -184,6 +354,7 @@ const DocumentsPage = () => {
   const isEscola = userRole === "Escola";
   const isEmpresa = userRole === "Empresa";
   const isAdm = userRole === "Administrador Geral";
+  const { isOpen, onOpen, onClose } = useDisclosure();
 
   const resourceScreenRef = React.useRef();
   const refreshData = () => {
@@ -192,21 +363,34 @@ const DocumentsPage = () => {
     }
   };
 
+  const handleDocumentAdded = () => {
+    refreshData();
+    setTimeout(() => {
+      window.location.reload();
+    }, 500);
+  };
+
   return (
-    <ResourceScreen
-      ref={resourceScreenRef}
-      title="Documentos"
-      permissions={[""]}
-      resource="Documents"
-      routeBase={routes.documents}
-      canAdd={false}
-      canView={false}
-      canEdit={false}
-      canRemove={isAdm}
-      resourceListProps={{
-        downloadButtonEnabled: false,
-      }}
-      filters={[
+    <>
+      <ResourceScreen
+        ref={resourceScreenRef}
+        title="Documentos"
+        permissions={[""]}
+        resource="Documents"
+        routeBase={routes.documents}
+        canAdd={false}
+        canView={false}
+        canEdit={false}
+        canRemove={isAdm}
+        resourceListProps={{
+          downloadButtonEnabled: false,
+          headerActions: (isAdm || isEmpresa) && (
+            <Button colorScheme="teal" leftIcon={<MdAdd />} onClick={onOpen}>
+              Adicionar documento
+            </Button>
+          ),
+        }}
+        filters={[
         {
             field: "nif",
             header: "NIF",
@@ -231,8 +415,8 @@ const DocumentsPage = () => {
             header: "Criado em",
             type: "date-range",
         },
-      ]}
-      columns={[
+        ]}
+        columns={[
         ...(isEscola || isEmpresa
           ? [
               {
@@ -505,8 +689,15 @@ const DocumentsPage = () => {
               "YYYY-MM-DDTHH:mm:ss.SSSSSSz"
             ),
         },
-      ]}
-    />
+        ]}
+      />
+
+      <AddDocumentModal
+        isOpen={isOpen}
+        onClose={onClose}
+        onSuccess={handleDocumentAdded}
+      />
+    </>
   );
 };
 
