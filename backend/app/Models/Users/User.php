@@ -5,6 +5,8 @@ namespace App\Models\Users;
 use App\Models\Activities\Activity;
 use App\Models\Candidate;
 use App\Models\Company\Company;
+use App\Models\Company\CompanyBranch;
+use App\Models\Company\CompanySector;
 use App\Models\Credentials\Sessions;
 use App\Models\School;
 use App\Models\Users\Roles\Role;
@@ -74,6 +76,16 @@ class User extends Authenticatable implements JWTSubject
     public function company()
     {
         return $this->hasOne(Company::class)->withTrashed();
+    }
+
+    public function companyBranch()
+    {
+        return $this->hasOne(CompanyBranch::class)->withTrashed();
+    }
+
+    public function companySector()
+    {
+        return $this->hasOne(CompanySector::class)->withTrashed();
     }
 
     /**
