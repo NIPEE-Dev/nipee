@@ -30,6 +30,7 @@ const ResourceList = ({
   filters,
   actions,
   downloadButtonEnabled,
+  headerActions,
   ...props
 }) => {
   const [activeFilters, setActiveFilters] = useState([]);
@@ -143,10 +144,12 @@ const ResourceList = ({
           )}
         </HStack>
 
-        <div>
+        <HStack>
           {downloadButtonEnabled && (
             <TableDownloadButton resource={resourceProps.resource} />
           )}
+
+          {headerActions}
 
           {canAdd && (
             <Link to='add'>
@@ -159,7 +162,7 @@ const ResourceList = ({
               </Button>
             </Link>
           )}
-        </div>
+        </HStack>
       </Flex>
 
       {filters && (

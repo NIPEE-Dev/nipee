@@ -12,6 +12,7 @@ import {
   MdAssignmentInd, // ✅ Usado em: Aprovação
   MdMenu, // 📋 Usado em: container do menu principal
   MdOutlineRateReview,
+  MdBusiness
 } from "react-icons/md";
 import { FaSchool } from "react-icons/fa"; // icon para escola
 import routes from "../../routes";
@@ -167,6 +168,12 @@ export const baseMenuItems = [
     icon: MdOutlineFilePresent,
     to: routes.documents.list,
     permission: "documents.index",
+  },
+  {
+    name: "Unidades e Setores",
+    icon: MdBusiness,
+    to: "/units-sectors",
+    permission: "unidadesSetores.index",
   },
   {
     name: "Registos Base",
