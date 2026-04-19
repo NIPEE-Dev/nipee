@@ -34,6 +34,7 @@ import JobDetails from '../../pages/JobsPage/JobDetails.jsx';
 import TermosUtilizacao from '../../pages/Termos/TermosUtilizacao.jsx';
 import PoliticaPrivacidade from '../../pages/Termos/PoliticaPrivacidade.jsx';
 import UnidadesSetores from '../../pages/UnidadesSetores/UnidadesSetores.jsx';
+import { Feedbacks } from '../../pages/Feedbacks/Feedbacks.jsx';
 function App() {
   return (
     <Routes>
@@ -185,6 +186,14 @@ function App() {
           element={
             <PermissionRoute permission='unidadesSetores.index'>
               <UnidadesSetores />
+            </PermissionRoute>
+          }
+        />
+        <Route
+          path='feedbacks/*'
+          element={
+            <PermissionRoute permission='feedback.index'>
+              <Feedbacks />
             </PermissionRoute>
           }
         />
