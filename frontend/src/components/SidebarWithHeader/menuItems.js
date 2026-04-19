@@ -176,6 +176,12 @@ export const baseMenuItems = [
     permission: "unidadesSetores.index",
   },
   {
+    name: "Feedbacks",
+    icon: MdOutlineRateReview,
+    to: "/feedbacks",
+    permission: "feedback.index",
+  },
+  {
     name: "Registos Base",
     icon: MdOutlineTextSnippet,
     to: routes.baseRecords.list,
