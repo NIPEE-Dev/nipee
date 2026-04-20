@@ -19,6 +19,7 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 
 class CompaniesService
@@ -144,7 +145,9 @@ class CompaniesService
 
     public function storeCompanyBranchUser(User $companyUser, array $data): CompanyBranch
     {
-        if (!isset($companyUser->company)) throw new HttpException('Deve ser uma empresa para criar uma unidade');
+        if (!isset($companyUser->company)) {
+            throw new HttpException(403, 'Deve ser uma empresa para criar uma unidade');
+        }
 
         return DB::transaction(function () use ($companyUser, $data) {
             $user = User::query()->create([
@@ -166,5 +169,53 @@ class CompaniesService
             $user->setRelation('companyBranch', $companyBranch);
             return $companyBranch;
         });
+    }
+
+    public function updateCompanyBranchUser(User $companyUser, CompanyBranch $companyBranch, array $data): CompanyBranch
+    {
+        $this->guardCompanyBranchOwnership($companyUser, $companyBranch);
+
+        return DB::transaction(function () use ($companyBranch, $data) {
+            $userData = Arr::only($data, ['name', 'email']);
+
+            if (Arr::has($data, 'password') && filled($data['password'])) {
+                $userData['password'] = Hash::make($data['password']);
+            }
+
+            if ($userData !== []) {
+                $companyBranch->user()->update($userData);
+            }
+
+            $branchData = Arr::only($data, ['name', 'email']);
+
+            if ($branchData !== []) {
+                $companyBranch->update($branchData);
+            }
+
+            return $companyBranch->fresh(['user']);
+        });
+    }
+
+    public function destroyCompanyBranchUser(User $companyUser, CompanyBranch $companyBranch): void
+    {
+        $this->guardCompanyBranchOwnership($companyUser, $companyBranch);
+
+        DB::transaction(function () use ($companyBranch) {
+            $companyBranch->user()->delete();
+            $companyBranch->delete();
+        });
+    }
+
+    private function guardCompanyBranchOwnership(User $companyUser, CompanyBranch $companyBranch): void
+    {
+        $companyId = $companyUser->company?->id;
+
+        if (!$companyId) {
+            throw new HttpException(403, 'Deve ser uma empresa para gerir unidades');
+        }
+
+        if ((int) $companyBranch->company_id !== (int) $companyId) {
+            throw new ModelNotFoundException('Unidade não encontrada para esta empresa');
+        }
     }
 }
