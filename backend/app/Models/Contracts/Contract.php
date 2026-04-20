@@ -36,7 +36,7 @@ class Contract extends Model
         'company_id',
         'school_id',
         'candidate_id',
-
+        'sector_id',
         'supervisor',
         'funcao',
         'start_contract_vigence',
@@ -71,7 +71,11 @@ class Contract extends Model
     ];
 
     public $with = [
-        'originalJob', 'job', 'workingDay', 'company.address', 'candidate.school'
+        'originalJob',
+        'job',
+        'workingDay',
+        'company.address',
+        'candidate.school'
     ];
 
     public function company(): BelongsTo
@@ -138,9 +142,9 @@ class Contract extends Model
     {
         return $this->retroative_billing
             && $this->financialCloseItems()
-                ->withTrashed()
-                ->where('type', '=', TaxEnum::MONTHLY_PAYMENT_RETROATIVE)
-                ->doesntExist();
+            ->withTrashed()
+            ->where('type', '=', TaxEnum::MONTHLY_PAYMENT_RETROATIVE)
+            ->doesntExist();
     }
 
     public function isActive(): bool

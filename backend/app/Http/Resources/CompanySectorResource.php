@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use App\Enums\ActiveEnum;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class CompanySectorResource extends JsonResource
@@ -13,6 +14,7 @@ class CompanySectorResource extends JsonResource
             'branch_id' => $this->branch_id,
             'name' => $this->name,
             'email' => $this->email,
+            'candidatesCount' => $this->contracts()->where('status', ActiveEnum::ACTIVE->value)->count(),
         ];
     }
 }
