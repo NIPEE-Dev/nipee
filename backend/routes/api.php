@@ -55,6 +55,9 @@ Route::apiResource('users', UserController::class)->middleware('checkPermission:
 Route::post('companies/branches', [CompanyController::class, 'storeCompanyBranchUser'])->middleware('checkPermission:companies.index');
 Route::put('companies/branches/{companyBranch}', [CompanyController::class, 'updateCompanyBranchUser'])->middleware('checkPermission:companies.index');
 Route::delete('companies/branches/{companyBranch}', [CompanyController::class, 'destroyCompanyBranchUser'])->middleware('checkPermission:companies.index');
+Route::post('companies/branches/{companyBranch}/sectors', [CompanyController::class, 'storeCompanySectorUser'])->middleware('checkPermission:companies.index');
+Route::put('companies/branches/{companyBranch}/sectors/{companySector}', [CompanyController::class, 'updateCompanySectorUser'])->middleware('checkPermission:companies.index');
+Route::delete('companies/branches/{companyBranch}/sectors/{companySector}', [CompanyController::class, 'destroyCompanySectorUser'])->middleware('checkPermission:companies.index');
 Route::apiResource('companies', CompanyController::class)->middleware('checkPermission:companies.index')->withTrashed(['destroy']);
 
 Route::controller(SchoolController::class)->prefix('schools')->group(function () {

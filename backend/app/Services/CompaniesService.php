@@ -8,6 +8,7 @@ use App\Enums\Document\DocumentTypeTemplateEnum;
 use App\Helpers\Filter;
 use App\Models\Company\Company;
 use App\Models\Company\CompanyBranch;
+use App\Models\Company\CompanySector;
 use App\Models\Users\User;
 use App\Models\SchoolMember;
 use App\Services\Documents\WordProcessor;
@@ -206,6 +207,70 @@ class CompaniesService
         });
     }
 
+    public function storeCompanySectorUser(User $companyUser, array $data): CompanySector
+    {
+        $companyBranch = CompanyBranch::query()->findOrFail($data['branch_id']);
+        $this->guardCompanyBranchOwnership($companyUser, $companyBranch);
+
+        return DB::transaction(function () use ($companyBranch, $data) {
+            $user = User::query()->create([
+                'name' => $data['name'],
+                'email' => $data['email'],
+                'password' => Hash::make($data['password']),
+                'start_hour' => '00:00:00',
+                'end_hour' => '23:59:00',
+                'role_id' => RolesEnum::COMPANY_SECTOR->value,
+            ]);
+            $user->roles()->attach(RolesEnum::COMPANY_SECTOR->value);
+
+            $companySector = CompanySector::create([
+                'branch_id' => $companyBranch->id,
+                'user_id' => $user->id,
+                'name' => $data['name'],
+                'email' => $data['email'],
+            ]);
+
+            $user->setRelation('companySector', $companySector);
+
+            return $companySector;
+        });
+    }
+
+    public function updateCompanySectorUser(User $companyUser, CompanySector $companySector, array $data): CompanySector
+    {
+        $this->guardCompanySectorOwnership($companyUser, $companySector);
+
+        return DB::transaction(function () use ($companySector, $data) {
+            $userData = Arr::only($data, ['name', 'email']);
+
+            if (Arr::has($data, 'password') && filled($data['password'])) {
+                $userData['password'] = Hash::make($data['password']);
+            }
+
+            if ($userData !== []) {
+                $companySector->user()->update($userData);
+            }
+
+            $sectorData = Arr::only($data, ['name', 'email']);
+
+            if ($sectorData !== []) {
+                $companySector->update($sectorData);
+            }
+
+            return $companySector->fresh(['user']);
+        });
+    }
+
+    public function destroyCompanySectorUser(User $companyUser, CompanySector $companySector): void
+    {
+        $this->guardCompanySectorOwnership($companyUser, $companySector);
+
+        DB::transaction(function () use ($companySector) {
+            $companySector->user()->delete();
+            $companySector->delete();
+        });
+    }
+
     private function guardCompanyBranchOwnership(User $companyUser, CompanyBranch $companyBranch): void
     {
         $companyId = $companyUser->company?->id;
@@ -217,5 +282,16 @@ class CompaniesService
         if ((int) $companyBranch->company_id !== (int) $companyId) {
             throw new ModelNotFoundException('Unidade não encontrada para esta empresa');
         }
+    }
+
+    private function guardCompanySectorOwnership(User $companyUser, CompanySector $companySector): void
+    {
+        $companySector->loadMissing('companyBranch');
+
+        if (!$companySector->companyBranch) {
+            throw new ModelNotFoundException('Setor sem unidade vinculada');
+        }
+
+        $this->guardCompanyBranchOwnership($companyUser, $companySector->companyBranch);
     }
 }
