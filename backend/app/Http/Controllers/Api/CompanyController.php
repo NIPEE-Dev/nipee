@@ -130,7 +130,7 @@ class CompanyController extends Controller
         return new CompanySectorResource($this->companiesService->updateCompanySectorUser($user, $companySector, $request->validated()));
     }
 
-    public function destroyCompanySectorUser(CompanySector $companySector): Response
+    public function destroyCompanySectorUser(CompanyBranch $companyBranch, CompanySector $companySector): Response
     {
         $user = Auth::user();
         $this->companiesService->destroyCompanySectorUser($user, $companySector);
