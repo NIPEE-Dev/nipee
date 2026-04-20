@@ -3,26 +3,33 @@
 namespace App\Services;
 
 use App\Enums\Company\TypeEnum;
+use App\Enums\RolesEnum;
 use App\Enums\Document\DocumentTypeTemplateEnum;
 use App\Helpers\Filter;
 use App\Models\Company\Company;
+use App\Models\Company\CompanyBranch;
+use App\Models\Users\User;
 use App\Models\SchoolMember;
 use App\Services\Documents\WordProcessor;
+use App\Services\Users\UsersServices;
 use App\Traits\Common\Filterable;
 use App\Traits\Common\IsAdmin;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 
 class CompaniesService
 {
     use Filterable;
     use IsAdmin;
 
-    public function __construct(private WordProcessor $wordProcessor)
-    {
-    }
+    public function __construct(
+        private WordProcessor $wordProcessor,
+        private UsersServices $usersServices
+    ) {}
 
     public function index($criteria)
     {
@@ -62,7 +69,7 @@ class CompaniesService
 
     public function store($data)
     {
-        return DB::transaction(fn () => tap(Company::create($data), function (Company $company) use ($data) {
+        return DB::transaction(fn() => tap(Company::create($data), function (Company $company) use ($data) {
             $address = Arr::get($data, 'address');
             $contact = Arr::get($data, 'contact');
             $responsible = Arr::get($data, 'responsible');
@@ -132,6 +139,32 @@ class CompaniesService
                 $company->address()->updateOrCreate(['addressable_id' => $company->id], $address);
                 $company->responsible()->updateOrCreate(['responsible_id' => $company->id], $responsible);
             }
+        });
+    }
+
+    public function storeCompanyBranchUser(User $companyUser, array $data): CompanyBranch
+    {
+        if (!isset($companyUser->company)) throw new HttpException('Deve ser uma empresa para criar uma unidade');
+
+        return DB::transaction(function () use ($companyUser, $data) {
+            $user = User::query()->create([
+                'name' => $data['name'],
+                'email' => $data['email'],
+                'password' => Hash::make($data['password']),
+                'start_hour' => '00:00:00',
+                'end_hour' => '23:59:00',
+                'role_id' => RolesEnum::COMPANY_BRANCH->value,
+            ]);
+            $user->roles()->attach(RolesEnum::COMPANY_BRANCH->value);
+
+            $companyBranch = CompanyBranch::create([
+                'company_id' => $companyUser->company->id,
+                'user_id' => $user->id,
+                'name' => $data['name'],
+                'email' => $data['email']
+            ]);
+            $user->setRelation('companyBranch', $companyBranch);
+            return $companyBranch;
         });
     }
 }

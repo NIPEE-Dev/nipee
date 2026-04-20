@@ -52,6 +52,7 @@ Route::group([
 Route::get('/nif', [UserController::class, 'getNif']);
 Route::apiResource('documents', DocumentsController::class)->only(['index', 'update', 'destroy'])->middleware('checkPermission:documents.index');
 Route::apiResource('users', UserController::class)->middleware('checkPermission:users.index');
+Route::post('companies/branches', [CompanyController::class, 'storeCompanyBranchUser'])->middleware('checkPermission:companies.index');
 Route::apiResource('companies', CompanyController::class)->middleware('checkPermission:companies.index')->withTrashed(['destroy']);
 
 Route::controller(SchoolController::class)->prefix('schools')->group(function () {

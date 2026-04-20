@@ -15,6 +15,12 @@ return new class extends Migration
     {
         Schema::create('company_sectors', function (Blueprint $table) {
             $table->id();
+            $table->unsignedBigInteger('branch_id');
+            $table->foreign('branch_id')->references('id')->on('company_branches')->onDelete('cascade');
+            $table->string('name');
+            $table->string('email');
+            $table->unsignedBigInteger('user_id');
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->timestamps();
         });
     }

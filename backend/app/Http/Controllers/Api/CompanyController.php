@@ -3,19 +3,21 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Company\StoreCompanyBranchUserRequest;
 use App\Http\Requests\Company\StoreCompanyRequest;
 use App\Http\Requests\Company\UpdateCompanyRequest;
 use App\Http\Resources\Companies\CompanyResource;
+use App\Http\Resources\CompanyBranchResource;
+use App\Http\Resources\Users\UserResource;
 use App\Models\Company\Company;
 use App\Services\CompaniesService;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Support\Facades\Auth;
 
 class CompanyController extends Controller
 {
-    public function __construct(public CompaniesService $companiesService)
-    {
-    }
+    public function __construct(public CompaniesService $companiesService) {}
 
     /**
      * Display a listing of the resource.
@@ -82,5 +84,11 @@ class CompanyController extends Controller
     {
         $company->trashed() ? $company->restore() : $company->delete();
         return new CompanyResource($company);
+    }
+
+    public function storeCompanyBranchUser(StoreCompanyBranchUserRequest $request): CompanyBranchResource
+    {
+        $user = Auth::user();
+        return new CompanyBranchResource($this->companiesService->storeCompanyBranchUser($user, $request->validated()));
     }
 }

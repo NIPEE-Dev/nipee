@@ -12,7 +12,7 @@ class CompanySector extends Model
     use HasFactory;
 
     protected $fillable = [
-        'company_branch_id',
+        'branch_id',
         'user_id',
         'name',
     ];

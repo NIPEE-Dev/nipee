@@ -15,6 +15,7 @@ class CompanyBranch extends Model
         'company_id',
         'user_id',
         'name',
+        'email',
     ];
 
     public function user(): BelongsTo
@@ -25,5 +26,10 @@ class CompanyBranch extends Model
     public function company(): BelongsTo
     {
         return $this->belongsTo(Company::class);
+    }
+
+    public function sectors()
+    {
+        return $this->hasMany(CompanySector::class, 'branch_id');
     }
 }
