@@ -92,4 +92,9 @@ class Company extends Model
     {
         return $this->hasMany(FctReport::class, 'company_id');
     }
+
+    public function branches()
+    {
+        return $this->hasMany(CompanyBranch::class);
+    }
 }

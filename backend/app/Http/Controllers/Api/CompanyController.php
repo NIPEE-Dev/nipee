@@ -92,6 +92,12 @@ class CompanyController extends Controller
         return new CompanyResource($company);
     }
 
+    public function indexCompanyBranchUser(Request $request)
+    {
+        $user = Auth::user();
+        return CompanyBranchResource::collection($this->companiesService->indexCompanyBranchUser($user));
+    }
+
     public function storeCompanyBranchUser(StoreCompanyBranchUserRequest $request): CompanyBranchResource
     {
         $user = Auth::user();

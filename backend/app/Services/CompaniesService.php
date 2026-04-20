@@ -207,6 +207,11 @@ class CompaniesService
         });
     }
 
+    public function indexCompanyBranchUser(User $user)
+    {
+        return $user->company->branches;
+    }
+
     public function storeCompanySectorUser(User $companyUser, array $data): CompanySector
     {
         $companyBranch = CompanyBranch::query()->findOrFail($data['branch_id']);
