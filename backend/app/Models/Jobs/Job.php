@@ -45,7 +45,8 @@ class Job extends Model
         'fct_hours',
         'start_at',
         'end_at',
-        'max_approvals'
+        'max_approvals',
+        'sector_id'
     ];
 
     public $casts = [

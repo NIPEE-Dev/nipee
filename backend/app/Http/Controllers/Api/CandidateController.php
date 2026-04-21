@@ -194,7 +194,7 @@ class CandidateController extends Controller
         }
 
         if ($roleId === RolesEnum::COMPANY_SECTOR->value) {
-            $sectorId = $user->company->id;
+            $sectorId = $user->companySector->id;
             $candidates->whereHas('contracts', function ($q) use ($sectorId) {
                 $q->where('sector_id', $sectorId);
             });
