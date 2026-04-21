@@ -2,11 +2,14 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Enums\ActiveEnum;
 use App\Enums\RolesEnum;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\CreateCandidateFeedbackRequest;
 use App\Http\Requests\StoreCandidateDocumentsRequest;
 use App\Http\Requests\StoreCandidateRequest;
 use App\Http\Requests\UpdateCandidateRequest;
+use App\Http\Resources\CandidateFeedbackResource;
 use Illuminate\Support\Facades\Validator;
 use App\Http\Resources\CandidateResource;
 use App\Models\Candidate;
@@ -143,5 +146,60 @@ class CandidateController extends Controller
         ])->validate();
         $file = $this->candidatesService->exportHistory($candidate, $data['format']);
         return response()->download($file);
+    }
+
+    public function storeFeedback(CreateCandidateFeedbackRequest $request, Candidate $candidate)
+    {
+        $data = $request->validated();
+
+        $candidate->feedback()->updateOrCreate(
+            [
+                'candidate_id' => $candidate->id,
+            ],
+            [
+                'annotation' => $data['annotation']
+            ]
+        );
+
+        return response()->noContent();
+    }
+
+    public function indexFeedbacks(Request $request)
+    {
+        $user = Auth::user();
+        $roleId = $user->roles[0]->id;
+        $candidates = Candidate::query()->whereHas('contracts', function ($q) {
+            $q->where('status', '=', ActiveEnum::ACTIVE->value);
+        });
+
+        if ($roleId === RolesEnum::SCHOOL->value) {
+            $schoolId = $user->school->first()->id;
+            $candidates->whereHas('contracts', function ($q) use ($schoolId) {
+                $q->where('school_id', $schoolId);
+            });
+        }
+
+        if ($roleId === RolesEnum::COMPANY->value) {
+            $companyId = $user->company->id;
+            $candidates->whereHas('contracts', function ($q) use ($companyId) {
+                $q->where('company_id', $companyId);
+            });
+        }
+
+        if ($roleId === RolesEnum::COMPANY_BRANCH->value) {
+            $sectorsIds = $user->companyBranch->sectors->pluck('id');
+            $candidates->whereHas('contracts', function ($q) use ($sectorsIds) {
+                $q->whereIn('sector_id', $sectorsIds);
+            });
+        }
+
+        if ($roleId === RolesEnum::COMPANY_SECTOR->value) {
+            $sectorId = $user->company->id;
+            $candidates->whereHas('contracts', function ($q) use ($sectorId) {
+                $q->where('sector_id', $sectorId);
+            });
+        }
+
+        return CandidateFeedbackResource::collection($candidates->get());
     }
 }
