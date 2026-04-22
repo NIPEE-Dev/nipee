@@ -68,6 +68,11 @@ const emptySetorForm = {
 
 const UnidadesSetores = () => {
   const toast = useToast();
+  const userProfile = JSON.parse(localStorage.getItem("profile") || "null");
+  const userRole = userProfile?.role || "";
+  const isUnidade = userRole === "Unidade" || userRole === "Unidade/Setor";
+  const isSetor = userRole === "Setor";
+
   const [unidades, setUnidades] = useState([]);
   const [openRowId, setOpenRowId] = useState(null);
 
@@ -301,20 +306,24 @@ const UnidadesSetores = () => {
         </Box>
 
         <Flex gap={3} direction={{ base: "column", sm: "row" }}>
-          <Button
-            leftIcon={<MdAdd />}
-            colorScheme="blue"
-            onClick={openCreateUnidadeModal}
-          >
-            Criar unidade
-          </Button>
-          <Button
-            variant="outline"
-            leftIcon={<MdAdd />}
-            onClick={() => openCreateSetorModal()}
-          >
-            Criar setor
-          </Button>
+          {!isUnidade && !isSetor && (
+            <Button
+              leftIcon={<MdAdd />}
+              colorScheme="blue"
+              onClick={openCreateUnidadeModal}
+            >
+              Criar unidade
+            </Button>
+          )}
+          {!isSetor && (
+            <Button
+              variant="outline"
+              leftIcon={<MdAdd />}
+              onClick={() => openCreateSetorModal()}
+            >
+              Criar setor
+            </Button>
+          )}
         </Flex>
       </Flex>
 
