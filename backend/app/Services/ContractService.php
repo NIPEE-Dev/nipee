@@ -22,6 +22,7 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use PhpOffice\PhpWord\TemplateProcessor;
 use App\Enums\PeriodEnum;
+use App\Enums\RolesEnum;
 use App\Traits\Common\IsAdmin;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
@@ -102,6 +103,14 @@ class ContractService
             $data->where('school_id', $user->school[0]->id ?? 0);
         }
 
+        if ($roleId === RolesEnum::COMPANY_SECTOR->value) {
+            $data->where('sector_id', $user->companySector->id);
+        }
+        if ($roleId === RolesEnum::COMPANY_BRANCH->value) {
+            $sectorsIds = $user->companyBranch->sectors->pluck('id');
+            $data->whereIn('sector_id', $sectorsIds);
+        }
+
         return $data->paginate(Arr::get($criteria, 'perPage', 10));
     }
 
@@ -117,8 +126,10 @@ class ContractService
             throw new ApplicationException("Este candidato já possuí contrato ativo");
         }
 
+        $job = Job::query()->where('id', $data['job']['id'] ?? $data['job_id'])->first();
         $contractData = array_merge($data, [
             'job_id' => $data['job']['id'] ?? $data['job_id'],
+            'sector_id' => $job->sector_id ?? null,
             'company_id' => $data['job']['company']['id'] ?? $data['company_id'],
             'school_id' => $data['candidate']['school']['id'] ?? $data['school']['id'],
             'candidate_id' => $candidateID,

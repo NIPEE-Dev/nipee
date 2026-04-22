@@ -17,6 +17,8 @@ enum RolesEnum: int
   case APPROVER_PRE_REGISTER_CANDIDATE = 12;
   case CANDIDATE = 13;
   case COMPANY = 14;
+  case COMPANY_BRANCH = 15;
+  case COMPANY_SECTOR = 16;
 
 
   public static function getLabel($value)
@@ -34,6 +36,8 @@ enum RolesEnum: int
       RolesEnum::APPROVER_PRE_REGISTER_CANDIDATE => 'Aprovador Pré-Registo Candidato',
       RolesEnum::CANDIDATE => 'Candidato',
       RolesEnum::COMPANY => 'Empresa',
+      RolesEnum::COMPANY_BRANCH => 'Unidade',
+      RolesEnum::COMPANY_SECTOR => 'Setor',
       default => 'Permissão desconhecido',
     };
   }

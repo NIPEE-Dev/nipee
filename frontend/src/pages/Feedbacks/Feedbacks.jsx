@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   Badge,
   Box,
@@ -26,6 +26,7 @@ import {
   Tr,
 } from "@chakra-ui/react";
 import { MdAdd, MdVisibility } from "react-icons/md";
+import { createFeedback, getFeedbacks } from "../../services/feedbackService";
 
 const initialStudents = [
   {
@@ -79,26 +80,37 @@ export const Feedbacks = () => {
   const canCreateFeedback =
     userRole === "Empresa" || userRole === "Administrador Geral" || !userRole;
 
-  const [students, setStudents] = useState(initialStudents);
+  const [students, setStudents] = useState([]);
   const [feedbackForm, setFeedbackForm] = useState(emptyFeedbackForm);
   const [isFeedbackModalOpen, setIsFeedbackModalOpen] = useState(false);
   const [viewingFeedback, setViewingFeedback] = useState(null);
 
+  async function fetchFeedbacks() {
+    const res = await getFeedbacks();
+    setStudents(res.data.data);
+  }
+
+  useEffect(() => {
+    fetchFeedbacks();
+  }, []);
+
   const studentsOptions = useMemo(
     () =>
       students.map((student) => ({
-        value: String(student.id),
-        label: `${student.nome} - NIF ${student.nif}`,
+        value: String(student.candidate.id),
+        label: `${student.candidate.name} - NIF ${student.candidate.nif}`,
       })),
-    [students]
+    [students],
   );
 
   const openCreateFeedbackModal = (studentId = "") => {
-    const selectedStudent = students.find((student) => student.id === studentId);
+    const selectedStudent = students.find(
+      (student) => student.candidate.id === studentId,
+    );
 
     setFeedbackForm({
       alunoId: studentId ? String(studentId) : "",
-      anotacao: selectedStudent?.feedbackEmpresa || "",
+      anotacao: selectedStudent?.feedback.annotation || "",
     });
     setIsFeedbackModalOpen(true);
   };
@@ -108,22 +120,27 @@ export const Feedbacks = () => {
     setIsFeedbackModalOpen(false);
   };
 
-  const handleSaveFeedback = () => {
+  const handleSaveFeedback = async () => {
     if (!feedbackForm.alunoId || !feedbackForm.anotacao.trim()) {
       return;
     }
 
-    setStudents((currentStudents) =>
-      currentStudents.map((student) =>
-        student.id === Number(feedbackForm.alunoId)
-          ? {
-              ...student,
-              feedbackEmpresa: feedbackForm.anotacao.trim(),
-            }
-          : student
-      )
-    );
-
+    try {
+      await createFeedback(feedbackForm.alunoId, {
+        annotation: feedbackForm.anotacao,
+      });
+    } catch (error) {
+      console.error(error);
+      toast({
+        title: "Erro!",
+        description: error.response.data.message,
+        status: "error",
+        duration: 3000,
+        isClosable: true,
+        position: "top",
+      });
+    }
+    await fetchFeedbacks();
     closeCreateFeedbackModal();
   };
 
@@ -149,7 +166,8 @@ export const Feedbacks = () => {
             Feedbacks
           </Heading>
           <Text color="gray.600">
-            Acompanhe os alunos em atividade e consulte as anotacoes registradas.
+            Acompanhe os alunos em atividade e consulte as anotacoes
+            registradas.
           </Text>
         </Box>
 
@@ -183,14 +201,14 @@ export const Feedbacks = () => {
           </Thead>
           <Tbody>
             {students.map((student) => {
-              const hasFeedback = Boolean(student.feedbackEmpresa);
+              const hasFeedback = Boolean(student.feedback.annotation);
 
               return (
                 <Tr key={student.id}>
-                  <Td>{student.nome}</Td>
-                  <Td>{student.empresa}</Td>
-                  <Td>{student.funcao}</Td>
-                  <Td>{student.escola}</Td>
+                  <Td>{student.candidate.name}</Td>
+                  <Td>{student.company.name}</Td>
+                  <Td>{student.job.role}</Td>
+                  <Td>{student.school.name}</Td>
                   <Td>
                     <Badge
                       colorScheme={hasFeedback ? "green" : "yellow"}
@@ -207,9 +225,13 @@ export const Feedbacks = () => {
                         <Button
                           size="sm"
                           variant="outline"
-                          onClick={() => openCreateFeedbackModal(student.id)}
+                          onClick={() =>
+                            openCreateFeedbackModal(student.candidate.id)
+                          }
                         >
-                          {hasFeedback ? "Editar feedback" : "Adicionar feedback"}
+                          {hasFeedback
+                            ? "Editar feedback"
+                            : "Adicionar feedback"}
                         </Button>
                       )}
 
@@ -237,7 +259,11 @@ export const Feedbacks = () => {
         </Table>
       </TableContainer>
 
-      <Modal isOpen={isFeedbackModalOpen} onClose={closeCreateFeedbackModal} size="lg">
+      <Modal
+        isOpen={isFeedbackModalOpen}
+        onClose={closeCreateFeedbackModal}
+        size="lg"
+      >
         <ModalOverlay />
         <ModalContent>
           <ModalHeader>
@@ -291,17 +317,21 @@ export const Feedbacks = () => {
         </ModalContent>
       </Modal>
 
-      <Modal isOpen={Boolean(viewingFeedback)} onClose={handleCloseViewModal} size="lg">
+      <Modal
+        isOpen={Boolean(viewingFeedback)}
+        onClose={handleCloseViewModal}
+        size="lg"
+      >
         <ModalOverlay />
         <ModalContent>
           <ModalHeader>Anotacao do aluno</ModalHeader>
           <ModalCloseButton />
           <ModalBody>
             <Text fontWeight="semibold" mb={1}>
-              {viewingFeedback?.nome}
+              {viewingFeedback?.candidate.name}
             </Text>
             <Text fontSize="sm" color="gray.500" mb={4}>
-              NIF {viewingFeedback?.nif}
+              NIF {viewingFeedback?.candidate.nif}
             </Text>
             <Box
               border="1px solid"
@@ -311,7 +341,8 @@ export const Feedbacks = () => {
               bg="gray.50"
             >
               <Text whiteSpace="pre-wrap">
-                {viewingFeedback?.feedbackEmpresa || "Nenhuma anotacao registrada."}
+                {viewingFeedback?.feedback.annotation ||
+                  "Nenhuma anotacao registrada."}
               </Text>
             </Box>
           </ModalBody>
