@@ -3,6 +3,7 @@ import {
   Badge,
   Box,
   Button,
+  Divider,
   Flex,
   FormControl,
   FormLabel,
@@ -15,6 +16,7 @@ import {
   ModalHeader,
   ModalOverlay,
   Select,
+  Stack,
   Table,
   TableContainer,
   Tbody,
@@ -24,61 +26,71 @@ import {
   Th,
   Thead,
   Tr,
+  useToast,
 } from "@chakra-ui/react";
-import { MdAdd, MdVisibility } from "react-icons/md";
+import { MdAdd, MdEdit, MdVisibility } from "react-icons/md";
 import { createFeedback, getFeedbacks } from "../../services/feedbackService";
-
-const initialStudents = [
-  {
-    id: 1,
-    nome: "Mariana Costa",
-    nif: "245781369",
-    empresa: "TechVision",
-    funcao: "Assistente de Suporte",
-    escola: "Escola Secundaria do Porto",
-    feedbackEmpresa:
-      "Boa adaptacao ao ambiente de trabalho e evolucao consistente nas atividades diarias.",
-  },
-  {
-    id: 2,
-    nome: "Tiago Martins",
-    nif: "256904118",
-    empresa: "Logistica Prime",
-    funcao: "Auxiliar Administrativo",
-    escola: "Escola Profissional de Gaia",
-    feedbackEmpresa: "",
-  },
-  {
-    id: 3,
-    nome: "Beatriz Almeida",
-    nif: "238671450",
-    empresa: "Clinica Viva",
-    funcao: "Apoio Tecnico de Saude",
-    escola: "Escola Tecnica de Braga",
-    feedbackEmpresa:
-      "Mantem boa relacao com a equipa e demonstra responsabilidade no atendimento.",
-  },
-  {
-    id: 4,
-    nome: "Rafael Sousa",
-    nif: "249118530",
-    empresa: "Inova Digital",
-    funcao: "Assistente de Marketing",
-    escola: "Escola Profissional de Lisboa",
-    feedbackEmpresa: "",
-  },
-];
 
 const emptyFeedbackForm = {
   alunoId: "",
   anotacao: "",
+  feedbackId: "",
+  isEditing: false,
 };
 
+const getStudentFeedbacks = (student) => {
+  if (!student) {
+    return [];
+  }
+
+  if (Array.isArray(student.feedbacks)) {
+    return student.feedbacks.filter((feedback) => feedback?.annotation);
+  }
+
+  if (Array.isArray(student.feedback)) {
+    return student.feedback.filter((feedback) => feedback?.annotation);
+  }
+
+  if (student.feedback?.annotation) {
+    return [student.feedback];
+  }
+
+  return [];
+};
+
+const formatFeedbackDateTime = (value) => {
+  if (!value) {
+    return "Data e hora nao informadas";
+  }
+
+  const date = new Date(value);
+
+  if (Number.isNaN(date.getTime())) {
+    return "Data e hora nao informadas";
+  }
+
+  return new Intl.DateTimeFormat("pt-PT", {
+    dateStyle: "short",
+    timeStyle: "short",
+  }).format(date);
+};
+
+const getFeedbackDateValue = (feedback) =>
+  feedback?.createdAt ||
+  feedback?.created_at ||
+  feedback?.updatedAt ||
+  feedback?.updated_at ||
+  feedback?.date ||
+  feedback?.datetime;
+
 export const Feedbacks = () => {
+  const toast = useToast();
   const userProfile = JSON.parse(localStorage.getItem("profile") || "null");
   const userRole = userProfile?.role || "";
+  const isEmpresa = userRole === "Empresa";
   const canCreateFeedback =
     userRole === "Empresa" || userRole === "Administrador Geral" || !userRole;
+  const canUpdateFeedback = isEmpresa;
 
   const [students, setStudents] = useState([]);
   const [feedbackForm, setFeedbackForm] = useState(emptyFeedbackForm);
@@ -104,13 +116,22 @@ export const Feedbacks = () => {
   );
 
   const openCreateFeedbackModal = (studentId = "") => {
-    const selectedStudent = students.find(
-      (student) => student.candidate.id === studentId,
-    );
-
     setFeedbackForm({
       alunoId: studentId ? String(studentId) : "",
-      anotacao: selectedStudent?.feedback.annotation || "",
+      anotacao: "",
+      feedbackId: "",
+      isEditing: false,
+    });
+    setIsFeedbackModalOpen(true);
+  };
+
+  const openUpdateFeedbackModal = (student, feedback) => {
+    setViewingFeedback(null);
+    setFeedbackForm({
+      alunoId: String(student.candidate.id),
+      anotacao: feedback.annotation || "",
+      feedbackId: feedback.id ? String(feedback.id) : "",
+      isEditing: true,
     });
     setIsFeedbackModalOpen(true);
   };
@@ -126,9 +147,15 @@ export const Feedbacks = () => {
     }
 
     try {
-      await createFeedback(feedbackForm.alunoId, {
+      const payload = {
         annotation: feedbackForm.anotacao,
-      });
+        ...(feedbackForm.feedbackId && { id: feedbackForm.feedbackId }),
+        ...(feedbackForm.isEditing
+          ? { updatedAt: new Date().toISOString() }
+          : { createdAt: new Date().toISOString() }),
+      };
+
+      await createFeedback(feedbackForm.alunoId, payload);
     } catch (error) {
       console.error(error);
       toast({
@@ -151,6 +178,8 @@ export const Feedbacks = () => {
   const handleCloseViewModal = () => {
     setViewingFeedback(null);
   };
+
+  const viewingStudentFeedbacks = getStudentFeedbacks(viewingFeedback);
 
   return (
     <Box p={6}>
@@ -201,7 +230,9 @@ export const Feedbacks = () => {
           </Thead>
           <Tbody>
             {students.map((student) => {
-              const hasFeedback = Boolean(student.feedback.annotation);
+              const studentFeedbacks = getStudentFeedbacks(student);
+              const feedbackCount = studentFeedbacks.length;
+              const hasFeedback = feedbackCount > 0;
 
               return (
                 <Tr key={student.id}>
@@ -216,7 +247,11 @@ export const Feedbacks = () => {
                       py={1}
                       borderRadius="md"
                     >
-                      {hasFeedback ? "Com anotacao" : "Sem anotacao"}
+                      {hasFeedback
+                        ? `${feedbackCount} feedback${
+                            feedbackCount > 1 ? "s" : ""
+                          }`
+                        : "Sem feedback"}
                     </Badge>
                   </Td>
                   <Td>
@@ -229,9 +264,7 @@ export const Feedbacks = () => {
                             openCreateFeedbackModal(student.candidate.id)
                           }
                         >
-                          {hasFeedback
-                            ? "Editar feedback"
-                            : "Adicionar feedback"}
+                          Adicionar feedback
                         </Button>
                       )}
 
@@ -243,11 +276,11 @@ export const Feedbacks = () => {
                           variant={canCreateFeedback ? "ghost" : "outline"}
                           onClick={() => handleOpenViewModal(student)}
                         >
-                          Ver anotacao
+                          Ver feedbacks
                         </Button>
                       ) : (
                         <Text fontSize="sm" color="gray.500" alignSelf="center">
-                          Nenhuma anotacao registrada
+                          Nenhum feedback registrado
                         </Text>
                       )}
                     </Flex>
@@ -267,7 +300,9 @@ export const Feedbacks = () => {
         <ModalOverlay />
         <ModalContent>
           <ModalHeader>
-            {feedbackForm.anotacao ? "Editar feedback" : "Adicionar feedback"}
+            {feedbackForm.isEditing
+              ? "Atualizar feedback"
+              : "Adicionar feedback"}
           </ModalHeader>
           <ModalCloseButton />
           <ModalBody>
@@ -276,6 +311,7 @@ export const Feedbacks = () => {
               <Select
                 placeholder="Selecione o aluno"
                 value={feedbackForm.alunoId}
+                isDisabled={feedbackForm.isEditing}
                 onChange={(event) =>
                   setFeedbackForm((current) => ({
                     ...current,
@@ -311,7 +347,7 @@ export const Feedbacks = () => {
               Cancelar
             </Button>
             <Button colorScheme="blue" onClick={handleSaveFeedback}>
-              Salvar
+              {feedbackForm.isEditing ? "Atualizar" : "Salvar"}
             </Button>
           </ModalFooter>
         </ModalContent>
@@ -320,11 +356,12 @@ export const Feedbacks = () => {
       <Modal
         isOpen={Boolean(viewingFeedback)}
         onClose={handleCloseViewModal}
-        size="lg"
+        size="xl"
+        scrollBehavior="inside"
       >
         <ModalOverlay />
         <ModalContent>
-          <ModalHeader>Anotacao do aluno</ModalHeader>
+          <ModalHeader>Feedbacks do aluno</ModalHeader>
           <ModalCloseButton />
           <ModalBody>
             <Text fontWeight="semibold" mb={1}>
@@ -333,18 +370,62 @@ export const Feedbacks = () => {
             <Text fontSize="sm" color="gray.500" mb={4}>
               NIF {viewingFeedback?.candidate.nif}
             </Text>
-            <Box
-              border="1px solid"
-              borderColor="gray.200"
-              borderRadius="md"
-              p={4}
-              bg="gray.50"
-            >
-              <Text whiteSpace="pre-wrap">
-                {viewingFeedback?.feedback.annotation ||
-                  "Nenhuma anotacao registrada."}
-              </Text>
-            </Box>
+            <Stack spacing={4}>
+              {viewingStudentFeedbacks.map((feedback, index) => (
+                <Box
+                  key={
+                    feedback.id || `${getFeedbackDateValue(feedback)}-${index}`
+                  }
+                  border="1px solid"
+                  borderColor="gray.200"
+                  borderRadius="md"
+                  p={4}
+                  bg="gray.50"
+                >
+                  <Flex
+                    align={{ base: "flex-start", md: "center" }}
+                    justify="space-between"
+                    direction={{ base: "column", md: "row" }}
+                    gap={2}
+                    mb={3}
+                  >
+                    <Text fontWeight="semibold">Feedback {index + 1}</Text>
+                    <Text fontSize="sm" color="gray.500">
+                      {formatFeedbackDateTime(getFeedbackDateValue(feedback))}
+                    </Text>
+                  </Flex>
+                  <Divider mb={3} />
+                  <Text whiteSpace="pre-wrap">{feedback.annotation}</Text>
+                  {canUpdateFeedback && (
+                    <Flex justify="flex-end" mt={4}>
+                      <Button
+                        size="sm"
+                        leftIcon={<MdEdit />}
+                        variant="outline"
+                        colorScheme="blue"
+                        onClick={() =>
+                          openUpdateFeedbackModal(viewingFeedback, feedback)
+                        }
+                      >
+                        Atualizar feedback
+                      </Button>
+                    </Flex>
+                  )}
+                </Box>
+              ))}
+
+              {!viewingStudentFeedbacks.length && (
+                <Box
+                  border="1px solid"
+                  borderColor="gray.200"
+                  borderRadius="md"
+                  p={4}
+                  bg="gray.50"
+                >
+                  <Text>Nenhum feedback registrado.</Text>
+                </Box>
+              )}
+            </Stack>
           </ModalBody>
           <ModalFooter>
             <Button onClick={handleCloseViewModal}>Fechar</Button>
