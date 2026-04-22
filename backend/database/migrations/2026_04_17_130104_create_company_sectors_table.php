@@ -14,6 +14,7 @@ return new class extends Migration
     public function up()
     {
         Schema::create('company_sectors', function (Blueprint $table) {
+            $table->engine = 'InnoDB';
             $table->id();
             $table->unsignedBigInteger('branch_id');
             $table->foreign('branch_id')->references('id')->on('company_branches')->onDelete('cascade');
