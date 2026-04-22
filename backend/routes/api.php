@@ -52,6 +52,13 @@ Route::group([
 Route::get('/nif', [UserController::class, 'getNif']);
 Route::apiResource('documents', DocumentsController::class)->only(['index', 'update', 'destroy'])->middleware('checkPermission:documents.index');
 Route::apiResource('users', UserController::class)->middleware('checkPermission:users.index');
+Route::get('companies/branches', [CompanyController::class, 'indexCompanyBranchUser'])->middleware('checkPermission:companies.index');
+Route::post('companies/branches', [CompanyController::class, 'storeCompanyBranchUser'])->middleware('checkPermission:companies.index');
+Route::put('companies/branches/{companyBranch}', [CompanyController::class, 'updateCompanyBranchUser'])->middleware('checkPermission:companies.index');
+Route::delete('companies/branches/{companyBranch}', [CompanyController::class, 'destroyCompanyBranchUser'])->middleware('checkPermission:companies.index');
+Route::post('companies/branches/{companyBranch}/sectors', [CompanyController::class, 'storeCompanySectorUser'])->middleware('checkPermission:companies.index');
+Route::put('companies/branches/{companyBranch}/sectors/{companySector}', [CompanyController::class, 'updateCompanySectorUser'])->middleware('checkPermission:companies.index');
+Route::delete('companies/branches/{companyBranch}/sectors/{companySector}', [CompanyController::class, 'destroyCompanySectorUser'])->middleware('checkPermission:companies.index');
 Route::apiResource('companies', CompanyController::class)->middleware('checkPermission:companies.index')->withTrashed(['destroy']);
 
 Route::controller(SchoolController::class)->prefix('schools')->group(function () {
@@ -64,6 +71,8 @@ Route::controller(SchoolController::class)->prefix('schools')->group(function ()
     Route::delete('/{school}', 'destroy')->withTrashed()->middleware('checkPermission:schools.index');
 });
 
+Route::get('candidates/feedback', [CandidateController::class, 'indexFeedbacks'])->middleware('checkPermission:candidates.index');
+Route::post('candidates/{candidate}/feedback', [CandidateController::class, 'storeFeedback'])->middleware('checkPermission:candidates.index');
 Route::get('candidates/{candidate}/history', [CandidateController::class, 'history'])->middleware('checkPermission:candidates.index');
 Route::get('candidates/{candidate}/history/download', [CandidateController::class, 'exportHistory'])->withoutMiddleware(['auth:api']);
 Route::get('candidates/interviewing', [CandidateController::class, 'schoolCandidates'])->middleware('checkPermission:candidates.index');

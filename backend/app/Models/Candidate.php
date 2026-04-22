@@ -174,4 +174,9 @@ class Candidate extends Model
             ->withPivot('status')
             ->withTimestamps();
     }
+
+    public function feedback()
+    {
+        return $this->hasOne(CandidateFeedback::class);
+    }
 }

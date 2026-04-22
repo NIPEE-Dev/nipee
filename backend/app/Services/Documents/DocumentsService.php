@@ -2,6 +2,7 @@
 
 namespace App\Services\Documents;
 
+use App\Enums\ActiveEnum;
 use App\Helpers\Filter;
 use App\Models\Candidate;
 use App\Models\Company\Company;
@@ -91,6 +92,12 @@ class DocumentsService
         }
 
         if (!$isAdmin && $roleId === 14 && !isset($nif)) {
+            $companyId = $user->company->id;
+            $data->orWhereHasMorph('attachable', Candidate::class, function (Builder $q) use ($companyId) {
+                $q->whereHas('contracts', function ($q)  use ($companyId) {
+                    $q->where('status', '=', ActiveEnum::ACTIVE->value)->where('company_id', $companyId);
+                });
+            });
             $data->orWhereHasMorph('attachable', Company::class, function (Builder $query) use ($user) {
                 $query->where('user_id', $user->id);
             });
