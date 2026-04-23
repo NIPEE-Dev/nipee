@@ -73,6 +73,7 @@ Route::controller(SchoolController::class)->prefix('schools')->group(function ()
 
 Route::get('candidates/feedback', [CandidateController::class, 'indexFeedbacks'])->middleware('checkPermission:candidates.index');
 Route::post('candidates/{candidate}/feedback', [CandidateController::class, 'storeFeedback'])->middleware('checkPermission:candidates.index');
+Route::put('candidates/{candidate}/feedback/{feedbackId}', [CandidateController::class, 'updateFeedback'])->middleware('checkPermission:candidates.index');
 Route::get('candidates/{candidate}/history', [CandidateController::class, 'history'])->middleware('checkPermission:candidates.index');
 Route::get('candidates/{candidate}/history/download', [CandidateController::class, 'exportHistory'])->withoutMiddleware(['auth:api']);
 Route::get('candidates/interviewing', [CandidateController::class, 'schoolCandidates'])->middleware('checkPermission:candidates.index');

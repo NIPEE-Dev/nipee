@@ -29,7 +29,11 @@ import {
   useToast,
 } from "@chakra-ui/react";
 import { MdAdd, MdEdit, MdVisibility } from "react-icons/md";
-import { createFeedback, getFeedbacks } from "../../services/feedbackService";
+import {
+  createFeedback,
+  getFeedbacks,
+  updateFeedback,
+} from "../../services/feedbackService";
 
 const emptyFeedbackForm = {
   alunoId: "",
@@ -155,7 +159,15 @@ export const Feedbacks = () => {
           : { createdAt: new Date().toISOString() }),
       };
 
-      await createFeedback(feedbackForm.alunoId, payload);
+      if (feedbackForm.isEditing) {
+        await updateFeedback(
+          feedbackForm.alunoId,
+          feedbackForm.feedbackId,
+          payload,
+        );
+      } else {
+        await createFeedback(feedbackForm.alunoId, payload);
+      }
     } catch (error) {
       console.error(error);
       toast({

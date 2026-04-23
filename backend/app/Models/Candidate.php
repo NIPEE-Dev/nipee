@@ -177,6 +177,6 @@ class Candidate extends Model
 
     public function feedback()
     {
-        return $this->hasOne(CandidateFeedback::class);
+        return $this->hasMany(CandidateFeedback::class);
     }
 }

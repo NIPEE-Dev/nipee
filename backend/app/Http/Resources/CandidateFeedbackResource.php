@@ -29,9 +29,13 @@ class CandidateFeedbackResource extends JsonResource
                 'id' => $activeContract->school->id,
                 'name' => $activeContract->school->corporate_name,
             ],
-            'feedback' => [
-                'annotation' => $this->feedback->annotation ?? '',
-            ],
+            'feedback' => $this->feedback->map(function ($item, $key) {
+                return [
+                    'id' => $item->id,
+                    'annotation' => $item->annotation,
+                    'createdAt' => $item->created_at,
+                ];
+            }),
             'company' => [
                 'id' => $activeContract->company->id,
                 'name' => $activeContract->company->corporate_name,
@@ -39,7 +43,7 @@ class CandidateFeedbackResource extends JsonResource
             'job' => [
                 'id' => $activeContract->job->id,
                 'role' => $activeContract->job->role,
-            ]
+            ],
         ];
     }
 }

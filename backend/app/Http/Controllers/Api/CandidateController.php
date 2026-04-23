@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\CreateCandidateFeedbackRequest;
 use App\Http\Requests\StoreCandidateDocumentsRequest;
 use App\Http\Requests\StoreCandidateRequest;
+use App\Http\Requests\UpdateCandidateFeedbackRequest;
 use App\Http\Requests\UpdateCandidateRequest;
 use App\Http\Resources\CandidateFeedbackResource;
 use Illuminate\Support\Facades\Validator;
@@ -152,14 +153,20 @@ class CandidateController extends Controller
     {
         $data = $request->validated();
 
-        $candidate->feedback()->updateOrCreate(
-            [
-                'candidate_id' => $candidate->id,
-            ],
+        $candidate->feedback()->create(
             [
                 'annotation' => $data['annotation']
             ]
         );
+
+        return response()->noContent();
+    }
+
+    public function updateFeedback(UpdateCandidateFeedbackRequest $request, Candidate $candidate, $feedbackId)
+    {
+        $data = $request->validated();
+
+        $candidate->feedback()->where('id', $feedbackId)->update([...$data]);
 
         return response()->noContent();
     }
