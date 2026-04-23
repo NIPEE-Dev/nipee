@@ -27,6 +27,7 @@ import { useLocation } from "react-router-dom";
 const DocumentsTable = ({
   typeForm,
   readOnly = false,
+  canRemove = true,
   documents: documentsList,
   thContent,
 }) => {
@@ -122,7 +123,7 @@ const DocumentsTable = ({
                       )}
                     </Td> */}
                     <Td>
-                      {((typeForm === "edit" && !readOnly) ||
+                      {canRemove && ((typeForm === "edit" && !readOnly) ||
                         (isCandidato &&
                           location.pathname.includes("/candidates/view"))) && (
                         <Button

@@ -3,26 +3,35 @@
 namespace App\Services;
 
 use App\Enums\Company\TypeEnum;
+use App\Enums\RolesEnum;
 use App\Enums\Document\DocumentTypeTemplateEnum;
 use App\Helpers\Filter;
 use App\Models\Company\Company;
+use App\Models\Company\CompanyBranch;
+use App\Models\Company\CompanySector;
+use App\Models\Users\User;
 use App\Models\SchoolMember;
 use App\Services\Documents\WordProcessor;
+use App\Services\Users\UsersServices;
 use App\Traits\Common\Filterable;
 use App\Traits\Common\IsAdmin;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 
 class CompaniesService
 {
     use Filterable;
     use IsAdmin;
 
-    public function __construct(private WordProcessor $wordProcessor)
-    {
-    }
+    public function __construct(
+        private WordProcessor $wordProcessor,
+        private UsersServices $usersServices
+    ) {}
 
     public function index($criteria)
     {
@@ -62,7 +71,7 @@ class CompaniesService
 
     public function store($data)
     {
-        return DB::transaction(fn () => tap(Company::create($data), function (Company $company) use ($data) {
+        return DB::transaction(fn() => tap(Company::create($data), function (Company $company) use ($data) {
             $address = Arr::get($data, 'address');
             $contact = Arr::get($data, 'contact');
             $responsible = Arr::get($data, 'responsible');
@@ -133,5 +142,173 @@ class CompaniesService
                 $company->responsible()->updateOrCreate(['responsible_id' => $company->id], $responsible);
             }
         });
+    }
+
+    public function storeCompanyBranchUser(User $companyUser, array $data): CompanyBranch
+    {
+        if (!isset($companyUser->company)) {
+            throw new HttpException(403, 'Deve ser uma empresa para criar uma unidade');
+        }
+
+        return DB::transaction(function () use ($companyUser, $data) {
+            $user = User::query()->create([
+                'name' => $data['name'],
+                'email' => $data['email'],
+                'password' => Hash::make($data['password']),
+                'start_hour' => '00:00:00',
+                'end_hour' => '23:59:00',
+                'role_id' => RolesEnum::COMPANY_BRANCH->value,
+            ]);
+            $user->roles()->attach(RolesEnum::COMPANY_BRANCH->value);
+
+            $companyBranch = CompanyBranch::create([
+                'company_id' => $companyUser->company->id,
+                'user_id' => $user->id,
+                'name' => $data['name'],
+                'email' => $data['email']
+            ]);
+            $user->setRelation('companyBranch', $companyBranch);
+            return $companyBranch;
+        });
+    }
+
+    public function updateCompanyBranchUser(User $companyUser, CompanyBranch $companyBranch, array $data): CompanyBranch
+    {
+        $this->guardCompanyBranchOwnership($companyUser, $companyBranch);
+
+        return DB::transaction(function () use ($companyBranch, $data) {
+            $userData = Arr::only($data, ['name', 'email']);
+
+            if (Arr::has($data, 'password') && filled($data['password'])) {
+                $userData['password'] = Hash::make($data['password']);
+            }
+
+            if ($userData !== []) {
+                $companyBranch->user()->update($userData);
+            }
+
+            $branchData = Arr::only($data, ['name', 'email']);
+
+            if ($branchData !== []) {
+                $companyBranch->update($branchData);
+            }
+
+            return $companyBranch->fresh(['user']);
+        });
+    }
+
+    public function destroyCompanyBranchUser(User $companyUser, CompanyBranch $companyBranch): void
+    {
+        $this->guardCompanyBranchOwnership($companyUser, $companyBranch);
+
+        DB::transaction(function () use ($companyBranch) {
+            $companyBranch->user()->delete();
+            $companyBranch->delete();
+        });
+    }
+
+    public function indexCompanyBranchUser(User $user)
+    {
+        $roleId = $user->roles[0]->id;
+        if ($roleId === RolesEnum::COMPANY->value) {
+            return $user->company->branches;
+        }
+        if ($roleId === RolesEnum::COMPANY_SECTOR->value) {
+            $sector = $user->companySector;
+            $branch = $sector->companyBranch;
+            $branch->sectors = collect([$sector]);
+            return collect([$branch]);
+        }
+        if ($roleId === RolesEnum::COMPANY_BRANCH->value) {
+            return collect([$user->companyBranch]);
+        }
+    }
+
+    public function storeCompanySectorUser(User $companyUser, array $data): CompanySector
+    {
+        $companyBranch = CompanyBranch::query()->findOrFail($data['branch_id']);
+        // $this->guardCompanyBranchOwnership($companyUser, $companyBranch);
+
+        return DB::transaction(function () use ($companyBranch, $data) {
+            $user = User::query()->create([
+                'name' => $data['name'],
+                'email' => $data['email'],
+                'password' => Hash::make($data['password']),
+                'start_hour' => '00:00:00',
+                'end_hour' => '23:59:00',
+                'role_id' => RolesEnum::COMPANY_SECTOR->value,
+            ]);
+            $user->roles()->attach(RolesEnum::COMPANY_SECTOR->value);
+
+            $companySector = CompanySector::create([
+                'branch_id' => $companyBranch->id,
+                'user_id' => $user->id,
+                'name' => $data['name'],
+                'email' => $data['email'],
+            ]);
+
+            $user->setRelation('companySector', $companySector);
+
+            return $companySector;
+        });
+    }
+
+    public function updateCompanySectorUser(User $companyUser, CompanySector $companySector, array $data): CompanySector
+    {
+        $this->guardCompanySectorOwnership($companyUser, $companySector);
+
+        return DB::transaction(function () use ($companySector, $data) {
+            $userData = Arr::only($data, ['name', 'email']);
+
+            if (Arr::has($data, 'password') && filled($data['password'])) {
+                $userData['password'] = Hash::make($data['password']);
+            }
+
+            if ($userData !== []) {
+                $companySector->user()->update($userData);
+            }
+
+            $sectorData = Arr::only($data, ['name', 'email']);
+
+            if ($sectorData !== []) {
+                $companySector->update($sectorData);
+            }
+
+            return $companySector->fresh(['user']);
+        });
+    }
+
+    public function destroyCompanySectorUser(User $companyUser, CompanySector $companySector): void
+    {
+        $this->guardCompanySectorOwnership($companyUser, $companySector);
+
+        DB::transaction(function () use ($companySector) {
+            $companySector->user()->delete();
+            $companySector->delete();
+        });
+    }
+
+    private function guardCompanyBranchOwnership(User $companyUser, CompanyBranch $companyBranch): void
+    {
+        $companyId = $companyUser->company?->id;
+
+        if (!$companyId) {
+            throw new HttpException(403, 'Deve ser uma empresa para gerir unidades');
+        }
+
+        if ((int) $companyBranch->company_id !== (int) $companyId) {
+            throw new ModelNotFoundException('Unidade não encontrada para esta empresa');
+        }
+    }
+
+    private function guardCompanySectorOwnership(User $companyUser, CompanySector $companySector): void
+    {
+        $companySector->loadMissing('companyBranch');
+
+        if (!$companySector->companyBranch) {
+            throw new ModelNotFoundException('Setor sem unidade vinculada');
+        }
+
+        $this->guardCompanyBranchOwnership($companyUser, $companySector->companyBranch);
     }
 }

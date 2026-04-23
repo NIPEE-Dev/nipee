@@ -44,6 +44,7 @@ export const CandidatesForm = ({ readOnly, isLoading, typeForm, ...props }) => {
   const isAdm = userRole === "Administrador Geral";
 
   const effectiveReadOnly = isEmpresa ? true : readOnly;
+  const companyDocumentTypes = ["Documento", "Documento Empresa"];
 
   const disabledStyles = {
     _disabled: {
@@ -99,7 +100,7 @@ export const CandidatesForm = ({ readOnly, isLoading, typeForm, ...props }) => {
 
   async function handleDocumentUpload(formValues, setFormValues) {
     if (
-      formValues.documents.some(
+      (formValues.documents || []).some(
         (element) => element.original_filename === documentUpload.type.value
       )
     ) {
@@ -158,7 +159,10 @@ export const CandidatesForm = ({ readOnly, isLoading, typeForm, ...props }) => {
       <Formik
         enableReinitialize
         initialErrors={props.initialErrors}
-        initialValues={props.initialValues}
+        initialValues={{
+          ...props.initialValues,
+          documents: props.initialValues?.documents || [],
+        }}
         onSubmit={async (values, { setSubmitting, setFieldError }) => {
           try {
             await props.onSubmit(values);
@@ -185,7 +189,16 @@ export const CandidatesForm = ({ readOnly, isLoading, typeForm, ...props }) => {
           }
         }}
       >
-        {({ values, setFieldValue, isSubmitting }) => (
+        {({ values, setFieldValue, isSubmitting }) => {
+          const allDocuments = values.documents || [];
+          const companyDocuments = allDocuments.filter((document) =>
+            companyDocumentTypes.includes(document.type)
+          );
+          const candidateDocuments = allDocuments.filter(
+            (document) => !companyDocumentTypes.includes(document.type)
+          );
+
+          return (
           <Form>
             <GroupContainer
               title="Dados do candidato"
@@ -729,7 +742,7 @@ export const CandidatesForm = ({ readOnly, isLoading, typeForm, ...props }) => {
                 )}
                 <DocumentsTable
                   typeForm={typeForm}
-                  documents={values.documents}
+                  documents={candidateDocuments}
                   {...(typeForm === "edit" && {
                     thContent: (
                       <FileUpload
@@ -755,9 +768,23 @@ export const CandidatesForm = ({ readOnly, isLoading, typeForm, ...props }) => {
                 />
               </GroupContainer>
             )}
+            {["edit", "view", undefined].includes(typeForm) && (
+              <GroupContainer
+                title="Documentos empresa"
+                subtitle="Documentos enviados pela empresa"
+              >
+                <DocumentsTable
+                  typeForm={typeForm}
+                  documents={companyDocuments}
+                  canRemove={false}
+                  readOnly
+                />
+              </GroupContainer>
+            )}
             {props.children}
           </Form>
-        )}
+          );
+        }}
       </Formik>
     </>
   );

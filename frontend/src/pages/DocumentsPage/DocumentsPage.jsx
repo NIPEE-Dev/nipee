@@ -114,7 +114,7 @@ const AddDocumentModal = ({ isOpen, onClose, onSuccess }) => {
     try {
       const formData = new FormData();
       formData.append("file", formValues.file);
-      formData.append("type", "Documento");
+      formData.append("type", "Documento Empresa");
 
       await api.post(`/candidates/${formValues.candidateId}/document`, formData);
 

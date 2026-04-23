@@ -62,12 +62,26 @@ class JobService
         if ($user->roles[0]->id === 14) {
             $data->where('company_id', $user->company->id);
         }
+        if ($roleId === RolesEnum::COMPANY_SECTOR->value) {
+            $data->where('sector_id', $user->companySector->id);
+        }
+        if ($roleId === RolesEnum::COMPANY_BRANCH->value) {
+            $sectorsIds = $user->companyBranch->sectors->pluck('id');
+            $data->whereIn('sector_id', $sectorsIds);
+        }
+
         return $data->paginate(Arr::get($criteria, 'perPage', 10));
     }
 
     public function store($data)
     {
-        return tap(Job::create($data), function (Job $job) use ($data) {
+        $user = Auth::user();
+        $roleId = $user->roles[0]->id;
+        $sectorId = null;
+        if ($roleId === RolesEnum::COMPANY_SECTOR->value) {
+            $sectorId = $user->companySector->id;
+        }
+        return tap(Job::create([...$data, 'sector_id' => $sectorId]), function (Job $job) use ($data) {
             $job->courses()->sync($data['courses']);
             $job->workingDay()->create(Arr::get($data, 'working_day'));
             if (is_array($data['courses']) && count($data['courses']) > 0) {
@@ -262,7 +276,7 @@ class JobService
 
     public function getUserInterviewInvites($candidateId)
     {
-        $invites = JobInterviewInvite::query()->where('candidate_id', $candidateId)->where('status', '!=', JobInterviewInviteStatusEnum::DENIED)->with(['schedule', 'job'])->get();
+        $invites = JobInterviewInvite::query()->where('candidate_id', $candidateId)->where('status', '!=', JobInterviewInviteStatusEnum::DENIED)->whereHas('job')->with(['schedule', 'job'])->get();
 
         return $invites;
     }

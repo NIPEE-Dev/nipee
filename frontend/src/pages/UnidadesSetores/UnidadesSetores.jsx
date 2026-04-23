@@ -1,4 +1,4 @@
-import React, { useMemo, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
   AlertDialog,
   AlertDialogBody,
@@ -31,7 +31,9 @@ import {
   Text,
   Th,
   Thead,
+  toast,
   Tr,
+  useToast,
 } from "@chakra-ui/react";
 import {
   MdAdd,
@@ -40,82 +42,15 @@ import {
   MdKeyboardArrowDown,
   MdKeyboardArrowUp,
 } from "react-icons/md";
-
-const initialUnidades = [
-  {
-    id: 1,
-    nome: "Unidade de Engenharia e Tecnologia",
-    email: "engenharia@nipee.pt",
-    senha: "123456",
-    setores: [
-      {
-        id: 11,
-        nome: "Setor de Desenvolvimento",
-        email: "desenvolvimento@nipee.pt",
-        senha: "123456",
-        quantidadeAlunos: 18,
-      },
-      {
-        id: 12,
-        nome: "Setor de Infraestrutura",
-        email: "infraestrutura@nipee.pt",
-        senha: "123456",
-        quantidadeAlunos: 9,
-      },
-    ],
-  },
-  {
-    id: 2,
-    nome: "Unidade de Saúde e Bem-Estar",
-    email: "saude@nipee.pt",
-    senha: "123456",
-    setores: [
-      {
-        id: 21,
-        nome: "Setor de Fisioterapia",
-        email: "fisioterapia@nipee.pt",
-        senha: "123456",
-        quantidadeAlunos: 14,
-      },
-      {
-        id: 22,
-        nome: "Setor de Nutrição",
-        email: "nutricao@nipee.pt",
-        senha: "123456",
-        quantidadeAlunos: 11,
-      },
-    ],
-  },
-  {
-    id: 3,
-    nome: "Unidade de Gestão e Administração",
-    email: "gestao@nipee.pt",
-    senha: "123456",
-    setores: [
-      {
-        id: 31,
-        nome: "Setor Financeiro",
-        email: "financeiro@nipee.pt",
-        senha: "123456",
-        quantidadeAlunos: 7,
-      },
-      {
-        id: 32,
-        nome: "Setor de Recursos Humanos",
-        email: "rh@nipee.pt",
-        senha: "123456",
-        quantidadeAlunos: 10,
-      },
-      {
-        id: 33,
-        nome: "Setor Administrativo",
-        email: "administrativo@nipee.pt",
-        senha: "123456",
-        quantidadeAlunos: 6,
-      },
-    ],
-  },
-];
+import {
+  createBranch,
+  createBranchSector,
+  deleteBranch,
+  deleteBranchSector,
+  getBranches,
+  updateBranch,
+  updateBranchSector,
+} from "../../services/companyService";
 
 const emptyUnidadeForm = {
   nome: "",
@@ -132,7 +67,13 @@ const emptySetorForm = {
 };
 
 const UnidadesSetores = () => {
-  const [unidades, setUnidades] = useState(initialUnidades);
+  const toast = useToast();
+  const userProfile = JSON.parse(localStorage.getItem("profile") || "null");
+  const userRole = userProfile?.role || "";
+  const isUnidade = userRole === "Unidade" || userRole === "Unidade/Setor";
+  const isSetor = userRole === "Setor";
+
+  const [unidades, setUnidades] = useState([]);
   const [openRowId, setOpenRowId] = useState(null);
 
   const [isUnidadeModalOpen, setIsUnidadeModalOpen] = useState(false);
@@ -146,12 +87,16 @@ const UnidadesSetores = () => {
   const cancelRef = useRef();
 
   const nextUnidadeId = useMemo(() => {
-    return unidades.reduce((maxId, unidade) => Math.max(maxId, unidade.id), 0) + 1;
+    return (
+      unidades.reduce((maxId, unidade) => Math.max(maxId, unidade.id), 0) + 1
+    );
   }, [unidades]);
 
   const nextSetorId = useMemo(() => {
-    const allSetores = unidades.flatMap((unidade) => unidade.setores);
-    return allSetores.reduce((maxId, setor) => Math.max(maxId, setor.id), 0) + 1;
+    const allSetores = unidades.flatMap((unidade) => unidade.sectors);
+    return (
+      allSetores.reduce((maxId, setor) => Math.max(maxId, setor.id), 0) + 1
+    );
   }, [unidades]);
 
   const handleToggleRow = (unidadeId) => {
@@ -167,9 +112,9 @@ const UnidadesSetores = () => {
   const openEditUnidadeModal = (unidade) => {
     setEditingUnidadeId(unidade.id);
     setUnidadeForm({
-      nome: unidade.nome,
+      name: unidade.name,
       email: unidade.email,
-      senha: unidade.senha,
+      password: unidade.password,
     });
     setIsUnidadeModalOpen(true);
   };
@@ -193,9 +138,9 @@ const UnidadesSetores = () => {
     setEditingSetor({ unidadeId, setorId: setor.id });
     setSetorForm({
       unidadeId: String(unidadeId),
-      nome: setor.nome,
+      name: setor.name,
       email: setor.email,
-      senha: setor.senha,
+      password: setor.password,
       quantidadeAlunos: String(setor.quantidadeAlunos),
     });
     setIsSetorModalOpen(true);
@@ -207,46 +152,58 @@ const UnidadesSetores = () => {
     setSetorForm(emptySetorForm);
   };
 
-  const handleSaveUnidade = () => {
-    if (!unidadeForm.nome || !unidadeForm.email || !unidadeForm.senha) {
+  const handleSaveUnidade = async () => {
+    if (!unidadeForm.name || !unidadeForm.email || !unidadeForm.password) {
       return;
     }
-
-    if (editingUnidadeId) {
-      setUnidades((currentUnidades) =>
-        currentUnidades.map((unidade) =>
-          unidade.id === editingUnidadeId
-            ? {
-                ...unidade,
-                nome: unidadeForm.nome,
-                email: unidadeForm.email,
-                senha: unidadeForm.senha,
-              }
-            : unidade
-        )
-      );
-    } else {
-      setUnidades((currentUnidades) => [
-        ...currentUnidades,
-        {
-          id: nextUnidadeId,
-          nome: unidadeForm.nome,
+    try {
+      if (editingUnidadeId) {
+        const updateData = {
+          name: unidadeForm.name,
           email: unidadeForm.email,
-          senha: unidadeForm.senha,
-          setores: [],
-        },
-      ]);
-    }
+        };
+        if (unidadeForm.password && unidadeForm.password !== "") {
+          updateData.password = unidadeForm.password;
+        }
+        await updateBranch(editingUnidadeId, updateData);
+      } else {
+        await createBranch({
+          name: unidadeForm.name,
+          email: unidadeForm.email,
+          password: unidadeForm.password,
+        });
+      }
 
-    closeUnidadeModal();
+      await fetchBranches();
+      closeUnidadeModal();
+    } catch (error) {
+      console.error(error);
+      toast({
+        title: "Erro!",
+        description: error.response.data.message,
+        status: "error",
+        duration: 3000,
+        isClosable: true,
+        position: "top",
+      });
+    }
   };
 
-  const handleSaveSetor = () => {
+  async function fetchBranches() {
+    const res = await getBranches();
+    setUnidades(res.data.data);
+  }
+
+  useEffect(() => {
+    fetchBranches();
+  }, []);
+
+  const handleSaveSetor = async () => {
     if (
       !setorForm.unidadeId ||
-      !setorForm.nome ||
+      !setorForm.name ||
       !setorForm.email ||
-      !setorForm.senha
+      !setorForm.password
     ) {
       return;
     }
@@ -254,70 +211,36 @@ const UnidadesSetores = () => {
     const selectedUnidadeId = Number(setorForm.unidadeId);
     const quantidadeAlunos = Number(setorForm.quantidadeAlunos) || 0;
 
-    setUnidades((currentUnidades) => {
+    try {
       if (editingSetor) {
         const origemUnidadeId = editingSetor.unidadeId;
         const setorId = editingSetor.setorId;
-        let setorAtualizado = null;
-
-        const unidadesSemSetorAntigo = currentUnidades.map((unidade) => {
-          if (unidade.id !== origemUnidadeId) {
-            return unidade;
-          }
-
-          return {
-            ...unidade,
-            setores: unidade.setores.filter((setor) => {
-              const shouldKeep = setor.id !== setorId;
-              if (!shouldKeep) {
-                setorAtualizado = {
-                  ...setor,
-                  nome: setorForm.nome,
-                  email: setorForm.email,
-                  senha: setorForm.senha,
-                  quantidadeAlunos,
-                };
-              }
-              return shouldKeep;
-            }),
-          };
+        await updateBranchSector(origemUnidadeId, setorId, {
+          name: setorForm.name,
+          email: setorForm.email,
+          password: setorForm.password,
         });
-
-        return unidadesSemSetorAntigo.map((unidade) => {
-          if (unidade.id !== selectedUnidadeId) {
-            return unidade;
-          }
-
-          return {
-            ...unidade,
-            setores: [...unidade.setores, setorAtualizado],
-          };
+      } else {
+        await createBranchSector(setorForm.unidadeId, {
+          name: setorForm.name,
+          email: setorForm.email,
+          password: setorForm.password,
         });
       }
-
-      return currentUnidades.map((unidade) => {
-        if (unidade.id !== selectedUnidadeId) {
-          return unidade;
-        }
-
-        return {
-          ...unidade,
-          setores: [
-            ...unidade.setores,
-            {
-              id: nextSetorId,
-              nome: setorForm.nome,
-              email: setorForm.email,
-              senha: setorForm.senha,
-              quantidadeAlunos,
-            },
-          ],
-        };
+      setOpenRowId(selectedUnidadeId);
+      await fetchBranches();
+      closeSetorModal();
+    } catch (error) {
+      console.error(error);
+      toast({
+        title: "Erro!",
+        description: error.response.data.message,
+        status: "error",
+        duration: 3000,
+        isClosable: true,
+        position: "top",
       });
-    });
-
-    setOpenRowId(selectedUnidadeId);
-    closeSetorModal();
+    }
   };
 
   const openDeleteDialog = (target) => {
@@ -328,37 +251,35 @@ const UnidadesSetores = () => {
     setDeleteTarget(null);
   };
 
-  const handleConfirmDelete = () => {
+  const handleConfirmDelete = async () => {
     if (!deleteTarget) {
       return;
     }
 
-    if (deleteTarget.type === "unidade") {
-      setUnidades((currentUnidades) =>
-        currentUnidades.filter((unidade) => unidade.id !== deleteTarget.unidadeId)
-      );
+    try {
+      if (deleteTarget.type === "unidade") {
+        await deleteBranch(deleteTarget.unidadeId);
 
-      if (openRowId === deleteTarget.unidadeId) {
-        setOpenRowId(null);
+        if (openRowId === deleteTarget.unidadeId) {
+          setOpenRowId(null);
+        }
       }
+      if (deleteTarget.type === "setor") {
+        await deleteBranchSector(deleteTarget.unidadeId, deleteTarget.setorId);
+      }
+      fetchBranches();
+      closeDeleteDialog();
+    } catch (error) {
+      console.error(error);
+      toast({
+        title: "Erro!",
+        description: error.response.data.message,
+        status: "error",
+        duration: 3000,
+        isClosable: true,
+        position: "top",
+      });
     }
-
-    if (deleteTarget.type === "setor") {
-      setUnidades((currentUnidades) =>
-        currentUnidades.map((unidade) =>
-          unidade.id === deleteTarget.unidadeId
-            ? {
-                ...unidade,
-                setores: unidade.setores.filter(
-                  (setor) => setor.id !== deleteTarget.setorId
-                ),
-              }
-            : unidade
-        )
-      );
-    }
-
-    closeDeleteDialog();
   };
 
   const deleteMessage =
@@ -385,12 +306,24 @@ const UnidadesSetores = () => {
         </Box>
 
         <Flex gap={3} direction={{ base: "column", sm: "row" }}>
-          <Button leftIcon={<MdAdd />} colorScheme="blue" onClick={openCreateUnidadeModal}>
-            Criar unidade
-          </Button>
-          <Button variant="outline" leftIcon={<MdAdd />} onClick={() => openCreateSetorModal()}>
-            Criar setor
-          </Button>
+          {!isUnidade && !isSetor && (
+            <Button
+              leftIcon={<MdAdd />}
+              colorScheme="blue"
+              onClick={openCreateUnidadeModal}
+            >
+              Criar unidade
+            </Button>
+          )}
+          {!isSetor && (
+            <Button
+              variant="outline"
+              leftIcon={<MdAdd />}
+              onClick={() => openCreateSetorModal()}
+            >
+              Criar setor
+            </Button>
+          )}
         </Flex>
       </Flex>
 
@@ -419,18 +352,26 @@ const UnidadesSetores = () => {
                   <Tr>
                     <Td>
                       <IconButton
-                        aria-label={isOpen ? "Ocultar setores" : "Mostrar setores"}
-                        icon={isOpen ? <MdKeyboardArrowUp /> : <MdKeyboardArrowDown />}
+                        aria-label={
+                          isOpen ? "Ocultar setores" : "Mostrar setores"
+                        }
+                        icon={
+                          isOpen ? (
+                            <MdKeyboardArrowUp />
+                          ) : (
+                            <MdKeyboardArrowDown />
+                          )
+                        }
                         size="sm"
                         variant="ghost"
                         onClick={() => handleToggleRow(unidade.id)}
                       />
                     </Td>
-                    <Td>{unidade.nome}</Td>
+                    <Td>{unidade.name}</Td>
                     <Td>{unidade.email}</Td>
                     <Td>
                       <Badge colorScheme="blue" px={2} py={1} borderRadius="md">
-                        {unidade.setores.length}
+                        {unidade.sectors?.length}
                       </Badge>
                     </Td>
                     <Td>
@@ -469,7 +410,11 @@ const UnidadesSetores = () => {
                   </Tr>
 
                   <Tr>
-                    <Td colSpan={5} p={0} borderBottom={isOpen ? "1px solid" : "0"}>
+                    <Td
+                      colSpan={5}
+                      p={0}
+                      borderBottom={isOpen ? "1px solid" : "0"}
+                    >
                       <Collapse in={isOpen} animateOpacity>
                         <Box bg="gray.50" px={6} py={4}>
                           <Text fontWeight="semibold" mb={3}>
@@ -486,12 +431,12 @@ const UnidadesSetores = () => {
                               </Tr>
                             </Thead>
                             <Tbody>
-                              {unidade.setores.length > 0 ? (
-                                unidade.setores.map((setor) => (
+                              {unidade.sectors.length > 0 ? (
+                                unidade.sectors.map((setor) => (
                                   <Tr key={setor.id}>
-                                    <Td>{setor.nome}</Td>
+                                    <Td>{setor.name}</Td>
                                     <Td>{setor.email}</Td>
-                                    <Td>{setor.quantidadeAlunos}</Td>
+                                    <Td>{setor.candidatesCount}</Td>
                                     <Td>
                                       <Flex gap={2}>
                                         <IconButton
@@ -500,7 +445,12 @@ const UnidadesSetores = () => {
                                           size="sm"
                                           variant="ghost"
                                           colorScheme="blue"
-                                          onClick={() => openEditSetorModal(unidade.id, setor)}
+                                          onClick={() =>
+                                            openEditSetorModal(
+                                              unidade.id,
+                                              setor,
+                                            )
+                                          }
                                         />
                                         <IconButton
                                           aria-label="Excluir setor"
@@ -522,7 +472,12 @@ const UnidadesSetores = () => {
                                 ))
                               ) : (
                                 <Tr>
-                                  <Td colSpan={4} textAlign="center" py={4} color="gray.500">
+                                  <Td
+                                    colSpan={4}
+                                    textAlign="center"
+                                    py={4}
+                                    color="gray.500"
+                                  >
                                     Nenhum setor cadastrado para esta unidade.
                                   </Td>
                                 </Tr>
@@ -551,11 +506,11 @@ const UnidadesSetores = () => {
             <FormControl mb={4} isRequired>
               <FormLabel>Nome</FormLabel>
               <Input
-                value={unidadeForm.nome}
+                value={unidadeForm.name}
                 onChange={(event) =>
                   setUnidadeForm((current) => ({
                     ...current,
-                    nome: event.target.value,
+                    name: event.target.value,
                   }))
                 }
               />
@@ -579,11 +534,11 @@ const UnidadesSetores = () => {
               <FormLabel>Senha</FormLabel>
               <Input
                 type="password"
-                value={unidadeForm.senha}
+                value={unidadeForm.password}
                 onChange={(event) =>
                   setUnidadeForm((current) => ({
                     ...current,
-                    senha: event.target.value,
+                    password: event.target.value,
                   }))
                 }
               />
@@ -603,7 +558,9 @@ const UnidadesSetores = () => {
       <Modal isOpen={isSetorModalOpen} onClose={closeSetorModal} size="lg">
         <ModalOverlay />
         <ModalContent>
-          <ModalHeader>{editingSetor ? "Editar setor" : "Criar setor"}</ModalHeader>
+          <ModalHeader>
+            {editingSetor ? "Editar setor" : "Criar setor"}
+          </ModalHeader>
           <ModalCloseButton />
           <ModalBody>
             <FormControl mb={4} isRequired>
@@ -620,7 +577,7 @@ const UnidadesSetores = () => {
               >
                 {unidades.map((unidade) => (
                   <option key={unidade.id} value={unidade.id}>
-                    {unidade.nome}
+                    {unidade.name}
                   </option>
                 ))}
               </Select>
@@ -629,11 +586,11 @@ const UnidadesSetores = () => {
             <FormControl mb={4} isRequired>
               <FormLabel>Nome</FormLabel>
               <Input
-                value={setorForm.nome}
+                value={setorForm.name}
                 onChange={(event) =>
                   setSetorForm((current) => ({
                     ...current,
-                    nome: event.target.value,
+                    name: event.target.value,
                   }))
                 }
               />
@@ -657,16 +614,15 @@ const UnidadesSetores = () => {
               <FormLabel>Senha</FormLabel>
               <Input
                 type="password"
-                value={setorForm.senha}
+                value={setorForm.password}
                 onChange={(event) =>
                   setSetorForm((current) => ({
                     ...current,
-                    senha: event.target.value,
+                    password: event.target.value,
                   }))
                 }
               />
             </FormControl>
-            
           </ModalBody>
           <ModalFooter gap={3}>
             <Button variant="ghost" onClick={closeSetorModal}>
