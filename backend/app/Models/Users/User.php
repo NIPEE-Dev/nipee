@@ -80,12 +80,12 @@ class User extends Authenticatable implements JWTSubject
 
     public function companyBranch()
     {
-        return $this->hasOne(CompanyBranch::class)->withTrashed();
+        return $this->hasOne(CompanyBranch::class, 'user_id');
     }
 
     public function companySector()
     {
-        return $this->hasOne(CompanySector::class)->withTrashed();
+        return $this->hasOne(CompanySector::class, 'user_id');
     }
 
     /**

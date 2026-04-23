@@ -209,13 +209,25 @@ class CompaniesService
 
     public function indexCompanyBranchUser(User $user)
     {
-        return $user->company->branches;
+        $roleId = $user->roles[0]->id;
+        if ($roleId === RolesEnum::COMPANY->value) {
+            return $user->company->branches;
+        }
+        if ($roleId === RolesEnum::COMPANY_SECTOR->value) {
+            $sector = $user->companySector;
+            $branch = $sector->companyBranch;
+            $branch->sectors = collect([$sector]);
+            return collect([$branch]);
+        }
+        if ($roleId === RolesEnum::COMPANY_BRANCH->value) {
+            return collect([$user->companyBranch]);
+        }
     }
 
     public function storeCompanySectorUser(User $companyUser, array $data): CompanySector
     {
         $companyBranch = CompanyBranch::query()->findOrFail($data['branch_id']);
-        $this->guardCompanyBranchOwnership($companyUser, $companyBranch);
+        // $this->guardCompanyBranchOwnership($companyUser, $companyBranch);
 
         return DB::transaction(function () use ($companyBranch, $data) {
             $user = User::query()->create([
