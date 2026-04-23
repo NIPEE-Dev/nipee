@@ -13,6 +13,7 @@ use App\Http\Requests\UpdateCandidateRequest;
 use App\Http\Resources\CandidateFeedbackResource;
 use Illuminate\Support\Facades\Validator;
 use App\Http\Resources\CandidateResource;
+use App\Mail\NewFeedback;
 use App\Models\Candidate;
 use App\Services\CandidatesService;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -20,6 +21,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
@@ -152,6 +154,11 @@ class CandidateController extends Controller
     public function storeFeedback(CreateCandidateFeedbackRequest $request, Candidate $candidate)
     {
         $data = $request->validated();
+        $activeContract = $candidate->contracts()
+            ->withoutTrashed()
+            ->where('status', '=', ActiveEnum::ACTIVE->value)->first();
+
+        Mail::to($activeContract->school)->send(new NewFeedback($candidate->name, $activeContract->school->corporate_name));
 
         $candidate->feedback()->create(
             [
