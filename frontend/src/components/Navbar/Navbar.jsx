@@ -32,16 +32,6 @@ const Navbar = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const scrollToRegister = () => {
-    const section = document.getElementById('registrar');
-    if (section) {
-      section.scrollIntoView({ behavior: 'smooth' });
-      onClose();
-    } else {
-        window.location.href = "/#registrar"; 
-    }
-  };
-
   return (
     <Box
       as="header"
@@ -66,6 +56,7 @@ const Navbar = () => {
             <Link href="/escolas-registadas" fontWeight="medium">Escolas Registadas</Link>
             <Link href="/#sobre" fontWeight="medium">Sobre nós</Link>
             <Link href="/#contato" fontWeight="medium">Contacto</Link>
+            <Link href="/registar-candidato" fontWeight="medium">Registar candidato</Link>
           </HStack>
         </HStack>
 
@@ -74,12 +65,21 @@ const Navbar = () => {
         <HStack spacing={6} display={{ base: 'none', md: 'flex' }}>
           <Link href="/login" fontWeight="medium">Entrar</Link>
           <Button
-            bgGradient="linear(to-r, #5931E9, #7289FF)"
+            bg="#155dfc"
             color="white"
-            _hover={{ bgGradient: 'linear(to-r, #7289FF, #5931E9)' }}
-            onClick={scrollToRegister}
+            cursor="pointer"
+            px={8}
+            py={6}
+            borderRadius="full"
+            fontWeight="semibold"
+            boxShadow="0 12px 30px rgba(21, 93, 252, 0.28)"
+            _hover={{ bg: '#0f4fd6', transform: 'translateY(-1px)' }}
+            _active={{ bg: '#0b43b6' }}
+            transition="all 0.2s ease"
+            as="a"
+            href="/registar-empresa"
           >
-            Registar
+            Registar empresa
           </Button>
         </HStack>
 
@@ -106,15 +106,23 @@ const Navbar = () => {
               
               <Link href="/#sobre" fontWeight="medium" onClick={onClose}>Sobre nós</Link>
               <Link href="/#contato" fontWeight="medium" onClick={onClose}>Contacto</Link>
+              <Link href="/registar-candidato" fontWeight="medium" onClick={onClose}>Registar candidato</Link>
               <Link href="/login" fontWeight="medium" onClick={onClose}>Entrar</Link>
               
               <Button
                 w="full"
-                bgGradient="linear(to-r, #5931E9, #7289FF)"
+                bg="#155dfc"
                 color="white"
-                onClick={scrollToRegister}
+                cursor="pointer"
+                py={6}
+                borderRadius="xl"
+                fontWeight="semibold"
+                _hover={{ bg: '#0f4fd6' }}
+                _active={{ bg: '#0b43b6' }}
+                as="a"
+                href="/registar-empresa"
               >
-                Registar
+                Registar empresa
               </Button>
             </VStack>
           </DrawerBody>

@@ -26,6 +26,8 @@ import Inicio from '../../pages/Inicio/Inicio.jsx';
 import EscolasRegistadas from '../../pages/EscolasRegistadas/EscolasRegistadas.jsx';
 import VagasEmAberto from '../../pages/VagasEmAberto/VagasEmAberto.jsx';
 import Termos from '../../pages/Termos/Termos.jsx';
+import RegistarCandidato from '../../pages/RegistarCandidato/RegistarCandidato.jsx';
+import RegistarEmpresa from '../../pages/RegistarEmpresa/RegistarEmpresa.jsx';
 import DashboardSchools from '../../pages/DashboardSchools/DashboardSchools.jsx';
 import ActivityReport from '../../pages/ActivityReport/ActivityReport.jsx';
 import ReportsFCT from '../../pages/ReportsFCT/ReportsFCT.jsx';
@@ -41,6 +43,8 @@ function App() {
       <Route path="/" element={<Inicio />} />
       <Route path="/vagas-em-aberto" element={<VagasEmAberto />} />
       <Route path="/escolas-registadas" element={<EscolasRegistadas />} />
+      <Route path="/registar-candidato" element={<RegistarCandidato />} />
+      <Route path="/registar-empresa" element={<RegistarEmpresa />} />
       <Route path="/termos-condicoes-uso" element={<Termos />} />
       <Route path="/termos-condicoes-utilizacao" element={<TermosUtilizacao />} />
       <Route path="/politica-de-privacidade" element={<PoliticaPrivacidade />} />

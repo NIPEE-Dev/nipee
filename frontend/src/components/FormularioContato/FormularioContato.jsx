@@ -1,14 +1,15 @@
 import React, { useState } from "react";
 import {
   Box,
-  Heading,
   Text,
   FormControl,
   FormLabel,
   Input,
   Textarea,
   Button,
-  SimpleGrid,
+  Flex,
+  VStack,
+  Icon,
   useToast,
   Modal,
   ModalOverlay,
@@ -18,19 +19,39 @@ import {
   ModalFooter,
   useDisclosure,
 } from "@chakra-ui/react";
+import { FaEnvelope, FaMapMarkerAlt, FaPaperPlane, FaPhoneAlt } from "react-icons/fa";
 import ReCAPTCHA from "react-google-recaptcha";
-import useSendContact from '../../hooks/useSendContact';
+import useSendContact from "../../hooks/useSendContact";
+
+const contactItems = [
+  {
+    icon: FaMapMarkerAlt,
+    title: "Endereco",
+    lines: ["Av. Principal, 1234", "Centro - Sao Paulo, SP", "CEP: 01000-000"],
+  },
+  {
+    icon: FaPhoneAlt,
+    title: "Telefone",
+    lines: ["211 309 985", "912 485 534"],
+  },
+  {
+    icon: FaEnvelope,
+    title: "E-mail",
+    lines: ["contacto@nipee.org", "inscricoes@nipee.org"],
+  },
+];
 
 const FormularioContato = () => {
   const toast = useToast();
   const [recaptchaToken, setRecaptchaToken] = useState(null);
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const { sendContact, loading, error, successMessage } = useSendContact();
+  const { sendContact, loading } = useSendContact();
 
   const [formData, setFormData] = useState({
     nome: "",
     email: "",
-    assunto: "",
+    telefone: "",
+    assunto: "Contato pelo site",
     mensagem: "",
   });
 
@@ -43,182 +64,226 @@ const FormularioContato = () => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-
   const handleClearForm = () => {
     setFormData({
       nome: "",
       email: "",
-      assunto: "",
+      telefone: "",
+      assunto: "Contato pelo site",
       mensagem: "",
     });
+    setRecaptchaToken(null);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-  
+
     try {
       const success = await sendContact(formData);
-  
+
       if (success) {
-        onOpen(); 
-        handleClearForm(); 
+        onOpen();
+        handleClearForm();
       }
     } catch (err) {
       toast({
-        title: err.message || 'Erro ao enviar mensagem.',
-        status: 'error',
+        title: err.message || "Erro ao enviar mensagem.",
+        status: "error",
         duration: 3000,
         isClosable: true,
       });
     }
-  };  
+  };
 
   return (
-    <Box bg="white" py={10} px={{ base: 4, md: 8 }} textAlign="center" id="contato">
-      <Heading
-        as="h2"
-        fontSize={{ base: "2xl", md: "3xl" }}
-        color="#5931E9"
-        mb={4}
-      >
-        Exponha as suas dúvidas
-      </Heading>
-      <Text fontSize={{ base: "md", md: "lg" }} color="gray.600" mb={8}>
-        Responderemos tão breve quanto possível
-      </Text>
-      <Box
-        maxW="800px"
-        mx="auto"
-        bg="white"
-        boxShadow="lg"
-        p={6}
-        rounded="md"
-      >
-        <form onSubmit={handleSubmit}>
-          <SimpleGrid columns={{ base: 1, md: 2 }} spacing={6}>
-            <FormControl isRequired>
-              <FormLabel>Nome</FormLabel>
-              <Input
-                name="nome"
-                value={formData.nome}
-                onChange={handleChange}
-                placeholder="Digite o seu nome"
-                bg="gray.50"
-              />
-            </FormControl>
-            <FormControl isRequired>
-              <FormLabel>E-mail</FormLabel>
-              <Input
-                name="email"
-                type="email"
-                value={formData.email}
-                onChange={handleChange}
-                placeholder="Digite o seu e-mail"
-                bg="gray.50"
-              />
-            </FormControl>
-          </SimpleGrid>
-          <SimpleGrid columns={{ base: 1, md: 1 }} spacing={6} mt={4}>
-            <FormControl isRequired>
-              <FormLabel>Assunto</FormLabel>
-              <Input
-                name="assunto"
-                value={formData.assunto}
-                onChange={handleChange}
-                placeholder="Digite o assunto"
-                bg="gray.50"
-              />
-            </FormControl>
-          </SimpleGrid>
-          <SimpleGrid columns={{ base: 1, md: 1 }} spacing={6} mt={4}>
-            <FormControl isRequired>
-              <FormLabel>Mensagem</FormLabel>
-              <Textarea
-                name="mensagem"
-                value={formData.mensagem}
-                onChange={handleChange}
-                placeholder="Digite a sua mensagem"
-                bg="gray.50"
-                rows={5}
-              />
-            </FormControl>
-          </SimpleGrid>
-          <Button
-            type="submit"
-            bgGradient="linear(to-r, #5931E9, #7289FF)"
-            color="white"
-            _hover={{ bgGradient: "linear(to-r, #7289FF, #5931E9)" }}
-            size="lg"
-            w="full"
-            my={6}
-            isDisabled={!recaptchaToken}
+    <Box id="contato" bg="white" py={{ base: 16, md: 20 }} px={{ base: 4, md: 8 }}>
+      <Box maxW="1200px" mx="auto">
+        <VStack spacing={4} textAlign="center" mb={{ base: 12, md: 16 }}>
+          <Box
+            as="h2"
+            m={0}
+            fontSize={{ base: "30px", md: "36px" }}
+            fontWeight="bold"
+            lineHeight="1.15"
+            color="#172036"
           >
-            Enviar
-          </Button>
+            Entre em Contato
+          </Box>
+          <Text fontSize={{ base: "16px", md: "18px" }} color="#52617a">
+            Estamos prontos para ajudar voce a dar o proximo passo
+          </Text>
+        </VStack>
 
-          <ReCAPTCHA
-            sitekey={import.meta.env.VITE_RECAPTCHA_SITE_KEY}
-            onChange={handleRecaptchaChange}
-          />
-        </form>
+        <Flex direction={{ base: "column", lg: "row" }} gap={{ base: 10, lg: 16 }}>
+          <Box flex="1">
+            <Box
+              as="h3"
+              m={0}
+              mb={8}
+              fontSize={{ base: "24px", md: "28px" }}
+              fontWeight="bold"
+              color="#172036"
+            >
+              Informacoes de Contato
+            </Box>
+
+            <VStack align="stretch" spacing={8}>
+              {contactItems.map((item) => (
+                <Flex key={item.title} align="start" gap={4}>
+                  <Flex
+                    w="48px"
+                    h="48px"
+                    align="center"
+                    justify="center"
+                    borderRadius="full"
+                    bg="#dbeafe"
+                    color="#155dfc"
+                    flexShrink={0}
+                  >
+                    <Icon as={item.icon} boxSize="20px" />
+                  </Flex>
+                  <Box>
+                    <Text fontSize="16px" fontWeight="bold" color="#172036" mb={2}>
+                      {item.title}
+                    </Text>
+                    {item.lines.map((line) => (
+                      <Text key={line} fontSize="16px" lineHeight="1.55" color="#52617a">
+                        {line}
+                      </Text>
+                    ))}
+                  </Box>
+                </Flex>
+              ))}
+
+              <Box bg="#eaf3ff" borderRadius="12px" p={{ base: 5, md: 6 }} mt={4}>
+                <Text fontSize="16px" fontWeight="bold" color="#172036" mb={3}>
+                  Horario de Atendimento
+                </Text>
+                <Text fontSize="16px" color="#52617a">
+                  Segunda a Sexta: 8h as 18h
+                </Text>
+                <Text fontSize="16px" color="#52617a">
+                  Sabado: 9h as 13h
+                </Text>
+              </Box>
+            </VStack>
+          </Box>
+
+          <Box flex="1.05">
+            <Box as="form" onSubmit={handleSubmit}>
+              <VStack spacing={5} align="stretch">
+                <FormControl isRequired>
+                  <FormLabel fontSize="15px" fontWeight="semibold" color="#172036">
+                    Nome Completo
+                  </FormLabel>
+                  <Input
+                    name="nome"
+                    value={formData.nome}
+                    onChange={handleChange}
+                    placeholder="Seu nome"
+                    h="48px"
+                    bg="white"
+                    borderColor="#d9e0ea"
+                    _focus={{ borderColor: "#155dfc", boxShadow: "0 0 0 1px #155dfc" }}
+                  />
+                </FormControl>
+
+                <FormControl isRequired>
+                  <FormLabel fontSize="15px" fontWeight="semibold" color="#172036">
+                    E-mail
+                  </FormLabel>
+                  <Input
+                    name="email"
+                    type="email"
+                    value={formData.email}
+                    onChange={handleChange}
+                    placeholder="seu@email.com"
+                    h="48px"
+                    bg="white"
+                    borderColor="#d9e0ea"
+                    _focus={{ borderColor: "#155dfc", boxShadow: "0 0 0 1px #155dfc" }}
+                  />
+                </FormControl>
+
+                <FormControl>
+                  <FormLabel fontSize="15px" fontWeight="semibold" color="#172036">
+                    Telefone
+                  </FormLabel>
+                  <Input
+                    name="telefone"
+                    value={formData.telefone}
+                    onChange={handleChange}
+                    placeholder="(11) 99999-9999"
+                    h="48px"
+                    bg="white"
+                    borderColor="#d9e0ea"
+                    _focus={{ borderColor: "#155dfc", boxShadow: "0 0 0 1px #155dfc" }}
+                  />
+                </FormControl>
+
+                <FormControl isRequired>
+                  <FormLabel fontSize="15px" fontWeight="semibold" color="#172036">
+                    Mensagem
+                  </FormLabel>
+                  <Textarea
+                    name="mensagem"
+                    value={formData.mensagem}
+                    onChange={handleChange}
+                    placeholder="Como podemos ajudar?"
+                    minH="120px"
+                    bg="white"
+                    borderColor="#d9e0ea"
+                    _focus={{ borderColor: "#155dfc", boxShadow: "0 0 0 1px #155dfc" }}
+                  />
+                </FormControl>
+
+                <Box>
+                  <ReCAPTCHA
+                    sitekey={import.meta.env.VITE_RECAPTCHA_SITE_KEY}
+                    onChange={handleRecaptchaChange}
+                  />
+                </Box>
+
+                <Button
+                  type="submit"
+                  bg="#155dfc"
+                  color="white"
+                  cursor="pointer"
+                  h="54px"
+                  borderRadius="full"
+                  fontWeight="bold"
+                  leftIcon={<Icon as={FaPaperPlane} />}
+                  _hover={{ bg: "#0f4fd6", transform: "translateY(-1px)" }}
+                  transition="all 0.2s ease"
+                  isDisabled={!recaptchaToken}
+                  isLoading={loading}
+                  loadingText="Enviando..."
+                >
+                  Enviar Mensagem
+                </Button>
+              </VStack>
+            </Box>
+          </Box>
+        </Flex>
       </Box>
 
-      {/* Modal de sucesso */}
       <Modal isOpen={isOpen} onClose={onClose} isCentered>
         <ModalOverlay bg="blackAlpha.700" />
-        <ModalContent
-          bgGradient="linear(to-r, #5931E9, #7289FF)"
-          color="white"
-          borderRadius="lg"
-          boxShadow="2xl"
-          overflow="hidden"
-          transform="scale(1.05)"
-          transition="all 0.3s ease-in-out"
-          mx={4}
-        >
-          <ModalHeader
-            fontSize="2xl"
-            fontWeight="bold"
-            textAlign="center"
-            color="white"
-            mt={4}
-          >
-            🎉 Sua dúvida foi enviada!
+        <ModalContent borderRadius="lg" boxShadow="2xl" mx={4}>
+          <ModalHeader color="#172036" textAlign="center">
+            Mensagem enviada!
           </ModalHeader>
-          <ModalBody textAlign="center" py={6} px={8}>
-            <Box
-              bg="whiteAlpha.200"
-              p={4}
-              borderRadius="md"
-              boxShadow="md"
-              mb={4}
-              textAlign="center"
-            >
-              <Box fontSize="lg" fontWeight="semibold" mb={2}>
-                Sua mensagem foi enviada com sucesso!
-              </Box>
-              <Box fontSize="sm">
-                Entraremos em contacto em breve. Fique atento no seu e-mail!
-              </Box>
-            </Box>
+          <ModalBody textAlign="center" color="#52617a" pb={6}>
+            Sua mensagem foi enviada com sucesso. Entraremos em contacto em breve.
           </ModalBody>
-          <ModalFooter justifyContent="center" pb={4}>
+          <ModalFooter justifyContent="center" pb={5}>
             <Button
               onClick={onClose}
-              bg="white"
-              color="#5931E9"
-              fontWeight="bold"
-              _hover={{
-                bgGradient: "linear(to-r, #7289FF, #5931E9)",
-                color: "white",
-              }}
-              _active={{ transform: "scale(0.95)" }}
-              px={6}
-              py={4}
+              bg="#155dfc"
+              color="white"
+              _hover={{ bg: "#0f4fd6" }}
               borderRadius="full"
-              isDisabled={!recaptchaToken || loading}
-              isLoading={loading}
-              loadingText="Enviando..."
+              px={8}
             >
               Fechar
             </Button>

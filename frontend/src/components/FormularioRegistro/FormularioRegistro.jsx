@@ -40,7 +40,13 @@ import { districtMap, districtsAndCities } from "../../utils/constants";
 import { Link as RouterLink } from "react-router-dom";
 import logo from "/src/images/logo.png";
 
-const FormularioRegistro = () => {
+const FormularioRegistro = ({
+  initialType = "aluno",
+  lockType = false,
+  title = "Faça o seu registo",
+  description = "Preencha os seus dados para avançar com o registo na plataforma.",
+  id = "registrar",
+}) => {
   const { addCompanyPreRegistration } = useCompanyPreRegistrations();
   const { addStudentPreRegistration } = useStudentPreRegistrations();
   const toast = useToast();
@@ -55,7 +61,7 @@ const FormularioRegistro = () => {
     onClose: onTermsClose 
   } = useDisclosure();
 
-  const [formType, setFormType] = useState("aluno");
+  const [formType, setFormType] = useState(initialType);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [hasConsented, setHasConsented] = useState(false); // Estado para o checkbox
   const [schools, setSchools] = useState([]);
@@ -72,6 +78,10 @@ const FormularioRegistro = () => {
   const [records, setCourses] = useState([]);
   const [errors, setErrors] = useState({ empresa: {}, aluno: {} });
   const [recaptchaToken, setRecaptchaToken] = useState(null);
+
+  useEffect(() => {
+    setFormType(initialType);
+  }, [initialType]);
 
   const schoolOptions = schools.map((s) => ({
     value: s.id,
@@ -296,36 +306,60 @@ const FormularioRegistro = () => {
 
   const currentFormData = formData[formType];
   const currentErrors = errors[formType];
+  const formHeading =
+    formType === "empresa" ? "Registar empresa" : "Registar candidato";
 
   return (
     <Box
       bg="white"
-      p={10}
-      maxWidth="1000px"
+      p={{ base: 6, md: 10 }}
+      maxWidth="1100px"
       mx="auto"
-      borderRadius="md"
-      boxShadow="lg"
-      id="registrar"
+      borderRadius="24px"
+      boxShadow="0 18px 40px rgba(15, 23, 42, 0.08)"
+      border="1px solid #e5e7eb"
+      id={id}
+      sx={{
+        label: {
+          color: "#172036",
+          fontSize: "14px",
+          fontWeight: "600",
+          mb: 2,
+        },
+        "input, textarea, select": {
+          minH: "52px",
+          borderRadius: "14px",
+          borderColor: "#dbe3f0",
+          bg: "#f8fbff",
+        },
+        textarea: {
+          minH: "140px",
+          py: 3,
+        },
+      }}
     >
       <Heading
+        display={lockType ? "none" : "block"}
         as="h2"
         size="lg"
         textAlign="center"
-        mb={8}
-        bgGradient="linear(to-r, #5931E9, #7289FF)"
-        bgClip="text"
+        mb={lockType ? 0 : 8}
+        color="#172036"
         fontWeight="bold"
       >
         Faça o seu registo
       </Heading>
 
-      <Flex justifyContent="center" mb={8} wrap="wrap">
+      {!lockType && <Flex justifyContent="center" mb={8} wrap="wrap">
         <Button
           variant={formType === "aluno" ? "solid" : "outline"}
-          color={formType === "aluno" ? "white" : "#5931E9"}
-          bg={formType === "aluno" ? "#5931E9" : "transparent"}
+          color={formType === "aluno" ? "white" : "#155dfc"}
+          bg={formType === "aluno" ? "#155dfc" : "transparent"}
           fontWeight="bold"
           px={6}
+          py={6}
+          borderRadius="full"
+          borderColor="#bfdbfe"
           mr={4}
           onClick={() => setFormType("aluno")}
         >
@@ -333,15 +367,18 @@ const FormularioRegistro = () => {
         </Button>
         <Button
           variant={formType === "empresa" ? "solid" : "outline"}
-          color={formType === "empresa" ? "white" : "#5931E9"}
-          bg={formType === "empresa" ? "#5931E9" : "transparent"}
+          color={formType === "empresa" ? "white" : "#155dfc"}
+          bg={formType === "empresa" ? "#155dfc" : "transparent"}
           fontWeight="bold"
           px={6}
+          py={6}
+          borderRadius="full"
+          borderColor="#bfdbfe"
           onClick={() => setFormType("empresa")}
         >
           Empresa
         </Button>
-      </Flex>
+      </Flex>}
 
       <form onSubmit={(e) => { e.preventDefault(); onTermsOpen(); }}>
         <VStack spacing={6} align="stretch">
@@ -585,14 +622,25 @@ const FormularioRegistro = () => {
           />
 
           <Flex justify="space-between" mt={6} wrap="wrap">
-            <Button variant="outline" colorScheme="gray" onClick={handleClearForm}>
+            <Button
+              variant="outline"
+              color="#52617a"
+              borderColor="#dbe3f0"
+              borderRadius="full"
+              px={6}
+              py={6}
+              onClick={handleClearForm}
+            >
               Limpar Formulário
             </Button>
             <Button
               fontWeight="bold"
-              bgGradient="linear(to-r, #5931E9, #7289FF)"
+              bg="#155dfc"
               color="white"
-              _hover={{ bgGradient: "linear(to-r, #7289FF, #5931E9)" }}
+              borderRadius="full"
+              px={8}
+              py={6}
+              _hover={{ bg: "#0f4fd6" }}
               type="submit"
               isDisabled={!recaptchaToken}
               isLoading={isSubmitting}

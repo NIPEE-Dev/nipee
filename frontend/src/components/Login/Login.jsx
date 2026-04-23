@@ -262,7 +262,7 @@ const handleKeyDown = (event) => {
             <Button
               variant="link"
               color="blue.500"
-              onClick={() => navigate('/#registrar')}
+              onClick={() => navigate('/registar-candidato')}
             >
               Registar
             </Button>
