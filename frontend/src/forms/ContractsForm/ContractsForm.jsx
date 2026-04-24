@@ -47,6 +47,8 @@ import {
   phoneValidator,
 } from "../../utils/formValidators";
 import { Select as ReactSelect } from "chakra-react-select";
+import api from "../../api";
+import { getBranches } from "../../services/companyService";
 
 export const ContractsForm = ({
   readOnly,
@@ -62,6 +64,14 @@ export const ContractsForm = ({
   const navigate = useNavigate();
   const toast = useToast();
   const [jobsArr, setJobsArr] = useState(undefined);
+  const userProfile = JSON.parse(localStorage.getItem("profile") || "null");
+  const userRole = userProfile?.role || "";
+  const isAdmin = userRole === "Administrador Geral";
+  const isBranchOrSectorRole = ["Unidade", "Setor"].includes(userRole);
+  const [linkedCompany, setLinkedCompany] = useState(null);
+  const [isLinkedCompanyLoading, setIsLinkedCompanyLoading] = useState(
+    isBranchOrSectorRole,
+  );
 
   useEffect(() => {
     if (state && !state.preFill) {
@@ -69,6 +79,61 @@ export const ContractsForm = ({
       navigate(location.pathname, {});
     }
   }, []);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const fetchLinkedCompany = async () => {
+      if (!isBranchOrSectorRole) {
+        if (isMounted) {
+          setLinkedCompany(null);
+          setIsLinkedCompanyLoading(false);
+        }
+        return;
+      }
+
+      setIsLinkedCompanyLoading(true);
+
+      try {
+        const branchesResponse = await getBranches();
+        const branch = branchesResponse?.data?.data?.[0];
+        const companyId = branch?.company_id;
+
+        if (!companyId) {
+          if (isMounted) {
+            setLinkedCompany(null);
+          }
+          return;
+        }
+
+        const companyResponse = await api.get(`/companies/${companyId}`);
+        const company =
+          companyResponse?.data?.data || companyResponse?.data || null;
+
+        if (isMounted && company?.id) {
+          setLinkedCompany({
+            id: company.id,
+            corporate_name: company.corporate_name,
+          });
+        }
+      } catch (error) {
+        console.error("Erro ao carregar empresa vinculada:", error);
+        if (isMounted) {
+          setLinkedCompany(null);
+        }
+      } finally {
+        if (isMounted) {
+          setIsLinkedCompanyLoading(false);
+        }
+      }
+    };
+
+    fetchLinkedCompany();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [isBranchOrSectorRole]);
 
   if (isLoadingResource) {
     return <Spinner />;
@@ -217,29 +282,70 @@ export const ContractsForm = ({
             <Stack direction={["column", "row"]} spacing="24px">
               <Resource
                 resource="Companies"
-                autoFetch
+                autoFetch={!isBranchOrSectorRole}
                 resourceParams={{
                   perPage: 9999,
                   ...(typeForm === "add" && { withoutTrashed: true }),
                 }}
               >
-                {({ records, isLoading }) => (
-                  <Field
-                    id="company_id"
-                    name="company_id"
-                    placeholder="Empresa"
-                    component={FormField.Select}
-                    readOnly={readOnly}
-                    isLoading={isLoading}
-                    required
-                  >
-                    {records.map((record) => (
-                      <option key={record.id} value={record.id}>
-                        {record.corporate_name}
-                      </option>
-                    ))}
-                  </Field>
-                )}
+                {({ records, isLoading }) => {
+                  React.useEffect(() => {
+                    if (
+                      isBranchOrSectorRole &&
+                      linkedCompany?.id &&
+                      formProps.values.company_id !== linkedCompany.id
+                    ) {
+                      formProps.setFieldValue("company_id", linkedCompany.id);
+                      return;
+                    }
+
+                    if (
+                      !isLoading &&
+                      records.length > 0 &&
+                      !isAdmin &&
+                      !formProps.values.company_id
+                    ) {
+                      formProps.setFieldValue("company_id", records[0].id);
+                    }
+                  }, [
+                    formProps.setFieldValue,
+                    formProps.values.company_id,
+                    isAdmin,
+                    isBranchOrSectorRole,
+                    isLoading,
+                    linkedCompany,
+                    records,
+                  ]);
+
+                  const companyOptions = isBranchOrSectorRole
+                    ? linkedCompany
+                      ? [linkedCompany]
+                      : []
+                    : records;
+
+                  const companyFieldLoading = isBranchOrSectorRole
+                    ? isLinkedCompanyLoading
+                    : isLoading;
+
+                  return (
+                    <Field
+                      id="company_id"
+                      name="company_id"
+                      placeholder="Empresa"
+                      component={FormField.Select}
+                      readOnly={readOnly}
+                      isLoading={companyFieldLoading}
+                      disabled={isBranchOrSectorRole}
+                      required
+                    >
+                      {companyOptions.map((record) => (
+                        <option key={record.id} value={record.id}>
+                          {record.corporate_name}
+                        </option>
+                      ))}
+                    </Field>
+                  );
+                }}
               </Resource>
 
               <Resource

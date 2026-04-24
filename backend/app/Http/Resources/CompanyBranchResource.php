@@ -16,6 +16,7 @@ class CompanyBranchResource extends JsonResource
     {
         return [
             'id' => $this->id,
+            'company_id' => $this->company_id,
             'name' => $this->name,
             'email' => $this->email,
             'sectors' => CompanySectorResource::collection($this->sectors),

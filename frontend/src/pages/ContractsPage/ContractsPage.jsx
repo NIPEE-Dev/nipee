@@ -25,6 +25,7 @@ const ContractsPage = () => {
   const userProfile = JSON.parse(localStorage.getItem('profile'));
   const userRole = userProfile?.role || '';
   const isEmpresa = userRole === "Empresa";
+  const isUnidadeOuSetor = userRole === "Unidade" || userRole === "Setor";
   const isCandidato = userRole === "Candidato";
   const isAdm = userRole === "Administrador Geral";
 
@@ -35,8 +36,8 @@ const ContractsPage = () => {
       resource='Contracts'
       routeBase={routes.contracts}
       Form={ContractsForm}
-      canAdd={isEmpresa || isAdm} 
-      canEdit={isEmpresa || isAdm}
+      canAdd={isEmpresa || isUnidadeOuSetor || isAdm} 
+      canEdit={isEmpresa || isUnidadeOuSetor || isAdm}
       canRemove={false}
       resourceUpdateProps={{
         onlyDiff: false
