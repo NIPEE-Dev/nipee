@@ -45,7 +45,7 @@ import escolas from "../../../src/images/escolas.jpg";
 import Navbar from "../../components/Navbar/Navbar";
 import FormularioContato from "../../components/FormularioContato/FormularioContato";
 import BannerConsentimento from "../../components/BannerConsentimento/BannerConsentimento";
-import Footer from "../../components/Footer/Footer";
+import FooterHome from "../../components/Footer/FooterHome";
 
 const slides = [
   {
@@ -1292,7 +1292,7 @@ const Inicio = () => {
           <BannerConsentimento />
         </Box>
       </Box>
-      <Footer />
+      <FooterHome />
     </div>
   );
 };
