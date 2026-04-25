@@ -45,6 +45,16 @@ class ActivitiesController extends Controller
             $reports = $this->activitiesService->getReportsByCompanyId($companyId);
         }
 
+        if ($roleId === RolesEnum::COMPANY_SECTOR->value) {
+            $sectorId = $user->companySector->id;
+            $reports = $this->activitiesService->getBySectorsIds([$sectorId]);
+        }
+
+        if ($roleId === RolesEnum::COMPANY_BRANCH->value) {
+            $sectorsIds = $user->companyBranch->sectors->pluck('id');
+            $reports = $this->activitiesService->getBySectorsIds($sectorsIds);
+        }
+
         return FctReportResource::collection($reports);
     }
 

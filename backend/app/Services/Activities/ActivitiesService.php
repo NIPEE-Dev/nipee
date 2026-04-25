@@ -183,6 +183,29 @@ class ActivitiesService
         return $activities->get();
     }
 
+    public function getBySectorsIds($sectorIdsArr, $filters)
+    {
+        $activities = Activity::query()->where('status', '!=', ActivityStatusEnum::DRAFT->value)->whereHas('user.candidate.contracts', function ($query) use ($sectorIdsArr) {
+            $query->whereIn('sector_id', $sectorIdsArr);
+        });
+
+        if (isset($filters['startDate'])) {
+            $startDate = new Carbon($filters['startDate']);
+            $activities->whereDate('activity_date', '>=', $startDate->startOfDay());
+        }
+
+        if (isset($filters['endDate'])) {
+            $endDate = new Carbon($filters['endDate']);
+            $activities->whereDate('activity_date', '<=', $endDate->endOfDay());
+        }
+
+        if (!isset($filters['startDate']) && !isset($filters['endDate'])) {
+            $activities->whereMonth('activity_date', Carbon::now()->month);
+        }
+
+        return $activities->get();
+    }
+
     public function getBySchoolId($schoolId, $filters)
     {
         $activities = Activity::query()->where('status', '!=', ActivityStatusEnum::DRAFT->value)->whereHas('user.candidate.contracts', function ($query) use ($schoolId) {
