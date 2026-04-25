@@ -103,11 +103,10 @@ class DocumentsService
             });
         }
         if (!$isAdmin && $roleId === 15 && !isset($nif)) {
-            $companyId = $user->companyBranch->company_id;
             $sectorsIds = $user->companyBranch->sectors->pluck('id');
-            $data->orWhereHasMorph('attachable', Candidate::class, function (Builder $q) use ($sectorsIds, $companyId) {
-                $q->whereHas('contracts', function ($q)  use ($companyId) {
-                    $q->where('status', '=', ActiveEnum::ACTIVE->value)->whereIn('sector_id', $sectorId);
+            $data->orWhereHasMorph('attachable', Candidate::class, function (Builder $q) use ($sectorsIds) {
+                $q->whereHas('contracts', function ($q)  use ($sectorsIds) {
+                    $q->where('status', '=', ActiveEnum::ACTIVE->value)->whereIn('sector_id', $sectorsIds);
                 });
             });
             $data->orWhereHasMorph('attachable', Company::class, function (Builder $query) use ($user) {
