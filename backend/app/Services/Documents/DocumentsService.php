@@ -102,6 +102,28 @@ class DocumentsService
                 $query->where('user_id', $user->id);
             });
         }
+        if (!$isAdmin && $roleId === 15 && !isset($nif)) {
+            $sectorId = $user->companySector->id;
+            $data->orWhereHasMorph('attachable', Candidate::class, function (Builder $q) use ($sectorId) {
+                $q->whereHas('contracts', function ($q)  use ($companyId) {
+                    $q->where('status', '=', ActiveEnum::ACTIVE->value)->where('sector_id', $sectorId);
+                });
+            });
+            $data->orWhereHasMorph('attachable', Company::class, function (Builder $query) use ($user) {
+                $query->where('user_id', $user->id);
+            });
+        }
+        if (!$isAdmin && $roleId === 16 && !isset($nif)) {
+            $sectorsIds = $user->companyBranch->sectors->pluck('id');
+            $data->orWhereHasMorph('attachable', Candidate::class, function (Builder $q) use ($sectorsIds) {
+                $q->whereHas('contracts', function ($q)  use ($companyId) {
+                    $q->where('status', '=', ActiveEnum::ACTIVE->value)->whereIn('sector_id', $sectorId);
+                });
+            });
+            $data->orWhereHasMorph('attachable', Company::class, function (Builder $query) use ($user) {
+                $query->where('user_id', $user->id);
+            });
+        }
 
         return $data->orderByDesc('id')->paginate(Arr::get($criteria, 'perPage', 10));
     }
