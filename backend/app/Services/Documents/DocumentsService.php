@@ -112,9 +112,12 @@ class DocumentsService
         }
         if (!$isAdmin && $roleId === 16 && !isset($nif)) {
             $sectorId = $user->companySector->id;
-            $data->orWhereHasMorph('attachable', Candidate::class, function (Builder $q) use ($sectorId) {
-                $q->whereHas('contracts', function ($q) use ($sectorId) {
-                    $q->where('status', '=', ActiveEnum::ACTIVE->value)->where('sector_id', $sectorId);
+            $data->where(function ($query) use ($sectorId) {
+                $query->orWhereHasMorph('attachable', [Candidate::class], function (Builder $q) use ($sectorId) {
+                    $q->whereHas('contracts', function ($q) use ($sectorId) {
+                        $q->where('status', ActiveEnum::ACTIVE->value)
+                        ->where('sector_id', $sectorId);
+                    });
                 });
             });
         }
