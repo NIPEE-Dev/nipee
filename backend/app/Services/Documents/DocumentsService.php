@@ -53,7 +53,7 @@ class DocumentsService
                     Job::class => ['company'],
                     Company::class => [],
                     School::class => [],
-                    Candidate::class => [],
+                    Candidate::class => ['contracts'],
                     Contract::class => [],
                 ]);
             }
@@ -109,9 +109,6 @@ class DocumentsService
                     $q->where('status', '=', ActiveEnum::ACTIVE->value)->whereIn('sector_id', $sectorsIds);
                 });
             });
-            $data->orWhereHasMorph('attachable', Company::class, function (Builder $query) use ($user) {
-                $query->where('user_id', $user->id);
-            });
         }
         if (!$isAdmin && $roleId === 16 && !isset($nif)) {
             $sectorId = $user->companySector->id;
@@ -119,9 +116,6 @@ class DocumentsService
                 $q->whereHas('contracts', function ($q) use ($sectorId) {
                     $q->where('status', '=', ActiveEnum::ACTIVE->value)->where('sector_id', $sectorId);
                 });
-            });
-            $data->orWhereHasMorph('attachable', Company::class, function (Builder $query) use ($user) {
-                $query->where('user_id', $user->id);
             });
         }
 
