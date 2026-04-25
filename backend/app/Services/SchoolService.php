@@ -9,6 +9,7 @@ use App\Models\SchoolMember;
 use App\Services\Documents\WordProcessor;
 use App\Traits\Common\Filterable;
 use App\Traits\Common\IsAdmin;
+use App\Enums\RolesEnum;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
@@ -53,7 +54,7 @@ class SchoolService
         if (request()->has('schoolId')) {
             $data->where('id', request()->query('schoolId'));
         }
-        if ($this->isAdmin() === false && $roleId !== 14 && $roleId !== 13) {
+        if ($this->isAdmin() === false && in_array($roleId, [14, 13, 15, 16])) {
             $schoolId = $user->school[0]->id ?? null;
             $data->where('id', $schoolId);
         }
