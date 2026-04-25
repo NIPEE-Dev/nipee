@@ -54,7 +54,7 @@ class SchoolService
         if (request()->has('schoolId')) {
             $data->where('id', request()->query('schoolId'));
         }
-        if ($this->isAdmin() === false && in_array($roleId, [14, 13, 15, 16])) {
+        if ($this->isAdmin() === false && !in_array($roleId, [14, 13, 15, 16])) {
             $schoolId = $user->school[0]->id ?? null;
             $data->where('id', $schoolId);
         }
