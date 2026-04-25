@@ -15,6 +15,8 @@ class StoreJobsRequest extends FormRequest
     {
         return [
             'company_id' => 'required|exists:companies,id',
+            'branch_id' => 'nullable|exists:company_branches,id',
+            'sector_id' => 'nullable|exists:company_sectors,id',
             // 'role_id' => 'required|numeric',
             'role' => ['required', 'string'],
             'courses' => ['required', 'array', 'min:1'],

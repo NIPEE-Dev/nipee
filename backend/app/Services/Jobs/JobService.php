@@ -81,9 +81,10 @@ class JobService
         $branchId = $data['branch_id'] ?? null;
         if ($roleId === RolesEnum::COMPANY_SECTOR->value) {
             $sectorId = $user->companySector->id;
+            $branchId = $user->companySector->branch_id;
         }
         if ($roleId === RolesEnum::COMPANY_BRANCH->value) {
-            $sectorId = $user->companyBranch->id;
+            $branchId = $user->companyBranch->id;
         }
         return tap(Job::create([...$data, 'sector_id' => $sectorId, 'branch_id' => $branchId]), function (Job $job) use ($data) {
             $job->courses()->sync($data['courses']);

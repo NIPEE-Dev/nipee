@@ -45,6 +45,8 @@ class JobResource extends JsonResource
             'status' => $this->status,
             'company_id' => $this->company_id,
             'role_id' => $this->role_id,
+            'branch_id' => $this->branch_id,
+            'sector_id' => $this->sector_id,
             'period' => $this->period,
             'period_title' => PeriodEnum::getLabel($this->period),
             'gender' => $this->gender,

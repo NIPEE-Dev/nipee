@@ -207,11 +207,17 @@ class CompaniesService
         });
     }
 
-    public function indexCompanyBranchUser(User $user)
+    public function indexCompanyBranchUser(User $user, array $criteria = [])
     {
         $roleId = $user->roles[0]->id;
+        if ($roleId === RolesEnum::GENERAL_ADMIN->value && $companyId = Arr::get($criteria, 'company_id')) {
+            return CompanyBranch::query()
+                ->with('sectors')
+                ->where('company_id', $companyId)
+                ->get();
+        }
         if ($roleId === RolesEnum::COMPANY->value) {
-            return $user->company->branches;
+            return $user->company->branches()->with('sectors')->get();
         }
         if ($roleId === RolesEnum::COMPANY_SECTOR->value) {
             $sector = $user->companySector;
@@ -220,8 +226,10 @@ class CompaniesService
             return collect([$branch]);
         }
         if ($roleId === RolesEnum::COMPANY_BRANCH->value) {
-            return collect([$user->companyBranch]);
+            return collect([$user->companyBranch->load('sectors')]);
         }
+
+        return collect();
     }
 
     public function storeCompanySectorUser(User $companyUser, array $data): CompanySector

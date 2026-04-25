@@ -27,7 +27,7 @@ const BannerConsentimento = () => {
       position="fixed"
       bottom={0}
       w="95%"
-      bgGradient="linear(to-r, #5931E9, #7289FF)"
+      bgGradient="linear(to-r, #155DFC, #7289FF)"
       color="white"
       py={4}
       px={6}
@@ -63,10 +63,10 @@ const BannerConsentimento = () => {
           <Button
             onClick={handleAccept}
             bg="white"
-            color="#5931E9"
+            color="#155DFC"
             fontWeight="bold"
             _hover={{
-              bgGradient: "linear(to-r, #7289FF, #5931E9)",
+              bgGradient: "linear(to-r, #7289FF, #155DFC)",
               color: "white",
             }}
             size="sm"
@@ -76,10 +76,10 @@ const BannerConsentimento = () => {
           <Button
             onClick={handleReject}
             bg="white"
-            color="#5931E9"
+            color="#155DFC"
             fontWeight="bold"
             _hover={{
-              bgGradient: "linear(to-r, #7289FF, #5931E9)",
+              bgGradient: "linear(to-r, #7289FF, #155DFC)",
               color: "white",
             }}
             size="sm"

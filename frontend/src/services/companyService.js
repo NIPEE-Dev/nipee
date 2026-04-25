@@ -1,7 +1,9 @@
 import api from "../api";
 
-export const getBranches = async () => {
-  return await api.get("/companies/branches");
+export const getBranches = async (companyId) => {
+  return await api.get("/companies/branches", {
+    params: companyId ? { company_id: companyId } : {},
+  });
 };
 
 export const createBranch = async (payload) => {

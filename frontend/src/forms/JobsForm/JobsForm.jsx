@@ -98,6 +98,176 @@ const CourseSelect = ({ value = [], onChange, readOnly }) => {
   );
 };
 
+const BranchSectorFields = ({
+  values,
+  setFieldValue,
+  readOnly,
+  canEdit,
+  userRole,
+  isAdmin,
+}) => {
+  const [branches, setBranches] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const isBranchRole = userRole === "Unidade";
+  const isSectorRole = userRole === "Setor";
+  const isScopedRole = ["Empresa", "Unidade", "Setor"].includes(userRole);
+  const selectedBranch = branches.find(
+    (branch) => String(branch.id) === String(values.branch_id || "")
+  );
+  const sectors = selectedBranch?.sectors || [];
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const fetchBranches = async () => {
+      if (!values.company_id && !isScopedRole) {
+        setBranches([]);
+        setFieldValue("branch_id", "");
+        setFieldValue("sector_id", "");
+        return;
+      }
+
+      setIsLoading(true);
+
+      try {
+        const response = await getBranches(isAdmin ? values.company_id : null);
+        const branchRecords = response?.data?.data || [];
+
+        if (!isMounted) {
+          return;
+        }
+
+        setBranches(branchRecords);
+
+        const currentBranch = branchRecords.find(
+          (branch) => String(branch.id) === String(values.branch_id || "")
+        );
+        const nextBranch = currentBranch || branchRecords[0];
+
+        if ((isBranchRole || isSectorRole) && nextBranch?.id) {
+          setFieldValue("branch_id", nextBranch.id);
+        }
+
+        if (!currentBranch && values.branch_id) {
+          setFieldValue("branch_id", "");
+          setFieldValue("sector_id", "");
+        }
+
+        const availableSectors = nextBranch?.sectors || [];
+        const currentSector = availableSectors.find(
+          (sector) => String(sector.id) === String(values.sector_id || "")
+        );
+
+        if (isSectorRole && availableSectors[0]?.id) {
+          setFieldValue("sector_id", availableSectors[0].id);
+        } else if (values.sector_id && !currentSector) {
+          setFieldValue("sector_id", "");
+        }
+      } catch (err) {
+        console.error("Erro ao carregar unidades e setores:", err);
+        if (isMounted) {
+          setBranches([]);
+          setFieldValue("branch_id", "");
+          setFieldValue("sector_id", "");
+        }
+      } finally {
+        if (isMounted) {
+          setIsLoading(false);
+        }
+      }
+    };
+
+    fetchBranches();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [
+    isAdmin,
+    isBranchRole,
+    isScopedRole,
+    isSectorRole,
+    setFieldValue,
+    values.company_id,
+  ]);
+
+  useEffect(() => {
+    if (!values.branch_id) {
+      if (values.sector_id) {
+        setFieldValue("sector_id", "");
+      }
+      return;
+    }
+
+    const branch = branches.find(
+      (record) => String(record.id) === String(values.branch_id)
+    );
+    const hasSector = branch?.sectors?.some(
+      (sector) => String(sector.id) === String(values.sector_id || "")
+    );
+
+    if (values.sector_id && !hasSector) {
+      setFieldValue("sector_id", "");
+    }
+  }, [branches, setFieldValue, values.branch_id, values.sector_id]);
+
+  return (
+    <Stack direction={["column", "row"]} spacing="24px">
+      <Field
+        id="branch_id"
+        name="branch_id"
+        placeholder="Unidade"
+        component={FormField.Select}
+        disabled={
+          readOnly ||
+          canEdit === false ||
+          isLoading ||
+          isBranchRole ||
+          isSectorRole ||
+          !values.company_id
+        }
+        isLoading={isLoading}
+        onChangeCallback={(event) => {
+          setFieldValue("branch_id", event.target.value);
+          setFieldValue("sector_id", "");
+        }}
+        readOnly={readOnly}
+        required
+      >
+        {branches.map((branch) => (
+          <option key={branch.id} value={branch.id}>
+            {branch.name}
+          </option>
+        ))}
+      </Field>
+
+      <Field
+        id="sector_id"
+        name="sector_id"
+        placeholder="Setor"
+        component={FormField.Select}
+        disabled={
+          readOnly ||
+          canEdit === false ||
+          isLoading ||
+          isSectorRole ||
+          !values.branch_id ||
+          sectors.length === 0
+        }
+        isLoading={isLoading}
+        readOnly={readOnly}
+        required={sectors.length > 0}
+      >
+        {sectors.map((sector) => (
+          <option key={sector.id} value={sector.id}>
+            {sector.name}
+          </option>
+        ))}
+      </Field>
+    </Stack>
+  );
+};
+
 export const JobsForm = ({ readOnly, typeForm, isLoading, ...props }) => {
   const { closeJob } = useJobs();
   const toast = useToast();
@@ -298,6 +468,15 @@ export const JobsForm = ({ readOnly, typeForm, isLoading, ...props }) => {
                 }}
               </Resource>
             </Stack>
+
+            <BranchSectorFields
+              values={values}
+              setFieldValue={setFieldValue}
+              readOnly={readOnly}
+              canEdit={canEdit}
+              userRole={userRole}
+              isAdmin={isAdmin}
+            />
 
             <Stack direction={["column", "row"]} spacing="24px">
               <FastField
