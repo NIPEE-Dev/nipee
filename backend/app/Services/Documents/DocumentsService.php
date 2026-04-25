@@ -3,6 +3,7 @@
 namespace App\Services\Documents;
 
 use App\Enums\ActiveEnum;
+use App\Enums\RolesEnum;
 use App\Helpers\Filter;
 use App\Models\Candidate;
 use App\Models\Company\Company;
@@ -102,23 +103,43 @@ class DocumentsService
                 $query->where('user_id', $user->id);
             });
         }
-        if (!$isAdmin && $roleId === 15 && !isset($nif)) {
-            $sectorsIds = $user->companyBranch->sectors->pluck('id');
-            $data->orWhereHasMorph('attachable', Candidate::class, function (Builder $q) use ($sectorsIds) {
-                $q->whereHas('contracts', function ($q)  use ($sectorsIds) {
-                    $q->where('status', '=', ActiveEnum::ACTIVE->value)->whereIn('sector_id', $sectorsIds);
-                });
+        if (!$isAdmin && $roleId === RolesEnum::COMPANY_BRANCH->value && !isset($nif)) {
+            $branch = $user->companyBranch;
+            $branchId = $branch?->id ?? 0;
+            $sectorsIds = $branch?->sectors?->pluck('id') ?? collect();
+
+            $data->where(function (Builder $query) use ($branchId, $sectorsIds) {
+                $query->whereHasMorph('attachable', Candidate::class, function (Builder $q) use ($sectorsIds) {
+                    $q->whereHas('contracts', function (Builder $q) use ($sectorsIds) {
+                        $q->where('status', ActiveEnum::ACTIVE->value)
+                            ->whereIn('sector_id', $sectorsIds);
+                    });
+                })
+                    ->orWhereHasMorph('attachable', Contract::class, function (Builder $q) use ($sectorsIds) {
+                        $q->whereIn('sector_id', $sectorsIds);
+                    })
+                    ->orWhereHasMorph('attachable', Job::class, function (Builder $q) use ($branchId, $sectorsIds) {
+                        $q->where('branch_id', $branchId)
+                            ->orWhereIn('sector_id', $sectorsIds);
+                    });
             });
         }
-        if (!$isAdmin && $roleId === 16 && !isset($nif)) {
-            $sectorId = $user->companySector->id;
-            $data->where(function ($query) use ($sectorId) {
-                $query->orWhereHasMorph('attachable', [Candidate::class], function (Builder $q) use ($sectorId) {
-                    $q->whereHas('contracts', function ($q) use ($sectorId) {
+        if (!$isAdmin && $roleId === RolesEnum::COMPANY_SECTOR->value && !isset($nif)) {
+            $sectorId = $user->companySector?->id ?? 0;
+
+            $data->where(function (Builder $query) use ($sectorId) {
+                $query->whereHasMorph('attachable', Candidate::class, function (Builder $q) use ($sectorId) {
+                    $q->whereHas('contracts', function (Builder $q) use ($sectorId) {
                         $q->where('status', ActiveEnum::ACTIVE->value)
-                        ->where('sector_id', $sectorId);
+                            ->where('sector_id', $sectorId);
                     });
-                });
+                })
+                    ->orWhereHasMorph('attachable', Contract::class, function (Builder $q) use ($sectorId) {
+                        $q->where('sector_id', $sectorId);
+                    })
+                    ->orWhereHasMorph('attachable', Job::class, function (Builder $q) use ($sectorId) {
+                        $q->where('sector_id', $sectorId);
+                    });
             });
         }
 
