@@ -67,7 +67,7 @@ class JobService
         }
         if ($roleId === RolesEnum::COMPANY_BRANCH->value) {
             $sectorsIds = $user->companyBranch->sectors->pluck('id');
-            $data->whereIn('sector_id', $sectorsIds);
+            $data->whereIn('sector_id', $sectorsIds)->orWhere('branch_id', $user->companyBranch->id);
         }
 
         return $data->paginate(Arr::get($criteria, 'perPage', 10));
@@ -77,11 +77,15 @@ class JobService
     {
         $user = Auth::user();
         $roleId = $user->roles[0]->id;
-        $sectorId = null;
+        $sectorId = $data['sector_id'] ?? null;
+        $branchId = $data['branch_id'] ?? null;
         if ($roleId === RolesEnum::COMPANY_SECTOR->value) {
             $sectorId = $user->companySector->id;
         }
-        return tap(Job::create([...$data, 'sector_id' => $sectorId]), function (Job $job) use ($data) {
+        if ($roleId === RolesEnum::COMPANY_BRANCH->value) {
+            $sectorId = $user->companyBranch->id;
+        }
+        return tap(Job::create([...$data, 'sector_id' => $sectorId, 'branch_id' => $branchId]), function (Job $job) use ($data) {
             $job->courses()->sync($data['courses']);
             $job->workingDay()->create(Arr::get($data, 'working_day'));
             if (is_array($data['courses']) && count($data['courses']) > 0) {

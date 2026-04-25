@@ -46,7 +46,8 @@ class Job extends Model
         'start_at',
         'end_at',
         'max_approvals',
-        'sector_id'
+        'sector_id',
+        'branch_id',
     ];
 
     public $casts = [
