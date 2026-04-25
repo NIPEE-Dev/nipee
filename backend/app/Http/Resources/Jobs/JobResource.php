@@ -79,8 +79,8 @@ class JobResource extends JsonResource
                 return '' . $item;
             }) : null),
             'already_applied' => $this->when($roleId === RolesEnum::CANDIDATE->value, $this->candidates->where('id', $user->candidate->id ?? null)->first() !== null),
-            'candidates' => $this->when($roleId === RolesEnum::COMPANY->value, JobCandidateResource::collection($this->candidates)),
-            'compatible_candidates' => $this->when($roleId === RolesEnum::COMPANY->value && isset($this->courses), CompatibleCandidateResource::collection($compatibleCandidates)),
+            'candidates' => $this->when(in_array($roleId, [RolesEnum::COMPANY->value, RolesEnum::COMPANY_BRANCH->value, RolesEnum::COMPANY_SECTOR->value]), JobCandidateResource::collection($this->candidates)),
+            'compatible_candidates' => $this->when(in_array($roleId, [RolesEnum::COMPANY->value, RolesEnum::COMPANY_BRANCH->value, RolesEnum::COMPANY_SECTOR->value]) && isset($this->courses), CompatibleCandidateResource::collection($compatibleCandidates)),
         ];
     }
 }
