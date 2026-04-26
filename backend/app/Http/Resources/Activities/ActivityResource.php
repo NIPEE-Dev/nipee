@@ -16,7 +16,13 @@ class ActivityResource extends JsonResource
      */
     public function toArray($request)
     {
-        $roles = [RolesEnum::COMPANY->value, RolesEnum::SCHOOL->value, RolesEnum::GENERAL_ADMIN->value];
+        $roles = [
+            RolesEnum::COMPANY->value,
+            RolesEnum::SCHOOL->value,
+            RolesEnum::GENERAL_ADMIN->value,
+            RolesEnum::COMPANY_BRANCH->value,
+            RolesEnum::COMPANY_SECTOR->value,
+        ];
         $roleId = $request->user()->roles[0]->id;
         return [
             "id" => $this->id,

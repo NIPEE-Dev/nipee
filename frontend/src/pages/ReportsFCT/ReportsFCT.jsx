@@ -10,7 +10,7 @@ const ReportsFCT = () => {
     return <ReportsCandidate />;
   }
 
-  if (userRole === "Empresa") {
+  if (userRole === "Empresa" || userRole === "Unidade" || userRole === "Setor") {
     return <ReportsCompany />;
   }
 

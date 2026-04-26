@@ -93,19 +93,20 @@ class ActivitiesController extends Controller
         }
 
         if ($roleId === RolesEnum::SCHOOL->value) {
-            $activities = $this->activitiesService->getBySchoolId($user->id, $filters);
+            $schoolId = $user->school->first()->id;
+            $activities = $this->activitiesService->getBySchoolId($schoolId, $filters);
 
             return ActivityResource::collection($activities);
         }
 
         if ($roleId === RolesEnum::COMPANY_SECTOR->value) {
             $sectorId = $user->companySector->id;
-            $reports = $this->activitiesService->getBySectorsIds([$sectorId]);
+            $activities = $this->activitiesService->getBySectorsIds([$sectorId], $filters);
         }
 
         if ($roleId === RolesEnum::COMPANY_BRANCH->value) {
             $sectorsIds = $user->companyBranch->sectors->pluck('id');
-            $reports = $this->activitiesService->getBySectorsIds($sectorsIds);
+            $activities = $this->activitiesService->getBySectorsIds($sectorsIds, $filters);
         }
 
         if ($roleId === RolesEnum::COMPANY->value) {

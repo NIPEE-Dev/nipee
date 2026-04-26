@@ -185,11 +185,15 @@ class ActivitiesService
 
     public function getBySectorsIds($sectorIdsArr, $filters = [])
     {
-        $activities = Activity::query()->where('status', '!=', ActivityStatusEnum::DRAFT->value)->whereHas('user.candidate.contracts', function ($query) use ($sectorIdsArr) {
-            $query->whereIn('sector_id', $sectorIdsArr);
-        })->orWhereHas('job', function ($query) use($sectorIdsArr) {
-            $query->whereIn('sector_id', $sectorIdsArr);
-        });
+        $activities = Activity::query()
+            ->where('status', '!=', ActivityStatusEnum::DRAFT->value)
+            ->where(function ($query) use ($sectorIdsArr) {
+                $query->whereHas('user.candidate.contracts', function ($query) use ($sectorIdsArr) {
+                    $query->whereIn('sector_id', $sectorIdsArr);
+                })->orWhereHas('job', function ($query) use ($sectorIdsArr) {
+                    $query->whereIn('sector_id', $sectorIdsArr);
+                });
+            });
 
         if (isset($filters['startDate'])) {
             $startDate = new Carbon($filters['startDate']);

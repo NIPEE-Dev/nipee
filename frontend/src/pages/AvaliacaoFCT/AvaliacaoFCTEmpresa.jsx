@@ -235,7 +235,7 @@ const AvaliacaoFCTEmpresa = () => {
   const userRole = userProfile?.role || '';
   const isCandidato = userRole === "Candidato";
   const isEscola = userRole === "Escola";
-  const isEmpresa = userRole === "Empresa";
+  const isEmpresa = ["Empresa", "Unidade", "Setor"].includes(userRole);
 
   const [selectedEvaluation, setSelectedEvaluation] = useState(null);
   const [actionLoading, setActionLoading] = useState(false);
