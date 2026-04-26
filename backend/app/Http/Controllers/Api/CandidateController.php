@@ -21,6 +21,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -158,13 +159,31 @@ class CandidateController extends Controller
             ->withoutTrashed()
             ->where('status', '=', ActiveEnum::ACTIVE->value)->first();
 
-        Mail::to($activeContract->school)->send(new NewFeedback($candidate->name, $activeContract->school->corporate_name));
+        if (!$activeContract) {
+            throw new HttpException(422, 'Não foi encontrado contrato ativo para este aluno.');
+        }
 
-        $candidate->feedback()->create(
-            [
-                'annotation' => $data['annotation']
-            ]
-        );
+        $annotations = collect($data['annotations'] ?? [$data['annotation'] ?? null])
+            ->filter(fn($annotation) => is_string($annotation) && trim($annotation) !== '')
+            ->values();
+
+        if ($annotations->isEmpty()) {
+            throw new HttpException(422, 'Envie ao menos um feedback válido.');
+        }
+
+        $feedbackPayload = $annotations->map(fn($annotation) => ['annotation' => trim($annotation)])->all();
+        $candidate->feedback()->createMany($feedbackPayload);
+
+        $schoolEmail = $activeContract->school?->contact?->email;
+        if (is_string($schoolEmail) && trim($schoolEmail) !== '') {
+            Mail::to($schoolEmail)->send(new NewFeedback($candidate->name, $activeContract->school->corporate_name));
+        } else {
+            Log::warning('Feedback criado sem envio de e-mail por ausência de destinatário da escola.', [
+                'candidate_id' => $candidate->id,
+                'contract_id' => $activeContract->id,
+                'school_id' => $activeContract->school?->id,
+            ]);
+        }
 
         return response()->noContent();
     }

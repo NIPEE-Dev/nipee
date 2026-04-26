@@ -48,6 +48,12 @@ const initialAddDocumentForm = {
 };
 
 const AddDocumentModal = ({ isOpen, onClose, onSuccess }) => {
+  const userProfile = JSON.parse(localStorage.getItem("profile") || "null");
+  const userRole = userProfile?.role || "";
+  const isEmpresa = userRole === "Empresa";
+  const isUnidade = userRole === "Unidade" || userRole === "Unidade/Setor";
+  const isSetor = userRole === "Setor";
+  const isCompanyScope = isEmpresa || isUnidade || isSetor;
   const [formValues, setFormValues] = React.useState(initialAddDocumentForm);
   const [candidates, setCandidates] = React.useState([]);
   const [isLoadingCandidates, setIsLoadingCandidates] = React.useState(false);
@@ -64,13 +70,39 @@ const AddDocumentModal = ({ isOpen, onClose, onSuccess }) => {
       setIsLoadingCandidates(true);
 
       try {
-        const response = await api.get("/candidates", {
-          params: {
-            perPage: 9999,
-          },
-        });
+        const response = isCompanyScope
+          ? await api.get("/candidates/feedback")
+          : await api.get("/candidates", {
+              params: {
+                perPage: 9999,
+              },
+            });
 
-        setCandidates(response?.data?.data || []);
+        const rawCandidates = response?.data?.data || [];
+        const normalizedCandidates = rawCandidates
+          .map((item) => {
+            if (item?.candidate?.id) {
+              return {
+                id: item.candidate.id,
+                name: item.candidate.name,
+                cpf: item.candidate.nif,
+              };
+            }
+
+            return {
+              id: item?.id,
+              name: item?.name,
+              cpf: item?.cpf,
+            };
+          })
+          .filter((candidate) => candidate?.id && candidate?.name);
+
+        const uniqueCandidates = normalizedCandidates.filter(
+          (candidate, index, list) =>
+            list.findIndex((item) => item.id === candidate.id) === index,
+        );
+
+        setCandidates(uniqueCandidates);
       } catch (error) {
         toast({
           title: "Erro ao carregar alunos",
@@ -88,7 +120,7 @@ const AddDocumentModal = ({ isOpen, onClose, onSuccess }) => {
     };
 
     fetchCandidates();
-  }, [isOpen, toast]);
+  }, [isOpen, toast, isCompanyScope]);
 
   const handleChange = (field, value) => {
     setFormValues((current) => ({
@@ -353,6 +385,9 @@ const DocumentsPage = () => {
   const userRole = userProfile?.role || "";
   const isEscola = userRole === "Escola";
   const isEmpresa = userRole === "Empresa";
+  const isUnidade = userRole === "Unidade" || userRole === "Unidade/Setor";
+  const isSetor = userRole === "Setor";
+  const isCompanyScope = isEmpresa || isUnidade || isSetor;
   const isAdm = userRole === "Administrador Geral";
   const { isOpen, onOpen, onClose } = useDisclosure();
 
@@ -384,7 +419,7 @@ const DocumentsPage = () => {
         canRemove={isAdm}
         resourceListProps={{
           downloadButtonEnabled: false,
-          headerActions: (isAdm || isEmpresa) && (
+          headerActions: (isAdm || isCompanyScope) && (
             <Button colorScheme="teal" leftIcon={<MdAdd />} onClick={onOpen}>
               Adicionar documento
             </Button>
@@ -417,7 +452,7 @@ const DocumentsPage = () => {
         },
         ]}
         columns={[
-        ...(isEscola || isEmpresa
+        ...(isEscola || isCompanyScope
           ? [
               {
                 Header: "Ação",
@@ -452,7 +487,7 @@ const DocumentsPage = () => {
                   }
 
                   if (isProtocoloAutomatico) {
-                    if (isEmpresa && status === "3") showUploadFlow = true;
+                    if (isCompanyScope && status === "3") showUploadFlow = true;
                     if (isEscola && status === "4") showUploadFlow = true;
                   }
 
@@ -528,7 +563,7 @@ const DocumentsPage = () => {
                   if (isAssinavelDigital) {
                     let canSign = false;
 
-                    if (isEmpresa && status === "3" && attachable.company_signature === 0) {
+                    if (isCompanyScope && status === "3" && attachable.company_signature === 0) {
                         canSign = true;
                     }
                     if (isEscola && status === "4" && attachable.school_signature === 0) {

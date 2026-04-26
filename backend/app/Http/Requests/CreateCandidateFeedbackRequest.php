@@ -24,7 +24,9 @@ class CreateCandidateFeedbackRequest extends FormRequest
     public function rules()
     {
         return [
-            'annotation' => ['required', 'string']
+            'annotation' => ['nullable', 'string', 'required_without:annotations'],
+            'annotations' => ['nullable', 'array', 'required_without:annotation', 'min:1'],
+            'annotations.*' => ['required', 'string'],
         ];
     }
 }

@@ -19,6 +19,8 @@ const CompaniesPage = () => {
   const userRole = userProfile?.role || '';
   const isEmpresa = userRole === "Empresa";
   const isAdm = userRole === "Administrador Geral";
+  const isUnidade = userRole === "Unidade";
+  const isSetor = userRole === "Setor";
 
   const title = isAdm ? 'Empresas' : 'Meu Registo';
 
@@ -29,7 +31,7 @@ const CompaniesPage = () => {
       resource='Companies'
       routeBase={routes.config.companies}
       Form={Form}
-      canAdd={!(isEmpresa)}
+      canAdd={!(isEmpresa || isUnidade || isSetor)}
       canRemove={false}
       resourceListProps={{
         downloadButtonEnabled: false,

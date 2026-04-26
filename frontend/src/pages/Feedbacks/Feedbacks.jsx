@@ -151,21 +151,29 @@ export const Feedbacks = () => {
     }
 
     try {
-      const payload = {
-        annotation: feedbackForm.anotacao,
-        ...(feedbackForm.feedbackId && { id: feedbackForm.feedbackId }),
-        ...(feedbackForm.isEditing
-          ? { updatedAt: new Date().toISOString() }
-          : { createdAt: new Date().toISOString() }),
-      };
-
       if (feedbackForm.isEditing) {
+        const payload = {
+          annotation: feedbackForm.anotacao,
+          ...(feedbackForm.feedbackId && { id: feedbackForm.feedbackId }),
+          updatedAt: new Date().toISOString(),
+        };
+
         await updateFeedback(
           feedbackForm.alunoId,
           feedbackForm.feedbackId,
           payload,
         );
       } else {
+        const annotations = feedbackForm.anotacao
+          .split(/\r?\n+/)
+          .map((item) => item.trim())
+          .filter(Boolean);
+
+        const payload = {
+          annotations,
+          createdAt: new Date().toISOString(),
+        };
+
         await createFeedback(feedbackForm.alunoId, payload);
       }
     } catch (error) {
@@ -342,7 +350,7 @@ export const Feedbacks = () => {
             <FormControl isRequired>
               <FormLabel>Anotacao</FormLabel>
               <Textarea
-                placeholder="Escreva o feedback sobre o aluno"
+                placeholder="Escreva um ou mais feedbacks (um por linha)"
                 rows={6}
                 value={feedbackForm.anotacao}
                 onChange={(event) =>

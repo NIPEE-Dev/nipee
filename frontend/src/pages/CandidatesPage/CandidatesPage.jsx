@@ -20,9 +20,11 @@ const CandidatesPage = () => {
   const isEmpresa = userRole === "Empresa";
   const isCandidato = userRole === "Candidato";
   const isEscola = userRole === "Escola";
+  const isUnidade = userRole === "Unidade";
+  const isSetor = userRole === "Setor";
   const isAdm = userRole === "Administrador Geral";
 
-  const title = isAdm || isEscola || isEmpresa ? "Candidatos" : "Meu Registo";
+  const title = isAdm || isEscola || isEmpresa || isUnidade || isSetor ? "Candidatos" : "Meu Registo";
 
   useEffect(() => {
     if (isCandidato) {
@@ -44,8 +46,8 @@ const CandidatesPage = () => {
         resource="Candidates"
         routeBase={routes.config.candidates}
         Form={Form}
-        canAdd={!(isEmpresa || isCandidato || isEscola)}
-        canRemove={!(isEmpresa || isCandidato || isEscola)}
+        canAdd={!(isEmpresa || isCandidato || isEscola || isUnidade || isSetor)}
+        canRemove={!(isEmpresa || isCandidato || isEscola || isUnidade || isSetor)}
         canEdit={!(isEmpresa || isEscola)}
         resourceListProps={{
           downloadButtonEnabled: false,
