@@ -19,6 +19,17 @@ class FctEvaluationService
         return $evaluations;
     }
 
+    public function getBySectorsIds($sectorIdsArr)
+    {
+        $evaluations = FctEvaluation::query()->whereHas('candidate.contracts', function ($query) use ($sectorIdsArr) {
+            $query->whereIn('sector_id', $sectorIdsArr);
+        })->orWhereHas('job', function ($q) use($sectorIdsArr) {
+            $query->whereIn('sector_id', $sectorIdsArr);
+        })->get();
+
+        return $evaluations;
+    }
+
     public function getBySchoolId($schoolId)
     {
         $evaluations = FctEvaluation::query()->where('school_id', $schoolId)->get();

@@ -40,6 +40,16 @@ class FctEvaluationController extends Controller
             $evaluations = $this->fctEvaluationService->getByCompanyId($companyId);
         }
 
+        if ($roleId === RolesEnum::COMPANY_SECTOR->value) {
+            $sectorId = $user->companySector->id;
+            $reports = $this->fctEvaluationService->getBySectorsIds([$sectorId]);
+        }
+
+        if ($roleId === RolesEnum::COMPANY_BRANCH->value) {
+            $sectorsIds = $user->companyBranch->sectors->pluck('id');
+            $reports = $this->fctEvaluationService->getBySectorsIds($sectorsIds);
+        }
+
         return response()->json(['data' => FctEvaluationResource::collection($evaluations)]);
     }
 
