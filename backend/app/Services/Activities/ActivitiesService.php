@@ -187,6 +187,8 @@ class ActivitiesService
     {
         $activities = Activity::query()->where('status', '!=', ActivityStatusEnum::DRAFT->value)->whereHas('user.candidate.contracts', function ($query) use ($sectorIdsArr) {
             $query->whereIn('sector_id', $sectorIdsArr);
+        })->orWhereHas('job', function ($q) use($sectorIdsArr) {
+            $query->whereIn('sector_id', $sectorIdsArr);
         });
 
         if (isset($filters['startDate'])) {
