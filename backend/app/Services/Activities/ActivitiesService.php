@@ -183,7 +183,7 @@ class ActivitiesService
         return $activities->get();
     }
 
-    public function getBySectorsIds($sectorIdsArr, $filters)
+    public function getBySectorsIds($sectorIdsArr, $filters = [])
     {
         $activities = Activity::query()->where('status', '!=', ActivityStatusEnum::DRAFT->value)->whereHas('user.candidate.contracts', function ($query) use ($sectorIdsArr) {
             $query->whereIn('sector_id', $sectorIdsArr);

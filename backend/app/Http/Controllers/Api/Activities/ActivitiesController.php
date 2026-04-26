@@ -98,6 +98,16 @@ class ActivitiesController extends Controller
             return ActivityResource::collection($activities);
         }
 
+        if ($roleId === RolesEnum::COMPANY_SECTOR->value) {
+            $sectorId = $user->companySector->id;
+            $reports = $this->activitiesService->getBySectorsIds([$sectorId]);
+        }
+
+        if ($roleId === RolesEnum::COMPANY_BRANCH->value) {
+            $sectorsIds = $user->companyBranch->sectors->pluck('id');
+            $reports = $this->activitiesService->getBySectorsIds($sectorsIds);
+        }
+
         if ($roleId === RolesEnum::COMPANY->value) {
             $companyId = $user->company->id;
             $activities = $this->activitiesService->getByCompanyId($companyId, $filters);
