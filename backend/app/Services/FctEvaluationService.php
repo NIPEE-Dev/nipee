@@ -23,7 +23,7 @@ class FctEvaluationService
     {
         $evaluations = FctEvaluation::query()->whereHas('candidate.contracts', function ($query) use ($sectorIdsArr) {
             $query->whereIn('sector_id', $sectorIdsArr);
-        })->orWhereHas('job', function ($q) use($sectorIdsArr) {
+        })->orWhereHas('job', function ($query) use($sectorIdsArr) {
             $query->whereIn('sector_id', $sectorIdsArr);
         })->get();
 
