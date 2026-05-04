@@ -14,7 +14,6 @@ import {
 import {
   FaChevronLeft,
   FaChevronRight,
-  FaUsers,
   FaAward,
   FaBullseye,
   FaChartLine,
@@ -27,20 +26,20 @@ import {
   FaShieldAlt,
   FaCertificate,
   FaNetworkWired,
-  FaBolt,
-  FaFileAlt,
-  FaHandshake,
   FaMobileAlt,
   FaHeadphones,
   FaBookOpen,
 } from "react-icons/fa";
 import illustation from "../../../src/images/img.png";
+import slide1 from "../../../src/images/slide1.jpg";
+import slide2 from "../../../src/images/slide2.jpg";
+import slide3 from "../../../src/images/slide3.jpg";
+import slide4 from "../../../src/images/slide4.png";
 import illustation2 from "../../../src/images/img2.png";
 import sobre from "../../../src/images/sobre.jpg";
-import vagas from "../../../src/images/vagas.jpeg";
-// import vagas from "../../../src/images/vagas.jpeg";
-import empresa from "../../../src/images/empresa.jpg";
-import escolas from "../../../src/images/escolas.jpg";
+import imagem5 from "../../../src/images/imagem5.jpg";
+import imagem6 from "../../../src/images/imagem6.png";
+import imagem7 from "../../../src/images/imagem7.jpg";
 
 import Navbar from "../../components/Navbar/Navbar";
 import FormularioContato from "../../components/FormularioContato/FormularioContato";
@@ -49,67 +48,63 @@ import FooterHome from "../../components/Footer/FooterHome";
 
 const slides = [
   {
-    eyebrow: "NIPEE para estudantes",
-    title: "Menos burocracia,\nMais opcoes de FCT/Estagio",
+    eyebrow: "Parcerias Escola-Empresa",
+    title: "Ligamos Talento Jovem\n ao Mercado de Trabalho",
     description:
-      "Encontre oportunidades com mais rapidez e acompanhe cada etapa num processo mais simples, claro e organizado.",
-    image: illustation,
+      "Aproximamos escolas e escolas para criar oportunidades reais de Formação em Contexto de Trabalho, preparando os estudantes para o futuro profissional.",
+    image: slide1,
     accent: "#155dfc",
-    ctaPrimary: "Saiba Mais",
-    ctaSecondary: { label: "Buscar Estagios", href: "/vagas-em-aberto" },
+    ctaPrimary: { label: "Saber Mais", href: "/#sobre" },
+    ctaSecondary: { label: "Falar Connosco", href: "/vagas-em-aberto" },
   },
   {
-    eyebrow: "Parceria escola-empresa",
-    title: "Parceria Escola-\nEmpresa",
+    eyebrow: "Gestão Inteligente de Estágios",
+    title: "Simplifique a Gestão entre Escolas e Empresas",
     description:
-      "Conectamos instituicoes de ensino e empresas para desenvolver o futuro profissional dos estudantes.",
-    image: illustation2,
+      "Centralize candidaturas, acompanhe o progresso dos alunos e elimine processos manuais com uma plataforma única e eficiente.",
+    image: slide2,
     accent: "#0f766e",
-    ctaPrimary: "Saiba Mais",
-    ctaSecondary: { label: "Falar Connosco", href: "/#contato" },
+    ctaPrimary: { label: "Ver Plataforma", href: "/registar-empresa" },
+    ctaSecondary: { label: "Pedir Demonstração", href: "/#contato" },
   },
   {
-    eyebrow: "Gestao mais inteligente",
-    title: "Tudo mais simples\npara escolas e empresas",
+    eyebrow: "NIPEE para Estudantes",
+    title: "Menos burocracia. Mais oportunidades de estágio.",
     description:
-      "A plataforma ajuda a reduzir trocas manuais e melhora a visibilidade sobre candidaturas, colocacoes e progresso.",
-    image: illustation,
-    accent: "#ea580c",
-    ctaPrimary: "Explorar",
-    ctaSecondary: { label: "Sobre Nos", href: "/#sobre" },
-  },
-  {
-    eyebrow: "Comeco simples",
-    title: "Mais oportunidades,\nmenos demora",
-    description:
-      "Crie um ponto de encontro entre alunos, escolas e empresas com uma experiencia mais leve desde o primeiro acesso.",
-    image: illustation2,
+      "Encontre oportunidades de FCT com rapidez, candidate-se facilmente e acompanhe todo o processo de forma simples e transparente.",
+    image: slide3,
     accent: "#7c3aed",
-    ctaPrimary: "Comecar Agora",
-    ctaSecondary: { label: "Entrar", href: "/login" },
+    ctaPrimary: { label: "Explorar Oportunidades", href: "/vagas-em-aberto" },
+    ctaSecondary: { label: "Começar Agora", href: "/registar-candidato" },
+  },
+  {
+    eyebrow: "Comece em poucos minutos",
+    title: "Comece hoje. Simplifique todo o processo.",
+    description:
+      "Registe-se gratuitamente e comece a ligar alunos, escolas e empresas numa única plataforma simples e eficiente.",
+    image: slide4,
+    accent: "#ea580c",
+    ctaPrimary: { label: "Criar Conta Gratuita", href: "/registar-empresa" },
+    ctaSecondary: { label: "Iniciar Sessão", href: "/login" },
   },
 ];
 
-const stats = [
+const growthHighlights = [
   {
-    icon: FaUsers,
-    value: "15.000+",
-    label: "Jovens Estagiando",
+    title: "Plataforma em crescimento",
+    description: "A ligar escolas, empresas e estudantes em todo o país",
   },
   {
-    icon: FaAward,
-    value: "800+",
-    label: "Escolas Parceiras",
+    title: "Processos simplificados",
+    description: "Gestão digital de FCT e estágios num único local",
   },
   {
-    icon: FaBullseye,
-    value: "2.500+",
-    label: "Empresas Cadastradas",
+    title: "Acompanhamento contínuo",
+    description: "Do registo à conclusão do estágio",
   },
   {
-    icon: FaChartLine,
-    value: "25+",
-    label: "Anos de Atuacao",
+    title: "Foco na empregabilidade jovem",
+    description: "Apoio real à transição para o mercado de trabalho",
   },
 ];
 
@@ -117,170 +112,152 @@ const processSteps = [
   {
     number: "01",
     icon: FaSchool,
-    title: "Escola se Cadastra",
+    title: "Escola entra em contacto",
     description:
-      "A instituicao de ensino se registra em nossa plataforma e indica os estudantes elegiveis para participar do programa de estagio.",
+      "A instituicao de ensino entra em contacto com a equipa NIPEE para adesao a plataforma. O processo e acompanhado, garantindo uma integracao adequada e alinhada com as necessidades da escola.",
   },
   {
     number: "02",
     icon: FaUserGraduate,
-    title: "Estudante e Habilitado",
+    title: "Estudante acede e candidata-se",
     description:
-      "O aluno recebe acesso a plataforma onde pode visualizar vagas disponiveis e se candidatar aos estagios de seu interesse.",
+      "Apos validacao da escola, os estudantes tem acesso a plataforma, onde podem consultar oportunidades e candidatar-se as que melhor se adequam ao seu perfil.",
   },
   {
     number: "03",
     icon: FaBuilding,
-    title: "Empresa Seleciona",
+    title: "Empresa seleciona",
     description:
-      "Empresas parceiras analisam os perfis dos candidatos e realizam entrevistas para selecao dos estagiarios.",
+      "As empresas analisam os perfis dos candidatos e realizam entrevistas para selecionar os estagiarios mais adequados.",
   },
   {
     number: "04",
     icon: FaCheckCircle,
-    title: "Estagio Confirmado",
+    title: "Estagio confirmado",
     description:
-      "Apos a selecao, toda documentacao e providenciada e o estudante inicia sua jornada profissional com acompanhamento continuo.",
+      "Apos a selecao, o processo e formalizado e o estudante inicia o estagio com acompanhamento ao longo de toda a experiencia.",
   },
 ];
 
 const studentBenefits = [
   {
     icon: FaDollarSign,
-    title: "Remuneracao Garantida",
+    title: "Possibilidade de bolsa de estágio",
     description:
-      "Todos os estagios sao remunerados conforme legislacao vigente, com bolsa-auxilio competitiva.",
+      "Algumas oportunidades podem incluir bolsa de estágio, de acordo com a entidade acolhedora e o tipo de programa.",
   },
   {
     icon: FaClock,
-    title: "Horario Flexivel",
+    title: "Horário compatível com os estudos",
     description:
-      "Carga horaria compativel com seus estudos, respeitando sua jornada escolar.",
+      "A carga horária é definida em articulação com a escola, garantindo compatibilidade com o percurso formativo.",
   },
   {
     icon: FaShieldAlt,
-    title: "Seguro de Vida",
+    title: "Seguro incluído",
     description:
-      "Todos os estagiarios contam com seguro de vida durante todo o periodo do estagio.",
+      "Os estudantes estão abrangidos por seguro durante todo o período de Formação em Contexto de Trabalho.",
   },
   {
     icon: FaChartLine,
-    title: "Desenvolvimento Profissional",
+    title: "Desenvolvimento profissional",
     description:
-      "Ganhe experiencia real no mercado de trabalho e desenvolva habilidades essenciais.",
+      "Adquira experiência prática em contexto real e desenvolva competências valorizadas no mercado de trabalho.",
   },
   {
     icon: FaCertificate,
-    title: "Certificado",
+    title: "Reconhecimento e certificação",
     description:
-      "Ao final do estagio, voce recebe certificado comprovando sua experiencia profissional.",
+      "A experiência em FCT contribui para a avaliação e conclusão do percurso formativo.",
   },
   {
     icon: FaNetworkWired,
-    title: "Networking",
+    title: "Contacto com o mercado de trabalho",
     description:
-      "Construa conexoes profissionais valiosas que podem abrir portas para sua carreira.",
+      "Estabeleça relações com empresas e aumente as suas oportunidades futuras.",
   },
 ];
 
 const companyBenefits = [
   {
-    icon: FaUsers,
-    title: "Talentos Qualificados",
-    description:
-      "Acesso a um pool de jovens estudantes motivados e pre-selecionados pelas escolas parceiras.",
-  },
-  {
-    icon: FaBolt,
-    title: "Processo Agil",
-    description:
-      "Plataforma digital que facilita a divulgacao de vagas e selecao de candidatos.",
-  },
-  {
-    icon: FaFileAlt,
-    title: "Documentacao Simplificada",
-    description:
-      "Cuidamos de toda burocracia e documentacao necessaria para contratacao de estagiarios.",
-  },
-  {
     icon: FaChartLine,
-    title: "Desenvolvimento de Talentos",
+    title: "Desenvolvimento de talento",
     description:
-      "Forme profissionais alinhados com a cultura e necessidades da sua empresa.",
+      "Identifique e acompanhe jovens com potencial, alinhados com a cultura e necessidades da sua empresa.",
   },
   {
     icon: FaBullseye,
-    title: "Responsabilidade Social",
+    title: "Responsabilidade social",
     description:
-      "Contribua para o desenvolvimento de jovens e fortaleca a imagem da sua empresa.",
+      "Contribua para a formação de jovens e reforce o posicionamento da sua empresa no mercado.",
   },
   {
-    icon: FaHandshake,
-    title: "Suporte Continuo",
+    icon: FaHeadphones,
+    title: "Acompanhamento contínuo",
     description:
-      "Nossa equipe oferece acompanhamento durante todo o periodo do estagio.",
-  },
-];
-
-const companyChecklist = [
-  {
-    title: "Sem custos de intermediacao",
-    description: "Cadastro e acesso a plataforma totalmente gratuitos",
-  },
-  {
-    title: "Flexibilidade nas contratacoes",
-    description: "Defina o perfil ideal e quantidade de vagas conforme sua necessidade",
-  },
-  {
-    title: "Conformidade legal garantida",
-    description: "Todos os contratos seguem rigorosamente a Lei do Estagio",
+      "A nossa equipa assegura apoio durante todo o processo, desde a integração até à conclusão do estágio.",
   },
 ];
 
 const schoolBenefits = [
   {
     icon: FaMobileAlt,
-    title: "Plataforma Digital",
+    title: "Plataforma digital",
     description:
-      "Sistema online completo para gestao de estudantes e acompanhamento de estagios.",
+      "Solução online completa para gestão de alunos e acompanhamento de estágios e FCT.",
   },
   {
     icon: FaUserGraduate,
-    title: "Indicacao Simplificada",
+    title: "Indicação simplificada",
     description:
-      "Processo facil e rapido para indicar estudantes elegiveis ao programa de estagios.",
+      "Processo simples e rápido para identificar e acompanhar alunos elegíveis para os programas.",
   },
   {
     icon: FaChartLine,
-    title: "Relatorios Detalhados",
+    title: "Relatórios detalhados",
     description:
-      "Acompanhe o desempenho e desenvolvimento dos seus alunos em tempo real.",
+      "Acompanhe o desempenho e evolução dos seus alunos com informação atualizada.",
   },
   {
     icon: FaHeadphones,
-    title: "Suporte Dedicado",
+    title: "Apoio dedicado",
     description:
-      "Equipe especializada para auxiliar em todas as etapas do processo.",
+      "Equipa especializada disponível para apoiar a escola em todas as etapas do processo.",
   },
   {
     icon: FaAward,
-    title: "Reconhecimento",
+    title: "Reconhecimento institucional",
     description:
-      "Certificacao e reconhecimento como escola parceira comprometida com a educacao.",
+      "Valorização da escola enquanto entidade parceira comprometida com a formação dos alunos.",
   },
   {
     icon: FaBookOpen,
-    title: "Capacitacao Gratuita",
+    title: "Formação gratuita",
     description:
-      "Workshops e treinamentos para orientar estudantes sobre o mercado de trabalho.",
+      "Acesso a workshops e sessões de orientação sobre o mercado de trabalho e empregabilidade.",
   },
 ];
 
 const schoolProcess = [
-  "Realize o cadastro da instituicao em nossa plataforma",
-  "Indique os estudantes elegiveis para participacao",
-  "Acompanhe o desenvolvimento dos alunos atraves da plataforma",
-  "Receba relatorios periodicos sobre o desempenho dos estagiarios",
+  {
+    title: "Contacto inicial",
+    description:
+      "A escola entra em contacto com a equipa NIPEE para adesão à plataforma.",
+  },
+  {
+    title: "Integração acompanhada",
+    description:
+      "É realizada a configuração da escola e o alinhamento dos processos.",
+  },
+  {
+    title: "Gestão de alunos",
+    description: "A escola indica os alunos elegíveis e acompanha o seu percurso.",
+  },
+  {
+    title: "Acompanhamento contínuo",
+    description:
+      "Acesso à informação e relatórios sobre o desempenho dos alunos.",
+  },
 ];
 
 const Inicio = () => {
@@ -307,21 +284,24 @@ const Inicio = () => {
 
   const currentSlide = slides[activeSlide];
 
-  const goToCandidateRegister = () => {
-    window.location.href = "/registar-candidato";
-  };
-
   return (
     <div>
       <Box bg="#F9FAFB">
         <Navbar />
 
         {/* Secao principal */}
-        <Box mt={{ base: 24, md: 28 }} mb={8} position="relative" w="100%">
+        <Box
+          mt={{ base: 24, md: 28 }}
+          mb={8}
+          position="relative"
+          w="100%"
+          maxW="100%"
+          overflow="hidden"
+        >
           <Box
             position="relative"
             overflow="hidden"
-            minH={{ base: "560px", md: "650px" }}
+            minH={{ base: "560px", md: "750px" }}
             bg="#0f172a"
             color="white"
           >
@@ -331,20 +311,19 @@ const Inicio = () => {
               bgImage={`url(${currentSlide.image})`}
               bgRepeat="no-repeat"
               bgPosition="center"
-              bgSize={{ base: "cover", md: "contain" }}
-              opacity={0.28}
-              transform="scale(1.08)"
+              bgSize="cover"
+              opacity={0.72}
             />
             <Box
               position="absolute"
               inset="0"
-              bg={`linear-gradient(90deg, rgba(15, 23, 42, 0.88) 0%, rgba(15, 23, 42, 0.76) 36%, rgba(15, 23, 42, 0.52) 62%, rgba(15, 23, 42, 0.72) 100%), linear-gradient(120deg, ${currentSlide.accent}22 0%, transparent 58%)`}
+              bg={`linear-gradient(90deg, rgba(15, 23, 42, 0.5) 0%, rgba(15, 23, 42, 0.34) 36%, rgba(15, 23, 42, 0.12) 62%, rgba(15, 23, 42, 0.22) 100%), linear-gradient(120deg, ${currentSlide.accent}0d 0%, transparent 58%)`}
             />
 
             <Flex
               position="relative"
               align="center"
-              minH={{ base: "560px", md: "650px" }}
+              minH={{ base: "560px", md: "750px" }}
               px={{ base: 6, md: 12, xl: 20 }}
             >
               <VStack
@@ -402,22 +381,11 @@ const Inicio = () => {
                     fontWeight="bold"
                     boxShadow="0 12px 32px rgba(21, 93, 252, 0.3)"
                     _hover={{ bg: "#0f4fd6" }}
-                    onClick={
-                      currentSlide.ctaPrimary === "Saiba Mais"
-                        ? undefined
-                        : goToCandidateRegister
-                    }
-                    as={
-                      currentSlide.ctaPrimary === "Saiba Mais" ? "a" : undefined
-                    }
-                    href={
-                      currentSlide.ctaPrimary === "Saiba Mais"
-                        ? "/#sobre"
-                        : undefined
-                    }
+                    as="a"
+                    href={currentSlide.ctaPrimary.href}
                     w={{ base: "100%", md: "auto" }}
                   >
-                    {currentSlide.ctaPrimary}
+                    {currentSlide.ctaPrimary.label}
                   </Button>
                   <Button
                     as="a"
@@ -533,33 +501,45 @@ const Inicio = () => {
                 Quem Somos
               </Box>
 
-              <Text fontSize={{ base: "16px", md: "18px" }} color="#42506a" lineHeight="1.75">
-                Somos uma organizacao sem fins lucrativos dedicada a conectar jovens estudantes ao mercado de trabalho atraves de programas de estagio. Trabalhamos em parceria com escolas e empresas para proporcionar oportunidades reais de desenvolvimento profissional.
-              </Text>
-
-              <Text fontSize={{ base: "16px", md: "18px" }} color="#42506a" lineHeight="1.75">
-                Nossa missao e transformar vidas atraves da primeira experiencia profissional, oferecendo acesso gratuito a estagios de qualidade para estudantes de escolas parceiras em todo o pais.
-              </Text>
-
-              <Text fontSize={{ base: "16px", md: "18px" }} color="#42506a" lineHeight="1.75">
-                Facilitamos todo o processo: desde o cadastro das escolas, passando pela selecao dos estudantes, ate a conexao com empresas que buscam jovens talentos para seus programas de estagio.
-              </Text>
-
-              <Button
-                as="a"
-                href="/registar-candidato"
-                bg="#155dfc"
-                color="white"
-                cursor="pointer"
-                px={8}
-                py={7}
-                borderRadius="full"
-                fontWeight="bold"
-                boxShadow="0 14px 30px rgba(21, 93, 252, 0.24)"
-                _hover={{ bg: "#0f4fd6" }}
+              <Text
+                fontSize="18px"
+                color="#42506a"
+                lineHeight="1.75"
               >
-                Conheca Nossa Historia
-              </Button>
+                Somos uma plataforma dedicada a aproximar estudantes, escolas e
+                empresas, facilitando o acesso a oportunidades de Formacao em
+                Contexto de Trabalho (FCT) e estagios.
+              </Text>
+
+              <Text
+                fontSize="18px"
+                color="#42506a"
+                lineHeight="1.75"
+              >
+                Trabalhamos em parceria com instituicoes de ensino e entidades
+                empregadoras para promover uma transicao mais simples, organizada
+                e eficaz entre o percurso academico e o mercado de trabalho.
+              </Text>
+
+              <Text
+                fontSize="18px"
+                color="#42506a"
+                lineHeight="1.75"
+              >
+                A nossa missao e contribuir para o desenvolvimento profissional
+                dos jovens, proporcionando acesso a experiencias reais que
+                valorizam competencias e potenciam a sua empregabilidade.
+              </Text>
+
+              <Text
+                fontSize="18px"
+                color="#42506a"
+                lineHeight="1.75"
+              >
+                Simplificamos todo o processo, desde a ligacao entre escolas e
+                empresas, a gestao de candidaturas e acompanhamento dos estagios,
+                atraves de uma solucao digital intuitiva e acessivel.
+              </Text>
             </VStack>
 
             <Box flex="1" w="100%">
@@ -589,45 +569,39 @@ const Inicio = () => {
               justify="space-between"
               mt={4}
             >
-              {stats.map((item) => (
+              {growthHighlights.map((item) => (
                 <Box
-                  key={item.label}
+                  key={item.title}
                   flex="1"
                   bg="white"
                   borderRadius="24px"
-                  px={8}
-                  py={8}
-                  textAlign="center"
+                  px={{ base: 6, md: 8 }}
+                  py={{ base: 7, md: 8 }}
+                  textAlign="left"
                   boxShadow="0 10px 28px rgba(15, 23, 42, 0.09)"
                 >
-                  <Flex
-                    w="56px"
-                    h="56px"
-                    mx="auto"
-                    mb={5}
-                    align="center"
-                    justify="center"
-                    borderRadius="full"
-                    bg="#dbeafe"
-                    color="#155dfc"
+                  <Text
+                    fontSize="20px"
+                    fontWeight="bold"
+                    color="#172036"
+                    lineHeight="1.2"
+                    mb={3}
                   >
-                    <Icon as={item.icon} boxSize={6} />
-                  </Flex>
-                  <Text fontSize={{ base: "3xl", md: "4xl" }} fontWeight="bold" color="#172036">
-                    {item.value}
+                    {item.title}
                   </Text>
-                  <Text mt={2} fontSize={{ base: "md", md: "lg" }} color="#5b6980">
-                    {item.label}
+                  <Text
+                    fontSize="16px"
+                    lineHeight="1.45"
+                    color="#5b6980"
+                  >
+                    {item.description}
                   </Text>
                 </Box>
               ))}
             </Flex>
           </Box>
 
-          <Box
-            bg="white"
-            py={{ base: 16, md: 20 }}
-          >
+          <Box id="como-funciona" bg="white" py={{ base: 16, md: 20 }}>
             <Box maxW="1280px" mx="auto" px={{ base: 4, md: 8 }}>
               <VStack spacing={4} textAlign="center" mb={{ base: 12, md: 16 }}>
                 <Box
@@ -646,7 +620,9 @@ const Inicio = () => {
                   lineHeight="1.7"
                   color="#52617a"
                 >
-                  Um processo simples e eficiente que conecta estudantes, escolas e empresas para criar oportunidades reais de desenvolvimento profissional
+                  Um processo simples e acompanhado que liga estudantes, escolas
+                  e empresas, criando oportunidades reais de desenvolvimento
+                  profissional.
                 </Text>
               </VStack>
 
@@ -662,6 +638,7 @@ const Inicio = () => {
                     position="relative"
                     flex="1"
                     maxW={{ base: "100%", lg: "285px" }}
+                    display="flex"
                     transition="transform 0.25s ease, box-shadow 0.25s ease"
                     _hover={{
                       transform: "scale(1.03)",
@@ -694,6 +671,7 @@ const Inicio = () => {
                       px={{ base: 6, md: 7 }}
                       pt="42px"
                       pb={7}
+                      h="100%"
                       minH={{ base: "auto", lg: "258px" }}
                       boxShadow="0 4px 14px rgba(15, 23, 42, 0.03)"
                       transition="box-shadow 0.25s ease, transform 0.25s ease"
@@ -750,6 +728,7 @@ const Inicio = () => {
           </Box>
 
           <Box
+            id="para-estudantes"
             bg="#f3f8ff"
             py={{ base: 16, md: 20 }}
             px={{ base: 4, md: 8 }}
@@ -772,7 +751,8 @@ const Inicio = () => {
                   lineHeight="1.65"
                   color="#52617a"
                 >
-                  Descubra os beneficios de fazer parte do nosso programa de estagios e de o primeiro passo na sua carreira profissional
+                  Dê o primeiro passo na sua carreira com oportunidades reais de
+                  FCT e estágios.
                 </Text>
               </VStack>
 
@@ -792,13 +772,12 @@ const Inicio = () => {
                   >
                     <Box
                       as="img"
-                      src={vagas}
-                      alt="Painel de vagas para estudantes"
+                      src={imagem5}
+                      alt="Estudantes a consultar oportunidades na plataforma"
                       w="100%"
                       h={{ base: "250px", md: "310px" }}
-                      objectFit="contain"
+                      objectFit="cover"
                       bg="#f8fbff"
-                      p={{ base: 4, md: 6 }}
                     />
                   </Box>
                 </Box>
@@ -812,15 +791,20 @@ const Inicio = () => {
                     lineHeight="1.2"
                     color="#172036"
                   >
-                    Sua Primeira Experiencia Profissional
+                    A sua primeira experiência profissional
                   </Box>
 
                   <Text fontSize="16px" lineHeight="1.75" color="#42506a">
-                    Se voce e estudante de uma escola parceira, tem a oportunidade de participar do nosso programa de estagios totalmente gratuito.
+                    Se é estudante de uma escola parceira, pode aceder à
+                    plataforma NIPEE e candidatar-se a oportunidades de FCT e
+                    estágios de forma simples e rápida.
                   </Text>
 
                   <Text fontSize="16px" lineHeight="1.75" color="#42506a">
-                    Oferecemos vagas em empresas de diversos segmentos: administracao, tecnologia, saude, educacao, varejo e muito mais. Voce escolhe a area que mais combina com seu perfil e objetivos de carreira.
+                    Disponibilizamos oportunidades em diversas áreas, como
+                    tecnologia, saúde, comércio, educação e muito mais,
+                    permitindo-lhe escolher o caminho que melhor se adapta ao seu
+                    perfil e objetivos.
                   </Text>
 
                   <Box
@@ -830,14 +814,27 @@ const Inicio = () => {
                     borderRadius="8px"
                     p={{ base: 5, md: 6 }}
                   >
-                    <Text fontSize="16px" fontWeight="bold" color="#172036" mb={3}>
-                      Requisitos para Participar:
+                    <Text
+                      fontSize="16px"
+                      fontWeight="bold"
+                      color="#172036"
+                      mb={3}
+                    >
+                      Requisitos para participar:
                     </Text>
                     <VStack align="start" spacing={2}>
-                      <Text fontSize="16px" color="#155dfc">- Estar matriculado em escola parceira</Text>
-                      <Text fontSize="16px" color="#155dfc">- Ter entre 14 e 24 anos</Text>
-                      <Text fontSize="16px" color="#155dfc">- Disponibilidade de 4 a 6 horas diarias</Text>
-                      <Text fontSize="16px" color="#155dfc">- Comprometimento com os estudos</Text>
+                      <Text fontSize="16px" color="#155dfc">
+                        - Estar matriculado numa escola parceira
+                      </Text>
+                      <Text fontSize="16px" color="#155dfc">
+                        - Ter idade compatível com o programa
+                      </Text>
+                      <Text fontSize="16px" color="#155dfc">
+                        - Disponibilidade para cumprir o horário definido
+                      </Text>
+                      <Text fontSize="16px" color="#155dfc">
+                        - Compromisso e responsabilidade no percurso formativo
+                      </Text>
                     </VStack>
                   </Box>
                 </VStack>
@@ -855,7 +852,11 @@ const Inicio = () => {
                     bg="white"
                     borderRadius="14px"
                     p={{ base: 6, md: 7 }}
-                    flex={{ base: "1 1 100%", md: "1 1 calc(50% - 28px)", lg: "1 1 calc(33.333% - 28px)" }}
+                    flex={{
+                      base: "1 1 100%",
+                      md: "1 1 calc(50% - 28px)",
+                      lg: "1 1 calc(33.333% - 28px)",
+                    }}
                     maxW={{ base: "100%", lg: "360px" }}
                     minH="190px"
                     boxShadow="0 10px 26px rgba(15, 23, 42, 0.08)"
@@ -916,7 +917,12 @@ const Inicio = () => {
             </Box>
           </Box>
 
-          <Box bg="white" py={{ base: 16, md: 20 }} px={{ base: 4, md: 8 }}>
+          <Box
+            id="para-empresas"
+            bg="white"
+            py={{ base: 16, md: 20 }}
+            px={{ base: 4, md: 8 }}
+          >
             <Box maxW="1200px" mx="auto">
               <VStack spacing={4} textAlign="center" mb={{ base: 12, md: 16 }}>
                 <Box
@@ -935,7 +941,8 @@ const Inicio = () => {
                   lineHeight="1.65"
                   color="#52617a"
                 >
-                  Encontre os melhores talentos jovens para sua empresa e contribua para o desenvolvimento profissional da proxima geracao
+                  Ligue a sua empresa a estudantes qualificados e simplifique a
+                  gestão de estágios e FCT.
                 </Text>
               </VStack>
 
@@ -954,43 +961,21 @@ const Inicio = () => {
                     lineHeight="1.2"
                     color="#172036"
                   >
-                    Faca Parte da Nossa Rede de Empresas Parceiras
+                    Junte-se à nossa rede de empresas parceiras
                   </Box>
 
                   <Text fontSize="16px" lineHeight="1.75" color="#42506a">
-                    Conectamos sua empresa com estudantes talentosos que estao buscando sua primeira oportunidade profissional. Nossa plataforma facilita todo o processo de selecao e contratacao.
+                    A NIPEE facilita a ligação entre empresas e estudantes,
+                    permitindo encontrar candidatos alinhados com as suas
+                    necessidades de forma simples e eficiente.
                   </Text>
 
                   <Text fontSize="16px" lineHeight="1.75" color="#42506a">
-                    Com mais de 15.000 estudantes cadastrados de 800+ escolas parceiras, voce tem acesso a um amplo leque de candidatos qualificados em diversas areas de atuacao.
+                    Através da nossa plataforma, pode gerir oportunidades,
+                    acompanhar candidaturas e selecionar os perfis mais
+                    adequados, com total transparência e controlo.
                   </Text>
 
-                  <VStack align="start" spacing={4} w="100%">
-                    {companyChecklist.map((item) => (
-                      <Flex key={item.title} align="start" gap={4}>
-                        <Flex
-                          w="32px"
-                          h="32px"
-                          align="center"
-                          justify="center"
-                          borderRadius="full"
-                          bg="#dcfce7"
-                          color="#16a34a"
-                          flexShrink={0}
-                        >
-                          <Icon as={FaCheckCircle} boxSize="16px" />
-                        </Flex>
-                        <Box>
-                          <Text fontSize="16px" fontWeight="bold" color="#172036">
-                            {item.title}
-                          </Text>
-                          <Text fontSize="15px" color="#52617a" lineHeight="1.5">
-                            {item.description}
-                          </Text>
-                        </Box>
-                      </Flex>
-                    ))}
-                  </VStack>
                 </VStack>
 
                 <Box flex="1" w="100%">
@@ -1001,7 +986,7 @@ const Inicio = () => {
                   >
                     <Box
                       as="img"
-                      src={empresa}
+                      src={imagem6}
                       alt="Empresas parceiras em reuniao"
                       w="100%"
                       h={{ base: "260px", md: "360px" }}
@@ -1026,7 +1011,11 @@ const Inicio = () => {
                     border="1px solid #e5e7eb"
                     borderRadius="14px"
                     p={{ base: 6, md: 7 }}
-                    flex={{ base: "1 1 100%", md: "1 1 calc(50% - 28px)", lg: "1 1 calc(33.333% - 28px)" }}
+                    flex={{
+                      base: "1 1 100%",
+                      md: "1 1 calc(50% - 28px)",
+                      lg: "1 1 calc(33.333% - 28px)",
+                    }}
                     maxW={{ base: "100%", lg: "360px" }}
                     minH="190px"
                     transition="transform 0.25s ease, box-shadow 0.25s ease"
@@ -1081,10 +1070,15 @@ const Inicio = () => {
                   fontWeight="bold"
                   lineHeight="1.2"
                 >
-                  Pronto para Encontrar Novos Talentos?
+                  Pronto para encontrar novos talentos?
                 </Box>
-                <Text fontSize={{ base: "16px", md: "18px" }} mb={7} color="whiteAlpha.900">
-                  Cadastre sua empresa gratuitamente e comece a publicar vagas hoje mesmo
+                <Text
+                  fontSize={{ base: "16px", md: "18px" }}
+                  mb={7}
+                  color="whiteAlpha.900"
+                >
+                  Junte-se à NIPEE e ligue a sua empresa a estudantes
+                  qualificados de forma simples e eficiente.
                 </Text>
                 <Button
                   as="a"
@@ -1096,16 +1090,20 @@ const Inicio = () => {
                   py={6}
                   borderRadius="full"
                   fontWeight="bold"
-                  _hover={{ bg: "rgba(255,255,255,0.92)", transform: "translateY(-1px)" }}
+                  _hover={{
+                    bg: "rgba(255,255,255,0.92)",
+                    transform: "translateY(-1px)",
+                  }}
                   transition="all 0.2s ease"
                 >
-                  Cadastrar Empresa
+                  Tornar-se Empresa Parceira
                 </Button>
               </Box>
             </Box>
           </Box>
 
           <Box
+            id="para-escolas"
             bg="#f3f8ff"
             py={{ base: 16, md: 20 }}
             px={{ base: 4, md: 8 }}
@@ -1128,7 +1126,9 @@ const Inicio = () => {
                   lineHeight="1.65"
                   color="#52617a"
                 >
-                  Parceria que amplia as oportunidades dos seus estudantes e fortalece o compromisso da sua instituicao com a educacao integral
+                  Proporcione aos seus alunos acesso a oportunidades de Formação
+                  em Contexto de Trabalho (FCT) e estágios, de forma simples e
+                  acompanhada.
                 </Text>
               </VStack>
 
@@ -1147,12 +1147,12 @@ const Inicio = () => {
                   >
                     <Box
                       as="img"
-                      src={escolas}
+                      src={imagem7}
                       alt="Ambiente escolar parceiro"
                       w="100%"
                       h={{ base: "280px", md: "405px" }}
                       objectFit="cover"
-                      opacity={0.72}
+                      opacity={0.86}
                     />
                   </Box>
                 </Box>
@@ -1166,15 +1166,20 @@ const Inicio = () => {
                     lineHeight="1.2"
                     color="#172036"
                   >
-                    Torne-se uma Escola Parceira
+                    Torne-se uma escola parceira
                   </Box>
 
                   <Text fontSize="16px" lineHeight="1.75" color="#42506a">
-                    Ao se cadastrar como escola parceira, voce oferece aos seus estudantes acesso a milhares de oportunidades de estagio em empresas renomadas de todo o pais.
+                    Ao integrar a rede NIPEE, a sua instituição passa a ter
+                    acesso a uma plataforma que facilita a ligação entre alunos e
+                    empresas, promovendo uma transição mais estruturada para o
+                    mercado de trabalho.
                   </Text>
 
                   <Text fontSize="16px" lineHeight="1.75" color="#42506a">
-                    Nao ha custos para a escola. Nossa missao e facilitar a conexao entre educacao e mercado de trabalho, preparando os jovens para um futuro profissional de sucesso.
+                    A nossa equipa acompanha todo o processo de integração,
+                    garantindo uma implementação ajustada às necessidades da
+                    escola.
                   </Text>
 
                   <Box
@@ -1184,12 +1189,17 @@ const Inicio = () => {
                     borderRadius="10px"
                     p={{ base: 5, md: 6 }}
                   >
-                    <Text fontSize="16px" fontWeight="bold" color="#172036" mb={4}>
-                      Como Funciona para a Escola:
+                    <Text
+                      fontSize="16px"
+                      fontWeight="bold"
+                      color="#172036"
+                      mb={4}
+                    >
+                      Como funciona para a escola:
                     </Text>
                     <VStack align="start" spacing={3}>
                       {schoolProcess.map((item, index) => (
-                        <Flex key={item} align="center" gap={3}>
+                        <Flex key={item.title} align="start" gap={3}>
                           <Flex
                             w="20px"
                             h="20px"
@@ -1204,9 +1214,18 @@ const Inicio = () => {
                           >
                             {index + 1}
                           </Flex>
-                          <Text fontSize="15px" color="#42506a">
-                            {item}
-                          </Text>
+                          <Box>
+                            <Text
+                              fontSize="15px"
+                              fontWeight="bold"
+                              color="#172036"
+                            >
+                              {item.title}
+                            </Text>
+                            <Text fontSize="15px" color="#42506a">
+                              {item.description}
+                            </Text>
+                          </Box>
                         </Flex>
                       ))}
                     </VStack>
@@ -1214,7 +1233,7 @@ const Inicio = () => {
 
                   <Button
                     as="a"
-                    href="/registar-empresa"
+                    href="/#contato"
                     bg="#155dfc"
                     color="white"
                     cursor="pointer"
@@ -1226,7 +1245,7 @@ const Inicio = () => {
                     _hover={{ bg: "#0f4fd6", transform: "translateY(-1px)" }}
                     transition="all 0.2s ease"
                   >
-                    Cadastrar Escola
+                    Solicitar adesão
                   </Button>
                 </VStack>
               </Flex>
@@ -1243,7 +1262,11 @@ const Inicio = () => {
                     bg="white"
                     borderRadius="14px"
                     p={{ base: 6, md: 7 }}
-                    flex={{ base: "1 1 100%", md: "1 1 calc(50% - 28px)", lg: "1 1 calc(33.333% - 28px)" }}
+                    flex={{
+                      base: "1 1 100%",
+                      md: "1 1 calc(50% - 28px)",
+                      lg: "1 1 calc(33.333% - 28px)",
+                    }}
                     maxW={{ base: "100%", lg: "360px" }}
                     minH="180px"
                     boxShadow="0 10px 26px rgba(15, 23, 42, 0.08)"

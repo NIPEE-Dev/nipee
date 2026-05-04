@@ -1,20 +1,20 @@
 import React from "react";
 import { Box, Flex, HStack, Icon, Link, Text, VStack } from "@chakra-ui/react";
-import { FaEnvelope, FaInstagram, FaPhoneAlt } from "react-icons/fa";
+import { FaEnvelope, FaInstagram, FaPhoneAlt, FaWhatsapp } from "react-icons/fa";
 import logoBranca from "../../../src/images/logoBranca.png";
 
 const quickLinks = [
-  { label: "Inicio", href: "/" },
-  { label: "Sobre Nos", href: "/#sobre" },
-  { label: "Como Funciona", href: "/#como-funciona" },
-  { label: "Contato", href: "/#contato" },
+  { label: "Início", href: "/" },
+  { label: "Sobre", href: "/#sobre" },
+  { label: "Como funciona", href: "/#como-funciona" },
+  { label: "Contacto", href: "/#contato" },
 ];
 
 const accessLinks = [
-  { label: "Para Estudantes", href: "/#para-estudantes" },
-  { label: "Para Empresas", href: "/#para-empresas" },
-  { label: "Para Escolas", href: "/#para-escolas" },
-  { label: "Vagas Disponiveis", href: "/vagas-em-aberto" },
+  { label: "Para estudantes", href: "/#para-estudantes" },
+  { label: "Para empresas", href: "/#para-empresas" },
+  { label: "Para escolas", href: "/#para-escolas" },
+  { label: "Oportunidades", href: "/vagas-em-aberto" },
 ];
 
 const FooterHome = () => {
@@ -38,14 +38,15 @@ const FooterHome = () => {
               h="auto"
             />
             <Text color="whiteAlpha.700" fontSize="16px" lineHeight="1.7">
-              Transformando vidas atraves da educacao de qualidade e
-              desenvolvimento integral de jovens.
+              Ligamos escolas, estudantes e empresas, facilitando o acesso à
+              Formação em Contexto de Trabalho e ao desenvolvimento profissional
+              dos jovens.
             </Text>
           </VStack>
 
           <VStack align="start" spacing={4}>
             <Text fontSize="16px" fontWeight="bold">
-              Links Rapidos
+              Links rápidos
             </Text>
             {quickLinks.map((item) => (
               <Link
@@ -61,7 +62,7 @@ const FooterHome = () => {
 
           <VStack align="start" spacing={4}>
             <Text fontSize="16px" fontWeight="bold">
-              Acesso Rapido
+              Acesso rápido
             </Text>
             {accessLinks.map((item) => (
               <Link
@@ -77,7 +78,7 @@ const FooterHome = () => {
 
           <VStack align="start" spacing={4}>
             <Text fontSize="16px" fontWeight="bold">
-              Contato
+              Contacto
             </Text>
             <HStack color="whiteAlpha.700">
               <Icon as={FaEnvelope} />
@@ -85,19 +86,24 @@ const FooterHome = () => {
             </HStack>
             <HStack color="whiteAlpha.700">
               <Icon as={FaPhoneAlt} />
-              <Text>(11) 1234-5678</Text>
+              <Text>(+351) 211 309 985</Text>
+            </HStack>
+            <HStack color="whiteAlpha.700">
+              <Icon as={FaWhatsapp} />
+              <Text>WhatsApp: (+351) 912 485 534</Text>
             </HStack>
             <HStack pt={2}>
               <Link
-                href="https://www.instagram.com/"
+                href="https://www.instagram.com/nipee_portugal/"
                 target="_blank"
                 rel="noopener noreferrer"
-                w="36px"
-                h="36px"
+                minH="36px"
+                px={3}
                 borderRadius="full"
                 bg="whiteAlpha.100"
                 display="flex"
                 alignItems="center"
+                gap={2}
                 justifyContent="center"
                 color="white"
                 _hover={{ bg: "#155dfc", transform: "translateY(-1px)" }}
@@ -105,13 +111,14 @@ const FooterHome = () => {
                 aria-label="Instagram"
               >
                 <Icon as={FaInstagram} />
+                <Text fontSize="14px">nipee_portugal</Text>
               </Link>
             </HStack>
           </VStack>
         </Flex>
 
         <Text textAlign="center" color="whiteAlpha.700" fontSize="15px" pt={8}>
-          Â© 2010 - 2026 NIPEE, a KUKYDOMAIN LDA. Restricted
+          &copy; 2026 NIPEE - KUKYDOMAIN LDA. Todos os direitos reservados.
         </Text>
       </Box>
     </Box>

@@ -19,25 +19,36 @@ import {
   ModalFooter,
   useDisclosure,
 } from "@chakra-ui/react";
-import { FaEnvelope, FaMapMarkerAlt, FaPaperPlane, FaPhoneAlt } from "react-icons/fa";
+import {
+  FaClock,
+  FaEnvelope,
+  FaMapMarkerAlt,
+  FaPaperPlane,
+  FaPhoneAlt,
+} from "react-icons/fa";
 import ReCAPTCHA from "react-google-recaptcha";
 import useSendContact from "../../hooks/useSendContact";
 
 const contactItems = [
   {
     icon: FaMapMarkerAlt,
-    title: "Endereco",
-    lines: ["Av. Principal, 1234", "Centro - Sao Paulo, SP", "CEP: 01000-000"],
+    title: "Morada",
+    lines: ["Rua Fernando Pessoa, 61 - 4 Esq.", "2765-483 Cascais", "Portugal"],
   },
   {
     icon: FaPhoneAlt,
     title: "Telefone",
-    lines: ["211 309 985", "912 485 534"],
+    lines: ["(+351) 211 309 985", "(+351) 912 485 534"],
   },
   {
     icon: FaEnvelope,
     title: "E-mail",
-    lines: ["contacto@nipee.org", "inscricoes@nipee.org"],
+    lines: ["contacto@nipee.org"],
+  },
+  {
+    icon: FaClock,
+    title: "Horário de atendimento",
+    lines: ["Segunda a sexta-feira: 9h às 18h"],
   },
 ];
 
@@ -51,7 +62,7 @@ const FormularioContato = () => {
     nome: "",
     email: "",
     telefone: "",
-    assunto: "Contato pelo site",
+    assunto: "Contacto pelo site",
     mensagem: "",
   });
 
@@ -69,7 +80,7 @@ const FormularioContato = () => {
       nome: "",
       email: "",
       telefone: "",
-      assunto: "Contato pelo site",
+      assunto: "Contacto pelo site",
       mensagem: "",
     });
     setRecaptchaToken(null);
@@ -107,10 +118,11 @@ const FormularioContato = () => {
             lineHeight="1.15"
             color="#172036"
           >
-            Entre em Contato
+            Entre em contacto
           </Box>
           <Text fontSize={{ base: "16px", md: "18px" }} color="#52617a">
-            Estamos prontos para ajudar voce a dar o proximo passo
+            Estamos disponíveis para esclarecer dúvidas e apoiar no próximo
+            passo.
           </Text>
         </VStack>
 
@@ -124,7 +136,7 @@ const FormularioContato = () => {
               fontWeight="bold"
               color="#172036"
             >
-              Informacoes de Contato
+              Informações de contacto
             </Box>
 
             <VStack align="stretch" spacing={8}>
@@ -155,17 +167,6 @@ const FormularioContato = () => {
                 </Flex>
               ))}
 
-              <Box bg="#eaf3ff" borderRadius="12px" p={{ base: 5, md: 6 }} mt={4}>
-                <Text fontSize="16px" fontWeight="bold" color="#172036" mb={3}>
-                  Horario de Atendimento
-                </Text>
-                <Text fontSize="16px" color="#52617a">
-                  Segunda a Sexta: 8h as 18h
-                </Text>
-                <Text fontSize="16px" color="#52617a">
-                  Sabado: 9h as 13h
-                </Text>
-              </Box>
             </VStack>
           </Box>
 
