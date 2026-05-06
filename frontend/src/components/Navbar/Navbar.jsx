@@ -19,6 +19,14 @@ import {
 import { FiMenu } from 'react-icons/fi';
 import logo from '/src/images/logo.png';
 
+const navItems = [
+  { href: '/vagas-em-aberto', label: 'Vagas' },
+  { href: '/escolas-registadas', label: 'Escolas' },
+  { href: '/#sobre', label: 'Sobre nós' },
+  { href: '/#contato', label: 'Contacto' },
+  { href: '/registar-candidato', label: 'Candidato' },
+];
+
 const Navbar = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [isScrolled, setIsScrolled] = useState(false);
@@ -45,25 +53,30 @@ const Navbar = () => {
       zIndex={10}
       transition="box-shadow 0.3s ease, background-color 0.3s ease"
     >
-      <Flex align="center" maxW="80%" mx="auto">
-        <HStack spacing={8}>
+      <Flex align="center" maxW="1180px" w="92%" mx="auto">
+        <HStack spacing={{ md: 6, lg: 8 }}>
           <Link href="/">
-             <img src={logo} alt="Logo NIPEE" width={210} height={112} />
+            <img src={logo} alt="Logo NIPEE" width={210} height={112} />
           </Link>
 
-          <HStack spacing={8} display={{ base: 'none', md: 'flex' }}>
-            <Link href="/vagas-em-aberto" fontWeight="medium">Vagas em Aberto</Link>
-            <Link href="/escolas-registadas" fontWeight="medium">Escolas Registadas</Link>
-            <Link href="/#sobre" fontWeight="medium">Sobre nós</Link>
-            <Link href="/#contato" fontWeight="medium">Contacto</Link>
-            <Link href="/registar-candidato" fontWeight="medium">Registar candidato</Link>
+          <HStack spacing={{ md: 5, lg: 8 }} display={{ base: 'none', md: 'flex' }}>
+            {navItems.map((item) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                fontWeight="medium"
+                whiteSpace="nowrap"
+              >
+                {item.label}
+              </Link>
+            ))}
           </HStack>
         </HStack>
 
         <Spacer />
 
-        <HStack spacing={6} display={{ base: 'none', md: 'flex' }}>
-          <Link href="/login" fontWeight="medium">Entrar</Link>
+        <HStack spacing={{ md: 4, lg: 6 }} display={{ base: 'none', md: 'flex' }}>
+          <Link href="/login" fontWeight="medium" whiteSpace="nowrap">Entrar</Link>
           <Button
             bg="#155dfc"
             color="white"
@@ -78,6 +91,7 @@ const Navbar = () => {
             transition="all 0.2s ease"
             as="a"
             href="/registar-empresa"
+            whiteSpace="nowrap"
           >
             Registar empresa
           </Button>
@@ -100,15 +114,19 @@ const Navbar = () => {
           <DrawerHeader>Menu</DrawerHeader>
           <DrawerBody>
             <VStack align="start" spacing={4}>
-              {/* VERSÃO MOBILE */}
-              <Link href="/vagas-em-aberto" fontWeight="medium" onClick={onClose}>Vagas em Aberto</Link>
-              <Link href="/escolas-registadas" fontWeight="medium" onClick={onClose}>Escolas Registadas</Link>
-              
-              <Link href="/#sobre" fontWeight="medium" onClick={onClose}>Sobre nós</Link>
-              <Link href="/#contato" fontWeight="medium" onClick={onClose}>Contacto</Link>
-              <Link href="/registar-candidato" fontWeight="medium" onClick={onClose}>Registar candidato</Link>
+              {/* Versão mobile */}
+              {navItems.map((item) => (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  fontWeight="medium"
+                  onClick={onClose}
+                >
+                  {item.label}
+                </Link>
+              ))}
               <Link href="/login" fontWeight="medium" onClick={onClose}>Entrar</Link>
-              
+
               <Button
                 w="full"
                 bg="#155dfc"

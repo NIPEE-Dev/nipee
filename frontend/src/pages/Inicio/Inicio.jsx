@@ -709,18 +709,7 @@ const Inicio = () => {
                       </Text>
                     </Box>
 
-                    {index < processSteps.length - 1 && (
-                      <Box
-                        display={{ base: "none", lg: "block" }}
-                        position="absolute"
-                        right="-18px"
-                        top="50%"
-                        transform="translateY(-50%)"
-                        w="24px"
-                        h="2px"
-                        bg="#93c5fd"
-                      />
-                    )}
+                  
                   </Box>
                 ))}
               </Flex>
