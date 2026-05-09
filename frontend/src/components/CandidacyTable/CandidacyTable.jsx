@@ -505,7 +505,7 @@ const CandidacyTable = ({ candidates, jobId, formValues }) => {
                         Avaliar Teste
                       </Button>
                     )}
-                    {c.status == 2 && (
+                    {c.status == 2 && !c.has_contract && (
                       <Button
                         size="xs"
                         colorScheme="green"

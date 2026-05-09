@@ -4,6 +4,7 @@ namespace App\Http\Resources;
 
 use App\Enums\CandidateStatusEnum;
 use App\Enums\JobCandidateStatusEnum;
+use App\Models\Contracts\Contract;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class JobCandidateResource extends JsonResource
@@ -17,11 +18,17 @@ class JobCandidateResource extends JsonResource
     public function toArray($request)
     {
         $resume = $this->resume;
+        $jobId = $this->pivot->job_id;
 
         if (is_null($resume)) {
             $resumeDoc = $this->documents->whereIn('type', ['Currículo (CV)', 'Curriculum Vitae'])->first();
             $resume = $resumeDoc ? $resumeDoc->filename . ".$resumeDoc->file_extension" : null;
         }
+
+        $hasContract = Contract::withTrashed()
+            ->where('candidate_id', $this->id)
+            ->where('job_id', $jobId)
+            ->exists();
 
         return [
             'id' => $this->id,
@@ -42,10 +49,11 @@ class JobCandidateResource extends JsonResource
             'phone' => $this->contact->phone ?? '',
             'statusLabel' => JobCandidateStatusEnum::getLabel('' . $this->pivot->status),
             'status' => (int) $this->pivot->status,
+            'has_contract' => $hasContract,
             'resume' => $resume,
             'schoolId' => $this->user->school->first()->id ?? 0,
             'interviewSchedules' => $this->invites
-                ->where('job_id', $this->pivot->job_id)
+                ->where('job_id', $jobId)
                 ->flatMap(function ($invite) {
                     return $invite->schedule
                         ->where('accepted', true)

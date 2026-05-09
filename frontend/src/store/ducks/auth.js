@@ -182,9 +182,10 @@ export const handleLogin = (email, password, redirectPathFromUrl) => (dispatch, 
   }).then(() => {
     const userProfile = JSON.parse(localStorage.getItem('profile'));
     const userRole = userProfile?.role || '';
+    const companyDashboardRoles = ['Empresa', 'Unidade', 'Setor', 'Unidade/Setor'];
 
     let redirectPath = '/insurance-settings';
-    if (userRole === "Empresa") redirectPath = '/dashboard-companies';
+    if (companyDashboardRoles.includes(userRole)) redirectPath = '/dashboard-companies';
     else if (userRole === "Candidato") redirectPath = `/candidates/view/${userProfile.candidate_id}`;
     else if (userRole === "Escola") redirectPath = '/dashboard-schools';
 
