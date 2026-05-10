@@ -52,14 +52,14 @@ Route::group([
 Route::get('/nif', [UserController::class, 'getNif']);
 Route::apiResource('documents', DocumentsController::class)->only(['index', 'update', 'destroy'])->middleware('checkPermission:documents.index');
 Route::apiResource('users', UserController::class)->middleware('checkPermission:users.index');
-Route::get('companies/branches', [CompanyController::class, 'indexCompanyBranchUser'])->middleware('checkPermission:companies.index');
+Route::get('companies/branches', [CompanyController::class, 'indexCompanyBranchUser']);
 Route::post('companies/branches', [CompanyController::class, 'storeCompanyBranchUser'])->middleware('checkPermission:companies.index');
 Route::put('companies/branches/{companyBranch}', [CompanyController::class, 'updateCompanyBranchUser'])->middleware('checkPermission:companies.index');
 Route::delete('companies/branches/{companyBranch}', [CompanyController::class, 'destroyCompanyBranchUser'])->middleware('checkPermission:companies.index');
 Route::post('companies/branches/{companyBranch}/sectors', [CompanyController::class, 'storeCompanySectorUser'])->middleware('checkPermission:companies.index');
 Route::put('companies/branches/{companyBranch}/sectors/{companySector}', [CompanyController::class, 'updateCompanySectorUser'])->middleware('checkPermission:companies.index');
 Route::delete('companies/branches/{companyBranch}/sectors/{companySector}', [CompanyController::class, 'destroyCompanySectorUser'])->middleware('checkPermission:companies.index');
-Route::apiResource('companies', CompanyController::class)->middleware('checkPermission:companies.index')->withTrashed(['destroy']);
+Route::apiResource('companies', CompanyController::class)->withTrashed(['destroy']);
 
 Route::controller(SchoolController::class)->prefix('schools')->group(function () {
     Route::get('/', 'index')->withoutMiddleware('auth:api');
