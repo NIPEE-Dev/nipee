@@ -170,8 +170,9 @@ class CandidateController extends Controller
         if ($annotations->isEmpty()) {
             throw new HttpException(422, 'Envie ao menos um feedback válido.');
         }
-
-        $feedbackPayload = $annotations->map(fn($annotation) => ['annotation' => trim($annotation)])->all();
+        $user = Auth::user();
+        $roleId = $user->roles[0]->id;
+        $feedbackPayload = $annotations->map(fn($annotation) => ['annotation' => trim($annotation), 'is_from_school' => $roleId === RolesEnum::SCHOOL->value])->all();
         $candidate->feedback()->createMany($feedbackPayload);
 
         $schoolEmail = $activeContract->school?->contact?->email;

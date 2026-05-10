@@ -92,6 +92,7 @@ export const Feedbacks = () => {
   const userProfile = JSON.parse(localStorage.getItem("profile") || "null");
   const userRole = userProfile?.role || "";
   const isEmpresa = userRole === "Empresa";
+  console.log(userRole);
   const canCreateFeedback =
     userRole === "Empresa" || userRole === "Administrador Geral" || !userRole;
   const canUpdateFeedback = isEmpresa;
@@ -251,6 +252,7 @@ export const Feedbacks = () => {
           <Tbody>
             {students.map((student) => {
               const studentFeedbacks = getStudentFeedbacks(student);
+              console.log(studentFeedbacks);
               const feedbackCount = studentFeedbacks.length;
               const hasFeedback = feedbackCount > 0;
 
@@ -276,7 +278,11 @@ export const Feedbacks = () => {
                   </Td>
                   <Td>
                     <Flex gap={2} wrap="wrap">
-                      {canCreateFeedback && (
+                      {(canCreateFeedback ||
+                        (studentFeedbacks.every(
+                          (element) => element.isFromSchool === false,
+                        ) &&
+                          userRole === "Escola")) && (
                         <Button
                           size="sm"
                           variant="outline"
@@ -410,9 +416,14 @@ export const Feedbacks = () => {
                     mb={3}
                   >
                     <Text fontWeight="semibold">Feedback {index + 1}</Text>
-                    <Text fontSize="sm" color="gray.500">
-                      {formatFeedbackDateTime(getFeedbackDateValue(feedback))}
-                    </Text>
+                    <Flex gap={2}>
+                      {feedback.isFromSchool && (
+                        <Text fontSize="sm">Feito pela escola</Text>
+                      )}
+                      <Text fontSize="sm" color="gray.500">
+                        {formatFeedbackDateTime(getFeedbackDateValue(feedback))}
+                      </Text>
+                    </Flex>
                   </Flex>
                   <Divider mb={3} />
                   <Text whiteSpace="pre-wrap">{feedback.annotation}</Text>

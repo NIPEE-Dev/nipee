@@ -34,6 +34,7 @@ class CandidateFeedbackResource extends JsonResource
                     'id' => $item->id,
                     'annotation' => $item->annotation,
                     'createdAt' => $item->created_at,
+                    'isFromSchool' => $item->is_from_school,
                 ];
             }),
             'company' => [

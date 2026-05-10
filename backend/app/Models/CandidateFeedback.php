@@ -11,5 +11,10 @@ class CandidateFeedback extends Model
     public $fillable = [
         'annotation',
         'candidate_id',
+        'is_from_school'
+    ];
+
+    public $casts = [
+        'is_from_school' => 'boolean'
     ];
 }
