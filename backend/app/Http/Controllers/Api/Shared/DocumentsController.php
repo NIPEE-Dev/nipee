@@ -70,7 +70,7 @@ class DocumentsController extends Controller
             $document->attachable->school_signature = true;
         }
 
-        if ($roleId === RolesEnum::COMPANY->value) {
+        if ($roleId === RolesEnum::COMPANY->value || $roleId === RolesEnum::COMPANY_BRANCH->value || $roleId === RolesEnum::COMPANY_SECTOR->value) {
             $document->status = DocumentStatusEnum::PENDING_SCHOOL_SIGNATURE;
             $document->attachable->company_signature = true;
         }
