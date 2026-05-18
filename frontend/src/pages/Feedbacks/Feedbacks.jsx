@@ -92,9 +92,13 @@ export const Feedbacks = () => {
   const userProfile = JSON.parse(localStorage.getItem("profile") || "null");
   const userRole = userProfile?.role || "";
   const isEmpresa = userRole === "Empresa";
-  console.log(userRole);
+
   const canCreateFeedback =
-    userRole === "Empresa" || userRole === "Administrador Geral" || !userRole;
+    userRole === "Empresa" ||
+    userRole === "Setor" ||
+    userRole === "Unidade" ||
+    userRole === "Administrador Geral" ||
+    !userRole;
   const canUpdateFeedback = isEmpresa;
 
   const [students, setStudents] = useState([]);
