@@ -49,16 +49,16 @@ import FooterHome from "../../components/Footer/FooterHome";
 const slides = [
   {
     eyebrow: "Parcerias Escola-Empresa",
-    title: "Ligamos Talento Jovem\n ao Mercado de Trabalho",
+    title: "A ponte entre o talento\n e a oportunidade",
     description:
-      "Aproximamos escolas e escolas para criar oportunidades reais de Formação em Contexto de Trabalho, preparando os estudantes para o futuro profissional.",
+      "Ligamos estudantes, escolas e empresas, simplificando todo o processo de Formação em Contexto de Trabalho (FCT) e estágios profissionais.",
     image: slide1,
     accent: "#155dfc",
     ctaPrimary: { label: "Saber Mais", href: "/#sobre" },
     ctaSecondary: { label: "Falar Connosco", href: "/vagas-em-aberto" },
   },
   {
-    eyebrow: "Gestão Inteligente de Estágios",
+    eyebrow: "Gestão Inteligente de FCT",
     title: "Simplifique a Gestão entre Escolas e Empresas",
     description:
       "Centralize candidaturas, acompanhe o progresso dos alunos e elimine processos manuais com uma plataforma única e eficiente.",
@@ -69,7 +69,7 @@ const slides = [
   },
   {
     eyebrow: "NIPEE para Estudantes",
-    title: "Menos burocracia. Mais oportunidades de estágio.",
+    title: "Menos burocracia. Mais oportunidades.",
     description:
       "Encontre oportunidades de FCT com rapidez, candidate-se facilmente e acompanhe todo o processo de forma simples e transparente.",
     image: slide3,
@@ -133,9 +133,9 @@ const processSteps = [
   {
     number: "04",
     icon: FaCheckCircle,
-    title: "Estagio confirmado",
+    title: "FCT confirmada",
     description:
-      "Apos a selecao, o processo e formalizado e o estudante inicia o estagio com acompanhamento ao longo de toda a experiencia.",
+      "Após a seleção, o processo é formalizado e o estudante inicia a FCT com acompanhamento ao longo de toda a experiência.",
   },
 ];
 
@@ -506,9 +506,9 @@ const Inicio = () => {
                 color="#42506a"
                 lineHeight="1.75"
               >
-                Somos uma plataforma dedicada a aproximar estudantes, escolas e
-                empresas, facilitando o acesso a oportunidades de Formacao em
-                Contexto de Trabalho (FCT) e estagios.
+                Somos uma plataforma que aproxima estudantes, escolas e
+                empresas, facilitando o acesso a oportunidades de Formação em
+                Contexto de Trabalho (FCT) e estágios profissionais.
               </Text>
 
               <Text
@@ -516,9 +516,9 @@ const Inicio = () => {
                 color="#42506a"
                 lineHeight="1.75"
               >
-                Trabalhamos em parceria com instituicoes de ensino e entidades
-                empregadoras para promover uma transicao mais simples, organizada
-                e eficaz entre o percurso academico e o mercado de trabalho.
+                Trabalhamos em parceria com instituições de ensino e entidades
+                empregadoras para promover uma transição mais simples, organizada
+                e eficaz entre o percurso académico e o mercado de trabalho.
               </Text>
 
               <Text
@@ -526,9 +526,9 @@ const Inicio = () => {
                 color="#42506a"
                 lineHeight="1.75"
               >
-                A nossa missao e contribuir para o desenvolvimento profissional
-                dos jovens, proporcionando acesso a experiencias reais que
-                valorizam competencias e potenciam a sua empregabilidade.
+                A nossa missão é contribuir para o desenvolvimento profissional
+                dos jovens, proporcionando acesso a experiências reais que
+                valorizam competências e potenciam a sua empregabilidade.
               </Text>
 
               <Text
@@ -536,9 +536,10 @@ const Inicio = () => {
                 color="#42506a"
                 lineHeight="1.75"
               >
-                Simplificamos todo o processo, desde a ligacao entre escolas e
-                empresas, a gestao de candidaturas e acompanhamento dos estagios,
-                atraves de uma solucao digital intuitiva e acessivel.
+                A NIPEE é uma plataforma digital que aproxima estudantes,
+                escolas e empresas, facilitando a gestão de candidaturas,
+                entrevistas, protocolos, relatórios e avaliações, de forma
+                simples, segura e eficiente.
               </Text>
             </VStack>
 
@@ -900,7 +901,7 @@ const Inicio = () => {
                   _hover={{ bg: "#0f4fd6", transform: "translateY(-1px)" }}
                   transition="all 0.2s ease"
                 >
-                  Consulte Vagas Disponiveis
+                  Consulte Oportunidades Disponíveis
                 </Button>
               </Flex>
             </Box>

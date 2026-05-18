@@ -11,7 +11,7 @@ export const changePassword = async (email, code, newPassword, newPasswordConfir
 
     return response.data;
   } catch (error) {
-    throw new Error(error.response?.data?.message || 'Erro ao trocar a senha.');
+    throw new Error(error.response?.data?.message || 'Erro ao alterar a palavra-passe.');
   }
 };
 

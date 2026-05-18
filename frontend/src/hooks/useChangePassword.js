@@ -37,16 +37,16 @@ const useChangePassword = () => {
     }
 
     if (newPassword !== newPasswordConfirmation) {
-      setError('As senhas não coincidem.');
+      setError('As palavras-passe não coincidem.');
       return;
     }
 
     try {
       const response = await changePassword(email, code, newPassword, newPasswordConfirmation); 
-      setSuccessMessage(response.message || 'Senha alterada com sucesso!');
+      setSuccessMessage(response.message || 'Palavra-passe alterada com sucesso!');
       navigate('/login'); 
     } catch (err) {
-      setError(err.message || 'Erro ao trocar a senha. Tente novamente mais tarde.');
+      setError(err.message || 'Erro ao alterar a palavra-passe. Tente novamente mais tarde.');
     } finally {
       setLoading(false);
     }

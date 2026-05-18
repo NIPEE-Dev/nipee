@@ -44,7 +44,7 @@ const VagasEmAberto = () => {
     fetchJobs();
   }, [fetchJobs]);
 
-  const vagasFiltradas = jobs.filter((vaga) => {
+  const oportunidadesFiltradas = jobs.filter((vaga) => {
     const termo = searchTerm.toLowerCase();
     const titulo = vaga.role?.toLowerCase() || "";
     const empresa = vaga.company?.fantasy_name?.toLowerCase() || "";
@@ -113,7 +113,7 @@ const VagasEmAberto = () => {
                 lineHeight={{ base: "1.08", md: "1.02" }}
                 letterSpacing="-0.03em"
               >
-                Encontre a sua proxima oportunidade de FCT ou estagio
+                Encontre a sua próxima oportunidade de FCT ou estágio profissional
               </Box>
 
               <Text
@@ -122,7 +122,7 @@ const VagasEmAberto = () => {
                 color="whiteAlpha.900"
                 maxW="720px"
               >
-                Pesquise por cargo, empresa ou cidade e descubra vagas alinhadas ao seu perfil com um processo mais simples e direto.
+                Pesquise por função, empresa ou cidade e descubra oportunidades alinhadas com o seu perfil, através de um processo mais simples e direto.
               </Text>
 
               <InputGroup size="lg" maxW="760px">
@@ -132,7 +132,7 @@ const VagasEmAberto = () => {
                 <Input
                   type="text"
                   h="60px"
-                  placeholder="Pesquisar por cargo, empresa ou cidade..."
+                  placeholder="Pesquisar por função, empresa ou cidade..."
                   borderRadius="full"
                   bg="white"
                   color="#172036"
@@ -152,10 +152,10 @@ const VagasEmAberto = () => {
                 fontSize={{ base: "14px", md: "15px" }}
               >
                 <Tag bg="whiteAlpha.180" color="white" borderRadius="full" px={4} py={2}>
-                  <TagLabel>{jobs.length} vagas publicadas</TagLabel>
+                  <TagLabel>{jobs.length} oportunidades publicadas</TagLabel>
                 </Tag>
                 <Tag bg="whiteAlpha.180" color="white" borderRadius="full" px={4} py={2}>
-                  <TagLabel>{vagasFiltradas.length} resultados encontrados</TagLabel>
+                  <TagLabel>{oportunidadesFiltradas.length} resultados encontrados</TagLabel>
                 </Tag>
               </HStack>
             </VStack>
@@ -188,10 +188,10 @@ const VagasEmAberto = () => {
             >
               <Box>
                 <Text fontSize={{ base: "24px", md: "30px" }} fontWeight="bold" color="#172036">
-                  Vagas Disponiveis
+                  Oportunidades Disponíveis
                 </Text>
                 <Text fontSize="16px" color="#52617a" mt={1}>
-                  {vagasFiltradas.length} oportunidades encontradas para voce
+                  {oportunidadesFiltradas.length} oportunidades encontradas para si
                 </Text>
               </Box>
 
@@ -209,7 +209,7 @@ const VagasEmAberto = () => {
             </Flex>
 
             <SimpleGrid columns={{ base: 1, md: 2 }} spacing={6}>
-              {vagasFiltradas.map((vaga) => (
+              {oportunidadesFiltradas.map((vaga) => (
                 <Box
                   key={vaga.id}
                   bg="white"
@@ -246,7 +246,7 @@ const VagasEmAberto = () => {
                           fontSize="12px"
                           textTransform="none"
                         >
-                          {vaga.type || "Vaga"}
+                          {vaga.type || "Oportunidade"}
                         </Badge>
 
                         <Box
@@ -300,12 +300,12 @@ const VagasEmAberto = () => {
                       {Number(vaga.scholarship_value) > 0 ? (
                         <HStack fontSize="14px" color="green.600" fontWeight="bold">
                           <Icon as={FaEuroSign} />
-                          <Text>{vaga.scholarship_value} / mes</Text>
+                          <Text>{vaga.scholarship_value} / mês</Text>
                         </HStack>
                       ) : (
                         <HStack fontSize="14px" color="#6b7280">
                           <Icon as={FaBriefcase} color="#155dfc" />
-                          <Text>Nao remunerado</Text>
+                          <Text>Não remunerado</Text>
                         </HStack>
                       )}
                     </SimpleGrid>
@@ -364,7 +364,7 @@ const VagasEmAberto = () => {
                           px={3}
                         >
                           <Icon as={FaUtensils} mr={2} boxSize="12px" />
-                          <TagLabel>Refeicao</TagLabel>
+                          <TagLabel>Refeição</TagLabel>
                         </Tag>
                       )}
                     </HStack>
@@ -383,18 +383,18 @@ const VagasEmAberto = () => {
                       _hover={{ bg: "#0f4fd6", transform: "translateY(-1px)" }}
                       transition="all 0.2s ease"
                     >
-                      Ver Detalhes e Candidatar
+                      Ver Detalhes e Candidatar-se
                     </Button>
                   </Box>
                 </Box>
               ))}
             </SimpleGrid>
 
-            {vagasFiltradas.length === 0 && (
+            {oportunidadesFiltradas.length === 0 && (
               <VStack py={{ base: 16, md: 20 }} spacing={4}>
                 <Icon as={FaBriefcase} boxSize={16} color="#cbd5e1" />
                 <Text color="#64748b" fontSize="16px">
-                  Nenhuma vaga encontrada para esta pesquisa.
+                  Nenhuma oportunidade encontrada para esta pesquisa.
                 </Text>
               </VStack>
             )}

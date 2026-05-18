@@ -42,22 +42,22 @@ const ResetPassword2 = () => {
 
     try {
       if (step === 1) {
-        if (!email) return setErrorMessage("Digite o e-mail.");
+        if (!email) return setErrorMessage("Introduza o e-mail.");
         if (!recaptchaToken) return setErrorMessage("Complete o reCAPTCHA.");
 
         await sendVerification(email);
         setStep(2);
       } else if (step === 2) {
         if (!verificationCode)
-          return setErrorMessage("Digite o código de verificação.");
+          return setErrorMessage("Introduza o código de verificação.");
         setStep(3);
       } else if (step === 3) {
         if (!newPassword || !confirmPassword)
           return setErrorMessage("Preencha todos os campos.");
         if (newPassword !== confirmPassword)
-          return setErrorMessage("As senhas não coincidem.");
+          return setErrorMessage("As palavras-passe não coincidem.");
         if (newPassword.length < 6)
-          return setErrorMessage("A senha deve conter no mínimo 6 digitos");
+          return setErrorMessage("A palavra-passe deve conter no mínimo 6 dígitos");
 
         const response = await changeUserPassword(
           email,
@@ -67,7 +67,7 @@ const ResetPassword2 = () => {
         );
         if (response.status === 200) {
           setSuccessMessage(
-            hookSuccessMessage || "Senha redefinida com sucesso!"
+            hookSuccessMessage || "Palavra-passe redefinida com sucesso!"
           );
         }
       }
@@ -93,14 +93,14 @@ const ResetPassword2 = () => {
       <Container bg="white" rounded="xl" p={8} boxShadow="xl" maxW="lg">
         <Stack spacing={4}>
           <Heading color="gray.800" fontSize="2xl" textAlign="center">
-            {step === 1 && "Verifique seu e-mail"}
+            {step === 1 && "Verifique o seu e-mail"}
             {step === 2 && "Insira o código enviado"}
-            {step === 3 && "Crie uma nova senha"}
+            {step === 3 && "Crie uma nova palavra-passe"}
           </Heading>
           <Text color="gray.600" fontSize="sm" textAlign="center">
-            {step === 1 && "Digite o e-mail associado à sua conta."}
-            {step === 2 && "Digite o código que você recebeu no e-mail."}
-            {step === 3 && "Escolha uma nova senha segura."}
+            {step === 1 && "Introduza o e-mail associado à sua conta."}
+            {step === 2 && "Introduza o código que recebeu no e-mail."}
+            {step === 3 && "Escolha uma nova palavra-passe segura."}
           </Text>
 
           {successMessage && (
@@ -127,7 +127,7 @@ const ResetPassword2 = () => {
                     onChange={(e) => setEmail(e.target.value)}
                     bg="gray.100"
                     border={0}
-                    placeholder="Digite seu e-mail"
+                    placeholder="Introduza o seu e-mail"
                   />
                 </FormControl>
               )}
@@ -149,23 +149,23 @@ const ResetPassword2 = () => {
               {step === 3 && (
                 <>
                   <FormControl>
-                    <FormLabel>Nova senha</FormLabel>
+                    <FormLabel>Nova palavra-passe</FormLabel>
                     <Input
                       type="password"
                       value={newPassword}
                       onChange={(e) => setNewPassword(e.target.value)}
-                      placeholder="Nova senha"
+                      placeholder="Nova palavra-passe"
                       bg="gray.100"
                       border={0}
                     />
                   </FormControl>
                   <FormControl>
-                    <FormLabel>Confirmar nova senha</FormLabel>
+                    <FormLabel>Confirmar nova palavra-passe</FormLabel>
                     <Input
                       type="password"
                       value={confirmPassword}
                       onChange={(e) => setConfirmPassword(e.target.value)}
-                      placeholder="Confirme a senha"
+                      placeholder="Confirme a palavra-passe"
                       bg="gray.100"
                       border={0}
                     />
@@ -189,7 +189,7 @@ const ResetPassword2 = () => {
             >
               {step === 1 && "Enviar código"}
               {step === 2 && "Validar código"}
-              {step === 3 && "Redefinir senha"}
+              {step === 3 && "Redefinir palavra-passe"}
             </Button>
 
             <ReCAPTCHA

@@ -40,17 +40,17 @@ const loginHighlights = [
   {
     icon: FaUserGraduate,
     title: 'Estudantes',
-    description: 'Candidate-se a oportunidades de FCT e estagio em poucos passos.',
+    description: 'Candidate-se a oportunidades de FCT e estágios profissionais em poucos passos.',
   },
   {
     icon: FaSchool,
     title: 'Escolas',
-    description: 'Acompanhe alunos, candidaturas e progresso numa unica plataforma.',
+    description: 'Acompanhe alunos, candidaturas e progresso numa única plataforma.',
   },
   {
     icon: FaBriefcase,
     title: 'Empresas',
-    description: 'Encontre talento jovem e simplifique a gestao de estagios.',
+    description: 'Encontre talento jovem e simplifique a gestão de FCT.',
   },
 ];
 
@@ -166,7 +166,7 @@ const Login = ({ isLoading, handleLogin, authError }) => {
                     letterSpacing="0"
                     color="white"
                   >
-                    Entre na sua area e continue a ligar talento ao mercado.
+                    Entre na sua área e continue a ligar talento ao mercado.
                   </Heading>
                   <Text
                     fontSize={{ base: '16px', md: '18px' }}
@@ -174,7 +174,7 @@ const Login = ({ isLoading, handleLogin, authError }) => {
                     color="whiteAlpha.900"
                     maxW="560px"
                   >
-                    Aceda para gerir candidaturas, acompanhar estagios e manter
+                    Aceda para gerir candidaturas, acompanhar FCT e manter
                     escolas, empresas e estudantes no mesmo fluxo.
                   </Text>
                 </Stack>
@@ -235,7 +235,7 @@ const Login = ({ isLoading, handleLogin, authError }) => {
                 onClick={() => navigate('/')}
                 fontWeight="bold"
               >
-                Voltar ao inicio
+                Voltar ao início
               </Button>
               <HStack spacing={2} color="#155dfc">
                 <Icon as={FaCheckCircle} boxSize="16px" />
@@ -253,7 +253,7 @@ const Login = ({ isLoading, handleLogin, authError }) => {
                 lineHeight={1.1}
               fontSize={{ base: '30px', md: '38px' }}
               >
-                Iniciar sessao
+                Iniciar sessão
               </Heading>
               <Text color="#52617a" fontSize="16px" lineHeight="1.6">
                 Use o seu e-mail e palavra-passe para continuar na plataforma.
@@ -264,7 +264,7 @@ const Login = ({ isLoading, handleLogin, authError }) => {
               <Alert status="error" variant="left-accent" mt="1" borderRadius="10px">
                 <AlertIcon />
                 {authError === 'Unauthorized'
-                  ? 'E-mail ou palavra-passe invalida'
+                  ? 'E-mail ou palavra-passe inválida'
                   : authError}
               </Alert>
             )}
@@ -325,7 +325,7 @@ const Login = ({ isLoading, handleLogin, authError }) => {
                     />
                     <InputRightElement h="52px">
                       <IconButton
-                        aria-label="Mostrar/ocultar senha"
+                        aria-label="Mostrar/ocultar palavra-passe"
                         icon={showPassword ? <RiEyeOffLine /> : <RiEyeLine />}
                         variant="ghost"
                         color="#52617a"
@@ -364,7 +364,7 @@ const Login = ({ isLoading, handleLogin, authError }) => {
                 isLoading={isLoading}
                 isDisabled={!canSubmit}
               >
-                Acessar
+                Entrar
               </Button>
             </Box>
 
@@ -385,7 +385,7 @@ const Login = ({ isLoading, handleLogin, authError }) => {
                 color="#52617a"
                 fontSize="15px"
               >
-                <Text>Ainda nao tem conta?</Text>
+                <Text>Ainda não tem conta?</Text>
                 <Button
                   variant="link"
                   color="#155dfc"

@@ -20,7 +20,7 @@ import { FiMenu } from 'react-icons/fi';
 import logo from '/src/images/logo.png';
 
 const navItems = [
-  { href: '/vagas-em-aberto', label: 'Vagas' },
+  { href: '/vagas-em-aberto', label: 'Oportunidades' },
   { href: '/escolas-registadas', label: 'Escolas' },
   { href: '/#sobre', label: 'Sobre nós' },
   { href: '/#contato', label: 'Contacto' },
